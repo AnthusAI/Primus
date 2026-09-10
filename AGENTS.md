@@ -8,9 +8,50 @@ Why: Kanbus task management is MANDATORY for changes to Plexus code, docs, infra
 Critical confidentiality boundary: NO CLIENT INFORMATION may be stored in Kanbus. This is absolute.
 Forbidden in Kanbus titles/descriptions/comments/attachments: client names; client scorecard names; client score names; client evaluation names; client optimization procedure names; client-specific incidents/problems/data.
 When: Create/update the Kanbus task before coding on Plexus-internal changes; close it only after the change lands.
-How: See CONTRIBUTING_AGENT.md for the Kanbus workflow, hierarchy, status rules, priorities, command examples, and the sins to avoid. Never inspect project/ or issue JSON directly (including with cat or jq); use Kanbus commands only.
+How: See CONTRIBUTING_AGENT.md for the Kanbus workflow, hierarchy, status rules, priorities, command examples, agent provenance metadata (`KANBUS_AGENT_PLATFORM` / `KANBUS_AGENT_MODEL`), and the sins to avoid. Never read or inspect issue or event JSON directly (including with cat, jq, or grep); use Kanbus commands only.
 Performance: Prefer kbs (Rust) when available; kanbus (Python) is equivalent but slower.
-Warning: Editing project/ directly is a sin against The Way. Do not read or write anything in project/; work only through Kanbus.
+Warning: Do not hand-edit `project/issues/` or `project/events/` JSON. Use Kanbus (and `kbs commit` for board state) instead of direct filesystem access to issues and events.
+Git / PR policy: Rules for product-code commits, branch names, and pull requests live in this file (see **Git flow and pull requests** below). CONTRIBUTING_AGENT.md covers Kanbus board mechanics such as `kbs commit` and agent provenance on `kbs create` / `kbs comment`.
+
+## Git flow and pull requests
+
+Product code and Kanbus board state follow different git paths. Do not infer branch or PR rules from CONTRIBUTING_AGENT.md alone.
+
+### Branches
+
+- **`main`**: Production-ready code. Direct commits are restricted.
+- **`develop`**: Integration branch for ongoing work. Feature branches merge here via pull request.
+- **Feature branches**: Branch from `develop` (for example `cursor/descriptive-name-<id>` or `feature/...`). Do not commit product code directly to `main` or `develop`.
+
+### Kanbus board state in git
+
+After you create, update, or close issues, persist board JSON with `kbs commit`, then push to the branch the team shares for board state (`develop`):
+
+```bash
+kbs commit
+git push origin develop
+```
+
+`kbs commit` stages `project/issues/` only. Do not hand-edit issue JSON. See CONTRIBUTING_AGENT.md for mechanics and event-log notes.
+
+### Product code and pull requests
+
+- Implement product changes on feature branches; open pull requests into `develop`.
+- Cloud and local coding agents may commit and push feature branches and open draft PRs when run instructions require it; human review is required before merge unless explicitly waived.
+- Before `kbs create` or `kbs comment`, AI agents MUST set `KANBUS_AGENT_PLATFORM` and `KANBUS_AGENT_MODEL` for the session (or pass `--agent-platform` and `--agent-model` per action). See CONTRIBUTING_AGENT.md (**Agent provenance metadata**).
+
+## Plexus-specific agent discipline
+
+Rules that extend the shared Kanbus template for this repository:
+
+- Kanbus issue creation is required for Plexus-internal source-code changes and is not required for PR-only, release-only, or admin-only requests that do not change source code.
+- Kanbus is only for Plexus platform and repository work. If work involves client scorecards, scores, evaluations, or optimizations, keep all client specifics out of Kanbus and use sanitized, internal-only wording (see confidentiality boundary above).
+- While working, record a running log in Kanbus comments on the relevant epic or task: key decisions, problems encountered, attempted fixes, outcomes, and next steps. The log must remain free of client-specific information.
+- Chores that only maintain project-management machinery (for example updating CONTRIBUTING_AGENT.md or AGENTS.md) do not need their own issues; attach them to the existing project-management epic or task.
+- For complex work, break the plan into sub-tasks under the parent task, bug, chore, or epic. Do not put sub-tasks under stories; stories hold behavior specs.
+- Operational discipline: use the minimum commands needed. To inspect work, run `kanbusr list --status open --long` once to find the ID, then `kanbusr show <id>`. Do not guess IDs.
+- Hierarchy: initiatives are top-level milestones and may contain epics only. Tasks, stories, bugs, and chores must roll up under an epic (or sub-task under task). Creating tasks directly under an initiative violates The Way.
+- Report persistence is single-path: full ReportBlock output and log content go to S3 attachments. DynamoDB `ReportBlock.output` must only store a compact metadata envelope with an attachment pointer. Do not add inline-output fallbacks.
 
 ## Overview
 
