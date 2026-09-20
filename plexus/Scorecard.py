@@ -225,6 +225,16 @@ def _build_dependency_trace(
     }
 
 
+def _scorecard_base_class(score_configs):
+    """Use JevScorecard when every score is a JevScore, so one request answers them all."""
+    classes = {c.get("class") for c in score_configs or [] if isinstance(c, dict)}
+    if classes == {"JevScore"}:
+        from plexus.JevScorecard import JevScorecard
+
+        return JevScorecard
+    return Scorecard
+
+
 class Scorecard:
     """
     Represents a collection of scores and manages the computation of these scores for given inputs.
@@ -588,7 +598,7 @@ class Scorecard:
 
         scorecard_class = type(
             scorecard_name,
-            (Scorecard,),
+            (_scorecard_base_class(scorecard_properties["scores"]),),
             {
                 "properties": scorecard_properties,
                 "name": scorecard_properties["name"],
@@ -1943,7 +1953,7 @@ class Scorecard:
             )
 
         # The scores_config should already be parsed configurations, so we can use them directly
-        scorecard_instance = Scorecard(
+        scorecard_instance = _scorecard_base_class(scores_config)(
             scorecard=scorecard_id, api_data=api_data, scores_config=scores_config
         )
 

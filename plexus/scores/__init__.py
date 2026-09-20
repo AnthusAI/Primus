@@ -28,6 +28,7 @@ _SCORE_CLASS_MODULES = {
     ),
     "ExplainableClassifier": "plexus.scores.ExplainableClassifier",
     "FastTextClassifier": "plexus.scores.FastTextClassifier",
+    "JevScore": "plexus.scores.JevScore",
     "KeywordClassifier": "plexus.scores.KeywordClassifier",
     "LangGraphScore": "plexus.scores.LangGraphScore",
     "OpenAIEmbeddingsClassifier": "plexus.scores.OpenAIEmbeddingsClassifier",
