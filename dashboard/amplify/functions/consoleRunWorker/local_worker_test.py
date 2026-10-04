@@ -24,8 +24,8 @@ def test_resolve_client_accepts_next_public_env(monkeypatch):
 
     monkeypatch.delenv("PRIMUS_API_URL", raising=False)
     monkeypatch.delenv("PRIMUS_API_KEY", raising=False)
-    monkeypatch.setenv("NEXT_PUBLIC_PLEXUS_API_URL", "https://example.appsync-api.us-east-1.amazonaws.com/graphql")
-    monkeypatch.setenv("NEXT_PUBLIC_PLEXUS_API_KEY", "da2-test")
+    monkeypatch.setenv("NEXT_PUBLIC_PRIMUS_API_URL", "https://example.appsync-api.us-east-1.amazonaws.com/graphql")
+    monkeypatch.setenv("NEXT_PUBLIC_PRIMUS_API_KEY", "da2-test")
     monkeypatch.setattr(worker, "_load_local_env", lambda: None)
     monkeypatch.setattr(worker, "PrimusDashboardClient", FakeClient)
 

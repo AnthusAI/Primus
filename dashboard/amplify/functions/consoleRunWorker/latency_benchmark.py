@@ -48,8 +48,8 @@ def _load_local_env() -> None:
 
 def _resolve_client() -> PrimusDashboardClient:
     _load_local_env()
-    api_url = str(os.getenv("PRIMUS_API_URL") or os.getenv("NEXT_PUBLIC_PLEXUS_API_URL") or "").strip()
-    api_key = str(os.getenv("PRIMUS_API_KEY") or os.getenv("NEXT_PUBLIC_PLEXUS_API_KEY") or "").strip()
+    api_url = str(os.getenv("PRIMUS_API_URL") or os.getenv("NEXT_PUBLIC_PRIMUS_API_URL") or "").strip()
+    api_key = str(os.getenv("PRIMUS_API_KEY") or os.getenv("NEXT_PUBLIC_PRIMUS_API_KEY") or "").strip()
     if not api_url or not api_key:
         raise RuntimeError("PRIMUS_API_URL and PRIMUS_API_KEY are required")
     return PrimusDashboardClient(api_url=api_url, api_key=api_key)

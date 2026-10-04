@@ -71,7 +71,7 @@ const resolveConsoleResponderParameterName = (): string => {
         .replace(/[^a-z0-9-]/g, '-')
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '') || 'development';
-    return `/primus/${normalizedEnvironmentName}/console-chat/responder`;
+    return `/plexus/${normalizedEnvironmentName}/console-chat/responder`;
 };
 
 const consoleResponderParameterName = resolveConsoleResponderParameterName();

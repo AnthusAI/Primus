@@ -67,7 +67,7 @@ export class CommandService extends Construct {
   constructor(scope: Construct, id: string, props: CommandServiceProps) {
     super(scope, id);
     const environment = resolveCommandServiceEnvironment(props.environmentName);
-    const prefix = (props.servicePrefix || 'primus').trim().toLowerCase();
+    const prefix = (props.servicePrefix || 'plexus').trim().toLowerCase();
     if (!prefix) {
       throw new Error('Command service prefix must not be empty');
     }

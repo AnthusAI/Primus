@@ -229,7 +229,7 @@ function pollingIntervalMilliseconds(): number {
   const configured = process.env.NEXT_PUBLIC_PRIMUS_LOCAL_SUBSCRIPTION_POLL_MS?.trim()
   if (!configured) return 1000
   const interval = Number(configured)
-  if (!Number.isFinite(interval) || interval <= 0) throw new Error("NEXT_PUBLIC_PLEXUS_LOCAL_SUBSCRIPTION_POLL_MS must be a positive number")
+  if (!Number.isFinite(interval) || interval <= 0) throw new Error("NEXT_PUBLIC_PRIMUS_LOCAL_SUBSCRIPTION_POLL_MS must be a positive number")
   return interval
 }
 

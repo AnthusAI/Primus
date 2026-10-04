@@ -53,20 +53,20 @@ describe('SandboxCommandWorkerStack', () => {
   });
 
   it('refuses a production config secret', () => {
-    expect(() => createStack('primus/production/config')).toThrow('must not use primus/production/config');
+    expect(() => createStack('plexus/production/config')).toThrow('must not use primus/production/config');
   });
 
   it('defaults to the staging config secret', () => {
     const template = Template.fromStack(createStack());
     const rendered = JSON.stringify(template.toJSON());
-    expect(rendered).toContain('primus/staging/config');
+    expect(rendered).toContain('plexus/staging/config');
   });
 
   it('borrows the staging foundation VPC contract, not a sandbox-specific one', () => {
     const rendered = JSON.stringify(Template.fromStack(createStack()).toJSON());
-    expect(rendered).toContain('/primus/staging/command-service/vpc-id');
-    expect(rendered).toContain('/primus/staging/command-service/availability-zones');
-    expect(rendered).toContain('/primus/staging/command-service/private-subnet-ids');
+    expect(rendered).toContain('/plexus/staging/command-service/vpc-id');
+    expect(rendered).toContain('/plexus/staging/command-service/availability-zones');
+    expect(rendered).toContain('/plexus/staging/command-service/private-subnet-ids');
   });
 
   it('builds the worker image from a Docker asset rather than an ECR digest parameter', () => {

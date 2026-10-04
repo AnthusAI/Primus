@@ -38,11 +38,11 @@ export function resolveAmplifyOutputs(
     return null
   }
 
-  const legacyApiUrl = env.NEXT_PUBLIC_PLEXUS_API_URL?.trim()
-  const legacyApiKey = env.NEXT_PUBLIC_PLEXUS_API_KEY?.trim()
+  const legacyApiUrl = env.NEXT_PUBLIC_PRIMUS_API_URL?.trim()
+  const legacyApiKey = env.NEXT_PUBLIC_PRIMUS_API_KEY?.trim()
   if (legacyApiUrl || legacyApiKey) {
     console.warn(
-      'Ignoring legacy NEXT_PUBLIC_PLEXUS_API_URL/NEXT_PUBLIC_PLEXUS_API_KEY in non-local mode. Using amplify_outputs.json auth configuration.',
+      'Ignoring legacy NEXT_PUBLIC_PRIMUS_API_URL/NEXT_PUBLIC_PRIMUS_API_KEY in non-local mode. Using amplify_outputs.json auth configuration.',
     )
   }
 

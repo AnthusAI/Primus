@@ -11,8 +11,8 @@ import { IBucket } from 'aws-cdk-lib/aws-s3';
 import { fileURLToPath } from 'node:url';
 import { CommandWorkerFargateService } from './worker-service';
 
-const STAGING_CONTRACT_PREFIX = '/primus/staging/command-service';
-const PRODUCTION_CONFIG_SECRET_NAME = 'primus/production/config';
+const STAGING_CONTRACT_PREFIX = '/plexus/staging/command-service';
+const PRODUCTION_CONFIG_SECRET_NAME = 'plexus/production/config';
 
 export interface SandboxCommandWorkerStackProps extends NestedStackProps {
   readonly taskTable: ITable;
@@ -46,7 +46,7 @@ export class SandboxCommandWorkerStack extends NestedStack {
 
   constructor(scope: Construct, id: string, props: SandboxCommandWorkerStackProps) {
     super(scope, id, props);
-    const configSecretName = (props.configSecretName || 'primus/staging/config').trim();
+    const configSecretName = (props.configSecretName || 'plexus/staging/config').trim();
     if (configSecretName === PRODUCTION_CONFIG_SECRET_NAME) {
       throw new Error('Sandbox command worker must not use primus/production/config');
     }

@@ -314,11 +314,11 @@ if (isLongLivedCommandServiceEnvironment(commandServiceEnvironment)) {
         throw new Error('Command service requires generated AppSync API URL and ARN');
     }
     const configSecretName = (
-        process.env.PRIMUS_CONFIG_SECRET_NAME || `primus/${commandServiceEnvironment}/config`
+        process.env.PRIMUS_CONFIG_SECRET_NAME || `plexus/${commandServiceEnvironment}/config`
     ).trim();
     const bedrockModelResources = (process.env.PRIMUS_COMMAND_WORKER_BEDROCK_MODEL_ARNS || 'arn:aws:bedrock:*::foundation-model/*')
         .split(',').map((value) => value.trim()).filter(Boolean);
-    const servicePrefix = (process.env.PRIMUS_SERVICE_PREFIX || 'primus').trim().toLowerCase();
+    const servicePrefix = (process.env.PRIMUS_SERVICE_PREFIX || 'plexus').trim().toLowerCase();
     new ssm.StringParameter(backend.data.stack, 'CommandServiceTaskTableName', {
         parameterName: `/${servicePrefix}/${commandServiceEnvironment}/command-service/task-table-name`,
         stringValue: taskTable.tableName,
@@ -377,7 +377,7 @@ if (isSandbox && enableSandboxCommandWorker) {
     if (!sandboxApiUrl || !sandboxApiGraphqlArn) {
         throw new Error('Unable to resolve sandbox GraphQL URL/ARN for SandboxCommandWorkerStack deployment');
     }
-    const sandboxConfigSecretName = (process.env.PRIMUS_CONFIG_SECRET_NAME || 'primus/staging/config').trim();
+    const sandboxConfigSecretName = (process.env.PRIMUS_CONFIG_SECRET_NAME || 'plexus/staging/config').trim();
     const sandboxBedrockModelResources = (process.env.PRIMUS_COMMAND_WORKER_BEDROCK_MODEL_ARNS || 'arn:aws:bedrock:*::foundation-model/*')
         .split(',').map((value) => value.trim()).filter(Boolean);
     new SandboxCommandWorkerStack(
@@ -410,10 +410,10 @@ if (shouldDeployConsoleWorker) {
         isSandbox ? sandboxGraphqlUrl : (process.env.PRIMUS_API_URL || '')
     ).trim();
     const consoleWorkerEnvironmentName = normalizeForResourceName(resolveEnvironmentName());
-    const consoleResponderParameterName = `/primus/${consoleWorkerEnvironmentName}/console-chat/responder`;
+    const consoleResponderParameterName = `/plexus/${consoleWorkerEnvironmentName}/console-chat/responder`;
     const consoleWorkerConfigSecretName = (
         process.env.PRIMUS_CONFIG_SECRET_NAME ||
-        (isSandbox ? 'primus/staging/config' : `primus/${consoleWorkerEnvironmentName}/config`)
+        (isSandbox ? 'plexus/staging/config' : `plexus/${consoleWorkerEnvironmentName}/config`)
     ).trim();
 
     if (!resolvedDataApiUrl) {
@@ -423,7 +423,7 @@ if (shouldDeployConsoleWorker) {
                 : 'PRIMUS_API_URL must be set for ConsoleRunWorkerStack deployment'
         );
     }
-    if (isSandbox && consoleWorkerConfigSecretName === 'primus/production/config') {
+    if (isSandbox && consoleWorkerConfigSecretName === 'plexus/production/config') {
         throw new Error('Sandbox ConsoleRunWorker must not use primus/production/config');
     }
 
