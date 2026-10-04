@@ -16,11 +16,12 @@ class EnvironmentConfig:
     Environment-specific configuration loaded from AWS Secrets Manager.
 
     All configuration (both sensitive and non-sensitive) is stored in a single
-    JSON secret with the naming pattern: primus/{environment}/config
+    JSON secret with the naming pattern: plexus/{environment}/config
+    (LIVE deployed resource name kept as 'plexus' for compatibility)
 
     Example secret names:
-    - primus/staging/config
-    - primus/production/config
+    - plexus/staging/config
+    - plexus/production/config
 
     Example secret structure:
     {

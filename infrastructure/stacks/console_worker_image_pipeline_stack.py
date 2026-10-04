@@ -59,7 +59,7 @@ class ConsoleWorkerImagePipelineStack(Stack):
             os.environ.get("PRIMUS_GITHUB_CONNECTION_ARN")
             or ssm.StringParameter.value_for_string_parameter(
                 self,
-                "/primus/github-connection-arn",
+                "/plexus/github-connection-arn",
             )
         )
 
@@ -68,7 +68,7 @@ class ConsoleWorkerImagePipelineStack(Stack):
             or os.environ.get("PRIMUS_AMPLIFY_APP_ID")
             or ssm.StringParameter.value_for_string_parameter(
                 self,
-                "/primus/amplify-app-id",
+                "/plexus/amplify-app-id",
             )
         )
 

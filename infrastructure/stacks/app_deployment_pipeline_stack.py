@@ -72,7 +72,7 @@ class AppDeploymentPipelineStack(Stack):
             os.environ.get("PRIMUS_GITHUB_CONNECTION_ARN")
             or ssm.StringParameter.value_for_string_parameter(
                 self,
-                "/primus/github-connection-arn",
+                "/plexus/github-connection-arn",
             )
         )
 

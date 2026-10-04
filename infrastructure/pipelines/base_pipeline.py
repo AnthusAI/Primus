@@ -59,7 +59,7 @@ class BasePipelineStack(Stack):
             os.environ.get("PRIMUS_GITHUB_CONNECTION_ARN")
             or ssm.StringParameter.value_for_string_parameter(
                 self,
-                "/primus/github-connection-arn",
+                "/plexus/github-connection-arn",
             )
         )
 
@@ -107,7 +107,7 @@ class BasePipelineStack(Stack):
                     # Grant permission to read GitHub connection ARN from SSM
                     iam.PolicyStatement(
                         actions=["ssm:GetParameter"],
-                        resources=[f"arn:aws:ssm:{kwargs.get('env').region if kwargs.get('env') else 'us-west-2'}:{kwargs.get('env').account if kwargs.get('env') else '*'}:parameter/primus/github-connection-arn"]
+                        resources=[f"arn:aws:ssm:{kwargs.get('env').region if kwargs.get('env') else 'us-west-2'}:{kwargs.get('env').account if kwargs.get('env') else '*'}:parameter/plexus/github-connection-arn"]
                     )
                 ]
             ),
