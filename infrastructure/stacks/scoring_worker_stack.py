@@ -155,7 +155,7 @@ class ScoringWorkerStack(Stack):
                     "description": "SQS queue URL for scoring responses.",
                     "default": self.response_queue.queue_url
                 },
-                "PlexusAccountKey": {
+                "PrimusAccountKey": {
                     "type": "String",
                     "description": "Primus account key for authentication.",
                     "default": "CHANGE_ME"
@@ -195,7 +195,7 @@ class ScoringWorkerStack(Stack):
                             "Environment=PYTHONPATH={{ WorkingDirectory }}",
                             "Environment=PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL={{ ScoringRequestQueueUrl }}",
                             "Environment=PRIMUS_RESPONSE_WORKER_QUEUE_URL={{ ScoringResponseQueueUrl }}",
-                            "Environment=PRIMUS_ACCOUNT_KEY={{ PlexusAccountKey }}",
+                            "Environment=PRIMUS_ACCOUNT_KEY={{ PrimusAccountKey }}",
                             "Environment=NUM_WORKERS={{ NumWorkers }}",
                             "",
                             "[Install]",

@@ -39,7 +39,7 @@ export class ConsoleChatResponderStack extends NestedStack {
     }
     const configSecret = secretsmanager.Secret.fromSecretNameV2(
       this,
-      "PlexusConfigSecret",
+      "PrimusConfigSecret",
       configSecretName,
     );
     const workerImage = new ecr_assets.DockerImageAsset(this, "ConsoleChatResponderImage", {
@@ -121,10 +121,10 @@ export class ConsoleChatResponderStack extends NestedStack {
           "logs:PutDataProtectionPolicy",
         ],
         resources: [
-          "arn:aws:logs:*:*:log-group:/plexus/procedures/*",
-          "arn:aws:logs:*:*:log-group:/plexus/procedures/*:*",
-          "arn:aws:logs:*:*:log-group:/plexus/console/*",
-          "arn:aws:logs:*:*:log-group:/plexus/console/*:*",
+          "arn:aws:logs:*:*:log-group:/primus/procedures/*",
+          "arn:aws:logs:*:*:log-group:/primus/procedures/*:*",
+          "arn:aws:logs:*:*:log-group:/primus/console/*",
+          "arn:aws:logs:*:*:log-group:/primus/console/*:*",
         ],
       }),
     );

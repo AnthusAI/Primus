@@ -64,7 +64,7 @@ serviceAccount:
   annotations: {}
   # For AWS IRSA:
   # annotations:
-  #   eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/PlexusWorkerRole
+  #   eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/PrimusWorkerRole
   name: ""
 
 # Pod annotations
