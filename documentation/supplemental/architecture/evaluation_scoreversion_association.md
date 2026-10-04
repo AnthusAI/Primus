@@ -1,6 +1,6 @@
 # Evaluation ScoreVersion Association
 
-This document describes the ScoreVersion association feature for `plexus evaluate accuracy` command, including the new `--latest` flag functionality.
+This document describes the ScoreVersion association feature for `primus evaluate accuracy` command, including the new `--latest` flag functionality.
 
 ## Overview
 
@@ -10,21 +10,21 @@ Evaluation records are now properly associated with specific ScoreVersions to pr
 
 ### 1. **Champion Version (Default)**
 ```bash
-plexus evaluate accuracy --scorecard my_scorecard --score my_score
+primus evaluate accuracy --scorecard my_scorecard --score my_score
 ```
 - Uses the current champion version of the score
 - This is the default behavior when no version flags are specified
 
 ### 2. **Specific Version**
 ```bash
-plexus evaluate accuracy --scorecard my_scorecard --score my_score --version abc123-def4-5678-90ab-cdef12345678
+primus evaluate accuracy --scorecard my_scorecard --score my_score --version abc123-def4-5678-90ab-cdef12345678
 ```
 - Uses the exact ScoreVersion ID specified
 - Useful for evaluating a specific historical version or comparing different versions
 
 ### 3. **Latest Version (NEW)**
 ```bash
-plexus evaluate accuracy --scorecard my_scorecard --score my_score --latest
+primus evaluate accuracy --scorecard my_scorecard --score my_score --latest
 ```
 - Uses the most recent ScoreVersion by `createdAt` timestamp
 - Leverages the `scoreId` index sorted by `createdAt` for efficient queries
@@ -32,7 +32,7 @@ plexus evaluate accuracy --scorecard my_scorecard --score my_score --latest
 
 ### 4. **YAML Mode (Local Files)**
 ```bash
-plexus evaluate accuracy --scorecard my_scorecard --score my_score --yaml
+primus evaluate accuracy --scorecard my_scorecard --score my_score --yaml
 ```
 - Uses local YAML configuration files
 - **Does NOT associate with any ScoreVersion** since local files represent champion versions

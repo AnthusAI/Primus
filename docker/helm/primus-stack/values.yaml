@@ -1,0 +1,259 @@
+# Global values shared across all subcharts
+global:
+  # Namespace for all resources
+  namespace: primus
+
+  # Environment identifier
+  environment: development
+
+  # Service discovery endpoints
+  # These are used by all components to find each other
+  services:
+    postgresql:
+      host: "{{ .Release.Name }}-postgresql"
+      port: 5432
+      database: primus_proxy
+      # For external PostgreSQL (production), set:
+      # host: "primus-prod-rds.amazonaws.com"
+
+    graphqlProxy:
+      host: "{{ .Release.Name }}-graphql-proxy"
+      port: 8000
+      path: "/graphql"
+      # For external proxy, set:
+      # externalUrl: "https://proxy.primus.example.com/graphql"
+
+  # Shared labels applied to all resources
+  labels:
+    app.kubernetes.io/part-of: primus
+    app.kubernetes.io/managed-by: helm
+
+# Optional S3-compatible storage for the self-contained local stack. Production
+# deployments keep this disabled and use their managed object store.
+localObjectStore:
+  enabled: false
+  image:
+    repository: minio/minio
+    tag: RELEASE.2025-04-22T22-12-26Z
+    pullPolicy: IfNotPresent
+  clientImage:
+    repository: minio/mc
+    tag: RELEASE.2025-04-16T18-13-26Z
+    pullPolicy: IfNotPresent
+  auth:
+    existingSecret: ""
+    accessKey: primus-local
+    secretKey: primus-local-secret
+  service:
+    port: 9000
+  tls:
+    enabled: false
+    existingSecret: ""
+    publicCertSecretKey: public.crt
+    privateKeySecretKey: private.key
+    caCertSecretKey: ca.crt
+  persistence:
+    enabled: true
+    size: 2Gi
+    storageClass: ""
+  buckets:
+    datasets: primus-local-datasets
+    reportBlockDetails: primus-local-report-block-details
+    rubricMemory: primus-local-rubric-memory
+    taskAttachments: primus-local-task-attachments
+    scoreResultAttachments: primus-local-score-result-attachments
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+# PostgreSQL configuration (Bitnami chart)
+postgresql:
+  enabled: true
+
+  auth:
+    username: primus_proxy
+    database: primus_proxy
+    existingSecret: ""  # Set to use external secret
+    # If existingSecret is not set, password will be generated
+
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+      # storageClass: "gp3"  # Uncomment for AWS EBS
+
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+
+    # Initialize the database with required schemas
+    initdb:
+      scripts:
+        init.sql: |
+          -- Create schemas for proxy
+          CREATE SCHEMA IF NOT EXISTS private_data;
+          CREATE SCHEMA IF NOT EXISTS control_cache;
+          CREATE SCHEMA IF NOT EXISTS proxy_debug;
+
+  # Enable metrics for monitoring
+  metrics:
+    enabled: false
+    serviceMonitor:
+      enabled: false
+
+# GraphQL Proxy configuration
+graphql-proxy:
+  enabled: true
+
+  replicaCount: 2
+
+  image:
+    repository: primus-graphql-proxy
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 8000
+
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+
+  # Proxy-specific configuration
+  config:
+    # Local proxy API key (for workers to authenticate)
+    proxyApiKey: "local-dev-key"
+
+    # Upstream AWS AppSync configuration
+    upstreamApiUrl: ""  # Set in values-{env}.yaml
+    upstreamApiKey: ""  # Set in values-{env}.yaml or use existingSecret
+
+    # Cache settings
+    cacheTtlSeconds: 900
+    cacheStaleSeconds: 86400
+    scoringJobClaimLeaseSeconds: 120
+    enableDebug: false
+
+  artifactStore:
+    enabled: false
+    endpoint: ""
+    region: us-east-1
+    accountId: ""
+    existingSecret: ""
+    accessKeySecretKey: access-key-id
+    secretKeySecretKey: secret-access-key
+    ticketTtlSeconds: 300
+    buckets:
+      datasets: ""
+      reportBlockDetails: ""
+      taskAttachments: ""
+      scoreResultAttachments: ""
+
+  # Secret management
+  createSecrets: true
+  existingSecret: ""
+
+# Primus Worker configuration
+primus-worker:
+  enabled: true
+
+  # Envoy Gateway POC uses synchronous HTTP scoring instead of RabbitMQ.
+  workerType: scoring-api
+
+  replicaCount: 2
+
+  image:
+    repository: primus-worker
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 20
+    targetCPUUtilizationPercentage: 70
+
+  # Common environment variables
+  env:
+    LOG_LEVEL: INFO
+    MAX_JOBS_PER_WORKER: "100"
+    PRIMUS_DATA_CACHE_DIRECTORY: /app/tmp/training-data-cache
+    PRIMUS_DISABLE_CLOUDWATCH_LOGS: "1"
+
+  # Primus API configuration (points to proxy)
+  primus:
+    createSecrets: true
+    existingSecret: ""
+    api:
+      # Will be templated to point to graphql-proxy service
+      url: ""  # Auto-configured from global.services.graphqlProxy
+      key: "local-dev-key"
+    account:
+      key: ""  # Set in values-{env}.yaml
+
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 8000
+
+  # Synchronous scoring API configuration
+  scoringApi:
+    enabled: true
+    port: 8000
+    gateway:
+      enabled: true
+      createGateway: true
+      gatewayClassName: envoy-gateway
+      listenerName: http
+      port: 80
+      pathPrefix: /v1/score
+      requestTimeout: "120s"
+      backendRequestTimeout: "120s"
+
+  # Celery configuration, retained only for explicit RabbitMQ deployments.
+  celery:
+    enabled: false
+    app: primus.workers.celery_app
+    queue: scoring-requests
+    concurrency: 4
+
+    broker:
+      createSecrets: true
+      existingSecret: ""
+      url: ""  # Set in values-{env}.yaml (e.g., amqp://user:pass@rabbitmq:5672/)
+
+  # LLM API keys
+  llm:
+    createSecrets: true
+    existingSecret: ""
+    openai:
+      apiKey: ""
+    anthropic:
+      apiKey: ""

@@ -53,7 +53,7 @@ return configs
 Then run the matching configuration:
 
 ```tactus
-local h = plexus.report.run({
+local h = primus.report.run({
   configuration_id = "<feedback-overview-report-configuration-id>",
   parameters = {
     scorecard = "<resolved-scorecard-id>",

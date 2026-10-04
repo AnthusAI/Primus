@@ -186,7 +186,7 @@ def test_private_operation_uses_local_store_only(monkeypatch):
 
 
 def test_claim_scoring_job_is_private_and_idempotent(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     client, store, upstream = client_with_fakes(monkeypatch)
     payload = {
         "query": """
@@ -221,7 +221,7 @@ def test_claim_scoring_job_is_private_and_idempotent(monkeypatch):
 
 
 def test_local_artifact_transfer_ticket_mutation_is_handled_without_upstream(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     client, _store, upstream = client_with_fakes(monkeypatch)
 
     class FakeArtifactTickets:
@@ -230,7 +230,7 @@ def test_local_artifact_transfer_ticket_mutation_is_handled_without_upstream(mon
             return [{
                 "objectKey": "tasks/task-1/output.json",
                 "method": "GET",
-                "url": "https://plexus-local-object-store:9000/signed",
+                "url": "https://primus-local-object-store:9000/signed",
                 "requiredHeaders": {},
                 "expiresAt": "2026-07-28T20:00:00Z",
             }]
@@ -355,7 +355,7 @@ def test_mixed_query_splits_private_and_control_roots(monkeypatch):
 
 
 def test_local_mode_routes_control_model_crud_to_local_store(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     client, store, upstream = client_with_fakes(monkeypatch)
 
     response = client.post(
@@ -384,7 +384,7 @@ def test_local_mode_routes_control_model_crud_to_local_store(monkeypatch):
 
 
 def test_local_mode_resolves_manifest_relationship_selections(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     client, store, upstream = client_with_fakes(monkeypatch)
     store.upsert_private("Account", {"id": "account-1", "name": "Demo", "key": "local-demo"})
     store.upsert_private(
@@ -438,7 +438,7 @@ def test_local_mode_resolves_manifest_relationship_selections(monkeypatch):
 
 
 def test_local_mode_supports_legacy_index_root_alias_queries(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     client, store, _upstream = client_with_fakes(monkeypatch)
     store.upsert_private(
         "Item",
@@ -472,7 +472,7 @@ def test_local_mode_supports_legacy_index_root_alias_queries(monkeypatch):
 
 
 def test_local_mode_supports_cli_item_task_index_aliases_without_upstream(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     client, store, _upstream = client_with_fakes(monkeypatch)
     monkeypatch.setattr(proxy_app, "upstream", FailingUpstream())
     store.upsert_private(
@@ -524,7 +524,7 @@ def test_local_mode_supports_cli_item_task_index_aliases_without_upstream(monkey
 
 
 def test_local_mode_supports_composite_legacy_index_root_alias_queries(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     client, store, _upstream = client_with_fakes(monkeypatch)
     store.upsert_private(
         "AggregatedMetrics",
@@ -565,7 +565,7 @@ def test_local_mode_supports_composite_legacy_index_root_alias_queries(monkeypat
 
 
 def test_local_mode_supports_feedback_composite_alias_without_upstream(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     client, store, _upstream = client_with_fakes(monkeypatch)
     monkeypatch.setattr(proxy_app, "upstream", FailingUpstream())
     store.upsert_private(
@@ -635,7 +635,7 @@ def test_local_mode_supports_feedback_composite_alias_without_upstream(monkeypat
 
 def test_local_mode_lists_feedback_items_for_conjunctive_filter(monkeypatch):
     """The standard all-time feedback query must work against local storage."""
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     client, store, _upstream = client_with_fakes(monkeypatch)
     for feedback_id, scorecard_id, score_id in (
         ("feedback-standard-1", "scorecard-1", "score-1"),
@@ -679,7 +679,7 @@ def test_local_mode_lists_feedback_items_for_conjunctive_filter(monkeypatch):
 
 
 def test_local_mode_returns_next_token_for_feedback_composite_alias(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     client, store, _upstream = client_with_fakes(monkeypatch)
     monkeypatch.setattr(proxy_app, "upstream", FailingUpstream())
 
@@ -736,7 +736,7 @@ def test_local_mode_returns_next_token_for_feedback_composite_alias(monkeypatch)
 
 
 def test_local_mode_supports_synthetic_legacy_score_index_queries(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     client, store, _upstream = client_with_fakes(monkeypatch)
     store.upsert_private(
         "Score",

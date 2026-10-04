@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-export PLEXUS_API_URL="${PLEXUS_API_URL:-http://localhost:18080/graphql}"
+export PRIMUS_API_URL="${PRIMUS_API_URL:-http://localhost:18080/graphql}"
 
 log() {
   printf '[smoke-local-trusted-open] %s\n' "$*"
 }
 
-ready_url="${PLEXUS_API_URL%/graphql}/readyz"
-debug_url="${PLEXUS_API_URL%/graphql}/debug/upstream-requests"
+ready_url="${PRIMUS_API_URL%/graphql}/readyz"
+debug_url="${PRIMUS_API_URL%/graphql}/debug/upstream-requests"
 
 ready_body="$(curl -fsS -m 10 "$ready_url")"
 python3 - "$ready_body" <<'PY'
@@ -31,7 +31,7 @@ PY
 log "readyz reports explicit trusted-open local mode."
 
 query='query TrustedOpenSeedCheck { getAccount(id:"local-demo-account") { id key } listItems(limit: 1) { items { id accountId } nextToken } }'
-payload="$(curl -fsS -m 10 "$PLEXUS_API_URL" \
+payload="$(curl -fsS -m 10 "$PRIMUS_API_URL" \
   -H 'content-type: application/json' \
   --data "$(python3 -c 'import json,sys; print(json.dumps({"query":sys.argv[1]}))' "$query")")"
 

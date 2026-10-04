@@ -125,30 +125,30 @@ class TestWorkerToolExecution:
         harness = WorkerAgentTestHarness()
         
         # Set up analysis tools for exploration phase
-        feedback_analysis_tool = MockTool("plexus_feedback_analysis", "Analyze feedback patterns")
-        feedback_find_tool = MockTool("plexus_feedback_find", "Find specific feedback items")
-        item_info_tool = MockTool("plexus_item_info", "Get item details")
+        feedback_analysis_tool = MockTool("primus_feedback_analysis", "Analyze feedback patterns")
+        feedback_find_tool = MockTool("primus_feedback_find", "Find specific feedback items")
+        item_info_tool = MockTool("primus_item_info", "Get item details")
         
         harness.add_tool(feedback_analysis_tool)
         harness.add_tool(feedback_find_tool)
         harness.add_tool(item_info_tool)
         
         # Set exploration phase scope
-        exploration_tools = ["plexus_feedback_analysis", "plexus_feedback_find", "plexus_item_info"]
+        exploration_tools = ["primus_feedback_analysis", "primus_feedback_find", "primus_item_info"]
         harness.set_tool_scope(exploration_tools)
         
         # Simulate worker executing analysis workflow
         analysis_workflow = [
             {
-                "tool": "plexus_feedback_analysis",
+                "tool": "primus_feedback_analysis",
                 "args": {"scorecard_name": "TestCard", "score_name": "TestScore", "days": 7}
             },
             {
-                "tool": "plexus_feedback_find", 
+                "tool": "primus_feedback_find", 
                 "args": {"scorecard_name": "TestCard", "score_name": "TestScore", "limit": 10}
             },
             {
-                "tool": "plexus_item_info",
+                "tool": "primus_item_info",
                 "args": {"item_id": "item_123"}
             }
         ]
@@ -278,9 +278,9 @@ class TestWorkerToolScoping:
         
         # Set up all available tools
         analysis_tools = [
-            MockTool("plexus_feedback_analysis", "Analyze feedback"),
-            MockTool("plexus_feedback_find", "Find feedback items"),
-            MockTool("plexus_item_info", "Get item info")
+            MockTool("primus_feedback_analysis", "Analyze feedback"),
+            MockTool("primus_feedback_find", "Find feedback items"),
+            MockTool("primus_item_info", "Get item info")
         ]
         
         hypothesis_tools = [
@@ -296,12 +296,12 @@ class TestWorkerToolScoping:
             harness.add_tool(tool)
         
         # Set exploration phase scope (no hypothesis tools)
-        exploration_scope = ["plexus_feedback_analysis", "plexus_feedback_find", "plexus_item_info", "think"]
+        exploration_scope = ["primus_feedback_analysis", "primus_feedback_find", "primus_item_info", "think"]
         harness.set_tool_scope(exploration_scope)
         
         # Test allowed tools work
         allowed_calls = [
-            ("plexus_feedback_analysis", {"scorecard_name": "TestCard"}),
+            ("primus_feedback_analysis", {"scorecard_name": "TestCard"}),
             ("think", {"thought": "Analyzing the feedback data"})
         ]
         
@@ -341,7 +341,7 @@ class TestWorkerToolScoping:
         
         # Set up tools
         all_tools = [
-            MockTool("plexus_feedback_analysis", "Analyze feedback"),
+            MockTool("primus_feedback_analysis", "Analyze feedback"),
             MockTool("create_experiment_node", "Create hypothesis"),
             MockTool("update_node_content", "Update node"),
             MockTool("think", "Internal reasoning")
@@ -367,7 +367,7 @@ class TestWorkerToolScoping:
         
         # Test analysis tools are blocked
         blocked_calls = [
-            ("plexus_feedback_analysis", {"scorecard_name": "TestCard"})
+            ("primus_feedback_analysis", {"scorecard_name": "TestCard"})
         ]
         
         for tool_name, args in blocked_calls:
@@ -444,17 +444,17 @@ class TestWorkerErrorHandling:
         harness = WorkerAgentTestHarness()
         
         # Set up analysis workflow
-        analysis_tool = MockTool("plexus_feedback_analysis", "Analyze feedback")
-        find_tool = MockTool("plexus_feedback_find", "Find feedback items")
+        analysis_tool = MockTool("primus_feedback_analysis", "Analyze feedback")
+        find_tool = MockTool("primus_feedback_find", "Find feedback items")
         
         harness.add_tool(analysis_tool)
         harness.add_tool(find_tool)
-        harness.set_tool_scope(["plexus_feedback_analysis", "plexus_feedback_find"])
+        harness.set_tool_scope(["primus_feedback_analysis", "primus_feedback_find"])
         
         # Execute analysis workflow
         workflow = [
-            ("plexus_feedback_analysis", {"scorecard_name": "TestCard", "score_name": "TestScore"}),
-            ("plexus_feedback_find", {"scorecard_name": "TestCard", "score_name": "TestScore", "limit": 5})
+            ("primus_feedback_analysis", {"scorecard_name": "TestCard", "score_name": "TestScore"}),
+            ("primus_feedback_find", {"scorecard_name": "TestCard", "score_name": "TestScore", "limit": 5})
         ]
         
         for tool_name, args in workflow:
@@ -513,32 +513,32 @@ class TestWorkerMultiToolWorkflows:
         
         context_store = {}
         
-        overview_tool = ContextAwareTool("plexus_feedback_analysis", "Get overview", context_store)
-        detail_tool = ContextAwareTool("plexus_feedback_find", "Get details", context_store)
-        item_tool = ContextAwareTool("plexus_item_info", "Get item info", context_store)
+        overview_tool = ContextAwareTool("primus_feedback_analysis", "Get overview", context_store)
+        detail_tool = ContextAwareTool("primus_feedback_find", "Get details", context_store)
+        item_tool = ContextAwareTool("primus_item_info", "Get item info", context_store)
         
         harness.add_tool(overview_tool)
         harness.add_tool(detail_tool)  
         harness.add_tool(item_tool)
-        harness.set_tool_scope(["plexus_feedback_analysis", "plexus_feedback_find", "plexus_item_info"])
+        harness.set_tool_scope(["primus_feedback_analysis", "primus_feedback_find", "primus_item_info"])
         
         # Execute chained analysis workflow
         analysis_chain = [
             # Step 1: Get overview
             {
-                "tool": "plexus_feedback_analysis",
+                "tool": "primus_feedback_analysis",
                 "args": {"scorecard_name": "TestCard", "score_name": "TestScore", "days": 7},
                 "purpose": "Understand overall patterns"
             },
             # Step 2: Get specific examples (informed by overview)
             {
-                "tool": "plexus_feedback_find",
+                "tool": "primus_feedback_find",
                 "args": {"scorecard_name": "TestCard", "score_name": "TestScore", "limit": 10, "prioritize_edit_comments": True},
                 "purpose": "Examine specific problem cases"
             },
             # Step 3: Deep dive on specific item (informed by examples)
             {
-                "tool": "plexus_item_info",
+                "tool": "primus_item_info",
                 "args": {"item_id": "problematic_item_123"},
                 "purpose": "Understand root cause in detail"
             }
@@ -592,21 +592,21 @@ class TestWorkerMultiToolWorkflows:
         
         # Tool that returns "no data found" initially
         feedback_tool = AdaptiveTool(
-            "plexus_feedback_find",
+            "primus_feedback_find",
             "Find feedback", 
             ["No feedback items found for the specified criteria"]
         )
         
         # Tool that provides alternative approach
         analysis_tool = AdaptiveTool(
-            "plexus_feedback_analysis",
+            "primus_feedback_analysis",
             "Analyze feedback",
             ["Found 25 feedback items with scoring issues when looking at broader timeframe"]
         )
         
         # Tool for detailed examination
         item_tool = AdaptiveTool(
-            "plexus_item_info",
+            "primus_item_info",
             "Get item info",
             ["Item shows pattern of AI being too conservative on edge cases"]
         )
@@ -614,25 +614,25 @@ class TestWorkerMultiToolWorkflows:
         harness.add_tool(feedback_tool)
         harness.add_tool(analysis_tool)
         harness.add_tool(item_tool)
-        harness.set_tool_scope(["plexus_feedback_find", "plexus_feedback_analysis", "plexus_item_info"])
+        harness.set_tool_scope(["primus_feedback_find", "primus_feedback_analysis", "primus_item_info"])
         
         # Simulate adaptive workflow
         adaptive_steps = [
             # Initial approach - specific search
             {
-                "tool": "plexus_feedback_find",
+                "tool": "primus_feedback_find",
                 "args": {"scorecard_name": "TestCard", "score_name": "TestScore", "days": 1},
                 "expected_adaptation": "expand_search_if_no_results"
             },
             # Adapted approach - broader analysis
             {
-                "tool": "plexus_feedback_analysis", 
+                "tool": "primus_feedback_analysis", 
                 "args": {"scorecard_name": "TestCard", "score_name": "TestScore", "days": 7},
                 "expected_adaptation": "examine_specific_items"
             },
             # Detailed examination
             {
-                "tool": "plexus_item_info",
+                "tool": "primus_item_info",
                 "args": {"item_id": "edge_case_item"},
                 "expected_adaptation": "pattern_identified"
             }
@@ -692,9 +692,9 @@ class TestWorkerAgentIntegration:
         
         # Set up comprehensive tool suite
         tools = [
-            MockTool("plexus_feedback_analysis", "Analyze feedback patterns"),
-            MockTool("plexus_feedback_find", "Find specific feedback items"),
-            MockTool("plexus_item_info", "Get detailed item information"),
+            MockTool("primus_feedback_analysis", "Analyze feedback patterns"),
+            MockTool("primus_feedback_find", "Find specific feedback items"),
+            MockTool("primus_item_info", "Get detailed item information"),
             MockTool("create_experiment_node", "Create hypothesis node"),
             MockTool("update_node_content", "Update node configuration"),
             MockTool("think", "Internal reasoning")
@@ -706,13 +706,13 @@ class TestWorkerAgentIntegration:
         # === PHASE 1: EXPLORATION ===
         print("\n📊 PHASE 1: Worker executes exploration tools")
         
-        harness.set_tool_scope(["plexus_feedback_analysis", "plexus_feedback_find", "plexus_item_info", "think"])
+        harness.set_tool_scope(["primus_feedback_analysis", "primus_feedback_find", "primus_item_info", "think"])
         
         exploration_workflow = [
             ("think", {"thought": "I need to understand the scoring problems by analyzing feedback data"}),
-            ("plexus_feedback_analysis", {"scorecard_name": "TestCard", "score_name": "TestScore", "days": 7}),
-            ("plexus_feedback_find", {"scorecard_name": "TestCard", "score_name": "TestScore", "limit": 10}),
-            ("plexus_item_info", {"item_id": "problematic_item_456"})
+            ("primus_feedback_analysis", {"scorecard_name": "TestCard", "score_name": "TestScore", "days": 7}),
+            ("primus_feedback_find", {"scorecard_name": "TestCard", "score_name": "TestScore", "limit": 10}),
+            ("primus_item_info", {"item_id": "problematic_item_456"})
         ]
         
         exploration_results = []
@@ -776,7 +776,7 @@ class TestWorkerAgentIntegration:
         
         # Verify tool usage progression
         stats = harness.get_execution_stats()
-        expected_tools = {"plexus_feedback_analysis", "plexus_feedback_find", "plexus_item_info", "create_experiment_node", "think"}
+        expected_tools = {"primus_feedback_analysis", "primus_feedback_find", "primus_item_info", "create_experiment_node", "think"}
         actual_tools = set(stats["tools_used"])
         assert expected_tools.issubset(actual_tools), f"Should use expected tools. Used: {actual_tools}"
         print(f"    ✓ Used appropriate tools: {actual_tools}")

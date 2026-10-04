@@ -2,9 +2,9 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-export PLEXUS_API_URL="${PLEXUS_API_URL:-http://localhost:18080/graphql}"
-export PLEXUS_API_KEY="${PLEXUS_API_KEY:-local-smoke-key}"
-export PLEXUS_ACCOUNT_KEY="${PLEXUS_ACCOUNT_KEY:-local-demo}"
+export PRIMUS_API_URL="${PRIMUS_API_URL:-http://localhost:18080/graphql}"
+export PRIMUS_API_KEY="${PRIMUS_API_KEY:-local-smoke-key}"
+export PRIMUS_ACCOUNT_KEY="${PRIMUS_ACCOUNT_KEY:-local-demo}"
 export SMOKE_PROOF_DIR="${SMOKE_PROOF_DIR:-$ROOT_DIR/tmp/local-control-plane-proof}"
 export SMOKE_PREDICTION_PROOF_FILE="${SMOKE_PREDICTION_PROOF_FILE:-$SMOKE_PROOF_DIR/prediction.json}"
 SMOKE_ASSERT_NO_UPSTREAM="${SMOKE_ASSERT_NO_UPSTREAM:-1}"
@@ -32,7 +32,7 @@ run_step() {
 }
 
 wait_for_readyz() {
-  local ready_url="${PLEXUS_API_URL%/graphql}/readyz"
+  local ready_url="${PRIMUS_API_URL%/graphql}/readyz"
   local i
 
   for ((i = 1; i <= SMOKE_READY_ATTEMPTS; i++)); do
@@ -62,9 +62,9 @@ assert_nira_seed_and_champion_path() {
   }'
 
   local payload
-  payload="$(curl -fsS -m 10 "$PLEXUS_API_URL" \
+  payload="$(curl -fsS -m 10 "$PRIMUS_API_URL" \
     -H 'content-type: application/json' \
-    -H "x-api-key: $PLEXUS_API_KEY" \
+    -H "x-api-key: $PRIMUS_API_KEY" \
     --data "$(python3 -c 'import json,sys; print(json.dumps({"query":sys.argv[1]}))' "$query")" 2>/dev/null || true)"
 
   [[ -n "$payload" ]] || return 1
@@ -112,7 +112,7 @@ subprocess.run([sys.executable, "-m", "pip", "install", "griffe==1.15.0"], check
 
 for _ in range(12):
     try:
-        importlib.import_module("plexus.cli.prediction.predictions")
+        importlib.import_module("primus.cli.prediction.predictions")
         break
     except ModuleNotFoundError as exc:
         module_name = (exc.name or "").split(".")[0]
@@ -144,11 +144,11 @@ from contextlib import redirect_stdout
 
 import requests
 
-api_url = os.environ["PLEXUS_API_URL"]
-api_key = os.environ["PLEXUS_API_KEY"]
-account_key = os.environ["PLEXUS_ACCOUNT_KEY"]
+api_url = os.environ["PRIMUS_API_URL"]
+api_key = os.environ["PRIMUS_API_KEY"]
+account_key = os.environ["PRIMUS_ACCOUNT_KEY"]
 proof_file = Path(os.environ["SMOKE_PREDICTION_PROOF_FILE"])
-from plexus.cli.prediction.predictions import predict
+from primus.cli.prediction.predictions import predict
 
 predict_output = io.StringIO()
 try:
@@ -170,7 +170,7 @@ try:
         )
 except Exception as exc:
     raise SystemExit(
-        "plexus predict failed\n"
+        "primus predict failed\n"
         f"error: {exc}\n"
         f"stdout:\n{predict_output.getvalue()}"
     ) from exc
@@ -306,7 +306,7 @@ assert_no_upstream_requests() {
     return 0
   fi
 
-  local debug_url="${PLEXUS_API_URL%/graphql}/debug/upstream-requests"
+  local debug_url="${PRIMUS_API_URL%/graphql}/debug/upstream-requests"
   local payload
   payload="$(curl -fsS -m 10 "$debug_url")"
   python3 -c '

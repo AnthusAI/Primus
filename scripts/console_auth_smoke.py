@@ -146,9 +146,9 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--graphql-url",
-        default=os.getenv("PLEXUS_API_URL"),
-        required=os.getenv("PLEXUS_API_URL") is None,
-        help="AppSync GraphQL endpoint URL (defaults to PLEXUS_API_URL).",
+        default=os.getenv("PRIMUS_API_URL"),
+        required=os.getenv("PRIMUS_API_URL") is None,
+        help="AppSync GraphQL endpoint URL (defaults to PRIMUS_API_URL).",
     )
     parser.add_argument("--region", default="us-west-2", help="AWS region for Cognito.")
     parser.add_argument(

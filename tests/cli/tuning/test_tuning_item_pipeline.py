@@ -1,6 +1,6 @@
 from types import SimpleNamespace
 
-import plexus.cli.tuning.operations as ops
+import primus.cli.tuning.operations as ops
 
 
 class DummyLLM:

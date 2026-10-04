@@ -6,7 +6,7 @@
 #   Default: scorecard=1438 (SelectQuote HCS Medium-Risk), days=10
 #
 # Prerequisite: Create the report config first (one-time):
-#   plexus report config create \
+#   primus report config create \
 #     --name "Feedback Analysis + Vector Topic Memory" \
 #     --file feedback_and_vector_topic_memory_report.md
 #
@@ -24,7 +24,7 @@ echo "Config: $CONFIG_NAME"
 echo "Scorecard: $SCORECARD | Days: $DAYS"
 echo ""
 
-plexus report run \
+primus report run \
   --config "$CONFIG_NAME" \
   scorecard="$SCORECARD" \
   days="$DAYS"

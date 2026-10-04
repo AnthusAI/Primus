@@ -1,1 +1,1 @@
-"""Tactus runtime tools for the Plexus MCP server."""
+"""Tactus runtime tools for the Primus MCP server."""

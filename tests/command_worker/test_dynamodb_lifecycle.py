@@ -6,9 +6,9 @@ from datetime import datetime, timedelta, timezone
 import pytest
 from botocore.exceptions import ClientError
 
-from plexus.command_worker import ClaimStatus, CommandEnvelope, ProgressUpdate
-from plexus.command_worker.adapters.dynamodb_lifecycle import DynamoDBLifecycleStore
-from plexus.command_worker.models import request_digest
+from primus.command_worker import ClaimStatus, CommandEnvelope, ProgressUpdate
+from primus.command_worker.adapters.dynamodb_lifecycle import DynamoDBLifecycleStore
+from primus.command_worker.models import request_digest
 
 NOW = datetime(2026, 8, 5, 12, tzinfo=timezone.utc)
 

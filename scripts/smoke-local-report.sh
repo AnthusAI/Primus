@@ -2,20 +2,20 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-export PLEXUS_API_URL="${PLEXUS_API_URL:-http://localhost:18080/graphql}"
-export PLEXUS_API_KEY="${PLEXUS_API_KEY:-local-smoke-key}"
-export PLEXUS_ACCOUNT_KEY="${PLEXUS_ACCOUNT_KEY:-local-demo}"
+export PRIMUS_API_URL="${PRIMUS_API_URL:-http://localhost:18080/graphql}"
+export PRIMUS_API_KEY="${PRIMUS_API_KEY:-local-smoke-key}"
+export PRIMUS_ACCOUNT_KEY="${PRIMUS_ACCOUNT_KEY:-local-demo}"
 export SMOKE_PROOF_DIR="${SMOKE_PROOF_DIR:-$ROOT_DIR/tmp/local-control-plane-proof}"
 export SMOKE_REPORT_PROOF_FILE="${SMOKE_REPORT_PROOF_FILE:-$SMOKE_PROOF_DIR/report.json}"
 export SMOKE_REPORT_SCORECARD="${SMOKE_REPORT_SCORECARD:-nira-call-center-qa}"
 export SMOKE_REPORT_SCORE="${SMOKE_REPORT_SCORE:-nira-resolution-quality}"
 export SMOKE_REPORT_DAYS="${SMOKE_REPORT_DAYS:-30}"
-export AMPLIFY_STORAGE_REPORTBLOCKDETAILS_BUCKET_NAME="${AMPLIFY_STORAGE_REPORTBLOCKDETAILS_BUCKET_NAME:-plexus-local-report-block-details}"
-export PLEXUS_OBJECT_STORE_ENDPOINT="${PLEXUS_OBJECT_STORE_ENDPOINT:-http://localhost:19000}"
-export PLEXUS_OBJECT_STORE_REGION="${PLEXUS_OBJECT_STORE_REGION:-us-east-1}"
-export PLEXUS_OBJECT_STORE_FORCE_PATH_STYLE="${PLEXUS_OBJECT_STORE_FORCE_PATH_STYLE:-true}"
-export PLEXUS_OBJECT_STORE_ACCESS_KEY_ID="${PLEXUS_OBJECT_STORE_ACCESS_KEY_ID:-plexus-local}"
-export PLEXUS_OBJECT_STORE_SECRET_ACCESS_KEY="${PLEXUS_OBJECT_STORE_SECRET_ACCESS_KEY:-plexus-local-secret}"
+export AMPLIFY_STORAGE_REPORTBLOCKDETAILS_BUCKET_NAME="${AMPLIFY_STORAGE_REPORTBLOCKDETAILS_BUCKET_NAME:-primus-local-report-block-details}"
+export PRIMUS_OBJECT_STORE_ENDPOINT="${PRIMUS_OBJECT_STORE_ENDPOINT:-http://localhost:19000}"
+export PRIMUS_OBJECT_STORE_REGION="${PRIMUS_OBJECT_STORE_REGION:-us-east-1}"
+export PRIMUS_OBJECT_STORE_FORCE_PATH_STYLE="${PRIMUS_OBJECT_STORE_FORCE_PATH_STYLE:-true}"
+export PRIMUS_OBJECT_STORE_ACCESS_KEY_ID="${PRIMUS_OBJECT_STORE_ACCESS_KEY_ID:-primus-local}"
+export PRIMUS_OBJECT_STORE_SECRET_ACCESS_KEY="${PRIMUS_OBJECT_STORE_SECRET_ACCESS_KEY:-primus-local-secret}"
 SMOKE_ASSERT_NO_UPSTREAM="${SMOKE_ASSERT_NO_UPSTREAM:-1}"
 SMOKE_READY_ATTEMPTS="${SMOKE_READY_ATTEMPTS:-60}"
 SMOKE_READY_SLEEP_SECONDS="${SMOKE_READY_SLEEP_SECONDS:-2}"
@@ -41,7 +41,7 @@ run_step() {
 }
 
 wait_for_readyz() {
-  local ready_url="${PLEXUS_API_URL%/graphql}/readyz"
+  local ready_url="${PRIMUS_API_URL%/graphql}/readyz"
   local i
 
   for ((i = 1; i <= SMOKE_READY_ATTEMPTS; i++)); do
@@ -66,7 +66,7 @@ wait_for_object_store() {
       cd "$ROOT_DIR"
       poetry run python - <<'PY' >/dev/null 2>&1
 import os
-from plexus.reports.s3_utils import create_s3_client, get_bucket_name
+from primus.reports.s3_utils import create_s3_client, get_bucket_name
 
 create_s3_client().head_bucket(Bucket=get_bucket_name())
 PY
@@ -94,11 +94,11 @@ import uuid
 import requests
 import yaml
 
-from plexus.cli.feedback.report_runner import run_feedback_report_block
-from plexus.reports.s3_utils import download_report_block_file
+from primus.cli.feedback.report_runner import run_feedback_report_block
+from primus.reports.s3_utils import download_report_block_file
 
-api_url = os.environ["PLEXUS_API_URL"]
-api_key = os.environ["PLEXUS_API_KEY"]
+api_url = os.environ["PRIMUS_API_URL"]
+api_key = os.environ["PRIMUS_API_KEY"]
 proof_file = Path(os.environ["SMOKE_REPORT_PROOF_FILE"])
 scorecard = os.environ["SMOKE_REPORT_SCORECARD"]
 score = os.environ["SMOKE_REPORT_SCORE"]
@@ -110,7 +110,7 @@ result = run_feedback_report_block(
     scorecard=scorecard,
     score=score,
     days=days,
-    account_identifier=os.environ["PLEXUS_ACCOUNT_KEY"],
+    account_identifier=os.environ["PRIMUS_ACCOUNT_KEY"],
     cache_key=cache_key,
     fresh=True,
 )
@@ -202,7 +202,7 @@ assert_no_upstream_requests() {
     return 0
   fi
 
-  local debug_url="${PLEXUS_API_URL%/graphql}/debug/upstream-requests"
+  local debug_url="${PRIMUS_API_URL%/graphql}/debug/upstream-requests"
   local payload
   payload="$(curl -fsS -m 10 "$debug_url")"
   python3 -c '

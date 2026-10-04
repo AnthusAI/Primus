@@ -26,7 +26,7 @@ small and points to the exact attachment needed for each finding.
 ## 1. Read the Compact Handoff
 
 ```tactus
-local report = plexus.report.info{ id = "<report-id>" }
+local report = primus.report.info{ id = "<report-id>" }
 return report
 ```
 
@@ -58,7 +58,7 @@ the deferred candidates.
 List attachment metadata when you need discovery or pagination:
 
 ```tactus
-return plexus.report.artifacts{
+return primus.report.artifacts{
   report_id = "<report-id>",
   revision = <revision-number>,
   kind = "scorecard_followups",
@@ -70,7 +70,7 @@ return plexus.report.artifacts{
 Then read an exact logical ID from the handoff or artifact list:
 
 ```tactus
-return plexus.report.artifact{
+return primus.report.artifact{
   report_id = "<report-id>",
   revision = <revision-number>,
   logical_id = "scorecard_followups:<revision>:0001",
@@ -87,19 +87,19 @@ Choose one follow-up item. Use its exact `resource_refs`; do not resolve a score
 from its display name.
 
 ```tactus
-local live_score = plexus.score.info{
+local live_score = primus.score.info{
   id = "<resource_refs.score_id>",
   scorecard_id = "<resource_refs.scorecard_id>",
 }
 
 local evaluations = {}
 for index, evaluation_id in ipairs(<resource_refs.evaluation_ids-or-empty-table>) do
-  evaluations[index] = plexus.evaluation.info{ id = evaluation_id }
+  evaluations[index] = primus.evaluation.info{ id = evaluation_id }
 end
 
 local child = nil
 if <resource_refs.procedure_id-or-nil> then
-  child = plexus.procedure.info{ id = "<resource_refs.procedure_id>" }
+  child = primus.procedure.info{ id = "<resource_refs.procedure_id>" }
 end
 
 return { score = live_score, evaluations = evaluations, procedure = child }
@@ -138,7 +138,7 @@ For a genuinely promotion-ready item, use the exact guarded arguments emitted
 in `suggested_calls.mutation`:
 
 ```tactus
-return plexus.score.set_champion{
+return primus.score.set_champion{
   score_id = "<resource_refs.score_id>",
   version_id = "<resource_refs.candidate_version_id>",
   expected_champion_version_id = "<frozen champion version id>",

@@ -68,12 +68,12 @@ This matches the existing client-side system's behavior.
 ## Environment Variables
 
 Required in Lambda environment:
-- `PLEXUS_API_URL` or `GRAPHQL_ENDPOINT`: AppSync GraphQL endpoint
+- `PRIMUS_API_URL` or `GRAPHQL_ENDPOINT`: AppSync GraphQL endpoint
 - AWS IAM credentials from the Lambda execution role (for SigV4 AppSync auth)
 
 For local testing, create `.env` file in `infrastructure/` directory:
 ```bash
-PLEXUS_API_URL=https://your-appsync-endpoint.com/graphql
+PRIMUS_API_URL=https://your-appsync-endpoint.com/graphql
 AMPLIFY_STACK_PATTERN=amplify-xxxxx-main-branch
 ```
 

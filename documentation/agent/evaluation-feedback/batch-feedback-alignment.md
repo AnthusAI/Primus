@@ -15,9 +15,9 @@ related:
 
 # Batch Feedback Alignment
 
-Use `plexus.feedback.alignment_batch` when you need feedback alignment metrics
+Use `primus.feedback.alignment_batch` when you need feedback alignment metrics
 for multiple scores in a scorecard. This avoids making N separate
-`plexus.feedback.alignment` calls — one per score — for scorecard-wide analysis.
+`primus.feedback.alignment` calls — one per score — for scorecard-wide analysis.
 
 ## When to Use
 
@@ -28,7 +28,7 @@ for multiple scores in a scorecard. This avoids making N separate
 ## Tactus API
 
 ```lua
-local result = plexus.feedback.alignment_batch({
+local result = primus.feedback.alignment_batch({
   scorecard = "My Scorecard",
   days = 90,
   accuracy_threshold = 90,  -- optional: only return scores below this %
@@ -94,7 +94,7 @@ end
 
 ```lua
 -- Step 1: Find all scores under 90% accuracy
-local alignment = plexus.feedback.alignment_batch({
+local alignment = primus.feedback.alignment_batch({
   scorecard = "My Scorecard",
   days = 90,
   accuracy_threshold = 90,
@@ -109,7 +109,7 @@ for _, score_data in ipairs(alignment.scores) do
 end
 
 -- Step 3: Batch dispatch optimizers
-local dispatch = plexus.procedure.optimize_batch({
+local dispatch = primus.procedure.optimize_batch({
   scorecard = "My Scorecard",
   scores = low_accuracy_scores,
   max_iterations = 3,

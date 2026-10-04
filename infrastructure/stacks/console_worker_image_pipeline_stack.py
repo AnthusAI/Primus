@@ -42,7 +42,7 @@ class ConsoleWorkerImagePipelineStack(Stack):
         environment: str,
         branch: str,
         github_owner: str = "AnthusAI",
-        github_repo: str = "Plexus",
+        github_repo: str = "Primus",
         amplify_app_id: Optional[str] = None,
         **kwargs,
     ) -> None:
@@ -56,7 +56,7 @@ class ConsoleWorkerImagePipelineStack(Stack):
         Tags.of(self).add("ManagedBy", "CDK")
 
         connection_arn = (
-            os.environ.get("PLEXUS_GITHUB_CONNECTION_ARN")
+            os.environ.get("PRIMUS_GITHUB_CONNECTION_ARN")
             or ssm.StringParameter.value_for_string_parameter(
                 self,
                 "/plexus/github-connection-arn",
@@ -65,7 +65,7 @@ class ConsoleWorkerImagePipelineStack(Stack):
 
         resolved_amplify_app_id = (
             amplify_app_id
-            or os.environ.get("PLEXUS_AMPLIFY_APP_ID")
+            or os.environ.get("PRIMUS_AMPLIFY_APP_ID")
             or ssm.StringParameter.value_for_string_parameter(
                 self,
                 "/plexus/amplify-app-id",
@@ -84,7 +84,7 @@ class ConsoleWorkerImagePipelineStack(Stack):
         build_project = codebuild.PipelineProject(
             self,
             "BuildProject",
-            project_name=f"plexus-console-worker-{environment}-build",
+            project_name=f"primus-console-worker-{environment}-build",
             environment=codebuild.BuildEnvironment(
                 build_image=codebuild.LinuxBuildImage.STANDARD_7_0,
                 privileged=True,
@@ -182,7 +182,7 @@ class ConsoleWorkerImagePipelineStack(Stack):
         pipeline = codepipeline.Pipeline(
             self,
             "Pipeline",
-            pipeline_name=f"plexus-console-worker-{environment}-pipeline",
+            pipeline_name=f"primus-console-worker-{environment}-pipeline",
             cross_account_keys=False,
             stages=[
                 codepipeline.StageProps(

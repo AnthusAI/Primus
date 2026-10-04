@@ -2,7 +2,7 @@ import pytest
 from types import SimpleNamespace
 from datetime import datetime
 
-from plexus.data.FeedbackItems import FeedbackItems
+from primus.data.FeedbackItems import FeedbackItems
 
 
 def test_feedback_items_requires_item_when_item_config_present():

@@ -4,29 +4,29 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 COMPOSE_FILE="$ROOT_DIR/services/private-graphql-proxy/docker-compose.smoke.yml"
 
-export PLEXUS_BACKEND_MODE="${PLEXUS_BACKEND_MODE:-local}"
-export PLEXUS_PROXY_UPSTREAM_DISABLED="${PLEXUS_PROXY_UPSTREAM_DISABLED:-true}"
-export PLEXUS_PROXY_API_KEY="${PLEXUS_PROXY_API_KEY:-local-smoke-key}"
-export PLEXUS_PROXY_AUTH_MODE="${PLEXUS_PROXY_AUTH_MODE:-}"
-export PLEXUS_API_URL="${PLEXUS_API_URL:-http://localhost:18080/graphql}"
-export PLEXUS_API_KEY="${PLEXUS_API_KEY:-$PLEXUS_PROXY_API_KEY}"
-export PLEXUS_ACCOUNT_KEY="${PLEXUS_ACCOUNT_KEY:-local-demo}"
+export PRIMUS_BACKEND_MODE="${PRIMUS_BACKEND_MODE:-local}"
+export PRIMUS_PROXY_UPSTREAM_DISABLED="${PRIMUS_PROXY_UPSTREAM_DISABLED:-true}"
+export PRIMUS_PROXY_API_KEY="${PRIMUS_PROXY_API_KEY:-local-smoke-key}"
+export PRIMUS_PROXY_AUTH_MODE="${PRIMUS_PROXY_AUTH_MODE:-}"
+export PRIMUS_API_URL="${PRIMUS_API_URL:-http://localhost:18080/graphql}"
+export PRIMUS_API_KEY="${PRIMUS_API_KEY:-$PRIMUS_PROXY_API_KEY}"
+export PRIMUS_ACCOUNT_KEY="${PRIMUS_ACCOUNT_KEY:-local-demo}"
 export SMOKE_DASHBOARD_URL="${SMOKE_DASHBOARD_URL:-http://localhost:3000}"
 export SMOKE_PROOF_DIR="${SMOKE_PROOF_DIR:-$ROOT_DIR/tmp/local-control-plane-proof}"
 export SMOKE_PREDICTION_PROOF_FILE="${SMOKE_PREDICTION_PROOF_FILE:-$SMOKE_PROOF_DIR/prediction.json}"
 export SMOKE_FEEDBACK_PROOF_FILE="${SMOKE_FEEDBACK_PROOF_FILE:-$SMOKE_PROOF_DIR/feedback-evaluation.json}"
 export SMOKE_REPORT_PROOF_FILE="${SMOKE_REPORT_PROOF_FILE:-$SMOKE_PROOF_DIR/report.json}"
 export SMOKE_VECTOR_TOPIC_MEMORY_PROOF_FILE="${SMOKE_VECTOR_TOPIC_MEMORY_PROOF_FILE:-$SMOKE_PROOF_DIR/vector-topic-memory.json}"
-export AMPLIFY_STORAGE_REPORTBLOCKDETAILS_BUCKET_NAME="${AMPLIFY_STORAGE_REPORTBLOCKDETAILS_BUCKET_NAME:-plexus-local-report-block-details}"
-export EMBEDDING_CACHE_BUCKET="${EMBEDDING_CACHE_BUCKET:-plexus-embeddings}"
-export PLEXUS_OBJECT_STORE_ENDPOINT="${PLEXUS_OBJECT_STORE_ENDPOINT:-http://localhost:19000}"
-export PLEXUS_OBJECT_STORE_REGION="${PLEXUS_OBJECT_STORE_REGION:-us-east-1}"
-export PLEXUS_OBJECT_STORE_FORCE_PATH_STYLE="${PLEXUS_OBJECT_STORE_FORCE_PATH_STYLE:-true}"
-export PLEXUS_OBJECT_STORE_ACCESS_KEY_ID="${PLEXUS_OBJECT_STORE_ACCESS_KEY_ID:-plexus-local}"
-export PLEXUS_OBJECT_STORE_SECRET_ACCESS_KEY="${PLEXUS_OBJECT_STORE_SECRET_ACCESS_KEY:-plexus-local-secret}"
-export PLEXUS_VECTOR_STORE_PROVIDER="${PLEXUS_VECTOR_STORE_PROVIDER:-qdrant}"
-export PLEXUS_VECTOR_STORE_URL="${PLEXUS_VECTOR_STORE_URL:-http://localhost:19002}"
-export PLEXUS_VECTOR_STORE_COLLECTION="${PLEXUS_VECTOR_STORE_COLLECTION:-topic-memory-local}"
+export AMPLIFY_STORAGE_REPORTBLOCKDETAILS_BUCKET_NAME="${AMPLIFY_STORAGE_REPORTBLOCKDETAILS_BUCKET_NAME:-primus-local-report-block-details}"
+export EMBEDDING_CACHE_BUCKET="${EMBEDDING_CACHE_BUCKET:-primus-embeddings}"
+export PRIMUS_OBJECT_STORE_ENDPOINT="${PRIMUS_OBJECT_STORE_ENDPOINT:-http://localhost:19000}"
+export PRIMUS_OBJECT_STORE_REGION="${PRIMUS_OBJECT_STORE_REGION:-us-east-1}"
+export PRIMUS_OBJECT_STORE_FORCE_PATH_STYLE="${PRIMUS_OBJECT_STORE_FORCE_PATH_STYLE:-true}"
+export PRIMUS_OBJECT_STORE_ACCESS_KEY_ID="${PRIMUS_OBJECT_STORE_ACCESS_KEY_ID:-primus-local}"
+export PRIMUS_OBJECT_STORE_SECRET_ACCESS_KEY="${PRIMUS_OBJECT_STORE_SECRET_ACCESS_KEY:-primus-local-secret}"
+export PRIMUS_VECTOR_STORE_PROVIDER="${PRIMUS_VECTOR_STORE_PROVIDER:-qdrant}"
+export PRIMUS_VECTOR_STORE_URL="${PRIMUS_VECTOR_STORE_URL:-http://localhost:19002}"
+export PRIMUS_VECTOR_STORE_COLLECTION="${PRIMUS_VECTOR_STORE_COLLECTION:-topic-memory-local}"
 
 SMOKE_RESET_STACK="${SMOKE_RESET_STACK:-1}"
 
@@ -35,12 +35,12 @@ log() {
 }
 
 assert_local_mode() {
-  if [[ "$PLEXUS_BACKEND_MODE" != "local" ]]; then
-    log "PLEXUS_BACKEND_MODE must be local for this proof harness."
+  if [[ "$PRIMUS_BACKEND_MODE" != "local" ]]; then
+    log "PRIMUS_BACKEND_MODE must be local for this proof harness."
     exit 1
   fi
-  if [[ "$PLEXUS_PROXY_UPSTREAM_DISABLED" != "true" ]]; then
-    log "PLEXUS_PROXY_UPSTREAM_DISABLED must be true for this proof harness."
+  if [[ "$PRIMUS_PROXY_UPSTREAM_DISABLED" != "true" ]]; then
+    log "PRIMUS_PROXY_UPSTREAM_DISABLED must be true for this proof harness."
     exit 1
   fi
 }
@@ -63,14 +63,14 @@ start_smoke_stack() {
 seed_demo_data() {
   log "Seeding deterministic local demo data."
   docker compose -f "$COMPOSE_FILE" run --rm \
-    -e PLEXUS_API_URL=http://proxy:8000/graphql \
-    -e PLEXUS_API_KEY="$PLEXUS_PROXY_API_KEY" \
+    -e PRIMUS_API_URL=http://proxy:8000/graphql \
+    -e PRIMUS_API_KEY="$PRIMUS_PROXY_API_KEY" \
     smoke-tests \
     sh -c "pip install --no-cache-dir -r services/private-graphql-proxy/requirements.txt >/dev/null && python services/private-graphql-proxy/scripts/seed_local_demo.py"
 }
 
 assert_no_upstream_requests() {
-  local debug_url="${PLEXUS_API_URL%/graphql}/debug/upstream-requests"
+  local debug_url="${PRIMUS_API_URL%/graphql}/debug/upstream-requests"
   local payload
 
   payload="$(curl -fsS -m 10 "$debug_url")"

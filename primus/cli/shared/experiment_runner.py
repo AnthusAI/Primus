@@ -1,0 +1,1155 @@
+from __future__ import annotations
+
+from datetime import datetime, timezone, timedelta
+import socket
+import os
+import signal
+import threading
+import traceback
+import uuid
+from typing import Optional, Tuple, Dict, Any
+import logging
+import json
+import yaml
+import click
+
+from primus.cli.shared.task_progress_tracker import TaskProgressTracker
+from primus.cli.shared.stage_configurations import get_procedure_stage_configs
+from primus.cli.shared.task_output_storage import persist_task_output_artifact
+from primus.cli.shared.async_cleanup import drain_litellm_service_logging_tasks
+from primus.dashboard.api.client import PrimusDashboardClient
+from primus.dashboard.api.models.procedure import Procedure as DashboardProcedure
+from primus.dashboard.api.models.task import Task
+from primus.cli.procedure.builtin_procedures import is_builtin_procedure_id
+from primus.cli.procedure.scheduled_continuation import canonical_time_wait_request
+
+logger = logging.getLogger(__name__)
+LOCAL_DISPATCH_MODE = "local"
+LOCAL_DISPATCH_ENV = "PRIMUS_LOCAL_DISPATCH"
+LOCAL_DISPATCH_STATUS = "LOCAL"
+
+
+class ProcedureRunTermination(BaseException):
+    """Raised when the direct CLI procedure process receives a termination signal."""
+
+    def __init__(self, signum: int):
+        self.signum = int(signum)
+        try:
+            self.signal_name = signal.Signals(signum).name
+        except Exception:
+            self.signal_name = f"SIG{signum}"
+        super().__init__(f"Procedure run interrupted by {self.signal_name}")
+
+
+def _to_json_safe(value: Any) -> Any:
+    """Convert arbitrary values into JSON-safe structures."""
+    return json.loads(json.dumps(value, default=str))
+
+
+def _parse_json_dict(value: Any) -> Dict[str, Any]:
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, str) and value:
+        try:
+            parsed = json.loads(value)
+            if isinstance(parsed, dict):
+                return parsed
+        except Exception:
+            return {}
+    return {}
+
+
+def _with_local_dispatch_metadata(metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    result = dict(metadata or {})
+    result["dispatch_mode"] = LOCAL_DISPATCH_MODE
+    return result
+
+
+def _json_dumps(value: Dict[str, Any]) -> str:
+    return json.dumps(_to_json_safe(value), default=str)
+
+
+def _build_runtime_identity(command: Optional[str]) -> Dict[str, Any]:
+    now_iso = datetime.now(timezone.utc).isoformat()
+    return {
+        "pid": os.getpid(),
+        "host": socket.gethostname(),
+        "started_at": now_iso,
+        "lastHeartbeatAt": now_iso,
+        "command": command or "",
+    }
+
+
+def _load_procedure_metadata(client: PrimusDashboardClient, procedure_id: str) -> Optional[Dict[str, Any]]:
+    query = """
+    query GetProcedureTelemetry($id: ID!) {
+        getProcedure(id: $id) {
+            id
+            metadata
+            waitingOnMessageId
+        }
+    }
+    """
+    try:
+        result = client.execute(query, {"id": procedure_id})
+    except Exception as exc:
+        logger.warning("Could not load procedure metadata for %s: %s", procedure_id, exc)
+        return None
+
+    procedure = result.get("getProcedure") or {}
+    return _parse_json_dict(procedure.get("metadata"))
+
+
+def _update_procedure_status_and_metadata(
+    client: PrimusDashboardClient,
+    procedure_id: str,
+    *,
+    status: Optional[str] = None,
+    metadata_patch: Optional[Dict[str, Any]] = None,
+    remove_metadata_keys: Optional[list[str]] = None,
+) -> None:
+    metadata = _load_procedure_metadata(client, procedure_id)
+    update_input: Dict[str, Any] = {"id": procedure_id}
+    if status is not None:
+        update_input["status"] = status
+    if metadata is not None:
+        if remove_metadata_keys:
+            for key in remove_metadata_keys:
+                metadata.pop(key, None)
+        if metadata_patch:
+            metadata.update(_to_json_safe(metadata_patch))
+        update_input["metadata"] = _json_dumps(metadata)
+    elif metadata_patch or remove_metadata_keys:
+        logger.warning(
+            "Skipping procedure metadata merge for %s because current metadata could not be loaded",
+            procedure_id,
+        )
+
+    mutation = """
+    mutation UpdateProcedureTelemetry($input: UpdateProcedureInput!) {
+        updateProcedure(input: $input) {
+            id
+            name
+            description
+            status
+            featured
+            isTemplate
+            code
+            category
+            version
+            isDefault
+            parentProcedureId
+            metadata
+            waitingOnMessageId
+            createdAt
+            updatedAt
+            accountId
+            scorecardId
+            scoreId
+            scoreVersionId
+        }
+    }
+    """
+    client.execute(mutation, {"input": update_input})
+
+
+def _merge_task_metadata(task: Task, patch: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    authoritative_task = task
+    task_client = getattr(task, "_client", None)
+    if task_client is not None:
+        task_id = getattr(task, "id", None)
+        if not task_id:
+            raise RuntimeError(
+                "Cannot safely update Task metadata without an authoritative Task ID."
+            )
+        try:
+            authoritative_task = Task.get_by_id(task_id, task_client)
+        except Exception as exc:
+            raise RuntimeError(
+                f"Cannot safely update metadata for Task {task_id}: "
+                "the authoritative Task could not be reloaded."
+            ) from exc
+        if authoritative_task is None:
+            raise RuntimeError(
+                f"Cannot safely update metadata for Task {task_id}: "
+                "the authoritative Task was not found."
+            )
+
+    metadata = _parse_json_dict(getattr(authoritative_task, "metadata", None))
+    if patch:
+        metadata.update(_to_json_safe(patch))
+    return metadata
+
+
+def _current_task_phase(task: Optional[Task]) -> Optional[str]:
+    if not task:
+        return None
+
+    try:
+        stages = list(task.get_stages())
+    except Exception as exc:
+        logger.debug("Could not load task stages for %s: %s", getattr(task, "id", None), exc)
+        return None
+
+    current_stage_id = getattr(task, "currentStageId", None)
+    if current_stage_id:
+        stage = next((item for item in stages if item.id == current_stage_id), None)
+        if stage and getattr(stage, "name", None):
+            return str(stage.name)
+
+    running_stage = next((item for item in stages if getattr(item, "status", None) == "RUNNING"), None)
+    if running_stage and getattr(running_stage, "name", None):
+        return str(running_stage.name)
+
+    pending_stage = next((item for item in stages if getattr(item, "status", None) == "PENDING"), None)
+    if pending_stage and getattr(pending_stage, "name", None):
+        return str(pending_stage.name)
+
+    return None
+
+
+def _system_exit_is_failure(code: Any) -> bool:
+    if code is None:
+        return False
+    if isinstance(code, int):
+        return code != 0
+    return True
+
+
+def _extract_run_parameters_from_procedure_yaml(procedure_yaml: Optional[str]) -> Dict[str, Any]:
+    """Extract resolved run parameter values from procedure YAML.
+
+    Resolution order per parameter:
+    1) explicit value
+    2) default value
+    """
+    if not procedure_yaml:
+        return {}
+
+    try:
+        config = yaml.safe_load(procedure_yaml)
+    except Exception:
+        return {}
+
+    if not isinstance(config, dict):
+        return {}
+
+    resolved: Dict[str, Any] = {}
+
+    mapping_params = config.get("params")
+    if isinstance(mapping_params, dict):
+        for name, definition in mapping_params.items():
+            if not isinstance(definition, dict):
+                continue
+            if "value" in definition:
+                resolved[str(name)] = definition.get("value")
+            elif "default" in definition:
+                resolved[str(name)] = definition.get("default")
+
+    list_params = config.get("parameters")
+    if isinstance(list_params, list):
+        for definition in list_params:
+            if not isinstance(definition, dict):
+                continue
+            name = definition.get("name")
+            if not isinstance(name, str) or not name:
+                continue
+            if "value" in definition:
+                resolved[name] = definition.get("value")
+            elif "default" in definition:
+                resolved[name] = definition.get("default")
+
+    return _to_json_safe(resolved)
+
+
+def _find_existing_task_for_procedure(procedure_id: str, account_id: str, client) -> Optional[str]:
+    """
+    Find an existing Task for a procedure by querying using the accountId GSI.
+
+    Args:
+        procedure_id: The procedure ID
+        account_id: The account ID
+        client: The PrimusDashboardClient
+
+    Returns:
+        Task ID if found, None otherwise
+    """
+    try:
+        # Use GSI to query tasks for this account
+        query = """
+        query ListTaskByAccountIdAndUpdatedAt($accountId: String!, $updatedAt: ModelStringKeyConditionInput, $limit: Int, $nextToken: String) {
+            listTaskByAccountIdAndUpdatedAt(accountId: $accountId, updatedAt: $updatedAt, limit: $limit, nextToken: $nextToken) {
+                items {
+                    id
+                    target
+                }
+                nextToken
+            }
+        }
+        """
+
+        # Query all tasks for this account
+        very_old_date = "2000-01-01T00:00:00.000Z"
+        # Check for both target patterns (ProcedureService uses "procedure/{id}", TaskProgressTracker uses "procedure/run/{id}")
+        target_patterns = [f"procedure/run/{procedure_id}", f"procedure/{procedure_id}"]
+
+        next_token = None
+        while True:
+            variables = {
+                "accountId": account_id,
+                "updatedAt": {"ge": very_old_date},
+                "limit": 1000
+            }
+            if next_token:
+                variables["nextToken"] = next_token
+
+            result = client.execute(query, variables)
+            page_tasks = result.get('listTaskByAccountIdAndUpdatedAt', {}).get('items', [])
+
+            # Check this page for matching task - prefer "procedure/{id}" format (from ProcedureService)
+            found_tasks = []
+            for task in page_tasks:
+                if task['target'] in target_patterns:
+                    found_tasks.append((task['target'], task['id']))
+
+            # Prefer the task created by ProcedureService (without "/run")
+            for target, task_id in found_tasks:
+                if target == f"procedure/{procedure_id}":
+                    logger.info(f"Found existing task {task_id} with target '{target}'")
+                    return task_id
+
+            # Fall back to "/run" format if that's all we have
+            for target, task_id in found_tasks:
+                if target == f"procedure/run/{procedure_id}":
+                    logger.info(f"Found existing task {task_id} with target '{target}'")
+                    return task_id
+
+            next_token = result.get('listTaskByAccountIdAndUpdatedAt', {}).get('nextToken')
+            if not next_token:
+                break
+
+        return None
+
+    except Exception as e:
+        logger.error(f"Error finding existing task for procedure {procedure_id}: {e}")
+        return None
+
+
+def create_tracker_and_experiment_task(
+    *,
+    client: PrimusDashboardClient,
+    account_id: str,
+    procedure_id: str,
+    scorecard_name: Optional[str] = None,
+    score_name: Optional[str] = None,
+    total_items: int = 0,
+    run_parameters: Optional[Dict[str, Any]] = None,
+    run_options: Optional[Dict[str, Any]] = None,
+    local_dispatch: bool = False,
+) -> Tuple[Optional[TaskProgressTracker], Optional[DashboardProcedure], Optional['Task']]:
+    """Create a TaskProgressTracker for an experiment run.
+
+    Mirrors the evaluation behavior for experiment operations.
+    Returns the tracker (with its Task created/claimed) and optionally updates the Experiment record.
+
+    Args:
+        client: Dashboard API client
+        account_id: Account ID
+        procedure_id: Procedure ID to associate with the task
+        scorecard_name: Optional scorecard name for metadata
+        score_name: Optional score name for metadata
+        total_items: Total number of items to process (for Evaluation stage)
+
+    Returns:
+        Tuple of (TaskProgressTracker or None, Procedure record or None, Task)
+    """
+    # Configure stages and create tracker (creates API Task)
+    stage_configs = get_procedure_stage_configs(total_items=total_items)
+    
+    # Build metadata
+    metadata = {
+        "type": "Experiment Run",
+        "procedure_id": procedure_id,
+        "task_type": "Experiment Run",
+    }
+    if local_dispatch:
+        metadata = _with_local_dispatch_metadata(metadata)
+    if run_parameters:
+        metadata["run_parameters"] = _to_json_safe(run_parameters)
+    if run_options:
+        metadata["run_options"] = _to_json_safe(run_options)
+    if scorecard_name:
+        metadata["scorecard"] = scorecard_name
+    if score_name:
+        metadata["score"] = score_name
+    
+    # If this run was launched by CommandDispatch, bind tracking to that claimed task.
+    dispatch_task_id = (os.getenv("PRIMUS_DISPATCH_TASK_ID") or "").strip()
+    task: Optional[Task] = None
+    tracker = None  # ProcedureService manages TaskStages directly via state machine
+    if dispatch_task_id:
+        try:
+            candidate_task = Task.get_by_id(dispatch_task_id, client)
+            if not candidate_task:
+                logger.warning(
+                    "PRIMUS_DISPATCH_TASK_ID=%s was provided but no task was found; falling back to procedure task lookup.",
+                    dispatch_task_id,
+                )
+            elif candidate_task.accountId != account_id:
+                logger.warning(
+                    "PRIMUS_DISPATCH_TASK_ID=%s belongs to a different account (%s != %s); falling back.",
+                    dispatch_task_id,
+                    candidate_task.accountId,
+                    account_id,
+                )
+            else:
+                command_text = str(candidate_task.command or "")
+                target_text = str(candidate_task.target or "")
+                if procedure_id in command_text or procedure_id in target_text:
+                    task = candidate_task
+                    logger.info(
+                        "Using dispatch-claimed Task %s for procedure %s from PRIMUS_DISPATCH_TASK_ID",
+                        dispatch_task_id,
+                        procedure_id,
+                    )
+                else:
+                    logger.warning(
+                        "PRIMUS_DISPATCH_TASK_ID=%s does not reference procedure %s; falling back.",
+                        dispatch_task_id,
+                        procedure_id,
+                    )
+        except Exception as e:
+            logger.warning(
+                "Could not load task from PRIMUS_DISPATCH_TASK_ID=%s (%s); falling back to procedure task lookup.",
+                dispatch_task_id,
+                e,
+            )
+
+    # Fallback to the existing procedure-level task model.
+    if not task:
+        existing_task_id = _find_existing_task_for_procedure(procedure_id, account_id, client)
+        if existing_task_id:
+            logger.info(f"Reusing existing Task {existing_task_id} for procedure {procedure_id}")
+            task = Task.get_by_id(existing_task_id, client)
+        else:
+            if is_builtin_procedure_id(procedure_id):
+                now_iso = datetime.now(timezone.utc).isoformat()
+                logger.info("No existing task found for built-in procedure %s; creating one.", procedure_id)
+                task = Task.create(
+                    client=client,
+                    accountId=account_id,
+                    type="Procedure Run",
+                    status="PENDING",
+                    dispatchStatus=LOCAL_DISPATCH_STATUS if local_dispatch else "PENDING",
+                    target=f"procedure/run/{procedure_id}",
+                    command=f"procedure run {procedure_id}",
+                    metadata=json.dumps(metadata),
+                    createdAt=now_iso,
+                    updatedAt=now_iso,
+                )
+            else:
+                # This should never happen - ProcedureService.create_procedure() always creates a Task
+                logger.error(f"No Task found for procedure {procedure_id}. This indicates the procedure was created incorrectly.")
+                logger.error(f"Procedures should always have a Task created by ProcedureService.create_procedure()")
+                raise RuntimeError(
+                    f"No Task found for procedure {procedure_id}. "
+                    f"The procedure may have been created incorrectly or the Task was deleted. "
+                    f"Please recreate the procedure."
+                )
+
+    # Start task tracking. Local runs are not dispatcher claims.
+    if task:
+        task_metadata = _merge_task_metadata(task)
+        update_payload = {
+            "accountId": task.accountId,
+            "type": task.type,
+            "status": "RUNNING",
+            "target": task.target,
+            "command": task.command,
+            "startedAt": datetime.now(timezone.utc).isoformat(),
+            "updatedAt": datetime.now(timezone.utc).isoformat(),
+        }
+        if local_dispatch:
+            update_payload["dispatchStatus"] = LOCAL_DISPATCH_STATUS
+            update_payload["workerNodeId"] = None
+            update_payload["metadata"] = _json_dumps(_with_local_dispatch_metadata(task_metadata))
+        else:
+            worker_id = f"{socket.gethostname()}-{__import__('os').getpid()}"
+            update_payload["workerNodeId"] = worker_id
+        task.update(
+            **update_payload,
+        )
+
+    # Try to get the existing Procedure record and associate via metadata
+    procedure_record = None
+    try:
+        procedure_record = DashboardProcedure.get_by_id(client=client, id=procedure_id)
+        if procedure_record and task:
+            # Store procedure ID in task metadata for the association
+            # This avoids adding new schema relationships that would increase resource count
+            task_metadata = task.metadata or {}
+            if isinstance(task_metadata, str):
+                try:
+                    task_metadata = json.loads(task_metadata) if task_metadata else {}
+                except Exception:
+                    task_metadata = {}
+            task_metadata["procedure_id"] = procedure_id
+            # ``procedure_type`` is the semantic operator-facing kind seeded
+            # from the Procedure YAML.  Preserve it across execution; the CLI
+            # verb belongs in a separate field.
+            task_metadata["procedure_action"] = "run"
+            procedure_metadata = getattr(procedure_record, "metadata", None)
+            if isinstance(procedure_metadata, str):
+                try:
+                    procedure_metadata = json.loads(procedure_metadata)
+                except Exception:
+                    procedure_metadata = {}
+            if isinstance(procedure_metadata, dict):
+                for key in ("procedure_type", "display_title", "display_scope", "optimization_kind"):
+                    if key not in task_metadata and procedure_metadata.get(key):
+                        task_metadata[key] = procedure_metadata[key]
+            if local_dispatch:
+                task_metadata = _with_local_dispatch_metadata(task_metadata)
+            if run_parameters:
+                task_metadata["run_parameters"] = _to_json_safe(run_parameters)
+            if run_options:
+                task_metadata["run_options"] = _to_json_safe(run_options)
+            
+            # Update the task with the metadata
+            update_payload = {
+                "accountId": task.accountId,
+                "type": task.type,
+                "status": task.status,
+                "target": task.target,
+                "command": task.command,
+                "metadata": json.dumps(task_metadata),
+                "updatedAt": datetime.now(timezone.utc).isoformat(),
+            }
+            if local_dispatch:
+                update_payload["dispatchStatus"] = LOCAL_DISPATCH_STATUS
+                update_payload["workerNodeId"] = None
+            task.update(**update_payload)
+            logging.info(f"Associated Task {task.id} with Procedure {procedure_id} via metadata")
+    except Exception as e:
+        logging.warning(f"Could not get Procedure record {procedure_id}: {str(e)}")
+        # Continue without the procedure record - the task tracking still works
+
+    return tracker, procedure_record, task
+
+
+async def run_procedure_with_task_tracking(
+    *,
+    procedure_id: str,
+    client: Optional[PrimusDashboardClient] = None,
+    account_id: Optional[str] = None,
+    scorecard_name: Optional[str] = None,
+    score_name: Optional[str] = None,
+    total_items: int = 0,
+    **experiment_options
+) -> Dict[str, Any]:
+    """Run a procedure with task tracking.
+    
+    This function creates Task and TaskStage records for progress tracking,
+    then runs the actual procedure using the ProcedureService.
+    
+    Args:
+        procedure_id: ID of the procedure to run
+        client: Dashboard API client
+        account_id: Account ID
+        scorecard_name: Optional scorecard name for metadata
+        score_name: Optional score name for metadata
+        total_items: Total number of items to process
+        **experiment_options: Additional options to pass to the experiment runner
+        
+    Returns:
+        Dictionary containing experiment run results and task information
+    """
+    if not client:
+        from primus.cli.shared.utils import create_client
+        client = create_client()
+        if not client:
+            raise ValueError("Could not create API client")
+    
+    if not account_id:
+        from primus.cli.report.utils import resolve_account_id_for_command
+        account_id = resolve_account_id_for_command(client, None)
+
+    dispatch_task_id = (os.getenv("PRIMUS_DISPATCH_TASK_ID") or "").strip()
+    local_dispatch = os.getenv(LOCAL_DISPATCH_ENV) == "1" or not dispatch_task_id
+
+    # Capture resolved run parameters and run options in task metadata so the
+    # dashboard can show exactly what was used for this run.
+    run_options_for_metadata: Dict[str, Any] = {}
+    for key, value in experiment_options.items():
+        if key.startswith("_"):
+            continue
+        if key in {"openai_api_key", "context"}:
+            continue
+        run_options_for_metadata[key] = value
+
+    run_parameters_for_metadata: Dict[str, Any] = {}
+    if not is_builtin_procedure_id(procedure_id):
+        try:
+            procedure_record = DashboardProcedure.get_by_id(client=client, id=procedure_id)
+            run_parameters_for_metadata.update(
+                _extract_run_parameters_from_procedure_yaml(getattr(procedure_record, "code", None))
+            )
+        except Exception as e:
+            logger.debug("Could not resolve procedure YAML for run parameter capture: %s", e)
+
+    context_params = experiment_options.get("context")
+    if isinstance(context_params, dict):
+        run_parameters_for_metadata.update(context_params)
+
+    if experiment_options.get("max_iterations") is not None:
+        run_parameters_for_metadata["max_iterations"] = experiment_options.get("max_iterations")
+    if experiment_options.get("dry_run") is not None:
+        run_parameters_for_metadata["dry_run"] = experiment_options.get("dry_run")
+
+    # Create tracker and update experiment
+    tracker, experiment_record, task = create_tracker_and_experiment_task(
+        client=client,
+        account_id=account_id,
+        procedure_id=procedure_id,
+        scorecard_name=scorecard_name,
+        score_name=score_name,
+        total_items=total_items,
+        run_parameters=run_parameters_for_metadata,
+        run_options=run_options_for_metadata,
+        local_dispatch=local_dispatch,
+    )
+
+    result = {
+        'procedure_id': procedure_id,
+        'task_id': task.id if task else None,
+        'status': 'initiated',
+        'message': 'Task tracking initialized'
+    }
+
+    runtime_identity = _build_runtime_identity(
+        task.command if task and getattr(task, "command", None) else f"procedure run {procedure_id}"
+    )
+    task_ref = tracker.task if tracker and tracker.task else task
+    prior_runtime = (
+        _merge_task_metadata(task_ref).get("runtime")
+        if task_ref is not None
+        else None
+    )
+    tactus_run_id = (
+        prior_runtime.get("tactus_run_id")
+        if isinstance(prior_runtime, dict)
+        and isinstance(prior_runtime.get("tactus_run_id"), str)
+        and prior_runtime.get("tactus_run_id").strip()
+        else str(uuid.uuid4())
+    )
+    runtime_identity.update({
+        "procedure_id": procedure_id,
+        "task_id": task_ref.id if task_ref else None,
+        "account_id": account_id,
+        "tactus_run_id": tactus_run_id,
+    })
+    failure_finalized = False
+    installed_signal_handlers: Dict[int, Any] = {}
+
+    def _install_signal_guards() -> None:
+        if threading.current_thread() is not threading.main_thread():
+            return
+
+        def _raise_termination(signum, _frame):
+            raise ProcedureRunTermination(signum)
+
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            try:
+                installed_signal_handlers[sig] = signal.getsignal(sig)
+                signal.signal(sig, _raise_termination)
+            except Exception as exc:
+                logger.debug("Could not install signal handler for %s: %s", sig, exc)
+
+    def _restore_signal_guards() -> None:
+        for sig, previous in installed_signal_handlers.items():
+            try:
+                signal.signal(sig, previous)
+            except Exception as exc:
+                logger.debug("Could not restore signal handler for %s: %s", sig, exc)
+        installed_signal_handlers.clear()
+
+    def _mark_run_started() -> None:
+        now_iso = datetime.now(timezone.utc).isoformat()
+        if task_ref:
+            task_metadata = _merge_task_metadata(task_ref, {"runtime": runtime_identity})
+            if local_dispatch:
+                task_metadata = _with_local_dispatch_metadata(task_metadata)
+            update_payload = {
+                "accountId": task_ref.accountId,
+                "type": task_ref.type,
+                "status": "RUNNING",
+                "target": task_ref.target,
+                "command": task_ref.command,
+                "metadata": _json_dumps(task_metadata),
+                "startedAt": now_iso,
+                "updatedAt": now_iso,
+                "errorMessage": None,
+                "errorDetails": None,
+            }
+            if local_dispatch:
+                update_payload["dispatchStatus"] = LOCAL_DISPATCH_STATUS
+                update_payload["workerNodeId"] = None
+            task_ref.update(**update_payload)
+
+        if not is_builtin_procedure_id(procedure_id):
+            _update_procedure_status_and_metadata(
+                client,
+                procedure_id,
+                status="RUNNING",
+                metadata_patch={"runtime": runtime_identity},
+                remove_metadata_keys=["last_failure"],
+            )
+
+    def _finalize_failed(
+        *,
+        kind: str,
+        message: str,
+        signal_name: Optional[str] = None,
+        exception_type: Optional[str] = None,
+        traceback_text: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        nonlocal failure_finalized
+        if failure_finalized:
+            return {}
+        failure_finalized = True
+
+        from primus.cli.procedure.procedure_executor import _fail_all_task_stages
+
+        terminated_at = datetime.now(timezone.utc).isoformat()
+        phase = _current_task_phase(task_ref)
+        failure_payload = {
+            "kind": kind,
+            "signal": signal_name,
+            "exception_type": exception_type,
+            "message": str(message),
+            "phase": phase,
+            "terminated_at": terminated_at,
+            "pid": runtime_identity.get("pid"),
+            "host": runtime_identity.get("host"),
+            "traceback": traceback_text,
+        }
+
+        if task_ref:
+            try:
+                _fail_all_task_stages(client, task_ref.id, str(message))
+            except Exception as stage_exc:
+                logger.warning("Could not fail task stages for %s: %s", task_ref.id, stage_exc, exc_info=True)
+
+            try:
+                task_metadata = _merge_task_metadata(task_ref, {"runtime": runtime_identity})
+                if local_dispatch:
+                    task_metadata = _with_local_dispatch_metadata(task_metadata)
+                update_payload = {
+                    "accountId": task_ref.accountId,
+                    "type": task_ref.type,
+                    "status": "FAILED",
+                    "target": task_ref.target,
+                    "command": task_ref.command,
+                    "metadata": _json_dumps(task_metadata),
+                    "updatedAt": terminated_at,
+                    "completedAt": terminated_at,
+                    "errorMessage": str(message)[:2000],
+                    "errorDetails": _json_dumps(failure_payload),
+                }
+                if local_dispatch:
+                    update_payload["dispatchStatus"] = LOCAL_DISPATCH_STATUS
+                    update_payload["workerNodeId"] = None
+                task_ref.update(**update_payload)
+            except Exception as task_exc:
+                logger.warning("Could not persist FAILED task state for %s: %s", task_ref.id, task_exc, exc_info=True)
+
+        if not is_builtin_procedure_id(procedure_id):
+            try:
+                _update_procedure_status_and_metadata(
+                    client,
+                    procedure_id,
+                    status="FAILED",
+                    metadata_patch={
+                        "runtime": runtime_identity,
+                        "last_failure": failure_payload,
+                    },
+                )
+            except Exception as proc_exc:
+                logger.warning(
+                    "Could not persist FAILED procedure state for %s: %s",
+                    procedure_id,
+                    proc_exc,
+                    exc_info=True,
+                )
+
+        result.update(
+            {
+                "status": "FAILED",
+                "error": str(message),
+                "message": f"Experiment failed: {message}",
+                "failure": failure_payload,
+            }
+        )
+        return failure_payload
+
+    def _finalize_interrupted(
+        *,
+        kind: str,
+        message: str,
+        signal_name: Optional[str] = None,
+        exception_type: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        nonlocal failure_finalized
+        if failure_finalized:
+            return {}
+        failure_finalized = True
+
+        from primus.cli.procedure.procedure_executor import _cancel_all_task_stages
+
+        terminated_at = datetime.now(timezone.utc).isoformat()
+        phase = _current_task_phase(task_ref)
+        interruption_payload = {
+            "kind": kind,
+            "signal": signal_name,
+            "exception_type": exception_type,
+            "message": str(message),
+            "phase": phase,
+            "terminated_at": terminated_at,
+            "pid": runtime_identity.get("pid"),
+            "host": runtime_identity.get("host"),
+        }
+
+        if task_ref:
+            try:
+                _cancel_all_task_stages(client, task_ref.id, str(message))
+            except Exception as stage_exc:
+                logger.warning("Could not cancel task stages for %s: %s", task_ref.id, stage_exc, exc_info=True)
+
+            try:
+                task_metadata = _merge_task_metadata(task_ref, {"runtime": runtime_identity})
+                if local_dispatch:
+                    task_metadata = _with_local_dispatch_metadata(task_metadata)
+                update_payload = {
+                    "accountId": task_ref.accountId,
+                    "type": task_ref.type,
+                    "status": "CANCELLED",
+                    "target": task_ref.target,
+                    "command": task_ref.command,
+                    "metadata": _json_dumps(task_metadata),
+                    "updatedAt": terminated_at,
+                    "completedAt": terminated_at,
+                    "errorMessage": None,
+                    "errorDetails": _json_dumps(interruption_payload),
+                }
+                if local_dispatch:
+                    update_payload["dispatchStatus"] = LOCAL_DISPATCH_STATUS
+                    update_payload["workerNodeId"] = None
+                task_ref.update(**update_payload)
+            except Exception as task_exc:
+                logger.warning("Could not persist CANCELLED task state for %s: %s", task_ref.id, task_exc, exc_info=True)
+
+        if not is_builtin_procedure_id(procedure_id):
+            try:
+                _update_procedure_status_and_metadata(
+                    client,
+                    procedure_id,
+                    status="CANCELLED",
+                    metadata_patch={
+                        "runtime": runtime_identity,
+                        "last_interruption": interruption_payload,
+                    },
+                    remove_metadata_keys=["last_failure"],
+                )
+            except Exception as proc_exc:
+                logger.warning(
+                    "Could not persist CANCELLED procedure state for %s: %s",
+                    procedure_id,
+                    proc_exc,
+                    exc_info=True,
+                )
+
+        result.update(
+            {
+                "status": "CANCELLED",
+                "error": None,
+                "message": str(message),
+                "interruption": interruption_payload,
+            }
+        )
+        return interruption_payload
+
+    _install_signal_guards()
+
+    try:
+        _mark_run_started()
+        from primus.cli.procedure.stale_timeout import launch_async_stale_timeout_scan
+
+        launch_async_stale_timeout_scan(
+            account_id=account_id,
+            exclude_procedure_id=procedure_id,
+        )
+
+        # Start with Hypothesis stage (only if we have a tracker)
+        if tracker:
+            tracker.current_stage.status_message = "Starting experiment hypothesis generation"
+            tracker.update(current_items=0)
+
+        # Import and run the actual procedure using ProcedureService
+        from primus.cli.procedure.service import ProcedureService
+        service = ProcedureService(client)
+
+        # Run the procedure (this is the actual hypothesis generation work)
+        run_options = dict(experiment_options)
+        run_options.setdefault("account_id", account_id)
+        # Tactus checkpoint entries must retain one run identity across every
+        # durable replay of this Procedure/Task. A process-local UUID would
+        # make a resumed execution reject all prior checkpoints as another run.
+        run_options.setdefault("_tactus_run_id", tactus_run_id)
+        # Pass the task ID so the executor can update stage status in real-time
+        if task_ref and task_ref.id:
+            run_options.setdefault("_task_id_for_stage_tracking", task_ref.id)
+        experiment_result = await service.run_procedure(procedure_id, **run_options)
+
+        procedure_status = str(experiment_result.get("status") or "").upper()
+        is_waiting_for_human = procedure_status == "WAITING_FOR_HUMAN"
+        is_waiting_for_children = procedure_status == "WAITING_FOR_CHILDREN"
+        is_waiting_for_time = procedure_status == "WAITING_FOR_TIME"
+        is_success = bool(experiment_result.get("success"))
+        logger.info(
+            f"[PROCEDURE_RUN] procedure={procedure_id} success={is_success} "
+            f"status={procedure_status} result_keys={list(experiment_result.keys())}"
+        )
+
+        if is_waiting_for_human:
+            mapped_task_status = "RUNNING"
+            mapped_procedure_status = "WAITING_FOR_HUMAN"
+        elif is_waiting_for_children:
+            mapped_task_status = "WAITING_FOR_CHILDREN"
+            mapped_procedure_status = "WAITING_FOR_CHILDREN"
+        elif is_waiting_for_time:
+            mapped_task_status = "WAITING_FOR_TIME"
+            mapped_procedure_status = "WAITING_FOR_TIME"
+        elif is_success:
+            mapped_task_status = "COMPLETED"
+            mapped_procedure_status = "COMPLETED"
+            # Only advance tracker stages on success — on failure the executor already
+            # marked them FAILED via _fail_all_task_stages.
+            if tracker:
+                tracker.advance_stage()  # Hypothesis → Evaluation
+                tracker.current_stage.status_message = "Running experiment evaluation"
+                tracker.update(current_items=0)
+                tracker.advance_stage()  # Evaluation → Analysis
+                tracker.current_stage.status_message = "Analyzing experiment results"
+                tracker.update(current_items=total_items)
+                tracker.current_stage.complete()
+        else:
+            mapped_task_status = "FAILED"
+            mapped_procedure_status = "FAILED"
+            err_text = experiment_result.get("error") or experiment_result.get("message") or "Procedure failed"
+            logger.warning(
+                f"[PROCEDURE_RUN] procedure={procedure_id} reported failure — "
+                f"error={experiment_result.get('error')} message={experiment_result.get('message')}"
+            )
+            _finalize_failed(kind="exception", message=str(err_text))
+
+        child_wait_evidence: Optional[Dict[str, Any]] = None
+        if is_waiting_for_children:
+            wait_request = experiment_result.get("request")
+            child_snapshots = experiment_result.get("children")
+            if (
+                task_ref is None
+                or not isinstance(wait_request, dict)
+                or not isinstance(wait_request.get("children"), list)
+                or not wait_request["children"]
+            ):
+                raise RuntimeError(
+                    "WAITING_FOR_CHILDREN result lacks a durable parent Task and nonempty child request"
+                )
+            child_wait_evidence = {
+                "procedure_id": procedure_id,
+                "parent_task_id": task_ref.id,
+                "request": _to_json_safe(wait_request),
+                "children": _to_json_safe(child_snapshots or []),
+            }
+            # The checkpoint is already durable. Publish the indexed Procedure
+            # wait boundary before changing the parent Task so recovery can
+            # repair the one-sided Procedure-first crash window.
+            if not is_builtin_procedure_id(procedure_id):
+                _update_procedure_status_and_metadata(
+                    client,
+                    procedure_id,
+                    status="WAITING_FOR_CHILDREN",
+                    metadata_patch={"waiting_for_children": child_wait_evidence},
+                )
+
+        time_wait_evidence: Optional[Dict[str, Any]] = None
+        if is_waiting_for_time:
+            wait_request = canonical_time_wait_request(experiment_result.get("request"))
+            if task_ref is None or wait_request is None:
+                raise RuntimeError(
+                    "WAITING_FOR_TIME result lacks a durable parent Task and exact retry directive"
+                )
+            time_wait_evidence = {
+                "procedure_id": procedure_id,
+                "parent_task_id": task_ref.id,
+                "request": wait_request,
+            }
+            # The Tactus checkpoint is already durable. Publish its matching
+            # Procedure boundary before releasing the parent Task so a worker
+            # crash cannot make the scheduled replay look terminal.
+            if not is_builtin_procedure_id(procedure_id):
+                _update_procedure_status_and_metadata(
+                    client,
+                    procedure_id,
+                    status="WAITING_FOR_TIME",
+                    metadata_patch={"waiting_for_time": time_wait_evidence},
+                )
+
+        # Complete or update the task
+        if task_ref and mapped_task_status != "FAILED":
+            try:
+                # The living report can publish attachments while this long-running
+                # procedure is executing.  task_ref was loaded at launch, so it is
+                # not authoritative for the terminal attachment merge.
+                current_task = Task.get_by_id(task_ref.id, client)
+                if current_task is None:
+                    raise RuntimeError(
+                        f"Task {task_ref.id} disappeared before terminal output persistence."
+                    )
+                if current_task.accountId != task_ref.accountId:
+                    raise RuntimeError(
+                        f"Task {task_ref.id} changed account before terminal output persistence."
+                    )
+                current_attached_files = getattr(current_task, "attachedFiles", None)
+                if current_attached_files is not None and not isinstance(current_attached_files, list):
+                    raise RuntimeError(
+                        f"Task {task_ref.id} has malformed attachedFiles before terminal output persistence."
+                    )
+                compact_output, attached_files, _attachment_key = persist_task_output_artifact(
+                    task_id=task_ref.id,
+                    output_payload=experiment_result,
+                    format_type="json",
+                    existing_attached_files=current_attached_files,
+                    status=mapped_task_status.lower(),
+                    client=client,
+                )
+            except Exception as _persist_err:
+                raise RuntimeError("Required task output artifact could not be persisted.") from _persist_err
+            update_data = {
+                "accountId": task_ref.accountId,
+                "type": task_ref.type,
+                "status": mapped_task_status,
+                "target": task_ref.target,
+                "command": task_ref.command,
+                "updatedAt": datetime.now(timezone.utc).isoformat(),
+                "output": compact_output,
+                "attachedFiles": attached_files,
+            }
+            task_metadata = _merge_task_metadata(task_ref)
+            if is_waiting_for_children:
+                assert child_wait_evidence is not None
+                task_metadata["dispatch_policy"] = "resume_once"
+                task_metadata["waiting_for_children"] = child_wait_evidence
+                update_data["dispatchStatus"] = "WAITING_FOR_CHILDREN"
+                update_data["workerNodeId"] = None
+                update_data["completedAt"] = None
+            elif is_waiting_for_time:
+                assert time_wait_evidence is not None
+                task_metadata["dispatch_policy"] = "resume_once"
+                task_metadata["waiting_for_time"] = time_wait_evidence
+                update_data["dispatchStatus"] = "WAITING_FOR_TIME"
+                update_data["workerNodeId"] = None
+                update_data["completedAt"] = None
+            else:
+                if task_metadata.get("dispatch_policy") == "resume_once":
+                    task_metadata.pop("dispatch_policy", None)
+                task_metadata.pop("waiting_for_children", None)
+                task_metadata.pop("waiting_for_time", None)
+            if local_dispatch and not is_waiting_for_children and not is_waiting_for_time:
+                update_data["dispatchStatus"] = LOCAL_DISPATCH_STATUS
+                update_data["workerNodeId"] = None
+            if local_dispatch:
+                task_metadata = _with_local_dispatch_metadata(task_metadata)
+            update_data["metadata"] = _json_dumps(task_metadata)
+            if mapped_task_status in {"COMPLETED", "FAILED"}:
+                update_data["completedAt"] = datetime.now(timezone.utc).isoformat()
+            task_ref.update(**update_data)
+
+        # Keep procedure status consistent with the actual run outcome for DB-backed procedures.
+        if (
+            mapped_procedure_status != "FAILED"
+            and not is_waiting_for_children
+            and not is_waiting_for_time
+            and not is_builtin_procedure_id(procedure_id)
+        ):
+            try:
+                logger.info(f"[PROCEDURE_RUN] Updating procedure {procedure_id} status → {mapped_procedure_status}")
+                _update_procedure_status_and_metadata(
+                    client,
+                    procedure_id,
+                    status=mapped_procedure_status,
+                    remove_metadata_keys=["waiting_for_children", "waiting_for_time"],
+                )
+            except Exception as _pe:
+                logger.warning(f"Failed to update procedure status for {procedure_id}: {_pe}")
+
+        # Update result with experiment outcome
+        result.update(experiment_result)
+        result["status"] = mapped_procedure_status
+        result["message"] = (
+            "Experiment completed successfully"
+            if mapped_procedure_status == "COMPLETED"
+            else result.get("message", "Experiment execution updated")
+        )
+
+    except ProcedureRunTermination as exc:
+        logger.warning("Procedure %s interrupted by %s", procedure_id, exc.signal_name)
+        _finalize_interrupted(
+            kind="signal",
+            signal_name=exc.signal_name,
+            message=f"Procedure run interrupted by {exc.signal_name}",
+        )
+        raise SystemExit(128 + exc.signum) from None
+    except KeyboardInterrupt:
+        logger.warning("Procedure %s interrupted by keyboard", procedure_id)
+        _finalize_interrupted(
+            kind="signal",
+            signal_name="SIGINT",
+            message="Procedure run interrupted by SIGINT",
+        )
+        raise
+    except click.Abort as exc:
+        logger.warning("Procedure %s aborted", procedure_id)
+        _finalize_failed(
+            kind="abort",
+            exception_type=type(exc).__name__,
+            message=str(exc) or "Procedure run aborted",
+        )
+        raise
+    except SystemExit as exc:
+        if _system_exit_is_failure(exc.code):
+            logger.warning("Procedure %s exited early with code %s", procedure_id, exc.code)
+            _finalize_failed(
+                kind="system_exit",
+                exception_type=type(exc).__name__,
+                message=f"Procedure run exited with status {exc.code}",
+            )
+        raise
+    except Exception as exc:
+        logging.error(f"Experiment run failed: {str(exc)}", exc_info=True)
+        _finalize_failed(
+            kind="exception",
+            exception_type=type(exc).__name__,
+            message=str(exc),
+            traceback_text=traceback.format_exc(),
+        )
+    finally:
+        try:
+            drained = await drain_litellm_service_logging_tasks()
+            if drained:
+                logger.debug("Drained %d LiteLLM service-logging task(s) at procedure shutdown", drained)
+        except Exception as cleanup_exc:
+            logger.warning("Could not drain LiteLLM service-logging tasks: %s", cleanup_exc)
+        _restore_signal_guards()
+    
+    return result

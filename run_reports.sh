@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-cd /Users/ryan.porter/Projects/Plexus
+cd /Users/ryan.porter/Projects/Primus
 # Group 1: SelectQuote
 python scripts/run_vector_topic_memory_report.py --scorecard 1461 --days 180
 python scripts/run_vector_topic_memory_report.py --scorecard 1481 --days 180

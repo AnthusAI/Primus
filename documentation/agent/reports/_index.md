@@ -17,7 +17,7 @@ exist, uses a shorthand report name, or asks to run a report.
 
 ## Topics in this namespace
 
-Use `plexus.docs.list({ namespace = "reports" })` to list every topic, then `plexus.docs.get({ key = "<id>" })` for the full doc.
+Use `primus.docs.list({ namespace = "reports" })` to list every topic, then `primus.docs.get({ key = "<id>" })` for the full doc.
 
 Current canonical topics include:
 - `reports.reports-catalog` — user-facing report inventory, aliases, routing rules, and durable async patterns.

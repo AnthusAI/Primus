@@ -20,10 +20,10 @@ def _load_handler_module():
         sys.modules["botocore"] = botocore_module
         sys.modules["botocore.exceptions"] = exceptions_module
 
-    client_module_name = "plexus.dashboard.api.client"
+    client_module_name = "primus.dashboard.api.client"
     if client_module_name not in sys.modules:
         client_module = types.ModuleType(client_module_name)
-        client_module.PlexusDashboardClient = object
+        client_module.PrimusDashboardClient = object
         sys.modules[client_module_name] = client_module
 
     def _ensure_model_module(module_name, class_name):
@@ -34,11 +34,11 @@ def _load_handler_module():
         setattr(module, class_name, model_cls)
         sys.modules[module_name] = module
 
-    _ensure_model_module("plexus.dashboard.api.models.scoring_job", "ScoringJob")
-    _ensure_model_module("plexus.dashboard.api.models.account", "Account")
-    _ensure_model_module("plexus.dashboard.api.models.scorecard", "Scorecard")
-    _ensure_model_module("plexus.dashboard.api.models.score", "Score")
-    _ensure_model_module("plexus.dashboard.api.models.item", "Item")
+    _ensure_model_module("primus.dashboard.api.models.scoring_job", "ScoringJob")
+    _ensure_model_module("primus.dashboard.api.models.account", "Account")
+    _ensure_model_module("primus.dashboard.api.models.scorecard", "Scorecard")
+    _ensure_model_module("primus.dashboard.api.models.score", "Score")
+    _ensure_model_module("primus.dashboard.api.models.item", "Item")
 
     handler_path = Path(__file__).resolve().parents[2] / "score-processor-lambda" / "handler.py"
     spec = importlib.util.spec_from_file_location("score_processor_lambda_handler", handler_path)

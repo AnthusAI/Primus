@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-APP_DIR="/home/ec2-user/projects/Plexus"
+APP_DIR="/home/ec2-user/projects/Primus"
 CONDA_BIN="/home/ec2-user/miniconda3/bin/conda"
 CONDA_ENV="py311"
 
@@ -44,11 +44,11 @@ done
 '
 
 # Only restart services if they exist
-if sudo systemctl list-unit-files | grep -q plexus-command-worker; then
-    echo "Restarting Plexus Command Worker..."
-    sudo systemctl restart plexus-command-worker
+if sudo systemctl list-unit-files | grep -q primus-command-worker; then
+    echo "Restarting Primus Command Worker..."
+    sudo systemctl restart primus-command-worker
 else
-    echo "Plexus Command Worker service not found (staging environment)"
+    echo "Primus Command Worker service not found (staging environment)"
 fi
 
 if sudo systemctl list-unit-files | grep -q fastapi.service; then

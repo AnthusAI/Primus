@@ -55,8 +55,8 @@ select the consultant's fresh-session profile.
 
 ## Establish the consultation scope
 
-Require a human-supplied existing Plexus Kanbus anchor issue for every
-consultation, including an unscoped portfolio review. Plexus does not define a
+Require a human-supplied existing Primus Kanbus anchor issue for every
+consultation, including an unscoped portfolio review. Primus does not define a
 default portfolio anchor. Validate the selected anchor with `kbs show` before
 analysis. If it is missing or belongs to the wrong repository, stop and request
 another existing anchor from the human; do not create or guess one.

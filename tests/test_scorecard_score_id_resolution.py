@@ -11,7 +11,7 @@ import pytest
 import json
 import uuid
 from unittest.mock import Mock, patch
-from plexus.Scorecard import Scorecard
+from primus.Scorecard import Scorecard
 
 
 class TestScorecardScoreIdResolution:

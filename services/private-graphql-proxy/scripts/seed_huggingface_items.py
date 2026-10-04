@@ -149,7 +149,7 @@ def load_rows(
     except ImportError as exc:
         raise RuntimeError(
             "The Hugging Face 'datasets' package is required. "
-            "Install the full Plexus dependencies or run the scoring integration Compose profile."
+            "Install the full Primus dependencies or run the scoring integration Compose profile."
         ) from exc
 
     load_kwargs: dict[str, Any] = {}
@@ -365,18 +365,18 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Seed Hugging Face call-center transcript rows as private proxy Items."
     )
-    parser.add_argument("--proxy-url", default=os.getenv("PLEXUS_API_URL", "http://localhost:18080/graphql"))
-    parser.add_argument("--api-key", default=os.getenv("PLEXUS_API_KEY", "local-smoke-key"))
+    parser.add_argument("--proxy-url", default=os.getenv("PRIMUS_API_URL", "http://localhost:18080/graphql"))
+    parser.add_argument("--api-key", default=os.getenv("PRIMUS_API_KEY", "local-smoke-key"))
     parser.add_argument("--account-id", required=True)
     parser.add_argument("--score-id")
-    parser.add_argument("--dataset", default=os.getenv("PLEXUS_PROXY_FIXTURE_DATASET", DEFAULT_DATASET))
-    parser.add_argument("--split", default=os.getenv("PLEXUS_PROXY_FIXTURE_SPLIT", DEFAULT_SPLIT))
-    parser.add_argument("--start", type=int, default=int(os.getenv("PLEXUS_PROXY_FIXTURE_START", "0")))
-    parser.add_argument("--limit", type=int, default=int(os.getenv("PLEXUS_PROXY_FIXTURE_LIMIT", "5")))
+    parser.add_argument("--dataset", default=os.getenv("PRIMUS_PROXY_FIXTURE_DATASET", DEFAULT_DATASET))
+    parser.add_argument("--split", default=os.getenv("PRIMUS_PROXY_FIXTURE_SPLIT", DEFAULT_SPLIT))
+    parser.add_argument("--start", type=int, default=int(os.getenv("PRIMUS_PROXY_FIXTURE_START", "0")))
+    parser.add_argument("--limit", type=int, default=int(os.getenv("PRIMUS_PROXY_FIXTURE_LIMIT", "5")))
     parser.add_argument("--source", choices=("datasets", "datasets-server"), default="datasets")
     parser.add_argument("--label-field", help="Explicit source field to use as the evaluation label.")
     parser.add_argument("--feedback-scorecard-id", help="Create labeled FeedbackItems for this scorecard.")
-    parser.add_argument("--prefix", default=os.getenv("PLEXUS_PROXY_FIXTURE_PREFIX", DEFAULT_PREFIX))
+    parser.add_argument("--prefix", default=os.getenv("PRIMUS_PROXY_FIXTURE_PREFIX", DEFAULT_PREFIX))
     parser.add_argument("--identifier-name", default=DEFAULT_IDENTIFIER_NAME)
     parser.add_argument("--no-verify", action="store_true")
     return parser.parse_args()

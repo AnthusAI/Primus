@@ -1,7 +1,7 @@
 """
-Stack for Plexus application deployment pipeline.
+Stack for Primus application deployment pipeline.
 
-This stack creates a CodePipeline that deploys Plexus application code to EC2 instances
+This stack creates a CodePipeline that deploys Primus application code to EC2 instances
 using CodeDeploy. Unlike the infrastructure pipeline's broken post-deploy step, this
 uses native CodeDeployServerDeployAction which properly waits for deployment completion.
 
@@ -42,7 +42,7 @@ class AppDeploymentPipelineStack(Stack):
         environment: str,
         branch: str,
         github_owner: str = "AnthusAI",
-        github_repo: str = "Plexus",
+        github_repo: str = "Primus",
         **kwargs
     ) -> None:
         """
@@ -69,7 +69,7 @@ class AppDeploymentPipelineStack(Stack):
 
         # Resolve the GitHub CodeConnection ARN from SSM at deploy time.
         connection_arn = (
-            os.environ.get("PLEXUS_GITHUB_CONNECTION_ARN")
+            os.environ.get("PRIMUS_GITHUB_CONNECTION_ARN")
             or ssm.StringParameter.value_for_string_parameter(
                 self,
                 "/plexus/github-connection-arn",
@@ -170,7 +170,7 @@ class AppDeploymentPipelineStack(Stack):
 
         # Grant the deployment group's S3 bucket read access
         # This is needed for CodeDeploy to retrieve artifacts
-        codedeploy_bucket_name = f"plexus-{environment}-code-deployments"
+        codedeploy_bucket_name = f"primus-{environment}-code-deployments"
 
         pipeline = codepipeline.Pipeline(
             self,

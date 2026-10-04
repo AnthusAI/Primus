@@ -1,20 +1,20 @@
-# Plexus Agent Knowledge Base
+# Primus Agent Knowledge Base
 
 This directory is the canonical, token-efficient documentation for AI
-agents working with Plexus. It is consumed at runtime by the
-`plexus.docs.*` APIs inside the `execute_tactus` MCP tool, and it is
+agents working with Primus. It is consumed at runtime by the
+`primus.docs.*` APIs inside the `execute_tactus` MCP tool, and it is
 also readable by humans browsing the repo.
 
 If you are an agent: do not read these files directly. Start with
 
 ```lua
-return plexus.docs.list({})
+return primus.docs.list({})
 ```
 
 and use the metadata summaries to choose what to load with
 
 ```lua
-return plexus.docs.get({ key = "<id>" })
+return primus.docs.get({ key = "<id>" })
 ```
 
 If you are a human: each topic is a small markdown file with YAML
@@ -44,9 +44,9 @@ frontmatter block:
 
 ```yaml
 ---
-id: <namespace>.<slug>            # canonical key for plexus.docs.get
+id: <namespace>.<slug>            # canonical key for primus.docs.get
 title: Human-readable title
-summary: One-sentence summary used by plexus.docs.list.
+summary: One-sentence summary used by primus.docs.list.
 namespace: <namespace>            # one of the directories above
 status: canonical | draft | deprecated
 disclosure: overview | reference | cookbook | deep-dive
@@ -57,8 +57,8 @@ related:                          # optional; list of related ids
 ---
 ```
 
-The repository module that backs `plexus.docs.*` lives in
-`plexus/documentation/repository.py`.
+The repository module that backs `primus.docs.*` lives in
+`primus/documentation/repository.py`.
 
 ## Companion content
 

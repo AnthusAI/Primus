@@ -50,7 +50,7 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(
-    title="Plexus Private GraphQL Proxy",
+    title="Primus Private GraphQL Proxy",
     version="0.1.0",
     lifespan=lifespan,
 )
@@ -96,7 +96,7 @@ async def graphql_endpoint(
         if not settings.proxy_api_key:
             raise HTTPException(
                 status_code=503,
-                detail="PLEXUS_PROXY_AUTH_MODE=api_key requires PLEXUS_PROXY_API_KEY",
+                detail="PRIMUS_PROXY_AUTH_MODE=api_key requires PRIMUS_PROXY_API_KEY",
             )
         if x_api_key != settings.proxy_api_key:
             raise HTTPException(status_code=401, detail="invalid proxy API key")
@@ -176,19 +176,19 @@ def assert_security_configuration() -> None:
 
 def security_configuration_error() -> Optional[str]:
     if settings.auth_mode not in {"trusted_open", "api_key"}:
-        return "PLEXUS_PROXY_AUTH_MODE must be trusted_open or api_key"
+        return "PRIMUS_PROXY_AUTH_MODE must be trusted_open or api_key"
     if settings.auth_mode == "api_key" and not settings.proxy_api_key:
-        return "PLEXUS_PROXY_AUTH_MODE=api_key requires PLEXUS_PROXY_API_KEY"
+        return "PRIMUS_PROXY_AUTH_MODE=api_key requires PRIMUS_PROXY_API_KEY"
     if settings.auth_mode == "trusted_open":
         if settings.backend_mode != "local":
-            return "PLEXUS_PROXY_AUTH_MODE=trusted_open requires PLEXUS_BACKEND_MODE=local"
+            return "PRIMUS_PROXY_AUTH_MODE=trusted_open requires PRIMUS_BACKEND_MODE=local"
         if not settings.upstream_disabled:
-            return "PLEXUS_PROXY_AUTH_MODE=trusted_open requires PLEXUS_PROXY_UPSTREAM_DISABLED=true"
+            return "PRIMUS_PROXY_AUTH_MODE=trusted_open requires PRIMUS_PROXY_UPSTREAM_DISABLED=true"
     if artifact_ticket_configuration.enabled:
         if settings.backend_mode != "local":
-            return "local artifact transfer tickets require PLEXUS_BACKEND_MODE=local"
+            return "local artifact transfer tickets require PRIMUS_BACKEND_MODE=local"
         if settings.auth_mode != "api_key" or not settings.auth_mode_explicit:
-            return "local artifact transfer tickets require explicit PLEXUS_PROXY_AUTH_MODE=api_key"
+            return "local artifact transfer tickets require explicit PRIMUS_PROXY_AUTH_MODE=api_key"
     return None
 
 

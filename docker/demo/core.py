@@ -353,7 +353,7 @@ def render_artifacts(manifest: DemoManifest, output_dir: Path) -> None:
     )
 
     report_lines = [
-        f"# Plexus Kubernetes Demo — {manifest.run_id}",
+        f"# Primus Kubernetes Demo — {manifest.run_id}",
         "",
         f"Profile: `{manifest.profile}`",
         "",
@@ -382,13 +382,13 @@ def _write_junit(manifest: DemoManifest, path: Path) -> None:
     failures = sum(1 for result in manifest.phases.values() if not result.get("passed"))
     suite = ET.Element(
         "testsuite",
-        name="plexus-kubernetes-demo",
+        name="primus-kubernetes-demo",
         tests=str(len(manifest.phases)),
         failures=str(failures),
         errors="0",
     )
     for phase, result in manifest.phases.items():
-        case = ET.SubElement(suite, "testcase", classname="plexus.k8s.demo", name=phase)
+        case = ET.SubElement(suite, "testcase", classname="primus.k8s.demo", name=phase)
         if not result.get("passed"):
             failure = ET.SubElement(case, "failure", message=f"{phase} failed")
             failure.text = redact_text(result.get("error") or json.dumps(result.get("summary") or {}))

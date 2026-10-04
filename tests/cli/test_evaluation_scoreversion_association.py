@@ -11,7 +11,7 @@ import uuid
 from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime, timezone
 
-from plexus.Evaluation import AccuracyEvaluation, Evaluation
+from primus.Evaluation import AccuracyEvaluation, Evaluation
 
 
 class TestScoreVersionAssociationLogic:
@@ -102,7 +102,7 @@ class TestAccuracyEvaluationVersionHandling:
         self.mock_scorecard = Mock()
         self.mock_scorecard.name = "test_scorecard"
 
-    @patch('plexus.Evaluation.PlexusDashboardClient')
+    @patch('primus.Evaluation.PrimusDashboardClient')
     def test_accuracy_evaluation_stores_score_version_id(self, mock_client_class):
         """Test that AccuracyEvaluation properly stores score_version_id."""
         mock_client_class.for_account.return_value = None  # Skip client initialization
@@ -119,7 +119,7 @@ class TestAccuracyEvaluationVersionHandling:
         
         assert evaluation.score_version_id == self.score_version_id
 
-    @patch('plexus.Evaluation.PlexusDashboardClient')
+    @patch('primus.Evaluation.PrimusDashboardClient')
     def test_accuracy_evaluation_without_score_version(self, mock_client_class):
         """Test AccuracyEvaluation without score_version_id (YAML mode)."""
         mock_client_class.for_account.return_value = None

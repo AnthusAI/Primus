@@ -4,14 +4,14 @@ prompt: |
   Look at false negatives for Compliance Tone over the last 30 days. Return the
   top three recurring miss patterns, the number of examples for each pattern,
   and one representative item id per pattern. Do not include raw transcripts.
-  Use plexus.feedback.find to retrieve false-negative feedback for score_id
-  score_compliance_tone with kind = "FN". plexus.feedback.find returns an array
+  Use primus.feedback.find to retrieve false-negative feedback for score_id
+  score_compliance_tone with kind = "FN". primus.feedback.find returns an array
   of feedback items directly; iterate over it with ipairs(feedback), not
   feedback.items. Each feedback row includes item_id, pattern, and comment.
   Build your recurring-miss labels from feedback[i].pattern (or fallback to
   feedback[i].comment), and choose representative_item_id from feedback[i].item_id.
-  Also call plexus.feedback.alignment for aggregate alignment data and call
-  plexus.item.info once for each representative item id you return.
+  Also call primus.feedback.alignment for aggregate alignment data and call
+  primus.item.info once for each representative item id you return.
   Return exactly one top-level field named patterns. It must contain exactly three
   entries, and each entry must include label, example_count, and
   representative_item_id. Do not include a transcripts field or raw transcript text.
@@ -34,9 +34,9 @@ coverage_tags:
   - context_reduction
   - privacy_preserving_summary
 required_apis:
-  - plexus.feedback.find
-  - plexus.feedback.alignment
-  - plexus.item.info
+  - primus.feedback.find
+  - primus.feedback.alignment
+  - primus.item.info
 max_attempts_for_first_try_pass: 1
 fixture_notes: |
   The feedback fixture should contain at least 12 false negatives clustered into

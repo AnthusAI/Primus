@@ -18,7 +18,7 @@ related:
 
 ## What changed
 
-Contradictions and `plexus evaluate feedback --version ...` now hard-fail before analysis when prerequisites are unresolved.
+Contradictions and `primus evaluate feedback --version ...` now hard-fail before analysis when prerequisites are unresolved.
 
 Common typed failures:
 
@@ -32,13 +32,13 @@ Common typed failures:
 1. Run integrity diagnostics for orphaned feedback references:
 
 ```bash
-plexus feedback report integrity --days 30
+primus feedback report integrity --days 30
 ```
 
 2. Reproduce contradictions with explicit scope:
 
 ```bash
-plexus feedback report contradictions \
+primus feedback report contradictions \
   --scorecard "<scorecard>" \
   --score "<score>" \
   --days 7 \
@@ -48,7 +48,7 @@ plexus feedback report contradictions \
 3. Reproduce feedback evaluation preflight:
 
 ```bash
-plexus evaluate feedback \
+primus evaluate feedback \
   --scorecard "<scorecard>" \
   --score "<score>" \
   --version "<score_version_id>" \

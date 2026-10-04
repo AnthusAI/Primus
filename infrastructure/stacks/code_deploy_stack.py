@@ -1,7 +1,7 @@
 """
-Stack for Plexus CodeDeploy resources.
+Stack for Primus CodeDeploy resources.
 
-This stack manages the CodeDeploy infrastructure for deploying Plexus code
+This stack manages the CodeDeploy infrastructure for deploying Primus code
 to EC2 instances, including the application and deployment groups.
 The actual deployment is triggered by the main infrastructure pipeline.
 """
@@ -25,7 +25,7 @@ class CodeDeployStack(Stack):
     CDK Stack for CodeDeploy resources.
 
     Creates environment-specific CodeDeploy applications and deployment groups
-    for deploying Plexus code to EC2 instances.
+    for deploying Primus code to EC2 instances.
     """
 
     def __init__(
@@ -66,7 +66,7 @@ class CodeDeployStack(Stack):
         self.deployment_bucket = s3.Bucket(
             self,
             f"DeploymentBucket-{environment}",
-            bucket_name=f"plexus-{environment}-code-deployments",
+            bucket_name=f"primus-{environment}-code-deployments",
             removal_policy=RemovalPolicy.RETAIN,  # Keep deployment history
             versioned=True,  # Enable versioning for rollback capability
             encryption=s3.BucketEncryption.S3_MANAGED

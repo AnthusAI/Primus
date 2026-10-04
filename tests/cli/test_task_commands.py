@@ -3,12 +3,12 @@ import click
 from unittest.mock import MagicMock, patch
 from click.testing import CliRunner
 from datetime import datetime, timezone
-from plexus.cli.task.tasks import tasks, delete, list
-from plexus.dashboard.api.models.task import Task
+from primus.cli.task.tasks import tasks, delete, list
+from primus.dashboard.api.models.task import Task
 
 @pytest.fixture
 def mock_client():
-    with patch('plexus.cli.task.tasks.create_client') as mock:
+    with patch('primus.cli.task.tasks.create_client') as mock:
         client = MagicMock()
         mock.return_value = client
         yield client
@@ -19,7 +19,7 @@ def runner():
 
 @pytest.fixture
 def mock_task_fields():
-    with patch('plexus.dashboard.api.models.task.Task.fields') as mock:
+    with patch('primus.dashboard.api.models.task.Task.fields') as mock:
         mock.return_value = """
             id
             accountId
@@ -57,7 +57,7 @@ def mock_task_fields():
 
 @pytest.fixture
 def mock_task_from_dict():
-    with patch('plexus.dashboard.api.models.task.Task.from_dict') as mock:
+    with patch('primus.dashboard.api.models.task.Task.from_dict') as mock:
         def mock_from_dict(data, client):
             task = MagicMock()
             task.id = data['id']
@@ -92,7 +92,7 @@ def mock_task_from_dict():
 
 def test_list_tasks(mock_client, runner, mock_task_fields, mock_task_from_dict):
     # Mock the account resolution and task listing
-    with patch('plexus.cli.task.tasks.resolve_account_id_for_command') as mock_resolve:
+    with patch('primus.cli.task.tasks.resolve_account_id_for_command') as mock_resolve:
         mock_resolve.return_value = 'test-account-id'
         
         mock_client.execute.return_value = {
@@ -135,7 +135,7 @@ def test_list_tasks(mock_client, runner, mock_task_fields, mock_task_from_dict):
 
 def test_delete_specific_task(mock_client, runner, mock_task_fields, mock_task_from_dict):
     # Mock the account resolution and task operations
-    with patch('plexus.cli.task.tasks.resolve_account_id_for_command') as mock_resolve:
+    with patch('primus.cli.task.tasks.resolve_account_id_for_command') as mock_resolve:
         mock_resolve.return_value = 'test-account-id'
         
         mock_client.execute.side_effect = [
@@ -235,7 +235,7 @@ def test_delete_requires_account_unless_all(mock_client, runner):
     # resolve_account_id_for_command will be called and should raise click.Abort()
     
     # Mock resolve_account_id_for_command to raise an exception (simulating missing account)
-    with patch('plexus.cli.task.tasks.resolve_account_id_for_command') as mock_resolve:
+    with patch('primus.cli.task.tasks.resolve_account_id_for_command') as mock_resolve:
         mock_resolve.side_effect = click.Abort()
         
         result = runner.invoke(tasks, ['delete', '--task-id', 'task-1'])
@@ -244,7 +244,7 @@ def test_delete_requires_account_unless_all(mock_client, runner):
 
 def test_delete_with_stages(mock_client, runner, mock_task_fields, mock_task_from_dict):
     # Mock the account resolution and task operations
-    with patch('plexus.cli.task.tasks.resolve_account_id_for_command') as mock_resolve:
+    with patch('primus.cli.task.tasks.resolve_account_id_for_command') as mock_resolve:
         mock_resolve.return_value = 'test-account-id'
         
         mock_client.execute.side_effect = [
@@ -302,7 +302,7 @@ def test_delete_with_stages(mock_client, runner, mock_task_fields, mock_task_fro
 
 def test_delete_confirmation_required(mock_client, runner, mock_task_fields, mock_task_from_dict):
     # Mock the account resolution and task listing
-    with patch('plexus.cli.task.tasks.resolve_account_id_for_command') as mock_resolve:
+    with patch('primus.cli.task.tasks.resolve_account_id_for_command') as mock_resolve:
         mock_resolve.return_value = 'test-account-id'
         
         mock_client.execute.return_value = {

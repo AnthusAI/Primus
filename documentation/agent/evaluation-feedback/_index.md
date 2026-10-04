@@ -14,4 +14,4 @@ Alignment, evaluation, acceptance, optimizer cookbook, and optimizer objectives.
 
 ## Topics in this namespace
 
-Use `plexus.docs.list({ namespace = "evaluation-feedback" })` to list every topic, then `plexus.docs.get({ key = "<id>" })` for the full doc.
+Use `primus.docs.list({ namespace = "evaluation-feedback" })` to list every topic, then `primus.docs.get({ key = "<id>" })` for the full doc.

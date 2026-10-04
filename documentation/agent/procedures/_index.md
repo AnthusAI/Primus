@@ -1,7 +1,7 @@
 ---
 id: procedures._index
 title: Procedures
-summary: Authoring and running Plexus procedures.
+summary: Authoring and running Primus procedures.
 namespace: procedures
 status: canonical
 disclosure: overview
@@ -10,8 +10,8 @@ tags: [index]
 ---
 # Procedures
 
-Authoring and running Plexus procedures.
+Authoring and running Primus procedures.
 
 ## Topics in this namespace
 
-Use `plexus.docs.list({ namespace = "procedures" })` to list every topic, then `plexus.docs.get({ key = "<id>" })` for the full doc.
+Use `primus.docs.list({ namespace = "procedures" })` to list every topic, then `primus.docs.get({ key = "<id>" })` for the full doc.

@@ -1,8 +1,8 @@
 # Score Processor Artifacts
 
-`infrastructure/score_processor_artifacts` is an isolated CDK app for publishing Plexus score processor container images. It does not deploy scoring queues, Lambda functions, event source mappings, or downstream environment resources.
+`infrastructure/score_processor_artifacts` is an isolated CDK app for publishing Primus score processor container images. It does not deploy scoring queues, Lambda functions, event source mappings, or downstream environment resources.
 
-The app exists so external deployment owners can consume a pinned score processor image without depending on the legacy Plexus infrastructure pipeline.
+The app exists so external deployment owners can consume a pinned score processor image without depending on the legacy Primus infrastructure pipeline.
 
 ## Resources
 
@@ -13,16 +13,16 @@ The stack creates:
 - a CodeBuild project with Docker enabled
 - generic SSM parameters containing the latest published artifact metadata for the configured channel
 
-The pipeline builds `score-processor-lambda/Dockerfile.scoring-runtime` from a clean checkout and pushes an immutable `git-<source-sha>` tag. This dedicated image installs only the Plexus `scoring` extra; the existing `score-processor-lambda/Dockerfile` and legacy deployment pipeline continue to install `all`. The pipeline then resolves the ECR image digest and writes the digest-pinned image URI to SSM.
+The pipeline builds `score-processor-lambda/Dockerfile.scoring-runtime` from a clean checkout and pushes an immutable `git-<source-sha>` tag. This dedicated image installs only the Primus `scoring` extra; the existing `score-processor-lambda/Dockerfile` and legacy deployment pipeline continue to install `all`. The pipeline then resolves the ECR image digest and writes the digest-pinned image URI to SSM.
 
 ## Metadata
 
 For the default `development` channel, the build writes:
 
-- `/plexus/score-processor-artifacts/development/image-uri`
-- `/plexus/score-processor-artifacts/development/image-digest`
-- `/plexus/score-processor-artifacts/development/image-tag`
-- `/plexus/score-processor-artifacts/development/source-revision`
+- `/primus/score-processor-artifacts/development/image-uri`
+- `/primus/score-processor-artifacts/development/image-digest`
+- `/primus/score-processor-artifacts/development/image-tag`
+- `/primus/score-processor-artifacts/development/source-revision`
 
 Downstream deployments should deploy the digest-pinned `image-uri`, not a mutable tag.
 
@@ -31,12 +31,12 @@ Downstream deployments should deploy the digest-pinned `image-uri`, not a mutabl
 Environment variables control the app without changing source:
 
 ```bash
-export PLEXUS_SCORE_PROCESSOR_ARTIFACT_CHANNEL=development
-export PLEXUS_SCORE_PROCESSOR_ARTIFACT_BRANCH=develop
-export PLEXUS_SCORE_PROCESSOR_TRIGGER_ON_PUSH=true
+export PRIMUS_SCORE_PROCESSOR_ARTIFACT_CHANNEL=development
+export PRIMUS_SCORE_PROCESSOR_ARTIFACT_BRANCH=develop
+export PRIMUS_SCORE_PROCESSOR_TRIGGER_ON_PUSH=true
 ```
 
-The GitHub CodeConnections ARN is read from `PLEXUS_GITHUB_CONNECTION_ARN` when set, otherwise from `/plexus/github-connection-arn`.
+The GitHub CodeConnections ARN is read from `PRIMUS_GITHUB_CONNECTION_ARN` when set, otherwise from `/primus/github-connection-arn`.
 
 ## Validation
 
@@ -50,5 +50,5 @@ cdk synth
 
 ```bash
 cd infrastructure/score_processor_artifacts
-cdk deploy plexus-score-processor-artifacts-development
+cdk deploy primus-score-processor-artifacts-development
 ```

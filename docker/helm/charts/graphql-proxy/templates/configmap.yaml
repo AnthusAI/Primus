@@ -6,21 +6,21 @@ metadata:
   labels:
     {{- include "graphql-proxy.labels" . | nindent 4 }}
 data:
-  PLEXUS_BACKEND_MODE: {{ .Values.config.backendMode | quote }}
-  PLEXUS_PROXY_AUTH_MODE: {{ .Values.config.authMode | quote }}
-  PLEXUS_PROXY_UPSTREAM_API_URL: {{ .Values.config.upstreamApiUrl | quote }}
-  PLEXUS_PROXY_UPSTREAM_TIMEOUT_SECONDS: {{ .Values.config.upstreamTimeoutSeconds | quote }}
-  PLEXUS_PROXY_UPSTREAM_DISABLED: {{ .Values.config.upstreamDisabled | quote }}
-  PLEXUS_PROXY_CACHE_TTL_SECONDS: {{ .Values.config.cacheTtlSeconds | quote }}
-  PLEXUS_PROXY_CACHE_STALE_SECONDS: {{ .Values.config.cacheStaleSeconds | quote }}
-  PLEXUS_SCORING_JOB_CLAIM_LEASE_SECONDS: {{ .Values.config.scoringJobClaimLeaseSeconds | quote }}
-  PLEXUS_PROXY_ENABLE_DEBUG: {{ .Values.config.enableDebug | quote }}
-  PLEXUS_ARTIFACT_TICKETS_ENABLED: {{ .Values.artifactStore.enabled | quote }}
-  PLEXUS_ARTIFACT_STORE_ENDPOINT: {{ .Values.artifactStore.endpoint | quote }}
-  PLEXUS_ARTIFACT_STORE_REGION: {{ .Values.artifactStore.region | quote }}
-  PLEXUS_ARTIFACT_ACCOUNT_ID: {{ .Values.artifactStore.accountId | quote }}
-  PLEXUS_ARTIFACT_TICKET_TTL_SECONDS: {{ .Values.artifactStore.ticketTtlSeconds | quote }}
-  PLEXUS_ARTIFACT_BUCKET_DATASETS: {{ .Values.artifactStore.buckets.datasets | quote }}
-  PLEXUS_ARTIFACT_BUCKET_REPORT_BLOCK_DETAILS: {{ .Values.artifactStore.buckets.reportBlockDetails | quote }}
-  PLEXUS_ARTIFACT_BUCKET_TASK_ATTACHMENTS: {{ .Values.artifactStore.buckets.taskAttachments | quote }}
-  PLEXUS_ARTIFACT_BUCKET_SCORE_RESULT_ATTACHMENTS: {{ .Values.artifactStore.buckets.scoreResultAttachments | quote }}
+  PRIMUS_BACKEND_MODE: {{ .Values.config.backendMode | quote }}
+  PRIMUS_PROXY_AUTH_MODE: {{ .Values.config.authMode | quote }}
+  PRIMUS_PROXY_UPSTREAM_API_URL: {{ .Values.config.upstreamApiUrl | quote }}
+  PRIMUS_PROXY_UPSTREAM_TIMEOUT_SECONDS: {{ .Values.config.upstreamTimeoutSeconds | quote }}
+  PRIMUS_PROXY_UPSTREAM_DISABLED: {{ .Values.config.upstreamDisabled | quote }}
+  PRIMUS_PROXY_CACHE_TTL_SECONDS: {{ .Values.config.cacheTtlSeconds | quote }}
+  PRIMUS_PROXY_CACHE_STALE_SECONDS: {{ .Values.config.cacheStaleSeconds | quote }}
+  PRIMUS_SCORING_JOB_CLAIM_LEASE_SECONDS: {{ .Values.config.scoringJobClaimLeaseSeconds | quote }}
+  PRIMUS_PROXY_ENABLE_DEBUG: {{ .Values.config.enableDebug | quote }}
+  PRIMUS_ARTIFACT_TICKETS_ENABLED: {{ .Values.artifactStore.enabled | quote }}
+  PRIMUS_ARTIFACT_STORE_ENDPOINT: {{ .Values.artifactStore.endpoint | quote }}
+  PRIMUS_ARTIFACT_STORE_REGION: {{ .Values.artifactStore.region | quote }}
+  PRIMUS_ARTIFACT_ACCOUNT_ID: {{ .Values.artifactStore.accountId | quote }}
+  PRIMUS_ARTIFACT_TICKET_TTL_SECONDS: {{ .Values.artifactStore.ticketTtlSeconds | quote }}
+  PRIMUS_ARTIFACT_BUCKET_DATASETS: {{ .Values.artifactStore.buckets.datasets | quote }}
+  PRIMUS_ARTIFACT_BUCKET_REPORT_BLOCK_DETAILS: {{ .Values.artifactStore.buckets.reportBlockDetails | quote }}
+  PRIMUS_ARTIFACT_BUCKET_TASK_ATTACHMENTS: {{ .Values.artifactStore.buckets.taskAttachments | quote }}
+  PRIMUS_ARTIFACT_BUCKET_SCORE_RESULT_ATTACHMENTS: {{ .Values.artifactStore.buckets.scoreResultAttachments | quote }}

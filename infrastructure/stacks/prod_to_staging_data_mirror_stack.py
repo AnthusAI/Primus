@@ -1,4 +1,4 @@
-"""CodeBuild job for mirroring Plexus production data into staging."""
+"""CodeBuild job for mirroring Primus production data into staging."""
 
 from aws_cdk import (
     CfnOutput,
@@ -31,7 +31,7 @@ class ProdToStagingDataMirrorStack(Stack):
         region = kwargs.get("env").region if kwargs.get("env") else "us-east-1"
         account = kwargs.get("env").account if kwargs.get("env") else "*"
 
-        Tags.of(self).add("Service", "plexus-data-mirror")
+        Tags.of(self).add("Service", "primus-data-mirror")
         Tags.of(self).add("ManagedBy", "CDK")
         Tags.of(self).add("SourceEnvironment", "production")
         Tags.of(self).add("TargetEnvironment", "staging")
@@ -39,7 +39,7 @@ class ProdToStagingDataMirrorStack(Stack):
         run_log_bucket = s3.Bucket(
             self,
             "RunLogBucket",
-            bucket_name=f"plexus-prod-to-staging-mirror-runs-{account}-{region}",
+            bucket_name=f"primus-prod-to-staging-mirror-runs-{account}-{region}",
             block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
             encryption=s3.BucketEncryption.S3_MANAGED,
             enforce_ssl=True,
@@ -63,8 +63,8 @@ class ProdToStagingDataMirrorStack(Stack):
         project = codebuild.Project(
             self,
             "MirrorProject",
-            project_name="plexus-prod-to-staging-data-mirror",
-            description="Manual destructive mirror of Plexus main production data into staging",
+            project_name="primus-prod-to-staging-data-mirror",
+            description="Manual destructive mirror of Primus main production data into staging",
             source=codebuild.Source.s3(
                 bucket=source_asset.bucket,
                 path=source_asset.s3_object_key,

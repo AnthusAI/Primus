@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test runner script for the Plexus MCP Server tests
+Test runner script for the Primus MCP Server tests
 """
 import sys
 import os
@@ -65,7 +65,7 @@ def main():
     """Main entry point for test runner"""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Run Plexus MCP Server tests")
+    parser = argparse.ArgumentParser(description="Run Primus MCP Server tests")
     parser.add_argument(
         "--type", 
         choices=["unit", "integration", "all"], 

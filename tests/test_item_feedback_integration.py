@@ -18,8 +18,8 @@ class TestItemFeedbackIntegration:
     @pytest.mark.asyncio
     async def test_end_to_end_item_creation_and_feedback_search(self):
         """Test complete flow: create item with identifiers, then find its feedback."""
-        from plexus.dashboard.api.models.item import Item
-        from plexus.cli.feedback.feedback_service import FeedbackService
+        from primus.dashboard.api.models.item import Item
+        from primus.cli.feedback.feedback_service import FeedbackService
         
         # Mock API client  
         mock_client = Mock()
@@ -61,7 +61,7 @@ class TestItemFeedbackIntegration:
         # Step 2: Search for feedback and verify it's found despite being very recent
 
         # Mock FeedbackItem.list to return Mock objects directly
-        with patch('plexus.dashboard.api.models.feedback_item.FeedbackItem.list') as mock_list:
+        with patch('primus.dashboard.api.models.feedback_item.FeedbackItem.list') as mock_list:
             mock_feedback_obj = Mock()
             mock_feedback_obj.id = 'feedback-12345'
             mock_feedback_obj.itemId = 'test-item-12345'
@@ -87,7 +87,7 @@ class TestItemFeedbackIntegration:
 
     def test_multiple_scores_same_item_different_feedback(self):
         """Test that multiple scores on same item can have different feedback without issues."""
-        from plexus.dashboard.api.models.item import Item
+        from primus.dashboard.api.models.item import Item
         
         mock_client = MagicMock()
         
@@ -149,7 +149,7 @@ class TestItemFeedbackIntegration:
 
     def test_cross_contamination_prevention(self):
         """Test that items from different reports cannot be cross-contaminated."""
-        from plexus.dashboard.api.models.item import Item
+        from primus.dashboard.api.models.item import Item
         
         mock_client = MagicMock()
         
@@ -179,12 +179,12 @@ class TestItemFeedbackIntegration:
     @pytest.mark.asyncio  
     async def test_feedback_search_time_boundary_edge_cases(self):
         """Test feedback search around time boundaries."""
-        from plexus.cli.feedback.feedback_service import FeedbackService
+        from primus.cli.feedback.feedback_service import FeedbackService
         
         mock_client = Mock()
 
         # Mock FeedbackItem.list to return Mock objects directly
-        with patch('plexus.dashboard.api.models.feedback_item.FeedbackItem.list') as mock_list:
+        with patch('primus.dashboard.api.models.feedback_item.FeedbackItem.list') as mock_list:
             mock_feedback_obj = Mock()
             mock_feedback_obj.id = 'boundary-feedback-id'
             mock_feedback_obj.itemId = 'test-item'

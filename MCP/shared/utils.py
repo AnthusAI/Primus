@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Shared utility functions for Plexus MCP tools
+Shared utility functions for Primus MCP tools
 """
 import os
 import sys
@@ -14,7 +14,7 @@ from .setup import (
 )
 
 # Import create_client directly to avoid the broken wrapper in setup.py
-from plexus.cli.shared.client_utils import create_client as create_dashboard_client
+from primus.cli.shared.client_utils import create_client as create_dashboard_client
 
 def load_env_file(env_dir=None):
     """Load environment variables from .env file."""
@@ -27,8 +27,8 @@ def load_env_file(env_dir=None):
                 loaded = load_dotenv(dotenv_path=dotenv_path, override=True)
                 if loaded:
                     logger.info(f".env file loaded successfully from {dotenv_path}")
-                    logger.info(f"Environment contains PLEXUS_API_URL: {'Yes' if os.environ.get('PLEXUS_API_URL') else 'No'}")
-                    logger.info(f"Environment contains PLEXUS_API_KEY: {'Yes' if os.environ.get('PLEXUS_API_KEY') else 'No'}")
+                    logger.info(f"Environment contains PRIMUS_API_URL: {'Yes' if os.environ.get('PRIMUS_API_URL') else 'No'}")
+                    logger.info(f"Environment contains PRIMUS_API_KEY: {'Yes' if os.environ.get('PRIMUS_API_KEY') else 'No'}")
                     return True
                 else:
                     logger.warning(f"Failed to load .env file from {dotenv_path}")
@@ -40,17 +40,17 @@ def load_env_file(env_dir=None):
         return False
 
 def initialize_default_account():
-    """Initialize the default account ID from the environment variable PLEXUS_ACCOUNT_KEY."""
+    """Initialize the default account ID from the environment variable PRIMUS_ACCOUNT_KEY."""
     # Import setup module to update its globals directly
     from . import setup
 
     logger.info("=== INITIALIZING DEFAULT ACCOUNT ===")
 
     # Get account key from environment
-    account_key = os.environ.get('PLEXUS_ACCOUNT_KEY')
-    logger.info(f"PLEXUS_ACCOUNT_KEY from env: {account_key}")
+    account_key = os.environ.get('PRIMUS_ACCOUNT_KEY')
+    logger.info(f"PRIMUS_ACCOUNT_KEY from env: {account_key}")
     if not account_key:
-        logger.warning("PLEXUS_ACCOUNT_KEY environment variable not set")
+        logger.warning("PRIMUS_ACCOUNT_KEY environment variable not set")
         return
 
     setup.DEFAULT_ACCOUNT_KEY = account_key
@@ -60,7 +60,7 @@ def initialize_default_account():
     try:
         logger.info("Creating dashboard client...")
         # Use direct import to avoid setup.py's broken wrapper
-        from plexus.cli.shared.client_utils import create_client
+        from primus.cli.shared.client_utils import create_client
         client = create_client()
         if not client:
             logger.warning("Could not create dashboard client to resolve default account")
@@ -69,7 +69,7 @@ def initialize_default_account():
 
         logger.info(f"Resolving account ID for key: {account_key}")
         # Use Account.get_by_key directly instead of the broken resolve_account_identifier
-        from plexus.dashboard.api.models.account import Account
+        from primus.dashboard.api.models.account import Account
         account = Account.get_by_key(account_key, client)
         account_id = account.id if account else None
         logger.info(f"Resolved account_id: {account_id}")
@@ -92,7 +92,7 @@ def get_default_account_id():
     logger.info("=== GET_DEFAULT_ACCOUNT_ID CALLED ===")
     logger.info(f"Current setup.DEFAULT_ACCOUNT_ID: {setup.DEFAULT_ACCOUNT_ID}")
     logger.info(f"Current setup.DEFAULT_ACCOUNT_KEY: {setup.DEFAULT_ACCOUNT_KEY}")
-    logger.info(f"PLEXUS_ACCOUNT_KEY env: {os.environ.get('PLEXUS_ACCOUNT_KEY')}")
+    logger.info(f"PRIMUS_ACCOUNT_KEY env: {os.environ.get('PRIMUS_ACCOUNT_KEY')}")
 
     # If already resolved, return it
     if setup.DEFAULT_ACCOUNT_ID:
@@ -121,9 +121,9 @@ def resolve_account_id_with_cache(client, identifier):
     
     return account_id
 
-def get_plexus_url(path: str) -> str:
+def get_primus_url(path: str) -> str:
     """
-    Safely concatenates the PLEXUS_APP_URL with the provided path.
+    Safely concatenates the PRIMUS_APP_URL with the provided path.
     Handles cases where base URL may or may not have trailing slashes
     and path may or may not have leading slashes.
     
@@ -133,7 +133,7 @@ def get_plexus_url(path: str) -> str:
     Returns:
     - Full URL string
     """
-    base_url = os.environ.get('PLEXUS_APP_URL', 'https://plexus.anth.us')
+    base_url = os.environ.get('PRIMUS_APP_URL', 'https://primus.anth.us')
     # Ensure base URL ends with a slash for urljoin to work correctly
     if not base_url.endswith('/'):
         base_url += '/'
@@ -151,7 +151,7 @@ def get_report_url(report_id: str) -> str:
     Returns:
     - Full URL to the report in the dashboard
     """
-    return get_plexus_url(f"lab/reports/{report_id}")
+    return get_primus_url(f"lab/reports/{report_id}")
 
 def get_item_url(item_id: str) -> str:
     """
@@ -163,7 +163,7 @@ def get_item_url(item_id: str) -> str:
     Returns:
     - Full URL to the item in the dashboard
     """
-    return get_plexus_url(f"lab/items/{item_id}")
+    return get_primus_url(f"lab/items/{item_id}")
 
 def get_task_url(task_id: str) -> str:
     """
@@ -175,7 +175,7 @@ def get_task_url(task_id: str) -> str:
     Returns:
     - Full URL to the task in the dashboard
     """
-    return get_plexus_url(f"lab/tasks/{task_id}")
+    return get_primus_url(f"lab/tasks/{task_id}")
 
 async def get_score_results_for_item(item_id: str, client) -> List[Dict[str, Any]]:
     """
@@ -183,7 +183,7 @@ async def get_score_results_for_item(item_id: str, client) -> List[Dict[str, Any
     This mirrors the functionality from the CLI ItemCommands.get_score_results_for_item function.
     """
     try:
-        from plexus.dashboard.api.models.score_result import ScoreResult
+        from primus.dashboard.api.models.score_result import ScoreResult
         from datetime import datetime
         
         query = f"""
@@ -259,7 +259,7 @@ async def get_feedback_items_for_item(item_id: str, client) -> List[Dict[str, An
     This mirrors the functionality from the CLI ItemCommands.get_feedback_items_for_item function.
     """
     try:
-        from plexus.dashboard.api.models.feedback_item import FeedbackItem
+        from primus.dashboard.api.models.feedback_item import FeedbackItem
         from datetime import datetime
         
         # Use the FeedbackItem.list method with filtering
@@ -316,8 +316,8 @@ async def find_score_instance(scorecard_identifier: str, score_identifier: str, 
     - error: str (if failed)
     """
     try:
-        from plexus.dashboard.api.models.score import Score
-        from plexus.dashboard.api.models.scorecard import Scorecard
+        from primus.dashboard.api.models.score import Score
+        from primus.dashboard.api.models.scorecard import Scorecard
         from .setup import resolve_scorecard_identifier
         
         # Resolve scorecard identifier

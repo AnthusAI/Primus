@@ -15,7 +15,7 @@ Now, this logic has been moved to a dedicated Lambda function that can be invoke
 ## Files Created
 
 ### 1. Core Metrics Calculator Module
-- **File**: `plexus/utils/metrics_calculator.py`
+- **File**: `primus/utils/metrics_calculator.py`
 - **Purpose**: Reusable metrics calculation logic that can be used by both Lambda functions and CLI commands
 - **Key Features**:
   - GraphQL API integration using requests library
@@ -35,7 +35,7 @@ Now, this logic has been moved to a dedicated Lambda function that can be invoke
 
 ### 3. Lambda Dependencies
 - **File**: `dashboard/amplify/functions/itemsMetricsCalculator/requirements.txt`
-- **Contents**: `requests==2.31.0` and note about bundled plexus module
+- **Contents**: `requests==2.31.0` and note about bundled primus module
 
 ### 4. CDK Resource Definition
 - **File**: `dashboard/amplify/functions/itemsMetricsCalculator/resource.ts`
@@ -51,12 +51,12 @@ Now, this logic has been moved to a dedicated Lambda function that can be invoke
 - **Changes**: Added ItemsMetricsCalculator stack to the Amplify backend
 
 ### 6. CLI Commands
-- **File**: `plexus/cli/RecordCountCommands.py`
+- **File**: `primus/cli/RecordCountCommands.py`
 - **Purpose**: CLI commands for manually testing the same metrics calculation logic
 - **Commands**:
-  - `plexus count items` - Count items with time-based filtering
-  - `plexus count scoreresults` - Count score results with time-based filtering  
-  - `plexus count results` - Alias for scoreresults
+  - `primus count items` - Count items with time-based filtering
+  - `primus count scoreresults` - Count score results with time-based filtering  
+  - `primus count results` - Alias for scoreresults
 - **Features**:
   - Account ID from environment or command line
   - Configurable time ranges (hours)
@@ -65,12 +65,12 @@ Now, this logic has been moved to a dedicated Lambda function that can be invoke
   - Rich console output with tables
 
 ### 7. Main CLI Integration
-- **File**: `plexus/cli/CommandLineInterface.py` (updated)
-- **Purpose**: Registers the new count commands with the main Plexus CLI
+- **File**: `primus/cli/CommandLineInterface.py` (updated)
+- **Purpose**: Registers the new count commands with the main Primus CLI
 - **Changes**: Added import and registration for the count command group
 
 ### 8. Unit Tests for Metrics Calculator
-- **File**: `plexus/utils/test_metrics_calculator.py`
+- **File**: `primus/utils/test_metrics_calculator.py`
 - **Purpose**: Comprehensive unit tests for the core metrics calculation logic
 - **Coverage**:
   - MetricsCalculator class initialization and methods
@@ -81,7 +81,7 @@ Now, this logic has been moved to a dedicated Lambda function that can be invoke
   - Environment variable configuration
 
 ### 9. Unit Tests for CLI Commands  
-- **File**: `plexus/cli/test_record_count_commands.py`
+- **File**: `primus/cli/test_record_count_commands.py`
 - **Purpose**: Unit tests for the CLI record count commands
 - **Coverage**:
   - All CLI commands (items, scoreresults, results)
@@ -195,13 +195,13 @@ Run the comprehensive unit tests to verify the functionality:
 
 ```bash
 # Test the core metrics calculator
-python -m pytest plexus/utils/test_metrics_calculator.py -v
+python -m pytest primus/utils/test_metrics_calculator.py -v
 
 # Test the CLI commands
-python -m pytest plexus/cli/test_record_count_commands.py -v
+python -m pytest primus/cli/test_record_count_commands.py -v
 
 # Run all tests
-python -m pytest plexus/utils/test_metrics_calculator.py plexus/cli/test_record_count_commands.py -v
+python -m pytest primus/utils/test_metrics_calculator.py primus/cli/test_record_count_commands.py -v
 ```
 
 ### Manual CLI Testing
@@ -209,21 +209,21 @@ python -m pytest plexus/utils/test_metrics_calculator.py plexus/cli/test_record_
 You can manually test the same logic that will run in Lambda using these CLI commands:
 
 ```bash
-# Count items for the last 24 hours (uses PLEXUS_ACCOUNT_KEY env var)
-plexus count items
+# Count items for the last 24 hours (uses PRIMUS_ACCOUNT_KEY env var)
+primus count items
 
 # Count items with specific account ID and time range
-plexus count items --account-id your-account-id --hours 12
+primus count items --account-id your-account-id --hours 12
 
 # Count score results with JSON output
-plexus count scoreresults --json-output
+primus count scoreresults --json-output
 
 # Count results (alias for scoreresults) with verbose logging  
-plexus count results --verbose --hours 6
+primus count results --verbose --hours 6
 
 # Get help for any command
-plexus count --help
-plexus count items --help
+primus count --help
+primus count items --help
 ```
 
 ### Environment Setup for Manual Testing
@@ -237,7 +237,7 @@ source .env
 # Or set them manually
 export GRAPHQL_ENDPOINT="your-graphql-endpoint"
 export GRAPHQL_API_KEY="your-api-key"
-export PLEXUS_ACCOUNT_KEY="your-account-id"
+export PRIMUS_ACCOUNT_KEY="your-account-id"
 ```
 
 ### Lambda Function Local Testing

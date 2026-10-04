@@ -8,7 +8,7 @@ import tempfile
 
 from behave import given, then, when
 
-from plexus.documentation.repository import (
+from primus.documentation.repository import (
     DocumentationRepository,
     InvalidDocumentationKeyError,
 )
@@ -31,7 +31,7 @@ def _cleanup_root(context) -> None:
 @given("a documentation knowledge base rooted at a temporary directory")
 def step_kb_temp_root(context):
     _cleanup_root(context)
-    context.kb_root = tempfile.mkdtemp(prefix="plexus-doc-kb-")
+    context.kb_root = tempfile.mkdtemp(prefix="primus-doc-kb-")
     context.repo = DocumentationRepository(context.kb_root)
     context.last_get = None
     context.last_get_error = None

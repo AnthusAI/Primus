@@ -4,7 +4,7 @@ import aws_cdk as cdk
 import aws_cdk.assertions as assertions
 import pytest
 
-from plexus.infrastructure.scoring_service import (
+from primus.infrastructure.scoring_service import (
     ScoringServiceAsyncScoringStack,
     ScoringServiceContainerRepositoryStack,
     ScoringServiceIntegrationStack,
@@ -57,7 +57,7 @@ def test_container_repository_stack_uses_consumer_supplied_identity() -> None:
 def test_scoring_service_platform_contains_no_consumer_specific_values() -> None:
     source_root = (
         Path(__file__).resolve().parents[3]
-        / "plexus"
+        / "primus"
         / "infrastructure"
         / "scoring_service"
     )
@@ -93,7 +93,7 @@ def _async_stack(
         "AsyncScoring",
         resource_prefix="example-scoring",
         environment="test",
-        score_processor_repository_name="plexus/score-processor-artifacts-test",
+        score_processor_repository_name="primus/score-processor-artifacts-test",
         score_processor_image_uri=image_uri,
         runtime_config_secret_name="example/test/runtime-config",
         alert_topic=operations.alert_topic,
@@ -103,7 +103,7 @@ def _async_stack(
             "Input": ("INPUT_BUCKET",),
             "Output": ("OUTPUT_BUCKET",),
         },
-        secret_environment={"PLEXUS_API_KEY": "PLEXUS_API_KEY"},
+        secret_environment={"PRIMUS_API_KEY": "PRIMUS_API_KEY"},
         bedrock_model_resources=[
             "arn:aws:bedrock:*::foundation-model/*",
         ],
@@ -132,7 +132,7 @@ def test_async_scoring_stack_requires_deploy_time_immutable_image() -> None:
 def test_async_scoring_stack_accepts_only_digest_image_uris() -> None:
     digest_uri = (
         "123456789012.dkr.ecr.us-east-1.amazonaws.com/"
-        "plexus/score-processor-artifacts-test@sha256:"
+        "primus/score-processor-artifacts-test@sha256:"
         + "a" * 64
     )
     stack = _async_stack(cdk.App(), image_uri=digest_uri)
@@ -169,7 +169,7 @@ def test_reusable_platform_stacks_synthesize_with_consumer_configuration() -> No
         "PlatformAsyncScoring",
         resource_prefix="example-scoring",
         environment="test",
-        score_processor_repository_name="plexus/score-processor-artifacts-test",
+        score_processor_repository_name="primus/score-processor-artifacts-test",
         score_processor_image_uri=None,
         runtime_config_secret_name="example/test/runtime-config",
         alert_topic=operations.alert_topic,

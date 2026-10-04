@@ -89,7 +89,7 @@ lambda_functions/
 # Test artifacts
 tests/
 features/
-.plexus_training_data_cache/
+.primus_training_data_cache/
 
 # Development artifacts
 spikes/

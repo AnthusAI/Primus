@@ -54,7 +54,7 @@ def main():
 
     args = parser.parse_args()
 
-    function_name = f"plexus-lambda-{args.environment}-fanout"
+    function_name = f"primus-lambda-{args.environment}-fanout"
 
     print("=" * 60)
     print("Fan-Out Lambda Trigger")

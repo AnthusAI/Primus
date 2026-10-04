@@ -5,8 +5,8 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DASHBOARD_DIR="$ROOT_DIR/dashboard"
 
 export SMOKE_DASHBOARD_URL="${SMOKE_DASHBOARD_URL:-http://localhost:3000}"
-export PLEXUS_API_URL="${PLEXUS_API_URL:-http://localhost:18080/graphql}"
-export PLEXUS_API_KEY="${PLEXUS_API_KEY:-local-smoke-key}"
+export PRIMUS_API_URL="${PRIMUS_API_URL:-http://localhost:18080/graphql}"
+export PRIMUS_API_KEY="${PRIMUS_API_KEY:-local-smoke-key}"
 export SMOKE_BROWSER_CHANNEL="${SMOKE_BROWSER_CHANNEL:-chrome}"
 export SMOKE_BROWSER_OUT_DIR="${SMOKE_BROWSER_OUT_DIR:-$ROOT_DIR/tmp/local-control-plane-browser-smoke}"
 export SMOKE_PROOF_DIR="${SMOKE_PROOF_DIR:-$ROOT_DIR/tmp/local-control-plane-proof}"
@@ -16,7 +16,7 @@ log() {
   printf '[smoke-local-browser] %s\n' "$*"
 }
 
-ready_url="${PLEXUS_API_URL%/graphql}/readyz"
+ready_url="${PRIMUS_API_URL%/graphql}/readyz"
 if ! curl -fsS "$ready_url" >/dev/null; then
   log "Local GraphQL proxy is not ready at $ready_url"
   exit 1
@@ -42,8 +42,8 @@ const path = require("node:path");
 const { chromium } = require("playwright");
 
 const baseUrl = process.env.SMOKE_DASHBOARD_URL || "http://localhost:3000";
-const apiUrl = process.env.PLEXUS_API_URL || "http://localhost:18080/graphql";
-const apiKey = process.env.PLEXUS_API_KEY || "local-smoke-key";
+const apiUrl = process.env.PRIMUS_API_URL || "http://localhost:18080/graphql";
+const apiKey = process.env.PRIMUS_API_KEY || "local-smoke-key";
 const outDir = process.env.SMOKE_BROWSER_OUT_DIR;
 const browserChannel = process.env.SMOKE_BROWSER_CHANNEL || "chrome";
 const predictionProofFile = process.env.SMOKE_PREDICTION_PROOF_FILE;

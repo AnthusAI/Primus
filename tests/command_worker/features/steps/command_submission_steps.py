@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 
 from behave import given, then, when
 
-from plexus.command_worker import (
+from primus.command_worker import (
     AuthenticatedCommandContext,
     AuthorizationDecision,
     ClaimStatus,
@@ -244,7 +244,7 @@ def cancel_before_delivery(context):
 def changed_delivery(context):
     message = context.command.envelope.to_message()
     message["payload"] = {"item_ids": ["changed"]}
-    from plexus.command_worker import CommandEnvelope
+    from primus.command_worker import CommandEnvelope
 
     process_delivery(context, CommandEnvelope.from_message(message))
 

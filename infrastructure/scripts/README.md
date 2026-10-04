@@ -4,7 +4,7 @@ These scripts populate AWS Secrets Manager with configuration values from your r
 
 ## Overview
 
-The scripts automatically read configuration from `Plexus/.env` and create a single JSON secret in Secrets Manager for each environment. This provides a unified, secure location for all configuration values (both sensitive and non-sensitive).
+The scripts automatically read configuration from `Primus/.env` and create a single JSON secret in Secrets Manager for each environment. This provides a unified, secure location for all configuration values (both sensitive and non-sensitive).
 
 ## Usage
 
@@ -17,7 +17,7 @@ cd infrastructure/scripts
 ./create-secrets-production.sh
 ```
 
-This creates a secret named `plexus/production/config` with the following keys:
+This creates a secret named `primus/production/config` with the following keys:
 - `account-key`
 - `api-key`
 - `api-url`
@@ -38,7 +38,7 @@ cd infrastructure/scripts
 ./create-secrets-staging.sh
 ```
 
-This creates a secret named `plexus/staging/config` with the same structure.
+This creates a secret named `primus/staging/config` with the same structure.
 
 ## What Gets Created
 
@@ -46,7 +46,7 @@ This creates a secret named `plexus/staging/config` with the same structure.
 
 ```
 AWS Secrets Manager
-├── plexus/staging/config (JSON secret)
+├── primus/staging/config (JSON secret)
 │   └── {
 │         "account-key": "...",
 │         "api-key": "...",
@@ -74,7 +74,7 @@ AWS Secrets Manager
 │         "table-feedbackitem-arn": "...",
 │         "table-feedbackitem-stream-arn": "..."
 │       }
-└── plexus/production/config (JSON secret)
+└── primus/production/config (JSON secret)
     └── {
           "account-key": "...",
           "api-key": "...",
@@ -108,10 +108,10 @@ AWS Secrets Manager
 
 | Secret Key | .env Variable | Notes |
 |-----------|---------------|-------|
-| `account-key` | `PLEXUS_ACCOUNT_KEY` | Account identifier |
-| `api-url` | `PLEXUS_API_URL` | GraphQL endpoint |
-| `api-key` | `PLEXUS_API_KEY` | API authentication key |
-| `postgres-uri` | `PLEXUS_LANGGRAPH_CHECKPOINTER_POSTGRES_URI` | Database connection |
+| `account-key` | `PRIMUS_ACCOUNT_KEY` | Account identifier |
+| `api-url` | `PRIMUS_API_URL` | GraphQL endpoint |
+| `api-key` | `PRIMUS_API_KEY` | API authentication key |
+| `postgres-uri` | `PRIMUS_LANGGRAPH_CHECKPOINTER_POSTGRES_URI` | Database connection |
 | `openai-api-key` | `OPENAI_API_KEY` | OpenAI API key |
 | `score-result-attachments-bucket` | `AMPLIFY_STORAGE_SCORERESULTATTACHMENTS_BUCKET_NAME` | S3 bucket |
 | `report-block-details-bucket` | `AMPLIFY_STORAGE_REPORTBLOCKDETAILS_BUCKET_NAME` | S3 bucket |
@@ -125,14 +125,14 @@ After running the scripts, verify secrets were created:
 
 ```bash
 # View staging secret metadata (no values)
-aws secretsmanager describe-secret --secret-id plexus/staging/config
+aws secretsmanager describe-secret --secret-id primus/staging/config
 
 # View staging secret with values
-aws secretsmanager get-secret-value --secret-id plexus/staging/config \
+aws secretsmanager get-secret-value --secret-id primus/staging/config \
   --query SecretString --output text | jq
 
 # View production secret with values
-aws secretsmanager get-secret-value --secret-id plexus/production/config \
+aws secretsmanager get-secret-value --secret-id primus/production/config \
   --query SecretString --output text | jq
 ```
 
@@ -156,7 +156,7 @@ To update a single key in the secret:
 ```bash
 # Get current secret value
 CURRENT=$(aws secretsmanager get-secret-value \
-  --secret-id plexus/production/config \
+  --secret-id primus/production/config \
   --query SecretString --output text)
 
 # Update the key using jq
@@ -164,7 +164,7 @@ UPDATED=$(echo "$CURRENT" | jq '.["api-key"] = "new-value"')
 
 # Update the secret
 aws secretsmanager update-secret \
-  --secret-id plexus/production/config \
+  --secret-id primus/production/config \
   --secret-string "$UPDATED"
 ```
 
@@ -192,7 +192,7 @@ If a key gets an empty value in the secret, check that the variable is defined i
 ```bash
 # Check what's loaded
 source ../../.env
-echo $PLEXUS_API_KEY
+echo $PRIMUS_API_KEY
 ```
 
 ### Error: Access Denied
@@ -211,6 +211,6 @@ An error occurred (AccessDeniedException) when calling the CreateSecret operatio
     "secretsmanager:DescribeSecret",
     "secretsmanager:GetSecretValue"
   ],
-  "Resource": "arn:aws:secretsmanager:*:*:secret:plexus/*"
+  "Resource": "arn:aws:secretsmanager:*:*:secret:primus/*"
 }
 ```

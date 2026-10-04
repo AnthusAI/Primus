@@ -14,4 +14,4 @@ Kanbus, Git Flow, and local environment workflows used by humans and agents.
 
 ## Topics in this namespace
 
-Use `plexus.docs.list({ namespace = "repo-workflows" })` to list every topic, then `plexus.docs.get({ key = "<id>" })` for the full doc.
+Use `primus.docs.list({ namespace = "repo-workflows" })` to list every topic, then `primus.docs.get({ key = "<id>" })` for the full doc.

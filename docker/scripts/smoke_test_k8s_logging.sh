@@ -15,15 +15,15 @@ set -euo pipefail
 #                    Use "nira-resolution-quality" for the LLM-backed score.
 #
 # Environment overrides:
-#   CLUSTER_NAME     kind cluster name (default: plexus-envoy-poc)
-#   NAMESPACE        K8s namespace (default: plexus-local)
-#   RELEASE_NAME     Helm release (default: plexus)
+#   CLUSTER_NAME     kind cluster name (default: primus-envoy-poc)
+#   NAMESPACE        K8s namespace (default: primus-local)
+#   RELEASE_NAME     Helm release (default: primus)
 #   SCORING_API_KEY  Inbound API key (default: local-scoring-api-key)
 #   SCORE_NAME       Same as --score flag
 
-CLUSTER_NAME="${CLUSTER_NAME:-plexus-envoy-poc}"
-NAMESPACE="${NAMESPACE:-plexus-local}"
-RELEASE_NAME="${RELEASE_NAME:-plexus}"
+CLUSTER_NAME="${CLUSTER_NAME:-primus-envoy-poc}"
+NAMESPACE="${NAMESPACE:-primus-local}"
+RELEASE_NAME="${RELEASE_NAME:-primus}"
 SCORING_API_KEY="${SCORING_API_KEY:-local-scoring-api-key}"
 LOCAL_PORT="${LOCAL_PORT:-18090}"
 SCORING_JOB_ID="log-smoke-$(date +%s)"
@@ -55,7 +55,7 @@ if ! kubectl config use-context "kind-$CLUSTER_NAME" >/dev/null 2>&1; then
 fi
 
 # Verify worker is running
-if ! kubectl get deployment/"$RELEASE_NAME-plexus-worker" -n "$NAMESPACE" >/dev/null 2>&1; then
+if ! kubectl get deployment/"$RELEASE_NAME-primus-worker" -n "$NAMESPACE" >/dev/null 2>&1; then
   echo "FAIL: Worker deployment not found in $NAMESPACE." >&2
   exit 1
 fi
@@ -64,7 +64,7 @@ echo "1. Finding Envoy data-plane service..."
 ENVOY_SVC=""
 for _ in {1..10}; do
   ENVOY_SVC="$(kubectl get svc -A \
-    -l gateway.envoyproxy.io/owning-gateway-name="$RELEASE_NAME-plexus-worker-gateway" \
+    -l gateway.envoyproxy.io/owning-gateway-name="$RELEASE_NAME-primus-worker-gateway" \
     -o jsonpath='{range .items[0]}{.metadata.namespace}{" "}{.metadata.name}{end}' 2>/dev/null || true)"
   if [ -n "$ENVOY_SVC" ]; then break; fi
   sleep 2
@@ -91,7 +91,7 @@ fi
 
 echo "3. Capturing worker logs in background..."
 LOG_FILE="$(mktemp)"
-kubectl logs -f -n "$NAMESPACE" "deployment/$RELEASE_NAME-plexus-worker" --since=5s > "$LOG_FILE" 2>&1 &
+kubectl logs -f -n "$NAMESPACE" "deployment/$RELEASE_NAME-primus-worker" --since=5s > "$LOG_FILE" 2>&1 &
 LOG_PID=$!
 sleep 1
 
@@ -100,7 +100,7 @@ HTTP_RESPONSE="$(curl -sS -w '\n%{http_code}' \
   --max-time 60 \
   -X POST "http://localhost:$LOCAL_PORT/v1/score" \
   -H 'content-type: application/json' \
-  -H "x-plexus-scoring-api-key: $SCORING_API_KEY" \
+  -H "x-primus-scoring-api-key: $SCORING_API_KEY" \
   -d "{\"scoring_job_id\":\"$SCORING_JOB_ID\",\"scorecard\":\"nira-demo-scorecard\",\"score\":\"$SCORE_NAME\",\"item_id\":\"nira-demo-item-1\"}")"
 
 HTTP_BODY="$(echo "$HTTP_RESPONSE" | sed '$d')"

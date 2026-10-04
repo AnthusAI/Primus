@@ -11,7 +11,7 @@ SCRIPT = (
     / "scripts"
     / "build-command-worker-image.sh"
 )
-REPOSITORY = "123456789012.dkr.ecr.us-east-1.amazonaws.com/plexus-staging-worker"
+REPOSITORY = "123456789012.dkr.ecr.us-east-1.amazonaws.com/primus-staging-worker"
 DIGEST_A = f"sha256:{'a' * 64}"
 DIGEST_B = f"sha256:{'b' * 64}"
 IMAGE_A = f"{REPOSITORY}@{DIGEST_A}"
@@ -30,11 +30,11 @@ def image_build(tmp_path: Path):
     (root / "dashboard" / "scripts" / SCRIPT.name).write_text(
         SCRIPT.read_text(encoding="utf-8"), encoding="utf-8"
     )
-    (root / "plexus" / "command_worker").mkdir(parents=True)
-    (root / "plexus" / "command_worker" / "Dockerfile").write_text(
+    (root / "primus" / "command_worker").mkdir(parents=True)
+    (root / "primus" / "command_worker" / "Dockerfile").write_text(
         "FROM scratch\n", encoding="utf-8"
     )
-    (root / "plexus" / "command_worker" / "worker.py").write_text(
+    (root / "primus" / "command_worker" / "worker.py").write_text(
         "# worker\n", encoding="utf-8"
     )
     (root / "pyproject.toml").write_text("[project]\n", encoding="utf-8")
@@ -132,9 +132,9 @@ def test_initial_deployment_exports_candidate_digest_to_child_process(image_buil
 
     assert completed.returncode == 0, completed.stderr
     deployment_env = _deployment_environment(root)
-    assert deployment_env["PLEXUS_COMMAND_WORKER_FOUNDATION_REPOSITORY_URI"] == REPOSITORY
-    assert deployment_env["PLEXUS_COMMAND_WORKER_IMAGE_URI"] == IMAGE_A
-    assert deployment_env["PLEXUS_COMMAND_WORKER_IMAGE_REPLACEMENT_DEFERRED"] == "0"
+    assert deployment_env["PRIMUS_COMMAND_WORKER_FOUNDATION_REPOSITORY_URI"] == REPOSITORY
+    assert deployment_env["PRIMUS_COMMAND_WORKER_IMAGE_URI"] == IMAGE_A
+    assert deployment_env["PRIMUS_COMMAND_WORKER_IMAGE_REPLACEMENT_DEFERRED"] == "0"
 
 
 @pytest.mark.parametrize("active_count", ["1", "2"])
@@ -150,7 +150,7 @@ def test_changed_candidate_retains_active_digest_then_advances(image_build, acti
     )
 
     assert deferred.returncode == 0, deferred.stderr
-    assert _deployment_environment(root)["PLEXUS_COMMAND_WORKER_IMAGE_URI"] == IMAGE_A
+    assert _deployment_environment(root)["PRIMUS_COMMAND_WORKER_IMAGE_URI"] == IMAGE_A
 
     advanced = run(
         AWS_STUB_CURRENT_MODE="value",
@@ -162,8 +162,8 @@ def test_changed_candidate_retains_active_digest_then_advances(image_build, acti
 
     assert advanced.returncode == 0, advanced.stderr
     deployment_env = _deployment_environment(root)
-    assert deployment_env["PLEXUS_COMMAND_WORKER_IMAGE_URI"] == IMAGE_B
-    assert deployment_env["PLEXUS_COMMAND_WORKER_IMAGE_REPLACEMENT_DEFERRED"] == "0"
+    assert deployment_env["PRIMUS_COMMAND_WORKER_IMAGE_URI"] == IMAGE_B
+    assert deployment_env["PRIMUS_COMMAND_WORKER_IMAGE_REPLACEMENT_DEFERRED"] == "0"
 
 
 def test_missing_task_table_retains_deployed_digest(image_build) -> None:
@@ -178,8 +178,8 @@ def test_missing_task_table_retains_deployed_digest(image_build) -> None:
 
     assert completed.returncode == 0, completed.stderr
     deployment_env = _deployment_environment(root)
-    assert deployment_env["PLEXUS_COMMAND_WORKER_IMAGE_URI"] == IMAGE_A
-    assert deployment_env["PLEXUS_COMMAND_WORKER_IMAGE_REPLACEMENT_DEFERRED"] == "1"
+    assert deployment_env["PRIMUS_COMMAND_WORKER_IMAGE_URI"] == IMAGE_A
+    assert deployment_env["PRIMUS_COMMAND_WORKER_IMAGE_REPLACEMENT_DEFERRED"] == "1"
 
 
 def test_all_zero_multipage_scan_advances_candidate(image_build) -> None:
@@ -194,7 +194,7 @@ def test_all_zero_multipage_scan_advances_candidate(image_build) -> None:
     )
 
     assert completed.returncode == 0, completed.stderr
-    assert _deployment_environment(root)["PLEXUS_COMMAND_WORKER_IMAGE_URI"] == IMAGE_B
+    assert _deployment_environment(root)["PRIMUS_COMMAND_WORKER_IMAGE_URI"] == IMAGE_B
 
 
 def test_active_item_on_later_scan_page_retains_deployed_digest(image_build) -> None:
@@ -210,8 +210,8 @@ def test_active_item_on_later_scan_page_retains_deployed_digest(image_build) -> 
 
     assert completed.returncode == 0, completed.stderr
     deployment_env = _deployment_environment(root)
-    assert deployment_env["PLEXUS_COMMAND_WORKER_IMAGE_URI"] == IMAGE_A
-    assert deployment_env["PLEXUS_COMMAND_WORKER_IMAGE_REPLACEMENT_DEFERRED"] == "1"
+    assert deployment_env["PRIMUS_COMMAND_WORKER_IMAGE_URI"] == IMAGE_A
+    assert deployment_env["PRIMUS_COMMAND_WORKER_IMAGE_REPLACEMENT_DEFERRED"] == "1"
 
 
 @pytest.mark.parametrize(

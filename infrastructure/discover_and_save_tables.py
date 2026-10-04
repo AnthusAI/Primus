@@ -45,4 +45,4 @@ with open(env_path, 'w') as f:
     f.writelines(filtered_lines)
 
 print(f"\nSaved table ARNs to {env_path}")
-print("You can now deploy with: npx cdk deploy plexus-metrics-aggregation-production")
+print("You can now deploy with: npx cdk deploy primus-metrics-aggregation-production")

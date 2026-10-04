@@ -5,7 +5,7 @@ alwaysApply: false
 ---
 # Task Dispatch System
 
-This guide explains Plexus's two-level task dispatch system that connects our Next.js dashboard to Python AI/ML workers.
+This guide explains Primus's two-level task dispatch system that connects our Next.js dashboard to Python AI/ML workers.
 
 ## System Architecture
 
@@ -26,16 +26,16 @@ This guide explains Plexus's two-level task dispatch system that connects our Ne
    - CLI command execution and result handling
 
 ### Key Files and Directories
-- `/plexus/cli/` - Core CLI and task dispatch implementation
-  - [CommandDispatch.py](mdc:Plexus_2/Plexus_2/Plexus_2/Plexus_2/plexus/cli/CommandDispatch.py) - Celery app configuration and worker management
-  - [CommandTasks.py](mdc:Plexus_2/Plexus_2/Plexus_2/Plexus_2/plexus/cli/CommandTasks.py) - Task execution and progress tracking
-  - [task_progress_tracker.py](mdc:Plexus_2/Plexus_2/Plexus_2/Plexus_2/plexus/cli/task_progress_tracker.py) - Progress tracking implementation
-- `/plexus/lambda/` - AWS Lambda functions
-  - [task_dispatcher.py](mdc:Plexus_2/Plexus_2/Plexus_2/Plexus_2/plexus/lambda/task_dispatcher.py) - Lambda handler for DynamoDB stream events
+- `/primus/cli/` - Core CLI and task dispatch implementation
+  - [CommandDispatch.py](mdc:Primus_2/Primus_2/Primus_2/Primus_2/primus/cli/CommandDispatch.py) - Celery app configuration and worker management
+  - [CommandTasks.py](mdc:Primus_2/Primus_2/Primus_2/Primus_2/primus/cli/CommandTasks.py) - Task execution and progress tracking
+  - [task_progress_tracker.py](mdc:Primus_2/Primus_2/Primus_2/Primus_2/primus/cli/task_progress_tracker.py) - Progress tracking implementation
+- `/primus/lambda/` - AWS Lambda functions
+  - [task_dispatcher.py](mdc:Primus_2/Primus_2/Primus_2/Primus_2/primus/lambda/task_dispatcher.py) - Lambda handler for DynamoDB stream events
 - `/dashboard/` - Next.js dashboard application
   - `/components/` - React components
-    - [Task.tsx](mdc:Plexus_2/Plexus_2/Plexus_2/Plexus_2/dashboard/components/Task.tsx) - Main task display component
-    - [task-status.tsx](mdc:Plexus_2/Plexus_2/Plexus_2/Plexus_2/dashboard/components/ui/task-status.tsx) - Progress bar UI implementation
+    - [Task.tsx](mdc:Primus_2/Primus_2/Primus_2/Primus_2/dashboard/components/Task.tsx) - Main task display component
+    - [task-status.tsx](mdc:Primus_2/Primus_2/Primus_2/Primus_2/dashboard/components/ui/task-status.tsx) - Progress bar UI implementation
   - `/amplify/` - AWS Amplify configuration
     - `/data/resource.ts` - GraphQL schema definitions
     - `/functions/taskDispatcher/` - Task dispatch Lambda function
@@ -106,62 +106,62 @@ This guide explains Plexus's two-level task dispatch system that connects our Ne
 - `CELERY_RESULT_BACKEND_TEMPLATE`: DynamoDB backend URL
 
 ### Optional Variables
-- `CELERY_QUEUE_NAME`: Custom queue name (default: "plexus-celery")
+- `CELERY_QUEUE_NAME`: Custom queue name (default: "primus-celery")
 
 ## Usage Examples
 
 ### Worker Commands
 ```bash
 # Start a worker with default configuration
-plexus command worker
+primus command worker
 
 # Start a worker with custom concurrency and queue
-plexus command worker --concurrency=8 --queue=custom-queue
+primus command worker --concurrency=8 --queue=custom-queue
 
 # Start a worker with specific log level
-plexus command worker --loglevel=DEBUG
+primus command worker --loglevel=DEBUG
 
 # Start a worker with target pattern filtering
-plexus command worker --target-patterns="training/*,datasets/*"
+primus command worker --target-patterns="training/*,datasets/*"
 
 # Start worker with environment variables
 AWS_ACCESS_KEY_ID=XXXX AWS_SECRET_ACCESS_KEY=XXXX AWS_REGION_NAME=us-west-2 \
-CELERY_QUEUE_NAME=plexus-celery-dev \
-CELERY_RESULT_BACKEND_TEMPLATE=dynamodb://{aws_access_key}:{aws_secret_key}@{aws_region_name}/plexus-action-dev \
-plexus command worker
+CELERY_QUEUE_NAME=primus-celery-dev \
+CELERY_RESULT_BACKEND_TEMPLATE=dynamodb://{aws_access_key}:{aws_secret_key}@{aws_region_name}/primus-action-dev \
+primus command worker
 ```
 
 ### Task Dispatch Commands
 ```bash
 # Dispatch a task asynchronously
-plexus command dispatch "command demo" --async
+primus command dispatch "command demo" --async
 
 # Dispatch a task and wait for the result
-plexus command dispatch "evaluate accuracy --scorecard-name agent-scorecard"
+primus command dispatch "evaluate accuracy --scorecard-name agent-scorecard"
 
 # Dispatch a task with a timeout
-plexus command dispatch "train model" --timeout=3600
+primus command dispatch "train model" --timeout=3600
 
 # Dispatch a task to a specific target
-plexus command dispatch "train model" --target="training/gpu"
+primus command dispatch "train model" --target="training/gpu"
 ```
 
 ### Task Management Commands
 ```bash
 # List tasks in the task database
-plexus tasks list
+primus tasks list
 
 # List tasks for a specific account
-plexus tasks list --account-id <account-id>
+primus tasks list --account-id <account-id>
 
 # List tasks with a specific status
-plexus tasks list --status COMPLETED
+primus tasks list --status COMPLETED
 
 # Delete tasks by ID
-plexus tasks delete --id <task-id>
+primus tasks delete --id <task-id>
 
 # Delete completed tasks older than 30 days
-plexus tasks delete --status=COMPLETED --older-than=30d
+primus tasks delete --status=COMPLETED --older-than=30d
 ```
 
 ## Best Practices

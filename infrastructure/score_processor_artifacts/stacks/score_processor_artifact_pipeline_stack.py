@@ -29,7 +29,7 @@ class ScoreProcessorArtifactPipelineStack(Stack):
         channel: str,
         branch: str,
         github_owner: str = "AnthusAI",
-        github_repo: str = "Plexus",
+        github_repo: str = "Primus",
         trigger_on_push: bool = True,
         **kwargs,
     ) -> None:
@@ -44,17 +44,17 @@ class ScoreProcessorArtifactPipelineStack(Stack):
         Tags.of(self).add("ManagedBy", "CDK")
 
         connection_arn = (
-            os.environ.get("PLEXUS_GITHUB_CONNECTION_ARN")
+            os.environ.get("PRIMUS_GITHUB_CONNECTION_ARN")
             or ssm.StringParameter.value_for_string_parameter(
                 self,
-                "/plexus/github-connection-arn",
+                "/primus/github-connection-arn",
             )
         )
 
         repository = ecr.Repository(
             self,
             "ScoreProcessorRepository",
-            repository_name=f"plexus/score-processor-artifacts-{channel}",
+            repository_name=f"primus/score-processor-artifacts-{channel}",
             image_scan_on_push=True,
             removal_policy=RemovalPolicy.RETAIN,
             lifecycle_rules=[
@@ -67,16 +67,16 @@ class ScoreProcessorArtifactPipelineStack(Stack):
         )
 
         image_uri_parameter_name = (
-            f"/plexus/score-processor-artifacts/{channel}/image-uri"
+            f"/primus/score-processor-artifacts/{channel}/image-uri"
         )
         image_digest_parameter_name = (
-            f"/plexus/score-processor-artifacts/{channel}/image-digest"
+            f"/primus/score-processor-artifacts/{channel}/image-digest"
         )
         image_tag_parameter_name = (
-            f"/plexus/score-processor-artifacts/{channel}/image-tag"
+            f"/primus/score-processor-artifacts/{channel}/image-tag"
         )
         source_revision_parameter_name = (
-            f"/plexus/score-processor-artifacts/{channel}/source-revision"
+            f"/primus/score-processor-artifacts/{channel}/source-revision"
         )
 
         source_output = codepipeline.Artifact("SourceOutput")
@@ -85,7 +85,7 @@ class ScoreProcessorArtifactPipelineStack(Stack):
         build_project = codebuild.PipelineProject(
             self,
             "BuildProject",
-            project_name=f"plexus-score-processor-artifacts-{channel}-build",
+            project_name=f"primus-score-processor-artifacts-{channel}-build",
             timeout=Duration.minutes(60),
             environment=codebuild.BuildEnvironment(
                 build_image=codebuild.LinuxBuildImage.STANDARD_7_0,
@@ -223,7 +223,7 @@ class ScoreProcessorArtifactPipelineStack(Stack):
                 actions=["ssm:PutParameter"],
                 resources=[
                     (
-                        f"arn:aws:ssm:{region}:{account}:parameter/plexus/"
+                        f"arn:aws:ssm:{region}:{account}:parameter/primus/"
                         f"score-processor-artifacts/{channel}/*"
                     )
                 ],
@@ -233,7 +233,7 @@ class ScoreProcessorArtifactPipelineStack(Stack):
         pipeline = codepipeline.Pipeline(
             self,
             "Pipeline",
-            pipeline_name=f"plexus-score-processor-artifacts-{channel}-pipeline",
+            pipeline_name=f"primus-score-processor-artifacts-{channel}-pipeline",
             cross_account_keys=False,
             pipeline_type=codepipeline.PipelineType.V2,
         )

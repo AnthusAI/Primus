@@ -12,16 +12,16 @@ The handler:
 - For fan-out invocation: Processes message from event payload, manually deletes
 - For manual invocation: Polls SQS queue for ONE scoring job message, manually deletes
 - Retrieves the ScoringJob from DynamoDB
-- Performs scoring using Plexus scorecard system
+- Performs scoring using Primus scorecard system
 - Creates ScoreResult in DynamoDB
-- Sends response to PLEXUS_RESPONSE_WORKER_QUEUE_URL
+- Sends response to PRIMUS_RESPONSE_WORKER_QUEUE_URL
 - On success: Message deleted (automatically for SQS trigger, manually for others)
 - On failure: Exception raised to return message to queue (SQS will retry → DLQ)
 
 Environment Variables:
-    PLEXUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL: SQS queue URL
-    PLEXUS_RESPONSE_WORKER_QUEUE_URL: Response queue URL
-    PLEXUS_ACCOUNT_KEY: Plexus account key
+    PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL: SQS queue URL
+    PRIMUS_RESPONSE_WORKER_QUEUE_URL: Response queue URL
+    PRIMUS_ACCOUNT_KEY: Primus account key
 """
 
 import asyncio
@@ -32,17 +32,17 @@ from datetime import datetime, timezone
 
 import boto3
 import logging
-from plexus.dashboard.api.client import PlexusDashboardClient
+from primus.dashboard.api.client import PrimusDashboardClient
 
 # Set writable directory for Lambda environment (only writable dir is /tmp)
 os.environ.setdefault('SCORECARD_CACHE_DIR', '/tmp/scorecards')
 # Set NLTK data path to use pre-downloaded data in image, with /tmp as fallback
 os.environ.setdefault('NLTK_DATA', '/usr/local/share/nltk_data:/tmp/nltk_data')
-from plexus.dashboard.api.models.scoring_job import ScoringJob
-from plexus.dashboard.api.models.account import Account
-from plexus.dashboard.api.models.scorecard import Scorecard
-from plexus.dashboard.api.models.score import Score
-from plexus.utils.scoring import (
+from primus.dashboard.api.models.scoring_job import ScoringJob
+from primus.dashboard.api.models.account import Account
+from primus.dashboard.api.models.scorecard import Scorecard
+from primus.dashboard.api.models.score import Score
+from primus.utils.scoring import (
     DEPENDENCY_UNMET_MESSAGE,
     create_scorecard_instance_for_single_score,
     resolve_scorecard_id,
@@ -54,8 +54,8 @@ from plexus.utils.scoring import (
     enqueue_downstream_recompute_jobs,
     score_single_target_with_dependencies,
 )
-from plexus.dashboard.api.models.item import Item
-from plexus.utils.request_log_capture import capture_request_logs
+from primus.dashboard.api.models.item import Item
+from primus.utils.request_log_capture import capture_request_logs
 
 
 def configure_lambda_logging():
@@ -87,18 +87,18 @@ class LambdaJobProcessor:
         """Initialize the Lambda job processor"""
         logging.info("🚀 Initializing Lambda job processor")
 
-        self.client = PlexusDashboardClient()
+        self.client = PrimusDashboardClient()
         self.sqs_client = boto3.client('sqs')
-        self.request_queue_url = os.environ.get('PLEXUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL')
-        self.response_queue_url = os.environ.get('PLEXUS_RESPONSE_WORKER_QUEUE_URL')
-        self.account_key = os.environ.get('PLEXUS_ACCOUNT_KEY')
+        self.request_queue_url = os.environ.get('PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL')
+        self.response_queue_url = os.environ.get('PRIMUS_RESPONSE_WORKER_QUEUE_URL')
+        self.account_key = os.environ.get('PRIMUS_ACCOUNT_KEY')
 
         if not self.request_queue_url or not self.response_queue_url or not self.account_key:
             raise ValueError(
                 "Missing required environment variables: "
-                "PLEXUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL, "
-                "PLEXUS_RESPONSE_WORKER_QUEUE_URL, "
-                "PLEXUS_ACCOUNT_KEY"
+                "PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL, "
+                "PRIMUS_RESPONSE_WORKER_QUEUE_URL, "
+                "PRIMUS_ACCOUNT_KEY"
             )
 
     async def initialize(self):

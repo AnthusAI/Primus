@@ -10,7 +10,7 @@ pytestmark = pytest.mark.unit
 
 
 def test_model_frontier_runtime_plans_variants():
-    module = execute.PlexusRuntimeModule()
+    module = execute.PrimusRuntimeModule()
 
     result = module.model_frontier.plan(
         {
@@ -38,11 +38,11 @@ def test_model_frontier_runtime_plans_variants():
     assert result["variants"][0]["label"] == "current"
     assert result["variants"][1]["model_name"] == "gpt-5.4-nano"
     assert result["variants"][1]["base_model_name"] == "gpt-5.4-nano"
-    assert module.api_calls == ["plexus.model_frontier.plan"]
+    assert module.api_calls == ["primus.model_frontier.plan"]
 
 
 def test_model_frontier_runtime_finalizes_unpersisted_artifacts():
-    module = execute.PlexusRuntimeModule()
+    module = execute.PrimusRuntimeModule()
 
     result = module.model_frontier.finalize(
         {
@@ -71,7 +71,7 @@ def test_model_frontier_runtime_finalizes_persisted_report_attachments(monkeypat
     attached_calls = []
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client",
+        "primus.cli.shared.client_utils.create_client",
         lambda: "client-1",
     )
 
@@ -88,11 +88,11 @@ def test_model_frontier_runtime_finalizes_persisted_report_attachments(monkeypat
         return [f"reportblocks/{report_block_id}/{call['file_name']}" for call in attached_calls]
 
     monkeypatch.setattr(
-        "plexus.reports.s3_utils.add_file_to_report_block",
+        "primus.reports.s3_utils.add_file_to_report_block",
         fake_add_file_to_report_block,
     )
 
-    module = execute.PlexusRuntimeModule()
+    module = execute.PrimusRuntimeModule()
     result = module.model_frontier.finalize(
         {
             "report_block_id": "rb-1",

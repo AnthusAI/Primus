@@ -1,14 +1,14 @@
 # CLI Testing Infrastructure
 
-This directory contains comprehensive tests for the Plexus CLI to prevent issues like broken imports, missing command registrations, and restructuring problems.
+This directory contains comprehensive tests for the Primus CLI to prevent issues like broken imports, missing command registrations, and restructuring problems.
 
 ## 🚨 Problem These Tests Solve
 
 During CLI restructuring, several critical issues went undetected:
-- **Entry point failures**: `plexus` command wouldn't start due to wrong import paths
+- **Entry point failures**: `primus` command wouldn't start due to wrong import paths
 - **Missing commands**: `scorecard` command was imported but not registered
 - **Broken imports**: Internal CLI modules had outdated import paths
-- **Worker failures**: `plexus command worker` crashed due to import errors
+- **Worker failures**: `primus command worker` crashed due to import errors
 
 **These tests would have caught all of these issues!**
 
@@ -85,10 +85,10 @@ The `.github/workflows/cli-tests.yml` workflow automatically:
 ## 📊 Test Coverage
 
 ### What These Tests Catch:
-✅ **Entry point failures** - `plexus` command won't start  
+✅ **Entry point failures** - `primus` command won't start  
 ✅ **Import errors** - Broken module imports after restructuring  
 ✅ **Missing commands** - Commands imported but not registered  
-✅ **Worker failures** - `plexus command worker` issues  
+✅ **Worker failures** - `primus command worker` issues  
 ✅ **Command availability** - All major commands accessible  
 ✅ **Module restructuring** - Import path changes  
 
@@ -126,11 +126,11 @@ If tests fail:
 python tests/cli/test_cli_integration.py
 
 # Check specific command manually
-plexus --help
-plexus command worker --help
+primus --help
+primus command worker --help
 
 # Check import manually
-python -c "from plexus.cli.shared.CommandLineInterface import main"
+python -c "from primus.cli.shared.CommandLineInterface import main"
 ```
 
 ## 🎯 Best Practices

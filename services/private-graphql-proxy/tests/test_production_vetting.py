@@ -11,7 +11,7 @@ from test_app_routing import FailingUpstream, client_with_fakes
 
 
 def test_api_key_mode_is_only_local_auth_boundary_and_does_not_scope_accounts(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     client, store, _upstream = client_with_fakes(monkeypatch)
     monkeypatch.setattr(
         proxy_app,
@@ -181,7 +181,7 @@ def test_trusted_open_mode_is_invalid_outside_local_backend(monkeypatch):
     response = client.get("/readyz")
 
     assert response.status_code == 503
-    assert "trusted_open requires PLEXUS_BACKEND_MODE=local" in response.json()["detail"]
+    assert "trusted_open requires PRIMUS_BACKEND_MODE=local" in response.json()["detail"]
 
 
 def test_trusted_open_mode_requires_upstream_disabled(monkeypatch):
@@ -203,7 +203,7 @@ def test_trusted_open_mode_requires_upstream_disabled(monkeypatch):
     response = client.get("/readyz")
 
     assert response.status_code == 503
-    assert "trusted_open requires PLEXUS_PROXY_UPSTREAM_DISABLED=true" in response.json()["detail"]
+    assert "trusted_open requires PRIMUS_PROXY_UPSTREAM_DISABLED=true" in response.json()["detail"]
 
 
 def test_security_configuration_fails_startup_for_invalid_trusted_open(monkeypatch):
@@ -220,7 +220,7 @@ def test_security_configuration_fails_startup_for_invalid_trusted_open(monkeypat
         ),
     )
 
-    with pytest.raises(RuntimeError, match="trusted_open requires PLEXUS_BACKEND_MODE=local"):
+    with pytest.raises(RuntimeError, match="trusted_open requires PRIMUS_BACKEND_MODE=local"):
         proxy_app.assert_security_configuration()
 
 
@@ -248,12 +248,12 @@ def test_local_artifact_tickets_require_explicit_api_key_auth(monkeypatch):
     response = client.get("/readyz")
 
     assert response.status_code == 503
-    assert "explicit PLEXUS_PROXY_AUTH_MODE=api_key" in response.json()["detail"]
+    assert "explicit PRIMUS_PROXY_AUTH_MODE=api_key" in response.json()["detail"]
 
 
 def test_settings_infer_auth_mode_from_api_key(monkeypatch):
-    monkeypatch.delenv("PLEXUS_PROXY_AUTH_MODE", raising=False)
-    monkeypatch.setenv("PLEXUS_PROXY_API_KEY", "configured-key")
+    monkeypatch.delenv("PRIMUS_PROXY_AUTH_MODE", raising=False)
+    monkeypatch.setenv("PRIMUS_PROXY_API_KEY", "configured-key")
 
     settings = Settings.from_env()
 
@@ -262,8 +262,8 @@ def test_settings_infer_auth_mode_from_api_key(monkeypatch):
 
 
 def test_settings_infer_trusted_open_without_api_key(monkeypatch):
-    monkeypatch.delenv("PLEXUS_PROXY_AUTH_MODE", raising=False)
-    monkeypatch.delenv("PLEXUS_PROXY_API_KEY", raising=False)
+    monkeypatch.delenv("PRIMUS_PROXY_AUTH_MODE", raising=False)
+    monkeypatch.delenv("PRIMUS_PROXY_API_KEY", raising=False)
 
     settings = Settings.from_env()
 
@@ -272,7 +272,7 @@ def test_settings_infer_trusted_open_without_api_key(monkeypatch):
 
 
 def test_local_subscription_roots_are_routable_but_not_served_over_http(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     client, _store, _upstream = client_with_fakes(monkeypatch)
     monkeypatch.setattr(
         proxy_app,

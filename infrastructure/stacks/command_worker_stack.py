@@ -1,5 +1,5 @@
 """
-Stack for Plexus command worker resources.
+Stack for Primus command worker resources.
 
 This stack manages the infrastructure needed for command workers running on EC2,
 including SSM documents, IAM roles, and instance profiles.
@@ -19,7 +19,7 @@ class CommandWorkerStack(Stack):
     """
     CDK Stack for command worker resources.
 
-    Creates environment-specific resources for the Plexus command worker system
+    Creates environment-specific resources for the Primus command worker system
     that runs on EC2 instances.
     """
 
@@ -101,17 +101,17 @@ class CommandWorkerStack(Stack):
         """
         Create SSM document for managing the command worker systemd service.
 
-        This document configures a systemd service that runs the Plexus command worker.
+        This document configures a systemd service that runs the Primus command worker.
         """
         # Define the SSM Document content
         ssm_doc_content = {
             "schemaVersion": "2.2",
-            "description": f"Configure and manage plexus-command-worker service for {self.env_name}",
+            "description": f"Configure and manage primus-command-worker service for {self.env_name}",
             "parameters": {
                 "ServiceName": {
                     "type": "String",
                     "description": "Name of the systemd service.",
-                    "default": "plexus-command-worker.service"
+                    "default": "primus-command-worker.service"
                 },
                 "ServiceUser": {
                     "type": "String",
@@ -130,8 +130,8 @@ class CommandWorkerStack(Stack):
                 },
                 "PlexusExecutable": {
                     "type": "String",
-                    "description": "Absolute path to the plexus executable.",
-                    "default": "/home/ec2-user/miniconda3/envs/py311/bin/plexus"
+                    "description": "Absolute path to the primus executable.",
+                    "default": "/home/ec2-user/miniconda3/envs/py311/bin/primus"
                 },
                 "Environment": {
                     "type": "String",
@@ -153,7 +153,7 @@ class CommandWorkerStack(Stack):
                             # Create the systemd service file
                             "cat << 'EOF' | tee /etc/systemd/system/{{ ServiceName }} > /dev/null",
                             "[Unit]",
-                            "Description=Plexus Command Worker Service (Managed by SSM)",
+                            "Description=Primus Command Worker Service (Managed by SSM)",
                             "After=network.target",
                             "",
                             "[Service]",

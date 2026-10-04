@@ -3,9 +3,9 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-export PLEXUS_API_URL="${PLEXUS_API_URL:-http://localhost:18080/graphql}"
-export PLEXUS_API_KEY="${PLEXUS_API_KEY:-local-smoke-key}"
-export PLEXUS_PROXY_DATABASE_URL="${PLEXUS_PROXY_DATABASE_URL:-postgresql://plexus:plexus@localhost:55432/plexus_proxy}"
+export PRIMUS_API_URL="${PRIMUS_API_URL:-http://localhost:18080/graphql}"
+export PRIMUS_API_KEY="${PRIMUS_API_KEY:-local-smoke-key}"
+export PRIMUS_PROXY_DATABASE_URL="${PRIMUS_PROXY_DATABASE_URL:-postgresql://primus:primus@localhost:55432/primus_proxy}"
 export SMOKE_DASHBOARD_URL="${SMOKE_DASHBOARD_URL:-http://localhost:3000}"
 export SMOKE_PROOF_DIR="${SMOKE_PROOF_DIR:-$ROOT_DIR/tmp/local-control-plane-proof}"
 export SMOKE_PRODUCTION_VETTING_PROOF_FILE="${SMOKE_PRODUCTION_VETTING_PROOF_FILE:-$SMOKE_PROOF_DIR/production-vetting.json}"
@@ -14,7 +14,7 @@ log() {
   printf '[vet-local-control-plane] %s\n' "$*"
 }
 
-ready_url="${PLEXUS_API_URL%/graphql}/readyz"
+ready_url="${PRIMUS_API_URL%/graphql}/readyz"
 if ! curl -fsS "$ready_url" >/dev/null; then
   log "Local GraphQL proxy is not ready at $ready_url"
   exit 1
@@ -39,9 +39,9 @@ import psycopg
 import requests
 
 
-api_url = os.environ["PLEXUS_API_URL"]
-api_key = os.environ["PLEXUS_API_KEY"]
-database_url = os.environ["PLEXUS_PROXY_DATABASE_URL"]
+api_url = os.environ["PRIMUS_API_URL"]
+api_key = os.environ["PRIMUS_API_KEY"]
+database_url = os.environ["PRIMUS_PROXY_DATABASE_URL"]
 dashboard_url = os.environ["SMOKE_DASHBOARD_URL"].rstrip("/")
 proof_dir = Path(os.environ["SMOKE_PROOF_DIR"])
 proof_file = Path(os.environ["SMOKE_PRODUCTION_VETTING_PROOF_FILE"])
@@ -192,7 +192,7 @@ def check_auth_and_tenancy() -> None:
                 "trustedOpenCanReadAccountId": item.get("accountId"),
             },
             production_gap=(
-                "Trusted-open mode intentionally performs no Plexus authentication or account authorization; "
+                "Trusted-open mode intentionally performs no Primus authentication or account authorization; "
                 "deployment security depends on external access control."
             ),
             next_required_work="Document and verify the external access boundary for any trusted-open deployment; use OIDC/service-token auth for public or multi-tenant exposure.",
@@ -212,7 +212,7 @@ def check_auth_and_tenancy() -> None:
                 "sharedCredentialCanReadAccountId": item.get("accountId"),
             },
             production_gap="The local facade is running with an ambiguous or unrecognized auth mode.",
-            next_required_work="Set PLEXUS_PROXY_AUTH_MODE explicitly to trusted_open or api_key.",
+            next_required_work="Set PRIMUS_PROXY_AUTH_MODE explicitly to trusted_open or api_key.",
             kanbus="plx-b80481",
         )
         return

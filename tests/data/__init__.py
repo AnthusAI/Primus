@@ -1,1 +1,1 @@
-# Tests for plexus.data module
+# Tests for primus.data module

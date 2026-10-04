@@ -48,7 +48,7 @@ class SnapshotDeployer:
         head = self.runner.run(("git", "rev-parse", "HEAD")).stdout.strip()
         tag = f"k8s-demo-{head[:12]}"
 
-        snapshot_root = Path(tempfile.mkdtemp(prefix="plexus-k8s-demo-snapshot-"))
+        snapshot_root = Path(tempfile.mkdtemp(prefix="primus-k8s-demo-snapshot-"))
         archive = snapshot_root / "source.tar"
         source = snapshot_root / "source"
         source.mkdir()
@@ -57,9 +57,9 @@ class SnapshotDeployer:
             with tarfile.open(archive) as handle:
                 handle.extractall(source)
 
-            self._ensure_image("plexus-worker", tag, source / "docker/Dockerfile", source)
+            self._ensure_image("primus-worker", tag, source / "docker/Dockerfile", source)
             self._ensure_image(
-                "plexus-graphql-proxy",
+                "primus-graphql-proxy",
                 tag,
                 source / "services/private-graphql-proxy/Dockerfile",
                 source,
@@ -68,7 +68,7 @@ class SnapshotDeployer:
             self._ensure_llm_secret()
             self._ensure_object_store_tls_secret()
 
-            chart = source / "docker/helm/plexus-stack"
+            chart = source / "docker/helm/primus-stack"
             values = self.output_dir / "values-local.yaml"
             write_effective_local_values(
                 chart / "values-local.yaml.example",
@@ -80,7 +80,7 @@ class SnapshotDeployer:
             package_result = self.runner.run(
                 ("helm", "package", str(chart), "--destination", str(self.output_dir)), timeout=300
             )
-            chart_package = self.output_dir / "plexus-stack-1.0.0.tgz"
+            chart_package = self.output_dir / "primus-stack-1.0.0.tgz"
             if not chart_package.exists():
                 raise DemoFailure(f"Helm package was not created: {package_result.stdout.strip()}")
             self.runner.run(
@@ -91,8 +91,8 @@ class SnapshotDeployer:
                 timeout=1200,
             )
             for deployment in (
-                "plexus-graphql-proxy",
-                "plexus-plexus-worker",
+                "primus-graphql-proxy",
+                "primus-primus-worker",
                 OBJECT_STORE_DEPLOYMENT,
             ):
                 self.runner.run(
@@ -185,11 +185,11 @@ class SnapshotDeployer:
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             try:
-                from plexus.config.loader import load_config
+                from primus.config.loader import load_config
 
                 load_config()
             except Exception as exc:
-                raise DemoFailure("could not load the approved local Plexus configuration") from exc
+                raise DemoFailure("could not load the approved local Primus configuration") from exc
             api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise DemoFailure("OPENAI_API_KEY is required to create the Kubernetes LLM secret")
@@ -226,7 +226,7 @@ class SnapshotDeployer:
                 )
             return
 
-        certificate_dir = Path(tempfile.mkdtemp(prefix="plexus-k8s-minio-tls-"))
+        certificate_dir = Path(tempfile.mkdtemp(prefix="primus-k8s-minio-tls-"))
         try:
             ca_key = certificate_dir / "ca.key"
             ca_cert = certificate_dir / "ca.crt"
@@ -235,9 +235,9 @@ class SnapshotDeployer:
             server_cert = certificate_dir / "public.crt"
             extensions = certificate_dir / "server.ext"
             extensions.write_text(
-                "subjectAltName=DNS:plexus-local-object-store,"
-                "DNS:plexus-local-object-store.plexus-local.svc,"
-                "DNS:plexus-local-object-store.plexus-local.svc.cluster.local\n"
+                "subjectAltName=DNS:primus-local-object-store,"
+                "DNS:primus-local-object-store.primus-local.svc,"
+                "DNS:primus-local-object-store.primus-local.svc.cluster.local\n"
                 "extendedKeyUsage=serverAuth\n",
                 encoding="utf-8",
             )
@@ -245,14 +245,14 @@ class SnapshotDeployer:
             self.runner.run(
                 (
                     "openssl", "req", "-x509", "-new", "-sha256", "-days", "3650",
-                    "-key", str(ca_key), "-subj", "/CN=Plexus local object-store CA",
+                    "-key", str(ca_key), "-subj", "/CN=Primus local object-store CA",
                     "-out", str(ca_cert),
                 )
             )
             self.runner.run(
                 (
                     "openssl", "req", "-newkey", "rsa:2048", "-nodes",
-                    "-keyout", str(server_key), "-subj", "/CN=plexus-local-object-store",
+                    "-keyout", str(server_key), "-subj", "/CN=primus-local-object-store",
                     "-out", str(server_csr),
                 )
             )
@@ -290,9 +290,9 @@ class SnapshotDeployer:
                 return
             env = os.environ.copy()
             env.update({
-                "PLEXUS_API_URL": f"{base_url}/graphql",
-                "PLEXUS_API_KEY": PROXY_API_KEY,
-                "PLEXUS_GRAPHQL_AUTH_MODE": "api_key",
+                "PRIMUS_API_URL": f"{base_url}/graphql",
+                "PRIMUS_API_KEY": PROXY_API_KEY,
+                "PRIMUS_GRAPHQL_AUTH_MODE": "api_key",
             })
             self.runner.run(
                 (sys.executable, str(source / "services/private-graphql-proxy/scripts/seed_local_demo.py")),
@@ -303,11 +303,11 @@ class SnapshotDeployer:
     def _artifact_ticket_smoke(self) -> dict[str, Any]:
         code = (
             "import hashlib,json;"
-            "from plexus.dashboard.api.client import PlexusDashboardClient;"
-            "from plexus.storage.graphql_artifact_store import ArtifactTicketError,ArtifactTransferRequest,GraphQLArtifactStore;"
-            "body=b'plexus-k8s-artifact-smoke';"
+            "from primus.dashboard.api.client import PrimusDashboardClient;"
+            "from primus.storage.graphql_artifact_store import ArtifactTicketError,ArtifactTransferRequest,GraphQLArtifactStore;"
+            "body=b'primus-k8s-artifact-smoke';"
             "digest=hashlib.sha256(body).hexdigest();"
-            "client=PlexusDashboardClient();store=GraphQLArtifactStore(client);"
+            "client=PrimusDashboardClient();store=GraphQLArtifactStore(client);"
             "write=ArtifactTransferRequest(operation='WRITE',resource_type='TASK',resource_id='local-demo-task',artifact_type='TASK_ATTACHMENT',filename='integration-smoke.bin',content_type='application/octet-stream',size_bytes=len(body),sha256=digest);"
             "metadata=store.upload_bytes(write,body);"
             "read=ArtifactTransferRequest(operation='READ',resource_type='TASK',resource_id='local-demo-task',artifact_type='TASK_ATTACHMENT',filename='integration-smoke.bin',content_type='application/octet-stream',size_bytes=len(body),sha256=digest);"
@@ -320,7 +320,7 @@ class SnapshotDeployer:
         result = self.runner.run(
             (
                 "kubectl", "exec", "-n", NAMESPACE,
-                "deployment/plexus-plexus-worker", "--", "python", "-c", code,
+                "deployment/primus-primus-worker", "--", "python", "-c", code,
             ),
             timeout=300,
         )
@@ -339,25 +339,25 @@ def write_effective_local_values(
     proxy_tag: str,
 ) -> None:
     values = yaml.safe_load(source.read_text(encoding="utf-8"))
-    values["plexus-worker"]["image"] = {
-        "repository": "plexus-worker",
+    values["primus-worker"]["image"] = {
+        "repository": "primus-worker",
         "tag": worker_tag,
         "pullPolicy": "IfNotPresent",
     }
     # The acceptance optimizer evaluates candidates concurrently in-process.
     # Keep its bounded concurrency and measured memory requirement explicit in
     # the immutable values artifact instead of relying on imperative overrides.
-    values["plexus-worker"].setdefault("env", {})["MAX_JOBS_PER_WORKER"] = "2"
-    values["plexus-worker"]["resources"] = {
+    values["primus-worker"].setdefault("env", {})["MAX_JOBS_PER_WORKER"] = "2"
+    values["primus-worker"]["resources"] = {
         "requests": {"cpu": "500m", "memory": "1Gi"},
         "limits": {"cpu": 2, "memory": "4Gi"},
     }
     values["graphql-proxy"]["image"] = {
-        "repository": "plexus-graphql-proxy",
+        "repository": "primus-graphql-proxy",
         "tag": proxy_tag,
         "pullPolicy": "IfNotPresent",
     }
-    llm = values["plexus-worker"].get("llm") or {}
+    llm = values["primus-worker"].get("llm") or {}
     if "apiKey" in llm or any(
         isinstance(provider, dict) and provider.get("apiKey")
         for provider in (llm.get("openai"), llm.get("anthropic"))

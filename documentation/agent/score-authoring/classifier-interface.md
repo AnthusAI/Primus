@@ -1,7 +1,7 @@
 ---
 id: score-authoring.classifier-interface
 title: Score Interface Contract
-summary: Interface contract for Plexus Score base class — Input, Result, predict(), validation, cost tracking.
+summary: Interface contract for Primus Score base class — Input, Result, predict(), validation, cost tracking.
 namespace: score-authoring
 status: canonical
 disclosure: reference
@@ -13,12 +13,12 @@ related:
 ---
 # Score Interface Contract
 
-All scoring in Plexus derives from the abstract `Score` base class (`plexus/scores/Score.py`). This defines the interface that every score implementation must satisfy.
+All scoring in Primus derives from the abstract `Score` base class (`primus/scores/Score.py`). This defines the interface that every score implementation must satisfy.
 
 ## Base Class
 
 ```python
-from plexus.scores.Score import Score
+from primus.scores.Score import Score
 
 class MyScore(Score):
     async def predict(self, model_input: Score.Input, **kwargs) -> Union[Score.Result, List[Score.Result]]:
@@ -29,7 +29,7 @@ class MyScore(Score):
 
 ## Score.Input
 
-Defined in `plexus/core/ScoreInput.py`. Lightweight to avoid heavy import chains.
+Defined in `primus/core/ScoreInput.py`. Lightweight to avoid heavy import chains.
 
 | Field | Type | Default | Purpose |
 |-------|------|---------|---------|
@@ -39,7 +39,7 @@ Defined in `plexus/core/ScoreInput.py`. Lightweight to avoid heavy import chains
 
 ## Score.Result
 
-Defined in `plexus/scores/Score.py`.
+Defined in `primus/scores/Score.py`.
 
 | Field | Type | Default | Purpose |
 |-------|------|---------|---------|
@@ -116,8 +116,8 @@ Accumulator tracks: `total_usd`, `prompt_tokens`, `completion_tokens`, `cached_t
 
 ## Primary Implementations
 
-- **TactusScore** (`plexus/scores/TactusScore.py`): Executes Tactus DSL (Lua-based) code for classification. Model specified in Lua via `default_model`. High-volume, in-process execution.
-- **LangGraphScore** (`plexus/scores/LangGraphScore.py`): LangChain/LangGraph-based workflows. Supports complex multi-node graphs, checkpointing, batch processing.
+- **TactusScore** (`primus/scores/TactusScore.py`): Executes Tactus DSL (Lua-based) code for classification. Model specified in Lua via `default_model`. High-volume, in-process execution.
+- **LangGraphScore** (`primus/scores/LangGraphScore.py`): LangChain/LangGraph-based workflows. Supports complex multi-node graphs, checkpointing, batch processing.
 
 Both are async. Both take `Score.Input` and return `Score.Result`.
 

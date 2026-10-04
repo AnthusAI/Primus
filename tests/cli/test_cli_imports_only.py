@@ -18,7 +18,7 @@ class TestCLIImportsOnly:
         """Test core CLI modules that were affected by restructuring"""
         # These imports were broken during restructuring
         try:
-            from plexus.cli.shared.CommandLineInterface import main, cli
+            from primus.cli.shared.CommandLineInterface import main, cli
             assert callable(main)
         except ImportError as e:
             pytest.fail(f"Failed to import CommandLineInterface: {e}")
@@ -26,7 +26,7 @@ class TestCLIImportsOnly:
     def test_command_tasks_module(self):
         """Test CommandTasks module that had broken imports"""
         try:
-            from plexus.cli.shared.CommandTasks import register_tasks
+            from primus.cli.shared.CommandTasks import register_tasks
             assert callable(register_tasks)
         except ImportError as e:
             pytest.fail(f"Failed to import CommandTasks: {e}")
@@ -34,7 +34,7 @@ class TestCLIImportsOnly:
     def test_command_dispatch_module(self):
         """Test CommandDispatch module that had broken imports"""
         try:
-            from plexus.cli.shared.CommandDispatch import get_celery_app, create_celery_app
+            from primus.cli.shared.CommandDispatch import get_celery_app, create_celery_app
             assert callable(get_celery_app)
             assert callable(create_celery_app)
         except ImportError as e:
@@ -43,7 +43,7 @@ class TestCLIImportsOnly:
     def test_score_chat_module(self):
         """Test score chat module that had broken import path"""
         try:
-            from plexus.cli.score_chat.chat import register_tasks
+            from primus.cli.score_chat.chat import register_tasks
             assert callable(register_tasks)
         except ImportError as e:
             pytest.fail(f"Failed to import score_chat.chat: {e}")
@@ -51,15 +51,15 @@ class TestCLIImportsOnly:
     def test_all_command_modules(self):
         """Test all command modules can be imported"""
         command_modules = [
-            'plexus.cli.score.scores',
-            'plexus.cli.scorecard.scorecards',
-            'plexus.cli.evaluation.evaluations',
-            'plexus.cli.report.reports',
-            'plexus.cli.item.items',
-            'plexus.cli.task.tasks',
-            'plexus.cli.batch.operations',
-            'plexus.cli.data.operations',
-            'plexus.cli.feedback.commands'
+            'primus.cli.score.scores',
+            'primus.cli.scorecard.scorecards',
+            'primus.cli.evaluation.evaluations',
+            'primus.cli.report.reports',
+            'primus.cli.item.items',
+            'primus.cli.task.tasks',
+            'primus.cli.batch.operations',
+            'primus.cli.data.operations',
+            'primus.cli.feedback.commands'
         ]
         
         for module_name in command_modules:
@@ -71,7 +71,7 @@ class TestCLIImportsOnly:
     def test_data_operations_loads_without_training_packages(self):
         """Scoring-only installs must be able to load the full CLI.
 
-        xgboost and imblearn back only the 'plexus data' training commands,
+        xgboost and imblearn back only the 'primus data' training commands,
         so they must be imported lazily inside those command paths rather
         than at module level. Runs in a subprocess so blocking the packages
         cannot be defeated by modules already imported in this process.
@@ -81,7 +81,7 @@ class TestCLIImportsOnly:
             "for blocked in ('xgboost', 'imblearn', 'imblearn.over_sampling', "
             "'imblearn.under_sampling'):\n"
             "    sys.modules[blocked] = None\n"
-            "import plexus.cli.data.operations\n"
+            "import primus.cli.data.operations\n"
         )
         result = subprocess.run(
             [sys.executable, "-c", code],
@@ -89,14 +89,14 @@ class TestCLIImportsOnly:
             text=True,
         )
         assert result.returncode == 0, (
-            f"plexus.cli.data.operations requires training packages at import time:\n"
+            f"primus.cli.data.operations requires training packages at import time:\n"
             f"{result.stderr}"
         )
 
     def test_scorecard_commands_import(self):
         """Test that both scorecard and scorecards can be imported"""
         try:
-            from plexus.cli.scorecard.scorecards import scorecard, scorecards
+            from primus.cli.scorecard.scorecards import scorecard, scorecards
             # These should be Click command groups
             assert hasattr(scorecard, '__call__')
             assert hasattr(scorecards, '__call__')
@@ -109,28 +109,28 @@ if __name__ == "__main__":
     
     # Test critical imports directly
     try:
-        from plexus.cli.shared.CommandLineInterface import main
+        from primus.cli.shared.CommandLineInterface import main
         print("✓ CommandLineInterface import")
     except Exception as e:
         print(f"✗ CommandLineInterface import: {e}")
         exit(1)
     
     try:
-        from plexus.cli.shared.CommandTasks import register_tasks
+        from primus.cli.shared.CommandTasks import register_tasks
         print("✓ CommandTasks import")
     except Exception as e:
         print(f"✗ CommandTasks import: {e}")
         exit(1)
     
     try:
-        from plexus.cli.score_chat.chat import register_tasks
+        from primus.cli.score_chat.chat import register_tasks
         print("✓ Score chat import")
     except Exception as e:
         print(f"✗ Score chat import: {e}")
         exit(1)
     
     try:
-        from plexus.cli.scorecard.scorecards import scorecard, scorecards
+        from primus.cli.scorecard.scorecards import scorecard, scorecards
         print("✓ Scorecard commands import")
     except Exception as e:
         print(f"✗ Scorecard commands import: {e}")

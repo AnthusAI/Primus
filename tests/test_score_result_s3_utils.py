@@ -3,7 +3,7 @@ import json
 import pytest
 from botocore.exceptions import ClientError
 
-from plexus.utils import score_result_s3_utils
+from primus.utils import score_result_s3_utils
 
 
 def _not_found_error():

@@ -32,7 +32,7 @@ def test_blocks_control_plane_mutations():
 
 
 def test_local_backend_mode_classifies_all_manifest_model_roots_as_private(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
 
     plan = build_operation_plan(
         """
@@ -76,7 +76,7 @@ def test_manifest_exposes_custom_share_token_operation_as_control_read():
 
 
 def test_classifies_legacy_index_root_aliases_for_backward_compatibility(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     plan = build_operation_plan(
         """
         query LegacyIndexAlias($accountId: String!) {
@@ -101,7 +101,7 @@ def test_classifies_legacy_index_root_aliases_for_backward_compatibility(monkeyp
 
 
 def test_classifies_composite_legacy_index_root_aliases(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     plan = build_operation_plan(
         """
         query AggregatedMetricsAlias($accountId: String!, $recordType: String!, $startTime: String!, $endTime: String!) {
@@ -129,7 +129,7 @@ def test_classifies_composite_legacy_index_root_aliases(monkeypatch):
 
 
 def test_classifies_feedback_composite_legacy_index_root_alias(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     plan = build_operation_plan(
         """
         query FeedbackAlias($accountId: String!, $scorecardId: String!, $scoreId: String!, $start: String!, $end: String!) {
@@ -158,7 +158,7 @@ def test_classifies_feedback_composite_legacy_index_root_alias(monkeypatch):
 
 
 def test_classifies_synthetic_legacy_index_roots_not_in_manifest(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     plan = build_operation_plan(
         """
         query LegacySyntheticIndex($scorecardId: String!) {
@@ -178,7 +178,7 @@ def test_classifies_synthetic_legacy_index_roots_not_in_manifest(monkeypatch):
 
 
 def test_local_backend_mode_routes_every_manifest_model_root_locally(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     contract = get_schema_contract()
 
     for model_name, model in contract.models.items():
@@ -203,7 +203,7 @@ def test_local_backend_mode_routes_every_manifest_model_root_locally(monkeypatch
 
 
 def test_local_backend_mode_routes_every_manifest_subscription_root_locally(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     contract = get_schema_contract()
 
     for model_name in contract.models:
@@ -215,7 +215,7 @@ def test_local_backend_mode_routes_every_manifest_subscription_root_locally(monk
 
 
 def test_local_backend_mode_routes_manifest_custom_query_roots_locally(monkeypatch):
-    monkeypatch.setenv("PLEXUS_BACKEND_MODE", "local")
+    monkeypatch.setenv("PRIMUS_BACKEND_MODE", "local")
     contract = get_schema_contract()
 
     for root_name, operation in contract.custom_operations.items():

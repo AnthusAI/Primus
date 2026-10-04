@@ -1,10 +1,10 @@
 import pytest
 import sys
 from unittest.mock import patch, Mock
-from plexus.input_sources.InputSourceFactory import InputSourceFactory
-from plexus.input_sources.InputSource import InputSource
-from plexus.input_sources.TextFileInputSource import TextFileInputSource
-from plexus.input_sources.DeepgramInputSource import DeepgramInputSource
+from primus.input_sources.InputSourceFactory import InputSourceFactory
+from primus.input_sources.InputSource import InputSource
+from primus.input_sources.TextFileInputSource import TextFileInputSource
+from primus.input_sources.DeepgramInputSource import DeepgramInputSource
 
 
 class TestInputSourceFactory:
@@ -117,7 +117,7 @@ class TestInputSourceFactory:
         with pytest.raises(ValueError, match="Unknown input source"):
             InputSourceFactory.create_input_source("", pattern=r".*\.txt$")
 
-    @patch.object(sys.modules['plexus.input_sources.InputSourceFactory'], 'importlib')
+    @patch.object(sys.modules['primus.input_sources.InputSourceFactory'], 'importlib')
     def test_create_import_error_propagates(self, mock_importlib):
         """Test that import errors are logged and re-raised"""
         # Setup
@@ -224,7 +224,7 @@ class TestInputSourceFactory:
         assert source.options["custom_config"]["nested"] == "value"
         assert source.options["custom_config"]["number"] == 42
 
-    @patch.object(sys.modules['plexus.input_sources.InputSourceFactory'], 'logging')
+    @patch.object(sys.modules['primus.input_sources.InputSourceFactory'], 'logging')
     def test_create_logs_error_on_failure(self, mock_logging):
         """Test that factory logs errors when creation fails"""
         # Execute

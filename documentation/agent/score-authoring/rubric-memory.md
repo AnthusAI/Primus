@@ -13,7 +13,7 @@ related:
 ---
 # Rubric Memory and Scorecard Knowledge Bases
 
-Rubric memory is Plexus's scorecard knowledge-base system for adding policy history, meeting notes, emails, chat excerpts, scripts, and other supporting material to score analysis. It does not replace the official rubric. The official policy authority is the active `ScoreVersion` for the score, usually the score's champion version through `Score.championVersionId`.
+Rubric memory is Primus's scorecard knowledge-base system for adding policy history, meeting notes, emails, chat excerpts, scripts, and other supporting material to score analysis. It does not replace the official rubric. The official policy authority is the active `ScoreVersion` for the score, usually the score's champion version through `Score.championVersionId`.
 
 In current storage, rubric text is still stored in fields named `guidelines`, and score code is stored in `configuration`. New rubric-memory code uses `rubric` terminology and translates from `guidelines` only at the storage adapter boundary.
 
@@ -75,7 +75,7 @@ Example Scorecard/
 
 `Information Accuracy.knowledge-base/` applies to scores whose sanitized score names begin with `Information Accuracy` at a clear boundary, such as a space, hyphen, or parenthesis. It applies to both `Information Accuracy: High-Pressure Sales Tactics` and `Information Accuracy (Composite)`.
 
-Prefix folders are optional overlays. If no matching prefix folder exists, retrieval still uses the scorecard and exact-score roots. Plexus does not search alternate locations.
+Prefix folders are optional overlays. If no matching prefix folder exists, retrieval still uses the scorecard and exact-score roots. Primus does not search alternate locations.
 
 ## Date Folders
 
@@ -90,7 +90,7 @@ Temporal context matters because policy interpretation changes over time. The ca
     pasted-notes-without-date.md
 ```
 
-The date means the meeting date, email date, chat date, or document date. Plexus infers `source_timestamp` from the nearest ancestor folder matching `YYYY-MM-DD`, even for nested paths:
+The date means the meeting date, email date, chat date, or document date. Primus infers `source_timestamp` from the nearest ancestor folder matching `YYYY-MM-DD`, even for nested paths:
 
 ```text
 2026-04-24/client/source.md
@@ -98,7 +98,7 @@ The date means the meeting date, email date, chat date, or document date. Plexus
 
 Files under `unknown-date/` remain retrievable but have no `source_timestamp`, so they do not contribute to chronological history ordering.
 
-Plexus never rewrites raw S3 knowledge-base files to add metadata. Inferred timestamps and scope metadata are attached only in the prepared working corpus.
+Primus never rewrites raw S3 knowledge-base files to add metadata. Inferred timestamps and scope metadata are attached only in the prepared working corpus.
 
 ## Raw Source Files
 
@@ -111,9 +111,9 @@ Overlap and duplication are acceptable. A source can be copied into a scorecard-
 Use local folders next to pulled score YAML/Markdown files as the authoring workspace. Sync uploads those raw files to the dedicated rubric-memory bucket using the same relative hierarchy.
 
 ```bash
-plexus rubric-memory sync --scorecard "Example Scorecard"
+primus rubric-memory sync --scorecard "Example Scorecard"
 
-plexus rubric-memory sync \
+primus rubric-memory sync \
   --scorecard "Example Scorecard" \
   --score "Example Score"
 ```
@@ -122,7 +122,7 @@ The score-specific sync uploads the scorecard-level folder, matching prefix fold
 
 ## Prepared Corpora
 
-Before retrieval, Plexus downloads the S3 corpus into ignored repo-local storage:
+Before retrieval, Primus downloads the S3 corpus into ignored repo-local storage:
 
 ```text
 tmp/rubric-memory/prepared/<stable-cache-key>/
@@ -140,7 +140,7 @@ The prepared corpus manager:
 Manual prewarming uses the same code path as just-in-time runtime preparation:
 
 ```bash
-AMPLIFY_STORAGE_RUBRICMEMORY_BUCKET_NAME=<bucket> plexus rubric-memory prewarm \
+AMPLIFY_STORAGE_RUBRICMEMORY_BUCKET_NAME=<bucket> primus rubric-memory prewarm \
   --scorecard "Example Scorecard" \
   --score "Example Score"
 ```
@@ -152,7 +152,7 @@ Prewarming does not generate analysis. It only prepares the corpus so later retr
 Score optimization should begin with a recency-biased review of recent knowledge-base entries. This catches newly added SME decisions, client clarifications, meeting notes, or policy shifts before an optimizer treats older feedback as the target.
 
 ```bash
-plexus rubric-memory recent \
+primus rubric-memory recent \
   --scorecard "Example Scorecard" \
   --score "Example Score" \
   --days 30 \

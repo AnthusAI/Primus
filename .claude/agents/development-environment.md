@@ -51,7 +51,7 @@ From `pyproject.toml`:
 ### Python Tests
 ```bash
 # Run tests with coverage
-python -m pytest --cov=plexus --cov-report=term --cov-report=html
+python -m pytest --cov=primus --cov-report=term --cov-report=html
 ```
 
 ### TypeScript Tests (Dashboard)
@@ -81,7 +81,7 @@ conda info --envs
 pip list | grep pandas
 
 # Basic import test
-python -c "import plexus; print('OK')"
+python -c "import primus; print('OK')"
 ```
 
 ## Task Automation with Invoke
@@ -116,5 +116,5 @@ invoke ci
 - [ ] Activate py311 environment
 - [ ] Verify Python version is 3.11.x
 - [ ] Install/update dependencies: `pip install -e .`
-- [ ] Run verification: `python -c "import plexus; print('OK')"`
+- [ ] Run verification: `python -c "import primus; print('OK')"`
 - [ ] Ready to develop!

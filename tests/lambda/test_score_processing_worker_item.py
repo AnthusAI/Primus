@@ -81,12 +81,12 @@ async def test_create_score_result_for_api_includes_timestamp_fields():
 
     with patch.object(handler, "gql", side_effect=fake_gql):
         with patch.object(handler, "ACCOUNT_KEY", "account-key"):
-            with patch.object(handler, "PlexusDashboardClient", Mock(return_value=Mock())):
+            with patch.object(handler, "PrimusDashboardClient", Mock(return_value=Mock())):
                 with patch.object(handler, "resolve_scorecard_id", AsyncMock(return_value="scorecard-1")):
                     with patch.object(handler, "resolve_score_id", AsyncMock(return_value={"id": "score-1"})):
                         with patch.object(handler, "get_text_from_report", AsyncMock(return_value="text")):
                             with patch.object(handler, "get_metadata_from_report", AsyncMock(return_value={})):
-                                with patch.object(handler, "PLEXUS_ITEM_AVAILABLE", True):
+                                with patch.object(handler, "PRIMUS_ITEM_AVAILABLE", True):
                                     with patch.object(handler, "Item", fake_item_model):
                                         await handler.create_score_result_for_api(
                                             report_id="report-1",

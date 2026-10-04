@@ -1,29 +1,29 @@
 #!/usr/bin/env python3
 """
-Plexus MCP Server using FastMCP - A refactored implementation with modular tools
+Primus MCP Server using FastMCP - A refactored implementation with modular tools
 """
 import sys
 from fastmcp import FastMCP
 
 # Import shared setup and utilities
-from shared.setup import setup_plexus_imports, restore_stdout, redirect_stdout_to_stderr, logger
+from shared.setup import setup_primus_imports, restore_stdout, redirect_stdout_to_stderr, logger
 from shared.utils import load_env_file, initialize_default_account, get_default_account_id
 
 # Import tool registration functions
 from tools.tactus_runtime.execute import register_tactus_tools
 
-# Setup Plexus imports and core functionality
-setup_plexus_imports()
+# Setup Primus imports and core functionality
+setup_primus_imports()
 
 # Create FastMCP instance
 mcp = FastMCP(
-    name="Plexus MCP Server",
+    name="Primus MCP Server",
     instructions="""
-    Plexus is a programmable AI-scoring runtime.  Use the single `execute_tactus`
-    tool to interact with it via the `plexus.*` namespaces.
+    Primus is a programmable AI-scoring runtime.  Use the single `execute_tactus`
+    tool to interact with it via the `primus.*` namespaces.
 
-    Call `return plexus.api.list()` to discover all available namespaces and methods.
-    Call `return plexus.docs.list({})` to list available documentation topics.
+    Call `return primus.api.list()` to discover all available namespaces and methods.
+    Call `return primus.docs.list({})` to list available documentation topics.
     """
 )
 
@@ -45,7 +45,7 @@ def run_server(args):
     register_all_tools()
 
     # Initialize default account as early as possible after env vars are loaded
-    # but after the Plexus core is available
+    # but after the Primus core is available
     logger.info("Initializing default account from environment...")
     initialize_default_account()
 

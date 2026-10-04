@@ -5,11 +5,11 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from plexus.command_worker.adapters.ecs_task_protection import (
+from primus.command_worker.adapters.ecs_task_protection import (
     EcsAgentTaskScaleInProtection,
 )
-from plexus.command_worker.models import Claim, CommandEnvelope
-from plexus.command_worker.worker import CommandWorker, ProcessOutcome
+from primus.command_worker.models import Claim, CommandEnvelope
+from primus.command_worker.worker import CommandWorker, ProcessOutcome
 
 
 class _Response:
@@ -31,7 +31,7 @@ def test_ecs_agent_protection_sets_and_clears_current_task(monkeypatch) -> None:
         return _Response()
 
     monkeypatch.setattr(
-        "plexus.command_worker.adapters.ecs_task_protection.urlopen", fake_urlopen
+        "primus.command_worker.adapters.ecs_task_protection.urlopen", fake_urlopen
     )
     protection = EcsAgentTaskScaleInProtection("http://169.254.170.2")
 
@@ -67,7 +67,7 @@ class _Delivery:
         target="evaluate",
         idempotency_key="evaluate:c1",
         created_at=datetime(2026, 8, 6, tzinfo=timezone.utc),
-        payload={"argv": ["plexus", "evaluate"]},
+        payload={"argv": ["primus", "evaluate"]},
     )
     released = False
     acknowledged = False

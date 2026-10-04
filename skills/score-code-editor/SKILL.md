@@ -1,6 +1,6 @@
 ---
 name: score-code-editor
-description: Edit and update the Tactus DSL code for a Plexus scorecard score. Covers the modern ClassifyProcedure style, the pull/push workflow, and key patterns and pitfalls.
+description: Edit and update the Tactus DSL code for a Primus scorecard score. Covers the modern ClassifyProcedure style, the pull/push workflow, and key patterns and pitfalls.
 tags:
   - score-workflow
   - score-code
@@ -20,9 +20,9 @@ resources: []
 
 ## Instructions
 
-This skill helps edit the `code:` field of a Plexus score configuration. Score code is written in the **Tactus DSL** (a Lua-based domain-specific language). The goal is almost always to use the modern standard patterns — not to write arbitrary Lua.
+This skill helps edit the `code:` field of a Primus score configuration. Score code is written in the **Tactus DSL** (a Lua-based domain-specific language). The goal is almost always to use the modern standard patterns — not to write arbitrary Lua.
 
-**Before making any code changes**, use the Plexus documentation tool to understand the DSL constructs involved. This is not optional — the DSL has specific semantics that are easy to get wrong.
+**Before making any code changes**, use the Primus documentation tool to understand the DSL constructs involved. This is not optional — the DSL has specific semantics that are easy to get wrong.
 
 After any code change you must create an updated score version and verify the version was created with the correct content.
 
@@ -30,14 +30,14 @@ After any code change you must create an updated score version and verify the ve
 
 Console chat may inspect score data, docs, versions, predictions, evaluations, and results through `execute_tactus`.
 
-Console chat must use `plexus.score.edit({ scorecard_identifier = ..., score_identifier = ..., instruction = "...", async = true, budget = { ... } })` for score code changes. The console assistant supplies the instruction and target; the dedicated score editor worker performs the code edit and updated-score-version creation.
+Console chat must use `primus.score.edit({ scorecard_identifier = ..., score_identifier = ..., instruction = "...", async = true, budget = { ... } })` for score code changes. The console assistant supplies the instruction and target; the dedicated score editor worker performs the code edit and updated-score-version creation.
 
-Console chat must not call `plexus.score.update` with direct `code`, `yaml_content`, or full YAML for score code edits. Guidelines-only or metadata-only `score.update` calls are separate flows and are allowed only when the relevant skill and validation rules permit them.
+Console chat must not call `primus.score.update` with direct `code`, `yaml_content`, or full YAML for score code edits. Guidelines-only or metadata-only `score.update` calls are separate flows and are allowed only when the relevant skill and validation rules permit them.
 
 Updated score versions created from console score edits are non-champion by default. Champion promotion is always explicit and separately validated.
 
 For code-changing edits, runtime now automatically runs a deterministic
-post-submit smoke test (`plexus.score.test`) on the new updated score version and
+post-submit smoke test (`primus.score.test`) on the new updated score version and
 returns the result. Console chat should report that result; it should not
 re-implement this policy flow manually.
 
@@ -49,7 +49,7 @@ When reporting a console score edit, include the worker status, updated score `v
 
 ### 1. Understand the score
 
-Call `plexus.score.info({ id = "<score-id>" })` (through
+Call `primus.score.info({ id = "<score-id>" })` (through
 `execute_tactus`) to retrieve the current champion version code. Read
 it carefully. Understand:
 
@@ -64,7 +64,7 @@ Use the runtime documentation API to look up any DSL constructs you
 will be touching. Always start at the Tactus YAML reference:
 
 ```lua
-return plexus.docs.get({ key = "score-authoring.score-yaml-format" })
+return primus.docs.get({ key = "score-authoring.score-yaml-format" })
 ```
 
 Then load related topics surfaced in the response, for example
@@ -78,10 +78,10 @@ be a Lua table).
 <ide-only>
 ### 3. Pull the local file (IDE/local editor mode only, optional)
 
-Run `plexus.score.pull({ scorecard = ..., score = ... })` to get the
+Run `primus.score.pull({ scorecard = ..., score = ... })` to get the
 current champion YAML to a local file. This gives you a working copy
 to edit. Console chat should skip local-file editing and use
-`plexus.score.edit` instead.
+`primus.score.edit` instead.
 </ide-only>
 
 ### 4. Edit the code
@@ -90,13 +90,13 @@ Make targeted changes. See the patterns section below.
 
 ### 5. Create the updated score version
 
-In console chat, use `plexus.score.edit` with a concrete instruction and
+In console chat, use `primus.score.edit` with a concrete instruction and
 explicit async budget. In IDE/local editor mode, use
-`plexus.score.update({ scorecard = ..., score = ..., code = "<yaml>" })`
+`primus.score.update({ scorecard = ..., score = ..., code = "<yaml>" })`
 to publish a new non-champion updated score version. Include a concise `version_note`
 describing what changed and why.
 
-After pushing, call `plexus.score.info({ id = ..., version = "<new-version-id>" })`
+After pushing, call `primus.score.info({ id = ..., version = "<new-version-id>" })`
 to verify the version was created with the correct code (and
 guidelines if applicable).
 
@@ -259,8 +259,8 @@ Replace the whole block with a `ClassifyProcedure`, moving the dynamic user mess
 - **`tactus_code:` is deprecated**: Always use `code:`.
 - **system_message with template vars**: Variables like `{{ text }}` are silently ignored in `system_message`. Move dynamic content to `user_message`.
 - **NA class**: If the score can abstain (e.g., no schools in metadata), add `"NA"` to both `classes` and `valid_classes`, and instruct the model in `system_message` to output NA when applicable.
-- **Guidelines file naming**: The guidelines file must be named `<Score Name>.md` (same base name as the `.yaml` file, `.md` extension) for `plexus.score.update` to pick it up. A file named `<Score Name> guidelines.md` will be silently ignored.
-- **isFeatured**: Versions pushed via `plexus.score.update` are created as non-featured drafts. The champion is not automatically updated — promote it with `plexus.score.set_champion`.
+- **Guidelines file naming**: The guidelines file must be named `<Score Name>.md` (same base name as the `.yaml` file, `.md` extension) for `primus.score.update` to pick it up. A file named `<Score Name> guidelines.md` will be silently ignored.
+- **isFeatured**: Versions pushed via `primus.score.update` are created as non-featured drafts. The champion is not automatically updated — promote it with `primus.score.set_champion`.
 - **LLMModel registry collision**: When using raw `Classify{}` in a Lua loop, each call creates a `LLMModel` internally. The Tactus stdlib handles this with a counter to avoid name collisions — but this is a known historical bug source. Prefer `ClassifyProcedure` (single call) to avoid the loop entirely.
 
 ---
@@ -270,14 +270,14 @@ Replace the whole block with a `ClassifyProcedure`, moving the dynamic user mess
 All operations go through the single `execute_tactus` MCP tool. Inside
 it, the relevant runtime calls are:
 
-| Task | `plexus.*` call |
+| Task | `primus.*` call |
 |------|-----------------|
-| Discover available namespaces and methods | `plexus.api.list({})` |
-| List documentation topics | `plexus.docs.list({})` |
-| Look up a DSL or YAML topic | `plexus.docs.get({ key = "<id>" })` |
-| Get current score code | `plexus.score.info({ id = ..., version = "..." })` |
-| Pull champion to a local file | `plexus.score.pull({ scorecard = ..., score = ... })` |
-| Request a console-safe score code edit | `plexus.score.edit({ scorecard_identifier = ..., score_identifier = ..., instruction = "...", async = true, budget = { ... } })` |
-| Push code content directly (IDE/local mode only) | `plexus.score.update({ scorecard = ..., score = ..., code = "..." })` |
-| Verify the pushed version | `plexus.score.info({ id = ..., version = "<new-version-id>" })` |
-| Promote a version to champion | `plexus.score.set_champion({ ... })` |
+| Discover available namespaces and methods | `primus.api.list({})` |
+| List documentation topics | `primus.docs.list({})` |
+| Look up a DSL or YAML topic | `primus.docs.get({ key = "<id>" })` |
+| Get current score code | `primus.score.info({ id = ..., version = "..." })` |
+| Pull champion to a local file | `primus.score.pull({ scorecard = ..., score = ... })` |
+| Request a console-safe score code edit | `primus.score.edit({ scorecard_identifier = ..., score_identifier = ..., instruction = "...", async = true, budget = { ... } })` |
+| Push code content directly (IDE/local mode only) | `primus.score.update({ scorecard = ..., score = ..., code = "..." })` |
+| Verify the pushed version | `primus.score.info({ id = ..., version = "<new-version-id>" })` |
+| Promote a version to champion | `primus.score.set_champion({ ... })` |

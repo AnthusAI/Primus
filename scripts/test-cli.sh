@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "🧪 Plexus CLI Test Runner"
+echo "🧪 Primus CLI Test Runner"
 echo "========================="
 
 # Colors for output
@@ -45,11 +45,11 @@ echo "2. Testing command availability..."
 
 commands=("score" "scorecard" "scorecards" "evaluate" "command worker" "report")
 for cmd in "${commands[@]}"; do
-    if plexus $cmd --help >/dev/null 2>&1; then
-        print_status 0 "plexus $cmd"
+    if primus $cmd --help >/dev/null 2>&1; then
+        print_status 0 "primus $cmd"
     else
-        print_status 1 "plexus $cmd"
-        echo "   STDERR: $(plexus $cmd --help 2>&1 | head -3)"
+        print_status 1 "primus $cmd"
+        echo "   STDERR: $(primus $cmd --help 2>&1 | head -3)"
     fi
 done
 echo
@@ -60,11 +60,11 @@ python -c "
 import sys
 
 critical_imports = [
-    'plexus.cli.shared.CommandLineInterface',
-    'plexus.cli.shared.CommandTasks',
-    'plexus.cli.shared.CommandDispatch',
-    'plexus.cli.score.scores',
-    'plexus.cli.scorecard.scorecards'
+    'primus.cli.shared.CommandLineInterface',
+    'primus.cli.shared.CommandTasks',
+    'primus.cli.shared.CommandDispatch',
+    'primus.cli.score.scores',
+    'primus.cli.scorecard.scorecards'
 ]
 
 failed = False
@@ -91,16 +91,16 @@ echo
 # Test 4: Entry point validation
 echo "4. Testing entry points..."
 
-# Test plexus command
-if plexus --help >/dev/null 2>&1; then
-    print_status 0 "plexus command entry point"
+# Test primus command
+if primus --help >/dev/null 2>&1; then
+    print_status 0 "primus command entry point"
 else
-    print_status 1 "plexus command entry point"
+    print_status 1 "primus command entry point"
     exit 1
 fi
 
 # Test module execution
-if python -m plexus.cli.shared.CommandLineInterface --help >/dev/null 2>&1; then
+if python -m primus.cli.shared.CommandLineInterface --help >/dev/null 2>&1; then
     print_status 0 "Module execution entry point"
 else
     print_status 1 "Module execution entry point"

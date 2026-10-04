@@ -4,7 +4,7 @@ from datetime import timedelta
 
 import pytest
 
-from plexus.command_worker import (
+from primus.command_worker import (
     CommandWorkerService,
     EventDrainSignal,
     ProcessOutcome,

@@ -13,14 +13,14 @@ related:
 ---
 # Long-running APIs
 
-Reference for the Plexus runtime APIs that can take more than a few
+Reference for the Primus runtime APIs that can take more than a few
 seconds and therefore require the handle protocol.
 
 The long-running APIs are:
 
-- `plexus.evaluation.run`
-- `plexus.report.run`
-- `plexus.procedure.run`
+- `primus.evaluation.run`
+- `primus.report.run`
+- `primus.procedure.run`
 
 All three behave identically with respect to the protocol described
 here. See `handles-and-budgets` for the handle lifecycle.
@@ -94,7 +94,7 @@ before dispatch:
 
 Workers enforce the propagated budget at their execution boundary:
 
-- Evaluation CLI workers load `PLEXUS_CHILD_BUDGET`, enforce wallclock,
+- Evaluation CLI workers load `PRIMUS_CHILD_BUDGET`, enforce wallclock,
   and reject scorecard cost totals that exceed the child USD.
 - Durable programmatic report-block workers enforce wallclock from the
   `child_budget` payload before running the block.
@@ -117,7 +117,7 @@ specific API for which forms are bounded-sync versus async-only).
 
 ## Cost recording
 
-Async dispatch records exactly one `plexus.<namespace>.run` call in the
+Async dispatch records exactly one `primus.<namespace>.run` call in the
 response cost envelope and trace, even when the dispatch is rejected
 (missing budget, budget exceeded, etc.). This makes failed dispatch
 attempts visible in `api_calls`.

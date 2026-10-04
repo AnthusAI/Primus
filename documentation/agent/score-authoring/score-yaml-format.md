@@ -1,7 +1,7 @@
 ---
 id: score-authoring.score-yaml-format
 title: Score YAML Format (TactusScore)
-summary: Authoring reference for Plexus score YAML configurations. TactusScore is the default and recommended score type.
+summary: Authoring reference for Primus score YAML configurations. TactusScore is the default and recommended score type.
 namespace: score-authoring
 status: canonical
 disclosure: reference
@@ -15,7 +15,7 @@ related:
 ---
 # TactusScore YAML Configuration
 
-TactusScore is the default and recommended score type for Plexus. It executes Tactus DSL (Lua-based) code for classification. Two patterns exist:
+TactusScore is the default and recommended score type for Primus. It executes Tactus DSL (Lua-based) code for classification. Two patterns exist:
 
 1. **ClassifyProcedure** — single-step classification (most common)
 2. **Procedure** — multi-step custom logic with full Lua control

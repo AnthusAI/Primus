@@ -41,11 +41,11 @@ PRIVATE_ROOT_PREFIXES = (
 
 
 def proxy_url() -> str:
-    return os.getenv("PLEXUS_API_URL", "http://localhost:18080/graphql")
+    return os.getenv("PRIMUS_API_URL", "http://localhost:18080/graphql")
 
 
 def proxy_api_key() -> str:
-    return os.getenv("PLEXUS_API_KEY", "local-smoke-key")
+    return os.getenv("PRIMUS_API_KEY", "local-smoke-key")
 
 
 def proxy_base_url() -> str:
@@ -94,7 +94,7 @@ def resolve_account_id(account_key: str) -> str:
         {"key": account_key},
     )
     items = payload["data"]["listAccountByKey"]["items"]
-    assert items, f"no account found for PLEXUS_ACCOUNT_KEY={account_key}"
+    assert items, f"no account found for PRIMUS_ACCOUNT_KEY={account_key}"
     return items[0]["id"]
 
 
@@ -105,7 +105,7 @@ def run_json_command(command: list[str], env: dict[str, str]) -> dict[str, Any]:
         cwd=Path(__file__).resolve().parents[3],
         text=True,
         capture_output=True,
-        timeout=int(os.getenv("PLEXUS_PROXY_SCORING_TIMEOUT_SECONDS", "300")),
+        timeout=int(os.getenv("PRIMUS_PROXY_SCORING_TIMEOUT_SECONDS", "300")),
     )
     assert result.returncode == 0, (
         "command failed\n"
@@ -131,25 +131,25 @@ def parse_prediction_json(stdout: str) -> list[dict[str, Any]]:
 
 
 def test_real_prediction_reads_seeded_postgres_items_through_proxy():
-    account_key = required_env("PLEXUS_ACCOUNT_KEY")
-    scorecard = required_env("PLEXUS_PROXY_SCORING_SCORECARD")
-    score = required_env("PLEXUS_PROXY_SCORING_SCORE")
-    fixture_limit = int(os.getenv("PLEXUS_PROXY_SCORING_FIXTURE_LIMIT", "3"))
-    fixture_dataset = os.getenv("PLEXUS_PROXY_SCORING_DATASET", "apptek-com/apptek_callcenter_dialogues")
-    fixture_split = os.getenv("PLEXUS_PROXY_SCORING_SPLIT", "test")
-    fixture_start = int(os.getenv("PLEXUS_PROXY_SCORING_START", "0"))
+    account_key = required_env("PRIMUS_ACCOUNT_KEY")
+    scorecard = required_env("PRIMUS_PROXY_SCORING_SCORECARD")
+    score = required_env("PRIMUS_PROXY_SCORING_SCORE")
+    fixture_limit = int(os.getenv("PRIMUS_PROXY_SCORING_FIXTURE_LIMIT", "3"))
+    fixture_dataset = os.getenv("PRIMUS_PROXY_SCORING_DATASET", "apptek-com/apptek_callcenter_dialogues")
+    fixture_split = os.getenv("PRIMUS_PROXY_SCORING_SPLIT", "test")
+    fixture_start = int(os.getenv("PRIMUS_PROXY_SCORING_START", "0"))
 
-    account_id = os.getenv("PLEXUS_PROXY_SCORING_ACCOUNT_ID") or resolve_account_id(account_key)
-    score_id = os.getenv("PLEXUS_PROXY_SCORING_SCORE_ID")
+    account_id = os.getenv("PRIMUS_PROXY_SCORING_ACCOUNT_ID") or resolve_account_id(account_key)
+    score_id = os.getenv("PRIMUS_PROXY_SCORING_SCORE_ID")
     repo_root = Path(__file__).resolve().parents[3]
 
     common_env = os.environ.copy()
     common_env["PYTHONPATH"] = f"{repo_root}:{repo_root / 'services/private-graphql-proxy'}"
-    common_env["PLEXUS_API_URL"] = proxy_url()
-    common_env["PLEXUS_API_KEY"] = proxy_api_key()
-    common_env["PLEXUS_ACCOUNT_KEY"] = account_key
-    common_env.pop("NEXT_PUBLIC_PLEXUS_API_URL", None)
-    common_env.pop("NEXT_PUBLIC_PLEXUS_API_KEY", None)
+    common_env["PRIMUS_API_URL"] = proxy_url()
+    common_env["PRIMUS_API_KEY"] = proxy_api_key()
+    common_env["PRIMUS_ACCOUNT_KEY"] = account_key
+    common_env.pop("NEXT_PUBLIC_PRIMUS_API_URL", None)
+    common_env.pop("NEXT_PUBLIC_PRIMUS_API_KEY", None)
 
     seed_output = run_json_command(
         [
@@ -170,7 +170,7 @@ def test_real_prediction_reads_seeded_postgres_items_through_proxy():
             "--limit",
             str(fixture_limit),
             "--prefix",
-            os.getenv("PLEXUS_PROXY_SCORING_FIXTURE_PREFIX", "proxy-scoring-call-center"),
+            os.getenv("PRIMUS_PROXY_SCORING_FIXTURE_PREFIX", "proxy-scoring-call-center"),
             *(["--score-id", score_id] if score_id else []),
         ],
         common_env,
@@ -227,14 +227,14 @@ def test_real_prediction_reads_seeded_postgres_items_through_proxy():
     assert "listIdentifierByAccountIdAndValue" in verification["extensions"]["proxy"]["private"]
     assert "listItemByAccountIdAndUpdatedAt" in verification["extensions"]["proxy"]["private"]
 
-    with tempfile.TemporaryDirectory(prefix="plexus-proxy-scorecards-") as cache_dir:
+    with tempfile.TemporaryDirectory(prefix="primus-proxy-scorecards-") as cache_dir:
         predict_env = common_env.copy()
         predict_env["SCORECARD_CACHE_DIR"] = cache_dir
         predict_result = subprocess.run(
             [
                 sys.executable,
                 "-m",
-                "plexus",
+                "primus",
                 "predict",
                 "--scorecard",
                 scorecard,
@@ -249,10 +249,10 @@ def test_real_prediction_reads_seeded_postgres_items_through_proxy():
             env=predict_env,
             text=True,
             capture_output=True,
-            timeout=int(os.getenv("PLEXUS_PROXY_SCORING_TIMEOUT_SECONDS", "300")),
+            timeout=int(os.getenv("PRIMUS_PROXY_SCORING_TIMEOUT_SECONDS", "300")),
         )
     assert predict_result.returncode == 0, (
-        "plexus predict failed\n"
+        "primus predict failed\n"
         f"stdout:\n{predict_result.stdout}\n"
         f"stderr:\n{predict_result.stderr}"
     )

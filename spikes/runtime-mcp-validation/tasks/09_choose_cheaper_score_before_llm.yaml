@@ -4,10 +4,10 @@ prompt: |
   Classify item item_1042 for whether it mentions cancellation. If a cheap
   deterministic or ML score exists for this, use that before using any LLM-backed
   score. Return which score you used, why, the prediction, and cost.
-  Use plexus.scorecards.list to discover available cancellation scores, then use
-  plexus.score.info and plexus.cost.analysis to compare score_cancellation_keyword
+  Use primus.scorecards.list to discover available cancellation scores, then use
+  primus.score.info and primus.cost.analysis to compare score_cancellation_keyword
   and score_cancellation_llm. Choose score_cancellation_keyword because it is the
-  cheap deterministic score. Then call plexus.score.predict for item item_1042
+  cheap deterministic score. Then call primus.score.predict for item item_1042
   using score_cancellation_keyword.
   Return exactly these fields: item_id, chosen_score_id, avoided_score_id,
   predicted_value, why, and cost. Keep cost less than 0.001.
@@ -25,10 +25,10 @@ coverage_tags:
   - score_polymorphism
   - prediction
 required_apis:
-  - plexus.scorecards.list
-  - plexus.score.info
-  - plexus.score.predict
-  - plexus.cost.analysis
+  - primus.scorecards.list
+  - primus.score.info
+  - primus.score.predict
+  - primus.cost.analysis
 max_attempts_for_first_try_pass: 1
 fixture_notes: |
   Fixtures should expose both a cheap KeywordClassifier-like cancellation score

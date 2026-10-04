@@ -2,7 +2,7 @@
 
 ## Status: ✅ COMPLETE - Ready for Evaluation Testing
 
-This refactoring enables Plexus scores to use different input sources (Deepgram JSON, text files, images, etc.) instead of being limited to `item.text`.
+This refactoring enables Primus scores to use different input sources (Deepgram JSON, text files, images, etc.) instead of being limited to `item.text`.
 
 ---
 
@@ -45,23 +45,23 @@ item:
 
 ### Modified Components
 
-1. **plexus/dashboard/api/models/item.py**
+1. **primus/dashboard/api/models/item.py**
    - Added `to_score_input(item_config)` method
    - Handles metadata parsing (JSON string → dict)
    - Graceful fallback to item.text on errors
 
-2. **plexus/input_sources/DeepgramInputSource.py**
+2. **primus/input_sources/DeepgramInputSource.py**
    - Returns `ScoreInput` instead of string
    - Fixed S3 bucket routing (auto-detects DataSources vs ScoreResultAttachments)
    - Fixed paragraph parsing (handles production JSON with `sentences` array)
    - Supports time slicing with `time_range_start` and `time_range_duration`
 
-3. **plexus/cli/prediction/predictions.py**
+3. **primus/cli/prediction/predictions.py**
    - Modified `select_sample()` to load score YAML and extract `item:` config
    - Passes item_config to `Item.to_score_input()`
    - Added logging to show exact Score.Input text going to classifier
 
-4. **plexus/scores/LangGraphScore.py**
+4. **primus/scores/LangGraphScore.py**
    - Fixed psycopg import issue (lazy loading with graceful fallback)
 
 ---
@@ -137,7 +137,7 @@ $ pytest tests/test_input_sources/
 
 ### Integration Tests ✅
 ```bash
-$ python3 -m plexus.cli predict --scorecard example-scorecard --score example_score \
+$ python3 -m primus.cli predict --scorecard example-scorecard --score example_score \
   --item "9c929f25-a91f-4db7-8943-5aa93498b8e9--299298112" --yaml
 ```
 
@@ -159,7 +159,7 @@ $ python3 -m plexus.cli predict --scorecard example-scorecard --score example_sc
 2. Move to whitelisted machine
 3. Run evaluations to verify multi-modal input works in evaluation pipeline:
    ```bash
-   python3 -m plexus.cli evaluate accuracy \
+   python3 -m primus.cli evaluate accuracy \
      --scorecard example-scorecard \
      --score example_score \
      --number-of-samples 10 \
@@ -206,17 +206,17 @@ Classifier receives exact text we specified!
 ### Files Modified
 
 **Core Implementation**:
-- `plexus/dashboard/api/models/item.py` - Added `to_score_input()` method
-- `plexus/input_sources/DeepgramInputSource.py` - Returns ScoreInput, fixed parsing
-- `plexus/input_sources/TextFileInputSource.py` - Returns ScoreInput
-- `plexus/input_sources/score_input.py` - Lightweight ScoreInput class
+- `primus/dashboard/api/models/item.py` - Added `to_score_input()` method
+- `primus/input_sources/DeepgramInputSource.py` - Returns ScoreInput, fixed parsing
+- `primus/input_sources/TextFileInputSource.py` - Returns ScoreInput
+- `primus/input_sources/score_input.py` - Lightweight ScoreInput class
 
 **CLI Integration**:
-- `plexus/cli/prediction/predictions.py` - Loads item config from YAML, passes to to_score_input()
+- `primus/cli/prediction/predictions.py` - Loads item config from YAML, passes to to_score_input()
 
 **Bug Fixes**:
-- `plexus/utils/score_result_s3_utils.py` - S3 bucket auto-detection
-- `plexus/scores/LangGraphScore.py` - Lazy psycopg import
+- `primus/utils/score_result_s3_utils.py` - S3 bucket auto-detection
+- `primus/scores/LangGraphScore.py` - Lazy psycopg import
 
 **Tests**:
 - `tests/test_input_sources/test_deepgram_input_source.py` - Added paragraph structure tests

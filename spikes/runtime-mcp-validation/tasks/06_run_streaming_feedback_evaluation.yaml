@@ -3,7 +3,7 @@ name: "Run a bounded feedback evaluation with streaming progress"
 prompt: |
   Run a feedback evaluation for Compliance Tone on the last 200 approved
   feedback items. The runtime streams progress events automatically and
-  enforces budgets, so you only need to call plexus.evaluation.run with
+  enforces budgets, so you only need to call primus.evaluation.run with
   score_id score_compliance_tone and item_count 200. Do not use async for
   this task. The streamed progress events emitted by the runtime must include
   items_done, items_total, and cost_so_far; you do not need to assemble them
@@ -29,10 +29,10 @@ coverage_tags:
   - streaming
   - budget_accounting
 required_apis:
-  - plexus.evaluation.run
+  - primus.evaluation.run
 max_attempts_for_first_try_pass: 1
 fixture_notes: |
-  This uses the stubbed long-running plexus.evaluation.run. The harness should
+  This uses the stubbed long-running primus.evaluation.run. The harness should
   validate both the captured final result shape and that streaming progress
   events occurred. Budget accounting is recorded automatically by the runtime
-  whether or not the snippet calls plexus.budget.remaining itself.
+  whether or not the snippet calls primus.budget.remaining itself.

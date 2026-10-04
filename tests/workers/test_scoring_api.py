@@ -3,8 +3,8 @@ from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
 
-from plexus.workers.scoring_api import app, log_auth_configuration
-from plexus.workers.scoring_job import ScoringJobError
+from primus.workers.scoring_api import app, log_auth_configuration
+from primus.workers.scoring_job import ScoringJobError
 
 
 client = TestClient(app)
@@ -30,7 +30,7 @@ def test_score_endpoint_returns_result():
     }
 
     with patch(
-        "plexus.workers.scoring_api.process_scoring_job_sync",
+        "primus.workers.scoring_api.process_scoring_job_sync",
         return_value=expected,
     ) as process:
         response = client.post(
@@ -62,7 +62,7 @@ def test_score_endpoint_validates_required_fields():
 
 def test_score_endpoint_returns_structured_scoring_error():
     with patch(
-        "plexus.workers.scoring_api.process_scoring_job_sync",
+        "primus.workers.scoring_api.process_scoring_job_sync",
         side_effect=ScoringJobError("Item 'item-1' not found", status_code=404),
     ):
         response = client.post(
@@ -88,9 +88,9 @@ def test_score_endpoint_returns_structured_scoring_error():
 
 
 def test_score_endpoint_logs_sanitized_scoring_error():
-    with patch("plexus.workers.scoring_api.logger.warning") as warning:
+    with patch("primus.workers.scoring_api.logger.warning") as warning:
         with patch(
-            "plexus.workers.scoring_api.process_scoring_job_sync",
+            "primus.workers.scoring_api.process_scoring_job_sync",
             side_effect=ScoringJobError(
                 "Item 'item-1'\nforged=1 not found",
                 status_code=404,
@@ -118,7 +118,7 @@ def test_score_endpoint_logs_sanitized_scoring_error():
 
 
 def test_scoring_error_reason_code_does_not_depend_on_message_content():
-    from plexus.workers.scoring_api import scoring_error_reason_code
+    from primus.workers.scoring_api import scoring_error_reason_code
 
     score_error = ScoringJobError(
         "Score 'foo' not found in scorecard",
@@ -159,7 +159,7 @@ def test_score_endpoint_rejects_wrong_configured_api_key(monkeypatch):
 
     response = client.post(
         "/v1/score",
-        headers={"x-plexus-scoring-api-key": "wrong-key"},
+        headers={"x-primus-scoring-api-key": "wrong-key"},
         json={
             "scoring_job_id": "job-1",
             "scorecard": "card",
@@ -188,7 +188,7 @@ def test_score_endpoint_fails_closed_when_auth_required_without_key(monkeypatch)
 
 
 def test_scoring_api_logs_warning_when_auth_disabled():
-    with patch("plexus.workers.scoring_api.logger.warning") as warning:
+    with patch("primus.workers.scoring_api.logger.warning") as warning:
         log_auth_configuration()
 
     warning.assert_called_once_with(
@@ -211,12 +211,12 @@ def test_score_endpoint_accepts_configured_api_key(monkeypatch):
     }
 
     with patch(
-        "plexus.workers.scoring_api.process_scoring_job_sync",
+        "primus.workers.scoring_api.process_scoring_job_sync",
         return_value=expected,
     ):
         response = client.post(
             "/v1/score",
-            headers={"x-plexus-scoring-api-key": "test-scoring-key"},
+            headers={"x-primus-scoring-api-key": "test-scoring-key"},
             json={
                 "scoring_job_id": "job-1",
                 "scorecard": "card",

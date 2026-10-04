@@ -33,7 +33,7 @@ class ScoreProcessorImagePipelineStack(Stack):
         environment: str,
         branch: str,
         github_owner: str = "AnthusAI",
-        github_repo: str = "Plexus",
+        github_repo: str = "Primus",
         **kwargs,
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -46,7 +46,7 @@ class ScoreProcessorImagePipelineStack(Stack):
         Tags.of(self).add("ManagedBy", "CDK")
 
         connection_arn = (
-            os.environ.get("PLEXUS_GITHUB_CONNECTION_ARN")
+            os.environ.get("PRIMUS_GITHUB_CONNECTION_ARN")
             or ssm.StringParameter.value_for_string_parameter(
                 self,
                 "/plexus/github-connection-arn",
@@ -65,7 +65,7 @@ class ScoreProcessorImagePipelineStack(Stack):
         build_project = codebuild.PipelineProject(
             self,
             "BuildProject",
-            project_name=f"plexus-score-processor-{environment}-image-build",
+            project_name=f"primus-score-processor-{environment}-image-build",
             environment=codebuild.BuildEnvironment(
                 build_image=codebuild.LinuxBuildImage.STANDARD_7_0,
                 privileged=True,
@@ -139,7 +139,7 @@ class ScoreProcessorImagePipelineStack(Stack):
         pipeline = codepipeline.Pipeline(
             self,
             "Pipeline",
-            pipeline_name=f"plexus-score-processor-{environment}-image-pipeline",
+            pipeline_name=f"primus-score-processor-{environment}-image-pipeline",
             cross_account_keys=False,
             stages=[
                 codepipeline.StageProps(

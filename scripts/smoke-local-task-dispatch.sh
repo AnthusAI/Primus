@@ -3,13 +3,13 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-export PLEXUS_API_URL="${PLEXUS_API_URL:-http://localhost:18080/graphql}"
-export PLEXUS_API_KEY="${PLEXUS_API_KEY:-local-smoke-key}"
-export PLEXUS_ACCOUNT_KEY="${PLEXUS_ACCOUNT_KEY:-local-demo}"
+export PRIMUS_API_URL="${PRIMUS_API_URL:-http://localhost:18080/graphql}"
+export PRIMUS_API_KEY="${PRIMUS_API_KEY:-local-smoke-key}"
+export PRIMUS_ACCOUNT_KEY="${PRIMUS_ACCOUNT_KEY:-local-demo}"
 # The local control plane deliberately uses its API-key boundary instead of
 # Cognito. Make the CLI client select that supported transport explicitly.
-export PLEXUS_GRAPHQL_AUTH_MODE="api_key"
-export PLEXUS_DISPATCH_MODE="${PLEXUS_DISPATCH_MODE:-local}"
+export PRIMUS_GRAPHQL_AUTH_MODE="api_key"
+export PRIMUS_DISPATCH_MODE="${PRIMUS_DISPATCH_MODE:-local}"
 export SMOKE_PROOF_DIR="${SMOKE_PROOF_DIR:-$ROOT_DIR/tmp/local-control-plane-proof}"
 export SMOKE_TASK_DISPATCH_PROOF_FILE="${SMOKE_TASK_DISPATCH_PROOF_FILE:-$SMOKE_PROOF_DIR/task-dispatch.json}"
 export SMOKE_TASK_COMMAND="${SMOKE_TASK_COMMAND:-items info local-demo-item-1 --account local-demo --minimal}"
@@ -39,7 +39,7 @@ run_step() {
 }
 
 wait_for_readyz() {
-  local ready_url="${PLEXUS_API_URL%/graphql}/readyz"
+  local ready_url="${PRIMUS_API_URL%/graphql}/readyz"
   local i
 
   for ((i = 1; i <= SMOKE_READY_ATTEMPTS; i++)); do
@@ -73,7 +73,7 @@ installed = set()
 
 for _ in range(24):
     try:
-        importlib.import_module("plexus.cli.shared.CommandLineInterface")
+        importlib.import_module("primus.cli.shared.CommandLineInterface")
         break
     except ModuleNotFoundError as exc:
         module_name = (exc.name or "").split(".")[0]
@@ -94,9 +94,9 @@ create_pending_task() {
   mkdir -p "$(dirname "$SMOKE_TASK_DISPATCH_PROOF_FILE")"
   (
     cd "$ROOT_DIR"
-    PLEXUS_API_URL="$PLEXUS_API_URL" \
-    PLEXUS_API_KEY="$PLEXUS_API_KEY" \
-    PLEXUS_ACCOUNT_KEY="$PLEXUS_ACCOUNT_KEY" \
+    PRIMUS_API_URL="$PRIMUS_API_URL" \
+    PRIMUS_API_KEY="$PRIMUS_API_KEY" \
+    PRIMUS_ACCOUNT_KEY="$PRIMUS_ACCOUNT_KEY" \
     SMOKE_TASK_DISPATCH_PROOF_FILE="$SMOKE_TASK_DISPATCH_PROOF_FILE" \
     SMOKE_TASK_COMMAND="$SMOKE_TASK_COMMAND" \
     poetry run python - <<'PY'
@@ -106,16 +106,16 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from plexus.dashboard.api.client import ClientContext, PlexusDashboardClient
+from primus.dashboard.api.client import ClientContext, PrimusDashboardClient
 
-api_url = os.environ["PLEXUS_API_URL"]
-api_key = os.environ["PLEXUS_API_KEY"]
-account_key = os.environ["PLEXUS_ACCOUNT_KEY"]
+api_url = os.environ["PRIMUS_API_URL"]
+api_key = os.environ["PRIMUS_API_KEY"]
+account_key = os.environ["PRIMUS_ACCOUNT_KEY"]
 command = os.environ["SMOKE_TASK_COMMAND"]
 proof_file = Path(os.environ["SMOKE_TASK_DISPATCH_PROOF_FILE"])
 task_id_file = proof_file.with_suffix(".task-id")
 
-client = PlexusDashboardClient(
+client = PrimusDashboardClient(
     api_url=api_url,
     api_key=api_key,
     context=ClientContext(account_key=account_key),
@@ -183,20 +183,20 @@ PY
 run_dispatcher_once() {
   (
     cd "$ROOT_DIR"
-    PLEXUS_DISPATCH_MODE="$PLEXUS_DISPATCH_MODE" \
-    PLEXUS_API_URL="$PLEXUS_API_URL" \
-    PLEXUS_API_KEY="$PLEXUS_API_KEY" \
-    PLEXUS_ACCOUNT_KEY="$PLEXUS_ACCOUNT_KEY" \
+    PRIMUS_DISPATCH_MODE="$PRIMUS_DISPATCH_MODE" \
+    PRIMUS_API_URL="$PRIMUS_API_URL" \
+    PRIMUS_API_KEY="$PRIMUS_API_KEY" \
+    PRIMUS_ACCOUNT_KEY="$PRIMUS_ACCOUNT_KEY" \
     SMOKE_DISPATCH_LIMIT="$SMOKE_DISPATCH_LIMIT" \
-    poetry run python - <<'PY' >/tmp/plexus-smoke-task-dispatcher.out
-from plexus.cli.shared.CommandDispatch import dispatcher
+    poetry run python - <<'PY' >/tmp/primus-smoke-task-dispatcher.out
+from primus.cli.shared.CommandDispatch import dispatcher
 import os
 
 dispatcher.main(
     args=[
         "--once",
         "--account",
-        os.environ["PLEXUS_ACCOUNT_KEY"],
+        os.environ["PRIMUS_ACCOUNT_KEY"],
         "--limit",
         os.environ["SMOKE_DISPATCH_LIMIT"],
         "--interval",
@@ -214,15 +214,15 @@ PY
 verify_task_completion() {
   (
     cd "$ROOT_DIR"
-    PLEXUS_API_URL="$PLEXUS_API_URL" \
-    PLEXUS_API_KEY="$PLEXUS_API_KEY" \
+    PRIMUS_API_URL="$PRIMUS_API_URL" \
+    PRIMUS_API_KEY="$PRIMUS_API_KEY" \
     SMOKE_TASK_DISPATCH_PROOF_FILE="$SMOKE_TASK_DISPATCH_PROOF_FILE" \
     poetry run python - <<'PY'
 import json
 import os
 from pathlib import Path
 
-from plexus.dashboard.api.client import PlexusDashboardClient
+from primus.dashboard.api.client import PrimusDashboardClient
 
 proof_file = Path(os.environ["SMOKE_TASK_DISPATCH_PROOF_FILE"])
 task_id_file = proof_file.with_suffix(".task-id")
@@ -232,9 +232,9 @@ task_id = task_id_file.read_text().strip()
 if not task_id:
     raise SystemExit("task id file is empty")
 
-client = PlexusDashboardClient(
-    api_url=os.environ["PLEXUS_API_URL"],
-    api_key=os.environ["PLEXUS_API_KEY"],
+client = PrimusDashboardClient(
+    api_url=os.environ["PRIMUS_API_URL"],
+    api_key=os.environ["PRIMUS_API_KEY"],
 )
 query = """
 query GetTask($id: ID!) {
@@ -316,7 +316,7 @@ assert_no_upstream_requests() {
     return 0
   fi
 
-  local debug_url="${PLEXUS_API_URL%/graphql}/debug/upstream-requests"
+  local debug_url="${PRIMUS_API_URL%/graphql}/debug/upstream-requests"
   local payload
 
   payload="$(curl -fsS -m 10 "$debug_url")"

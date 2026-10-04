@@ -1,6 +1,6 @@
 ---
 name: Classifier Guidelines Management
-description: The format for guidelines documents for Plexus scorecard scores and the validation tool.
+description: The format for guidelines documents for Primus scorecard scores and the validation tool.
 tags:
   - score-workflow
   - guidelines
@@ -20,9 +20,9 @@ resources: []
 
 ## Instructions
 
-This skill helps create and update classifier guidelines documents for Plexus scorecard score configurations.  The user will provide you with information from subject matter experts that will commonly come from emails, chat messages, or other documents. **This source information may be formatted for different audiences (e.g., agent instructions, training materials, operational procedures) rather than for classifier design.**
+This skill helps create and update classifier guidelines documents for Primus scorecard score configurations.  The user will provide you with information from subject matter experts that will commonly come from emails, chat messages, or other documents. **This source information may be formatted for different audiences (e.g., agent instructions, training materials, operational procedures) rather than for classifier design.**
 
-**Your job is to transform this information into the Plexus guidelines standard format**, which is specifically designed to help distinguish between classification classes. The guidelines must be organized around **how to tell the difference between classes** (e.g., what makes something "Yes" vs "No"), NOT around operational procedures or agent instructions.
+**Your job is to transform this information into the Primus guidelines standard format**, which is specifically designed to help distinguish between classification classes. The guidelines must be organized around **how to tell the difference between classes** (e.g., what makes something "Yes" vs "No"), NOT around operational procedures or agent instructions.
 
 ### Key Transformation Principles:
 
@@ -33,7 +33,7 @@ This skill helps create and update classifier guidelines documents for Plexus sc
 
 After you make any change to the guidelines you need to use the tool to validate the guidelines file.
 
-You can use the Plexus MCP tools to pull score versions, including either the champion or specific versions.  And you can use the MCP tool for pushing new score versions with updated guidelines, after you make changes to the guidelines and validate the changes using the tool in this skill.  You may NOT push updates without first validating them, and you may not push guidelines documents that are invalid.  Making changes to the score configuration is out of scope for this skill, this is all about the guidelines.
+You can use the Primus MCP tools to pull score versions, including either the champion or specific versions.  And you can use the MCP tool for pushing new score versions with updated guidelines, after you make changes to the guidelines and validate the changes using the tool in this skill.  You may NOT push updates without first validating them, and you may not push guidelines documents that are invalid.  Making changes to the score configuration is out of scope for this skill, this is all about the guidelines.
 
 ## Console Chat Mode
 
@@ -43,15 +43,15 @@ evaluations through `execute_tactus`.
 Console chat must not assume direct shell or repository script access.
 
 `execute_tactus` runtime now enforces deterministic validation for
-`plexus.score.update({ guidelines = ... })`. The update is rejected unless
-`plexus.guidelines.validate` passes, and invalid guidelines are never saved.
+`primus.score.update({ guidelines = ... })`. The update is rejected unless
+`primus.guidelines.validate` passes, and invalid guidelines are never saved.
 
 Console chat should still report the validator output to the user, but it does
 not need to manually orchestrate a separate validation step to enforce policy.
 
 ## Context
 
-Plexus (AnthusAI/Plexus on GitHub) uses human-readable Guidelines documents (Markdown format) alongside YAML-based classifier configurations. The Guidelines express how to make classification decisions and serve as the source of truth for alignment between human subject-matter experts (SMEs), AI/ML engineers, and the LLM-based classifiers.
+Primus (AnthusAI/Primus on GitHub) uses human-readable Guidelines documents (Markdown format) alongside YAML-based classifier configurations. The Guidelines express how to make classification decisions and serve as the source of truth for alignment between human subject-matter experts (SMEs), AI/ML engineers, and the LLM-based classifiers.
 
 ## Guidelines Format Standards
 

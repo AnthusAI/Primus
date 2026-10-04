@@ -1,6 +1,6 @@
 # Local Kubernetes Testing Guide
 
-This guide shows how to test the Plexus Kubernetes deployment locally without access to production infrastructure.
+This guide shows how to test the Primus Kubernetes deployment locally without access to production infrastructure.
 
 ## Option 1: Docker Desktop Kubernetes (Recommended for Mac)
 
@@ -24,25 +24,25 @@ This guide shows how to test the Plexus Kubernetes deployment locally without ac
    brew install helm
    ```
 
-### Deploy Plexus Worker
+### Deploy Primus Worker
 
 ```bash
 # 1. Build the Docker image locally (from repository root)
-docker build -f docker/Dockerfile -t plexus-worker:local .
+docker build -f docker/Dockerfile -t primus-worker:local .
 
 # 2. Verify image exists
-docker images | grep plexus-worker
+docker images | grep primus-worker
 
 # 3. Create a local values file (this is git-ignored)
 # You can also copy from the dev example:
-# cp docker/helm/plexus-worker/values-dev.yaml.example docker/helm/plexus-worker/values-local.yaml
+# cp docker/helm/primus-worker/values-dev.yaml.example docker/helm/primus-worker/values-local.yaml
 # Then edit values-local.yaml with your credentials
 
-cat > docker/helm/plexus-worker/values-local.yaml <<EOF
+cat > docker/helm/primus-worker/values-local.yaml <<EOF
 workerType: score-processor
 
 image:
-  repository: plexus-worker
+  repository: primus-worker
   tag: local
   pullPolicy: IfNotPresent
 
@@ -71,10 +71,10 @@ env:
   MAX_JOBS_PER_WORKER: "5"
 
 # Your local credentials
-plexus:
+primus:
   createSecrets: true
   api:
-    url: "https://dev-api.plexus.example.com"
+    url: "https://dev-api.primus.example.com"
     key: "your-dev-api-key"
   account:
     key: "your-dev-account-key"
@@ -91,59 +91,59 @@ scoreProcessor:
 EOF
 
 # 4. Install with Helm
-helm install plexus-worker-local docker/helm/plexus-worker \
-  -f docker/helm/plexus-worker/values-local.yaml \
-  --namespace plexus-local \
+helm install primus-worker-local docker/helm/primus-worker \
+  -f docker/helm/primus-worker/values-local.yaml \
+  --namespace primus-local \
   --create-namespace
 
 # 5. Watch deployment
-kubectl get pods -n plexus-local -w
+kubectl get pods -n primus-local -w
 
 # 6. Check logs
-kubectl logs -f deployment/plexus-worker-local -n plexus-local
+kubectl logs -f deployment/primus-worker-local -n primus-local
 ```
 
 ### Verify Deployment
 
 ```bash
 # Check all resources
-kubectl get all -n plexus-local
+kubectl get all -n primus-local
 
 # Check pod details
-kubectl describe pod -n plexus-local -l app.kubernetes.io/name=plexus-worker
+kubectl describe pod -n primus-local -l app.kubernetes.io/name=primus-worker
 
 # Check secrets
-kubectl get secrets -n plexus-local
+kubectl get secrets -n primus-local
 
 # Check configmap
-kubectl get configmap -n plexus-local
+kubectl get configmap -n primus-local
 ```
 
 ### Test Changes
 
 ```bash
 # Make code changes, then rebuild and upgrade
-docker build -f docker/Dockerfile -t plexus-worker:local .
+docker build -f docker/Dockerfile -t primus-worker:local .
 
-helm upgrade plexus-worker-local docker/helm/plexus-worker \
-  -f docker/helm/plexus-worker/values-local.yaml \
-  --namespace plexus-local
+helm upgrade primus-worker-local docker/helm/primus-worker \
+  -f docker/helm/primus-worker/values-local.yaml \
+  --namespace primus-local
 
 # Force pod restart
-kubectl rollout restart deployment/plexus-worker-local -n plexus-local
+kubectl rollout restart deployment/primus-worker-local -n primus-local
 ```
 
 ### Clean Up
 
 ```bash
 # Uninstall Helm release
-helm uninstall plexus-worker-local -n plexus-local
+helm uninstall primus-worker-local -n primus-local
 
 # Delete namespace
-kubectl delete namespace plexus-local
+kubectl delete namespace primus-local
 
 # Remove Docker image
-docker rmi plexus-worker:local
+docker rmi primus-worker:local
 ```
 
 ## Option 2: Minikube
@@ -169,12 +169,12 @@ kubectl get nodes
 ```bash
 # Build image directly in Minikube
 eval $(minikube docker-env)
-docker build -f docker/Dockerfile -t plexus-worker:local .
+docker build -f docker/Dockerfile -t primus-worker:local .
 
 # Deploy with Helm (same commands as Docker Desktop above)
-helm install plexus-worker-local docker/helm/plexus-worker \
-  -f docker/helm/plexus-worker/values-local.yaml \
-  --namespace plexus-local \
+helm install primus-worker-local docker/helm/primus-worker \
+  -f docker/helm/primus-worker/values-local.yaml \
+  --namespace primus-local \
   --create-namespace
 ```
 
@@ -204,36 +204,36 @@ minikube delete
 brew install kind
 
 # Create cluster
-kind create cluster --name plexus-test
+kind create cluster --name primus-test
 
 # Verify
-kubectl cluster-info --context kind-plexus-test
+kubectl cluster-info --context kind-primus-test
 ```
 
 ### Load Image
 
 ```bash
 # Build image
-docker build -f docker/Dockerfile -t plexus-worker:local .
+docker build -f docker/Dockerfile -t primus-worker:local .
 
 # Load into Kind
-kind load docker-image plexus-worker:local --name plexus-test
+kind load docker-image primus-worker:local --name primus-test
 ```
 
 ### Deploy
 
 ```bash
 # Same Helm commands as above
-helm install plexus-worker-local docker/helm/plexus-worker \
-  -f docker/helm/plexus-worker/values-local.yaml \
-  --namespace plexus-local \
+helm install primus-worker-local docker/helm/primus-worker \
+  -f docker/helm/primus-worker/values-local.yaml \
+  --namespace primus-local \
   --create-namespace
 ```
 
 ### Clean Up
 
 ```bash
-kind delete cluster --name plexus-test
+kind delete cluster --name primus-test
 ```
 
 ## Logging in K8s
@@ -245,7 +245,7 @@ All service logs are captured natively by `kubectl logs`.
 
 - `scoring_api.py` configures `logging.basicConfig()` to emit structured lines
   (`timestamp level logger message`) to stdout.
-- `PLEXUS_DISABLE_CLOUDWATCH_LOGS=1` is set in Helm values to prevent any
+- `PRIMUS_DISABLE_CLOUDWATCH_LOGS=1` is set in Helm values to prevent any
   transitive import from activating the watchtower CloudWatch handler.
 - Uvicorn access logs and application logs both write to stdout/stderr.
 
@@ -259,15 +259,15 @@ docker/scripts/smoke_test_k8s_logging.sh
 docker/scripts/smoke_test_k8s_logging.sh --score nira-resolution-quality
 
 # Manual: tail logs from the worker deployment
-kubectl logs -f -n plexus-local deployment/plexus-plexus-worker
+kubectl logs -f -n primus-local deployment/primus-primus-worker
 ```
 
 ### Log format
 
 ```
-2026-06-16 17:45:03,123 INFO plexus.workers.scoring_job Processing scoring job: log-test-1
-2026-06-16 17:45:03,456 INFO plexus.workers.scoring_job Fetching item nira-demo-item-1 for scoring job log-test-1
-2026-06-16 17:45:03,789 INFO plexus.workers.scoring_job Storing score result for scoring job log-test-1
+2026-06-16 17:45:03,123 INFO primus.workers.scoring_job Processing scoring job: log-test-1
+2026-06-16 17:45:03,456 INFO primus.workers.scoring_job Fetching item nira-demo-item-1 for scoring job log-test-1
+2026-06-16 17:45:03,789 INFO primus.workers.scoring_job Storing score result for scoring job log-test-1
 ```
 
 ## Testing Without Real AWS/API
@@ -283,12 +283,12 @@ Create a mock values file:
 workerType: console-worker  # Doesn't need AWS
 
 image:
-  repository: plexus-worker
+  repository: primus-worker
   tag: local
 
 replicaCount: 1
 
-plexus:
+primus:
   createSecrets: true
   api:
     url: "http://mock-api:8080"
@@ -306,14 +306,14 @@ See what Kubernetes manifests would be created without deploying:
 
 ```bash
 # Render templates
-helm template plexus-worker-test docker/helm/plexus-worker \
-  -f docker/helm/plexus-worker/values-local.yaml \
-  --namespace plexus-local
+helm template primus-worker-test docker/helm/primus-worker \
+  -f docker/helm/primus-worker/values-local.yaml \
+  --namespace primus-local
 
 # Save to file for inspection
-helm template plexus-worker-test docker/helm/plexus-worker \
-  -f docker/helm/plexus-worker/values-local.yaml \
-  --namespace plexus-local > rendered-manifests.yaml
+helm template primus-worker-test docker/helm/primus-worker \
+  -f docker/helm/primus-worker/values-local.yaml \
+  --namespace primus-local > rendered-manifests.yaml
 
 # View rendered manifests
 less rendered-manifests.yaml
@@ -324,9 +324,9 @@ less rendered-manifests.yaml
 Test deployment without actually creating resources:
 
 ```bash
-helm install plexus-worker-test docker/helm/plexus-worker \
-  -f docker/helm/plexus-worker/values-local.yaml \
-  --namespace plexus-local \
+helm install primus-worker-test docker/helm/primus-worker \
+  -f docker/helm/primus-worker/values-local.yaml \
+  --namespace primus-local \
   --dry-run --debug
 ```
 
@@ -339,7 +339,7 @@ helm install plexus-worker-test docker/helm/plexus-worker \
 cat > values-hpa-test.yaml <<EOF
 workerType: score-processor
 image:
-  repository: plexus-worker
+  repository: primus-worker
   tag: local
 autoscaling:
   enabled: true
@@ -348,16 +348,16 @@ autoscaling:
   targetCPUUtilizationPercentage: 50
 EOF
 
-helm install plexus-worker-hpa docker/helm/plexus-worker \
+helm install primus-worker-hpa docker/helm/primus-worker \
   -f values-hpa-test.yaml \
-  --namespace plexus-local \
+  --namespace primus-local \
   --create-namespace
 
 # Generate load (if metrics-server is running)
 kubectl run -i --tty load-generator --rm --image=busybox --restart=Never -- /bin/sh
 
 # Watch HPA
-kubectl get hpa -n plexus-local -w
+kubectl get hpa -n primus-local -w
 ```
 
 ### Test Rolling Update
@@ -365,43 +365,43 @@ kubectl get hpa -n plexus-local -w
 ```bash
 # Make a change to code
 # Rebuild image with new tag
-docker build -f docker/Dockerfile -t plexus-worker:v2 .
+docker build -f docker/Dockerfile -t primus-worker:v2 .
 
 # Upgrade
-helm upgrade plexus-worker-local docker/helm/plexus-worker \
-  -f docker/helm/plexus-worker/values-local.yaml \
+helm upgrade primus-worker-local docker/helm/primus-worker \
+  -f docker/helm/primus-worker/values-local.yaml \
   --set image.tag=v2 \
-  --namespace plexus-local
+  --namespace primus-local
 
 # Watch rollout
-kubectl rollout status deployment/plexus-worker-local -n plexus-local
+kubectl rollout status deployment/primus-worker-local -n primus-local
 ```
 
 ### Test Secret Changes
 
 ```bash
 # Update secret
-helm upgrade plexus-worker-local docker/helm/plexus-worker \
-  -f docker/helm/plexus-worker/values-local.yaml \
-  --set plexus.api.key=new-api-key \
-  --namespace plexus-local
+helm upgrade primus-worker-local docker/helm/primus-worker \
+  -f docker/helm/primus-worker/values-local.yaml \
+  --set primus.api.key=new-api-key \
+  --namespace primus-local
 
 # Pods should restart automatically due to checksum annotation
-kubectl get pods -n plexus-local -w
+kubectl get pods -n primus-local -w
 ```
 
 ### Test Network Policy
 
 ```bash
 # Enable network policy
-helm upgrade plexus-worker-local docker/helm/plexus-worker \
-  -f docker/helm/plexus-worker/values-local.yaml \
+helm upgrade primus-worker-local docker/helm/primus-worker \
+  -f docker/helm/primus-worker/values-local.yaml \
   --set networkPolicy.enabled=true \
-  --namespace plexus-local
+  --namespace primus-local
 
 # Check network policy
-kubectl get networkpolicy -n plexus-local
-kubectl describe networkpolicy -n plexus-local
+kubectl get networkpolicy -n primus-local
+kubectl describe networkpolicy -n primus-local
 ```
 
 ## Debugging Tips
@@ -409,17 +409,17 @@ kubectl describe networkpolicy -n plexus-local
 ### View All Resources
 
 ```bash
-kubectl get all,cm,secret,pdb,hpa,networkpolicy -n plexus-local
+kubectl get all,cm,secret,pdb,hpa,networkpolicy -n primus-local
 ```
 
 ### Pod Not Starting
 
 ```bash
 # Check events
-kubectl get events -n plexus-local --sort-by='.lastTimestamp'
+kubectl get events -n primus-local --sort-by='.lastTimestamp'
 
 # Describe pod
-kubectl describe pod <pod-name> -n plexus-local
+kubectl describe pod <pod-name> -n primus-local
 
 # Common issues:
 # - ImagePullBackOff: Image not found in local registry
@@ -431,22 +431,22 @@ kubectl describe pod <pod-name> -n plexus-local
 
 ```bash
 # Current logs
-kubectl logs <pod-name> -n plexus-local
+kubectl logs <pod-name> -n primus-local
 
 # Follow logs
-kubectl logs -f <pod-name> -n plexus-local
+kubectl logs -f <pod-name> -n primus-local
 
 # Previous container logs (if crashed)
-kubectl logs <pod-name> -n plexus-local --previous
+kubectl logs <pod-name> -n primus-local --previous
 ```
 
 ### Exec into Pod
 
 ```bash
-kubectl exec -it <pod-name> -n plexus-local -- /bin/bash
+kubectl exec -it <pod-name> -n primus-local -- /bin/bash
 
 # Check environment
-env | grep PLEXUS
+env | grep PRIMUS
 
 # Check files
 ls -la /app
@@ -459,29 +459,29 @@ ps aux
 
 ```bash
 # List releases
-helm list -n plexus-local
+helm list -n primus-local
 
 # Get release status
-helm status plexus-worker-local -n plexus-local
+helm status primus-worker-local -n primus-local
 
 # Get release values
-helm get values plexus-worker-local -n plexus-local
+helm get values primus-worker-local -n primus-local
 
 # Get release manifest
-helm get manifest plexus-worker-local -n plexus-local
+helm get manifest primus-worker-local -n primus-local
 ```
 
 ### Test Rollback
 
 ```bash
 # List revisions
-helm history plexus-worker-local -n plexus-local
+helm history primus-worker-local -n primus-local
 
 # Rollback to previous
-helm rollback plexus-worker-local -n plexus-local
+helm rollback primus-worker-local -n primus-local
 
 # Rollback to specific revision
-helm rollback plexus-worker-local 1 -n plexus-local
+helm rollback primus-worker-local 1 -n primus-local
 ```
 
 ## Quick Test Script
@@ -493,23 +493,23 @@ Save this as `test-local.sh`:
 set -e
 
 echo "🐳 Building Docker image..."
-docker build -f docker/Dockerfile -t plexus-worker:local .
+docker build -f docker/Dockerfile -t primus-worker:local .
 
 echo "📦 Installing Helm chart..."
-helm install plexus-worker-test docker/helm/plexus-worker \
-  -f docker/helm/plexus-worker/values-local.yaml \
-  --namespace plexus-test \
+helm install primus-worker-test docker/helm/primus-worker \
+  -f docker/helm/primus-worker/values-local.yaml \
+  --namespace primus-test \
   --create-namespace \
   --wait --timeout 5m
 
 echo "✅ Deployment complete!"
 echo ""
 echo "📊 Status:"
-kubectl get all -n plexus-test
+kubectl get all -n primus-test
 
 echo ""
 echo "📋 Logs (Ctrl+C to exit):"
-kubectl logs -f deployment/plexus-worker-test -n plexus-test
+kubectl logs -f deployment/primus-worker-test -n primus-test
 ```
 
 Run with:
@@ -524,14 +524,14 @@ To simulate what Octopus would do:
 
 ```bash
 # 1. Package chart (Octopus would do this)
-helm package docker/helm/plexus-worker
+helm package docker/helm/primus-worker
 
 # 2. Simulate variable substitution
 cat > octopus-vars.yaml <<EOF
 image:
-  repository: plexus-worker
+  repository: primus-worker
   tag: "local"
-plexus:
+primus:
   api:
     url: "https://dev-api.example.com"
     key: "dev-key-from-octopus"
@@ -540,17 +540,17 @@ plexus:
 EOF
 
 # 3. Deploy (simulating Octopus Deploy step)
-helm install plexus-worker docker/helm/plexus-worker \
-  -f docker/helm/plexus-worker/values-dev.yaml \
+helm install primus-worker docker/helm/primus-worker \
+  -f docker/helm/primus-worker/values-dev.yaml \
   -f octopus-vars.yaml \
-  --namespace plexus-dev \
+  --namespace primus-dev \
   --create-namespace
 
 # 4. Upgrade (simulating promotion to next environment)
-helm upgrade plexus-worker docker/helm/plexus-worker \
-  -f docker/helm/plexus-worker/values-staging.yaml \
+helm upgrade primus-worker docker/helm/primus-worker \
+  -f docker/helm/primus-worker/values-staging.yaml \
   -f octopus-vars.yaml \
-  --namespace plexus-staging
+  --namespace primus-staging
 ```
 
 ## Recommended: Docker Desktop + Helm

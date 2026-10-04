@@ -1,0 +1,79 @@
+import unittest
+import numpy as np
+from unittest import TestCase, mock
+from unittest.mock import patch
+from primus.nlp.cluster.TopicModelClusterer import TopicModelClusterer
+
+class TestTopicModelClusterer(unittest.TestCase):
+    def setUp(self):
+        self.explanations = [
+            "The AI assessed the buyer's income as sufficient, but the human evaluator found discrepancies in the reported figures.",
+            "While the AI determined the credit score met the threshold, the human evaluator interpreted the score differently based on recent credit history."
+        ]
+        self.clusterer = TopicModelClusterer(self.explanations)
+
+    def test_preprocess_documents(self):
+        processed = self.clusterer._preprocess_documents(self.explanations)
+        self.assertIsInstance(processed, list)
+        self.assertEqual(len(processed), 2)
+        self.assertTrue(all(isinstance(doc, list) for doc in processed))
+
+    def test_create_dictionary(self):
+        dictionary = self.clusterer._create_dictionary()
+        self.assertIsNotNone(dictionary)
+        self.assertTrue(len(dictionary) > 0)
+
+    def test_create_corpus(self):
+        corpus = self.clusterer._create_corpus()
+        self.assertIsInstance(corpus, list)
+        self.assertEqual(len(corpus), 2)
+
+    @patch('primus.nlp.cluster.TopicModelClusterer.LdaMulticore')
+    @patch('primus.nlp.cluster.TopicModelClusterer.CoherenceModel')
+    def test_determine_optimal_topics(self, mock_coherence_model, mock_lda):
+        # Configure the mock LdaMulticore instance
+        mock_lda_instance = mock_lda.return_value
+        mock_lda_instance.show_topics.return_value = [
+            (0, [('word1', 0.1), ('word2', 0.2), ('word3', 0.3), ('word4', 0.4)]),
+            (1, [('word2', 0.2), ('word3', 0.3), ('word4', 0.4), ('word1', 0.1)])
+        ]
+
+        # Configure the mock CoherenceModel instance
+        mock_coherence_instance = mock_coherence_model.return_value
+        mock_coherence_instance.get_coherence.return_value = 0.5
+
+        # Execute the method under test
+        coherence_values = self.clusterer.determine_optimal_topics(limit=10, start=2, step=2)
+
+        # Assertions
+        self.assertIsNotNone(coherence_values)
+        self.assertGreater(len(coherence_values), 0)
+        self.assertEqual(len(coherence_values), 5)  # (10-2)/2 + 1 = 5 iterations
+
+        # Check if LdaMulticore and CoherenceModel were called
+        mock_lda.assert_called()
+        mock_coherence_model.assert_called()
+
+        # Verify that show_topics was called instead of get_topics
+        self.assertEqual(mock_lda_instance.show_topics.call_count, 5)
+
+    def test_analyze_topic_distributions_without_model(self):
+        with self.assertRaises(ValueError):
+            self.clusterer.analyze_topic_distributions()
+
+    def test_get_lda_topics_without_analysis(self):
+        with self.assertRaises(ValueError):
+            self.clusterer.get_lda_topics()
+
+    @patch('primus.nlp.cluster.TopicModelClusterer.OpenAI')
+    def test_generate_llm_explanations_without_prominent_topics(self, mock_openai):
+        with self.assertRaises(ValueError):
+            self.clusterer.generate_llm_explanations()
+
+    @patch('primus.nlp.cluster.TopicModelClusterer.OpenAI')
+    def test_generate_summary_without_topics(self, mock_openai):
+        with self.assertRaises(ValueError):
+            self.clusterer.generate_summary()
+
+if __name__ == '__main__':
+    unittest.main()

@@ -53,7 +53,7 @@ done < <(cat /tmp/tables.json | jq -r 'to_entries[] | "\"\(.key)\" \"\(.value)\"
 echo "Deploying MetricsAggregationStack..."
 npx cdk deploy \
     --app "python3 deploy_metrics_only.py" \
-    plexus-metrics-aggregation-production \
+    primus-metrics-aggregation-production \
     $CONTEXT_ARGS \
     --require-approval never
 

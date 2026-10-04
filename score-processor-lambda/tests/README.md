@@ -25,7 +25,7 @@ make test-smoke
 
 **Directly with pytest:**
 ```bash
-cd /path/to/Plexus
+cd /path/to/Primus
 PYTHONPATH=score-processor-lambda pytest score-processor-lambda/tests/test_*.py -v
 ```
 

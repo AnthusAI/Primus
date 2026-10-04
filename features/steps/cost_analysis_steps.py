@@ -1,7 +1,7 @@
 from behave import given, then, when
 from unittest.mock import MagicMock
 
-from plexus.reports.blocks.cost_analysis import CostAnalysis
+from primus.reports.blocks.cost_analysis import CostAnalysis
 
 
 @given("score results with costs and item IDs")

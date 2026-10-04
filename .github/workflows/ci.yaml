@@ -28,13 +28,13 @@ jobs:
         from pathlib import Path
 
         pyproject_text = Path("pyproject.toml").read_text(encoding="utf-8")
-        version_file_text = Path("plexus/_version.py").read_text(encoding="utf-8")
+        version_file_text = Path("primus/_version.py").read_text(encoding="utf-8")
 
         pyproject_match = re.search(r'(?m)^version\s*=\s*"([^"]+)"\s*$', pyproject_text)
         version_file_match = re.search(r'(?m)^__version__\s*=\s*"([^"]+)"\s*$', version_file_text)
 
         if not pyproject_match or not version_file_match:
-            print("Unable to parse version from pyproject.toml or plexus/_version.py", file=sys.stderr)
+            print("Unable to parse version from pyproject.toml or primus/_version.py", file=sys.stderr)
             sys.exit(1)
 
         pyproject_version = pyproject_match.group(1)
@@ -45,7 +45,7 @@ jobs:
 
         if pyproject_version != version_file_version:
             print(
-                "Version mismatch: pyproject.toml and plexus/_version.py must match. "
+                "Version mismatch: pyproject.toml and primus/_version.py must match. "
                 "Release automation should update both together.",
                 file=sys.stderr,
             )
@@ -86,7 +86,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         miniforge-version: latest
-        activate-environment: plexus-ci
+        activate-environment: primus-ci
         auto-activate-base: false
 
     - name: Install system dependencies
@@ -115,7 +115,7 @@ jobs:
           MCP/tools/tactus_runtime/execute_test.py::test_execute_tactus_report_run_async_remote_dispatch_when_mode_celery \
           MCP/tools/tactus_runtime/execute_test.py::test_execute_tactus_report_run_async_local_dispatch_when_mode_local \
           MCP/tools/tactus_runtime/execute_test.py::test_execute_tactus_report_run_async_invalid_dispatch_mode_returns_error \
-          plexus/cli/report/utils_test.py
+          primus/cli/report/utils_test.py
 
     - name: Run Python Tests
       run: |
@@ -229,7 +229,7 @@ jobs:
   #     - name: Trigger Infrastructure CodePipeline
   #       run: |
   #         if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-  #           INFRA_PIPELINE="plexus-infrastructure-production-pipeline"
+  #           INFRA_PIPELINE="primus-infrastructure-production-pipeline"
   #           ENVIRONMENT="production"
   #         elif [ "${{ github.ref }}" = "refs/heads/staging" ]; then
   #           INFRA_PIPELINE=""

@@ -8,7 +8,7 @@ and various error conditions.
 import pytest
 import os
 from unittest.mock import Mock, patch, MagicMock
-from plexus.cli.score.score_service import ScoreService
+from primus.cli.score.score_service import ScoreService
 
 
 class TestScoreService:
@@ -25,7 +25,7 @@ class TestScoreService:
         service = ScoreService(client=mock_client)
         assert service.client == mock_client
     
-    @patch('plexus.cli.score.score_service.ScoreService._create_client')
+    @patch('primus.cli.score.score_service.ScoreService._create_client')
     def test_init_without_client(self, mock_create_client):
         """Test ScoreService initialization without provided client."""
         mock_client = Mock()
@@ -35,7 +35,7 @@ class TestScoreService:
         assert service.client == mock_client
         mock_create_client.assert_called_once()
     
-    @patch('plexus.cli.shared.client_utils.create_client')
+    @patch('primus.cli.shared.client_utils.create_client')
     def test_create_client_success(self, mock_create_client):
         """Test successful client creation."""
         mock_client = Mock()
@@ -48,7 +48,7 @@ class TestScoreService:
         assert created_client == mock_client
         mock_create_client.assert_called_once()
     
-    @patch('plexus.cli.shared.client_utils.create_client')
+    @patch('primus.cli.shared.client_utils.create_client')
     def test_create_client_import_error(self, mock_create_client):
         """Test client creation with import error."""
         mock_create_client.side_effect = ImportError("Module not found")
@@ -58,7 +58,7 @@ class TestScoreService:
         
         assert created_client is None
     
-    @patch.dict(os.environ, {'PLEXUS_API_URL': 'https://api.example.com', 'PLEXUS_API_KEY': 'test-key'})
+    @patch.dict(os.environ, {'PRIMUS_API_URL': 'https://api.example.com', 'PRIMUS_API_KEY': 'test-key'})
     def test_validate_credentials_success(self):
         """Test successful credential validation."""
         is_valid, error_msg = self.score_service.validate_credentials()
@@ -72,17 +72,17 @@ class TestScoreService:
         is_valid, error_msg = self.score_service.validate_credentials()
         
         assert is_valid is False
-        assert "PLEXUS_API_URL" in error_msg
+        assert "PRIMUS_API_URL" in error_msg
     
-    @patch.dict(os.environ, {'PLEXUS_API_URL': 'https://api.example.com'}, clear=True)
+    @patch.dict(os.environ, {'PRIMUS_API_URL': 'https://api.example.com'}, clear=True)
     def test_validate_credentials_missing_key(self):
         """Test credential validation with missing API key."""
         is_valid, error_msg = self.score_service.validate_credentials()
         
         assert is_valid is False
-        assert "PLEXUS_API_KEY" in error_msg
+        assert "PRIMUS_API_KEY" in error_msg
     
-    @patch('plexus.cli.score.score_service.ScoreService._create_client')
+    @patch('primus.cli.score.score_service.ScoreService._create_client')
     def test_validate_credentials_no_client(self, mock_create_client):
         """Test credential validation with no client."""
         # Mock _create_client to return None to simulate client creation failure
@@ -92,9 +92,9 @@ class TestScoreService:
         is_valid, error_msg = service.validate_credentials()
         
         assert is_valid is False
-        assert "Could not create Plexus client" in error_msg
+        assert "Could not create Primus client" in error_msg
     
-    @patch('plexus.cli.shared.identifier_resolution.resolve_scorecard_identifier')
+    @patch('primus.cli.shared.identifier_resolution.resolve_scorecard_identifier')
     def test_resolve_scorecard_identifier_success(self, mock_resolve):
         """Test successful scorecard identifier resolution."""
         mock_resolve.return_value = 'scorecard-123'
@@ -104,7 +104,7 @@ class TestScoreService:
         assert result == 'scorecard-123'
         mock_resolve.assert_called_once_with(self.mock_client, 'test-scorecard')
     
-    @patch('plexus.cli.shared.identifier_resolution.resolve_scorecard_identifier')
+    @patch('primus.cli.shared.identifier_resolution.resolve_scorecard_identifier')
     def test_resolve_scorecard_identifier_import_error(self, mock_resolve):
         """Test scorecard identifier resolution with import error."""
         mock_resolve.side_effect = ImportError("Module not found")
@@ -240,7 +240,7 @@ class TestScoreService:
         
         assert result == []
     
-    @patch.dict(os.environ, {'PLEXUS_API_URL': 'https://api.example.com', 'PLEXUS_API_KEY': 'test-key'})
+    @patch.dict(os.environ, {'PRIMUS_API_URL': 'https://api.example.com', 'PRIMUS_API_KEY': 'test-key'})
     def test_delete_score_success(self):
         """Test successful score deletion."""
         mock_response = {'deleteScore': {'id': 'score-123'}}
@@ -264,9 +264,9 @@ class TestScoreService:
         result = self.score_service.delete_score('score-123', confirm=True)
         
         assert "Error:" in result
-        assert "PLEXUS_API_URL" in result
+        assert "PRIMUS_API_URL" in result
     
-    @patch.dict(os.environ, {'PLEXUS_API_URL': 'https://api.example.com', 'PLEXUS_API_KEY': 'test-key'})
+    @patch.dict(os.environ, {'PRIMUS_API_URL': 'https://api.example.com', 'PRIMUS_API_KEY': 'test-key'})
     def test_delete_score_graphql_error(self):
         """Test score deletion with GraphQL error."""
         self.score_service._execute_with_error_handling = Mock(return_value=(False, "GraphQL error occurred"))
@@ -276,7 +276,7 @@ class TestScoreService:
         assert "Error from deleteScore mutation" in result
         assert "GraphQL error occurred" in result
     
-    @patch.dict(os.environ, {'PLEXUS_API_URL': 'https://api.example.com', 'PLEXUS_API_KEY': 'test-key'})
+    @patch.dict(os.environ, {'PRIMUS_API_URL': 'https://api.example.com', 'PRIMUS_API_KEY': 'test-key'})
     def test_delete_score_no_response(self):
         """Test score deletion with no response from server."""
         mock_response = {}  # No deleteScore in response

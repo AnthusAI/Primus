@@ -6,13 +6,13 @@ os.environ.setdefault("MPLBACKEND", "Agg")
 os.environ.setdefault("SCORECARD_CACHE_DIR", "/tmp/scorecards")
 
 import requests
-API_URL = os.environ.get("PLEXUS_API_URL")
-API_KEY = os.environ.get("PLEXUS_API_KEY")
-ACCOUNT_KEY = os.environ.get("PLEXUS_ACCOUNT_KEY")
+API_URL = os.environ.get("PRIMUS_API_URL")
+API_KEY = os.environ.get("PRIMUS_API_KEY")
+ACCOUNT_KEY = os.environ.get("PRIMUS_ACCOUNT_KEY")
 
 def gql(query: str, variables: dict | None = None) -> dict:
     if not API_URL or not API_KEY:
-        raise ValueError("Missing PLEXUS_API_URL or PLEXUS_API_KEY")
+        raise ValueError("Missing PRIMUS_API_URL or PRIMUS_API_KEY")
     r = requests.post(
         API_URL,
         json={"query": query, "variables": variables or {}},
@@ -25,9 +25,9 @@ def gql(query: str, variables: dict | None = None) -> dict:
         raise Exception(f"GraphQL query failed: {data['errors'][0].get('message')}")
     return data.get("data") or {}
 
-# tell the plexus client/gql not to introspect schema
+# tell the primus client/gql not to introspect schema
 # (works with gql-style clients: fetch_schema_from_transport=False)
-os.environ.setdefault("PLEXUS_FETCH_SCHEMA_FROM_TRANSPORT", "0")
+os.environ.setdefault("PRIMUS_FETCH_SCHEMA_FROM_TRANSPORT", "0")
 import asyncio
 from datetime import datetime, timezone
 from typing import Optional, Dict
@@ -36,19 +36,19 @@ import json
 import boto3
 from botocore.exceptions import ClientError
 import tempfile
-from plexus.dashboard.api.client import PlexusDashboardClient
-from plexus.dashboard.api.models.scoring_job import ScoringJob
-from plexus.Scorecard import Scorecard
-from plexus.dashboard.api.models.item import Item
-from plexus.CustomLogging import logging
-from plexus.utils.score_result_timestamps import extract_score_result_timestamps
+from primus.dashboard.api.client import PrimusDashboardClient
+from primus.dashboard.api.models.scoring_job import ScoringJob
+from primus.Scorecard import Scorecard
+from primus.dashboard.api.models.item import Item
+from primus.CustomLogging import logging
+from primus.utils.score_result_timestamps import extract_score_result_timestamps
 
 # Import Item model for upsert functionality
 try:
-    from plexus.dashboard.api.models.item import Item
-    PLEXUS_ITEM_AVAILABLE = True
+    from primus.dashboard.api.models.item import Item
+    PRIMUS_ITEM_AVAILABLE = True
 except ImportError:
-    PLEXUS_ITEM_AVAILABLE = False
+    PRIMUS_ITEM_AVAILABLE = False
 
 # Default bucket name for score result attachments S3 storage
 # This should match the resource name in amplify/storage/resource.ts
@@ -350,7 +350,7 @@ async def create_score_result_for_api(
         }))
         
         # Use the dashboard client to execute the query
-        client = PlexusDashboardClient()
+        client = PrimusDashboardClient()
         
         # First, look up the Account ID using the key from the environment variable
         account_query = """
@@ -410,8 +410,8 @@ async def create_score_result_for_api(
         logging.info(f"🔍 Using SDK upsert for Item with externalId: {report_id} in account: {account_id}")
         
         # Check if SDK is available
-        if not PLEXUS_ITEM_AVAILABLE:
-            logging.error("Plexus Item SDK not available - falling back to manual creation")
+        if not PRIMUS_ITEM_AVAILABLE:
+            logging.error("Primus Item SDK not available - falling back to manual creation")
             return {
                 "score_result_id": None,
                 "item_id": None,
@@ -1094,15 +1094,15 @@ async def create_scorecard_instance_for_single_score(scorecard_identifier: str, 
         logging.info(f"Creating targeted scorecard instance for scorecard: {scorecard_identifier}, score: {score_identifier}")
         
         # Import the individual functions we need for targeted loading
-        from plexus.cli.shared.direct_memoized_resolvers import direct_memoized_resolve_scorecard_identifier
-        from plexus.cli.shared.fetch_scorecard_structure import fetch_scorecard_structure
-        from plexus.cli.shared.identify_target_scores import identify_target_scores
-        from plexus.cli.shared.iterative_config_fetching import iteratively_fetch_configurations
-        from plexus.Scorecard import Scorecard
+        from primus.cli.shared.direct_memoized_resolvers import direct_memoized_resolve_scorecard_identifier
+        from primus.cli.shared.fetch_scorecard_structure import fetch_scorecard_structure
+        from primus.cli.shared.identify_target_scores import identify_target_scores
+        from primus.cli.shared.iterative_config_fetching import iteratively_fetch_configurations
+        from primus.Scorecard import Scorecard
         
         # Step 1: Get API client and resolve scorecard identifier
-        from plexus.dashboard.api.client import PlexusDashboardClient
-        client = PlexusDashboardClient()
+        from primus.dashboard.api.client import PrimusDashboardClient
+        client = PrimusDashboardClient()
         
         scorecard_id = await asyncio.to_thread(direct_memoized_resolve_scorecard_identifier, client, scorecard_identifier)
         if not scorecard_id:
@@ -1191,10 +1191,10 @@ async def create_scorecard_instance_for_single_score(scorecard_identifier: str, 
         logging.error(f"Stack trace: {traceback.format_exc()}")
         return None
 
-async def get_plexus_client():
-    """Get the Plexus Dashboard client for API operations."""
-    from plexus.dashboard.api.client import PlexusDashboardClient
-    return PlexusDashboardClient()
+async def get_primus_client():
+    """Get the Primus Dashboard client for API operations."""
+    from primus.dashboard.api.client import PrimusDashboardClient
+    return PrimusDashboardClient()
 
 async def get_metadata_from_report(report_id: str) -> dict:
     """Get metadata from Item record by its external ID."""
@@ -1212,7 +1212,7 @@ async def get_metadata_from_report(report_id: str) -> dict:
         "externalId": report_id
     }
     try:
-        client = await get_plexus_client()
+        client = await get_primus_client()
         result = await asyncio.to_thread(gql, query, variables)
         items = result.get('listItemByExternalId', {}).get('items', [])
         if items and len(items) > 0:
@@ -1250,7 +1250,7 @@ async def get_text_from_report(report_id: str) -> Optional[str]:
         "externalId": report_id
     }
     try:
-        client = await get_plexus_client()
+        client = await get_primus_client()
         result = await asyncio.to_thread(gql, query, variables)
         items = result.get('listItemByExternalId', {}).get('items', [])
         if items and len(items) > 0:
@@ -1308,8 +1308,8 @@ async def resolve_score_id(external_id: str, scorecard_dynamo_id: str, client) -
 
 class JobProcessor:
     def __init__(self, account_key=ACCOUNT_KEY):
-        from plexus.dashboard.api.client import PlexusDashboardClient
-        self.client = PlexusDashboardClient()
+        from primus.dashboard.api.client import PrimusDashboardClient
+        self.client = PrimusDashboardClient()
         self.account_key = account_key
         self.account_id = None
 
@@ -1391,7 +1391,7 @@ class JobProcessor:
 
             transcript_text = await get_text_from_report(report_id)
             item = None
-            if PLEXUS_ITEM_AVAILABLE and scoring_job.itemId:
+            if PRIMUS_ITEM_AVAILABLE and scoring_job.itemId:
                 try:
                     item = await asyncio.to_thread(Item.get_by_id, scoring_job.itemId, self.client)
                 except Exception as e:

@@ -44,7 +44,7 @@ print(f"Found table: {aggregated_metrics_table}")
 
 # Get account ID from environment
 import os
-account_id = os.environ.get('PLEXUS_ACCOUNT_ID', '9c929f25-a91f-4db7-8943-5aa93498b8e9')
+account_id = os.environ.get('PRIMUS_ACCOUNT_ID', '9c929f25-a91f-4db7-8943-5aa93498b8e9')
 
 print(f"Deleting all AggregatedMetrics for account: {account_id}")
 print()

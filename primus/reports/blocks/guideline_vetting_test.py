@@ -1,0 +1,275 @@
+import asyncio
+import threading
+from types import SimpleNamespace
+
+import pytest
+
+from primus.reports.blocks.guideline_vetting import (
+    GuidelineVettingError,
+    GuidelineVettingService,
+)
+
+
+@pytest.mark.asyncio
+async def test_analyze_items_uses_openai_votes_without_bedrock():
+    requested_models = []
+
+    def openai_vote(_prompt: str, _reasoning_effort: str, model: str):
+        requested_models.append(model)
+        return {
+            "contradicts": False,
+            "category": None,
+            "reason": "Consistent with policy.",
+            "guideline_quote": "Allows this behavior.",
+        }
+
+    item = SimpleNamespace(
+        id="fi-openai-only",
+        itemId="item-openai-only",
+        initialAnswerValue="No",
+        finalAnswerValue="Yes",
+        editCommentValue="Reviewer changed label.",
+        editorName="Reviewer",
+        editedAt=None,
+        isInvalid=False,
+        item=None,
+    )
+
+    service = GuidelineVettingService(invoke_openai=openai_vote)
+    results = await service.analyze_items(
+        items=[item],
+        guidelines="Guideline text",
+        max_concurrent=2,
+        score_results_by_item={},
+    )
+
+    assert requested_models == ["gpt-5.4-nano", "gpt-5.4-nano"]
+    assert [vote["model"] for vote in results[0]["voting"]] == [
+        "gpt-5.4-nano",
+        "gpt-5.4-nano",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_analyze_items_marks_unanimous_non_contradiction_as_reference_eligible():
+    def openai_vote(_prompt: str, _reasoning_effort: str, _model: str):
+        return {
+            "contradicts": False,
+            "category": None,
+            "reason": "Consistent with policy.",
+            "guideline_quote": "Allows this behavior.",
+        }
+
+    item = SimpleNamespace(
+        id="fi-1",
+        itemId="item-1",
+        initialAnswerValue="No",
+        finalAnswerValue="No",
+        editCommentValue="Reviewer confirms no issue.",
+        editorName="Reviewer",
+        editedAt=None,
+        isInvalid=False,
+        item=None,
+    )
+
+    service = GuidelineVettingService(invoke_openai=openai_vote)
+    results = await service.analyze_items(
+        items=[item],
+        guidelines="Guideline text",
+        max_concurrent=2,
+        score_results_by_item={},
+    )
+
+    assert len(results) == 1
+    result = results[0]
+    assert result["verdict"] == "aligned"
+    assert result["associated_dataset_eligible"] is True
+    assert result["confidence"] == "high"
+
+
+@pytest.mark.asyncio
+async def test_analyze_items_marks_contradiction_as_not_reference_eligible():
+    vote_count = 0
+
+    def openai_vote(_prompt: str, reasoning_effort: str, _model: str):
+        nonlocal vote_count
+        vote_count += 1
+        if reasoning_effort == "high" or vote_count == 1:
+            return {
+                "contradicts": True,
+                "category": "contradiction",
+                "reason": "Violates explicit policy.",
+                "guideline_quote": "Do not make this claim.",
+            }
+        return {
+            "contradicts": False,
+            "category": None,
+            "reason": "No violation.",
+            "guideline_quote": "",
+        }
+
+    item = SimpleNamespace(
+        id="fi-2",
+        itemId="item-2",
+        initialAnswerValue="No",
+        finalAnswerValue="Yes",
+        editCommentValue="Reviewer changed label.",
+        editorName="Reviewer",
+        editedAt=None,
+        isInvalid=False,
+        item=None,
+    )
+
+    service = GuidelineVettingService(invoke_openai=openai_vote)
+    results = await service.analyze_items(
+        items=[item],
+        guidelines="Guideline text",
+        max_concurrent=2,
+        score_results_by_item={},
+    )
+
+    assert len(results) == 1
+    result = results[0]
+    assert result["verdict"] == "contradiction"
+    assert result["associated_dataset_eligible"] is False
+
+
+@pytest.mark.asyncio
+async def test_analyze_items_includes_and_validates_rubric_memory_citations():
+    captured_prompts = []
+
+    def openai_vote(prompt: str, _reasoning_effort: str, _model: str):
+        captured_prompts.append(prompt)
+        return {
+            "contradicts": False,
+            "category": None,
+            "reason": "Consistent with cited context.",
+            "guideline_quote": "Allows this behavior.",
+            "citation_ids": ["support:01:abc"],
+        }
+
+    item = SimpleNamespace(
+        id="fi-3",
+        itemId="item-3",
+        initialAnswerValue="No",
+        finalAnswerValue="No",
+        editCommentValue="Reviewer confirms no issue.",
+        editorName="Reviewer",
+        editedAt=None,
+        isInvalid=False,
+        item=None,
+    )
+    rubric_memory_context = {
+        "markdown_context": "Rubric Memory Citation Context\n`support:01:abc` script evidence",
+        "citation_index": [{"id": "support:01:abc"}],
+    }
+
+    service = GuidelineVettingService(invoke_openai=openai_vote)
+    results = await service.analyze_items(
+        items=[item],
+        guidelines="Guideline text",
+        max_concurrent=2,
+        score_results_by_item={},
+        rubric_memory_contexts_by_item={"item-3": rubric_memory_context},
+    )
+
+    assert "Rubric Memory Citation Context" in captured_prompts[0]
+    assert results[0]["citation_ids"] == ["support:01:abc"]
+    assert results[0]["citation_validation"]["missing_ids"] == []
+    assert results[0]["rubric_memory_citation_count"] == 1
+
+
+def test_openai_vote_sets_a_bounded_request_timeout(monkeypatch):
+    captured = {}
+
+    class _Response:
+        output_text = '{"contradicts": false, "category": null, "reason": "", "guideline_quote": "", "citation_ids": []}'
+        output = []
+
+    class _Client:
+        class responses:
+            @staticmethod
+            def create(**kwargs):
+                captured.update(kwargs)
+                return _Response()
+
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setattr("openai.OpenAI", lambda *_args, **_kwargs: _Client())
+
+    service = GuidelineVettingService(request_timeout_seconds=12)
+    result = service._invoke_openai("Prompt")
+
+    assert result["contradicts"] is False
+    assert captured["timeout"] == 12
+
+
+@pytest.mark.asyncio
+async def test_analyze_items_fails_instead_of_silently_returning_partial_vetting():
+    def timed_out_vote(_prompt: str, _reasoning_effort: str, _model: str):
+        raise TimeoutError("provider request timed out")
+
+    item = SimpleNamespace(
+        id="fi-timeout",
+        itemId="item-timeout",
+        initialAnswerValue="No",
+        finalAnswerValue="Yes",
+        editCommentValue="Reviewer changed label.",
+        editorName="Reviewer",
+        editedAt=None,
+        isInvalid=False,
+        item=None,
+    )
+
+    service = GuidelineVettingService(invoke_openai=timed_out_vote)
+
+    with pytest.raises(GuidelineVettingError, match="fi-timeout"):
+        await service.analyze_items(
+            items=[item],
+            guidelines="Guideline text",
+            max_concurrent=1,
+            score_results_by_item={},
+        )
+
+
+@pytest.mark.asyncio
+async def test_analyze_items_bounds_an_injected_vote_that_never_returns():
+    release_vote = threading.Event()
+
+    def hanging_vote(_prompt: str, _reasoning_effort: str, _model: str):
+        release_vote.wait(timeout=5)
+        return {
+            "contradicts": False,
+            "category": None,
+            "reason": "Late response.",
+            "guideline_quote": "Allows this behavior.",
+        }
+
+    item = SimpleNamespace(
+        id="fi-hanging-vote",
+        itemId="item-hanging-vote",
+        initialAnswerValue="No",
+        finalAnswerValue="Yes",
+        editCommentValue="Reviewer changed label.",
+        editorName="Reviewer",
+        editedAt=None,
+        isInvalid=False,
+        item=None,
+    )
+    service = GuidelineVettingService(
+        invoke_openai=hanging_vote,
+        request_timeout_seconds=0.01,
+    )
+
+    try:
+        with pytest.raises(GuidelineVettingError, match="fi-hanging-vote"):
+            await asyncio.wait_for(
+                service.analyze_items(
+                    items=[item],
+                    guidelines="Guideline text",
+                    max_concurrent=1,
+                    score_results_by_item={},
+                ),
+                timeout=0.5,
+            )
+    finally:
+        release_vote.set()

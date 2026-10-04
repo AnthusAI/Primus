@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ASGI application wrapper for Plexus FastMCP Server
+ASGI application wrapper for Primus FastMCP Server
 Enables remote access via uvicorn for production deployment with mandatory authentication
 """
 import os
@@ -26,12 +26,12 @@ try:
 except ImportError:
     print("python-dotenv not available - install with: pip install python-dotenv", file=sys.stderr)
 
-# Load Plexus configuration
+# Load Primus configuration
 try:
-    from plexus.config.loader import load_config
+    from primus.config.loader import load_config
     load_config()
 except Exception as e:
-    print(f"Warning: Failed to load Plexus configuration: {e}", file=sys.stderr)
+    print(f"Warning: Failed to load Primus configuration: {e}", file=sys.stderr)
 
 # Import FastMCP with authentication
 from fastmcp import FastMCP
@@ -51,18 +51,18 @@ print(f"Setting up mandatory authentication", file=sys.stderr)
 auth_provider = StaticTokenVerifier(
     tokens={
         auth_token: {
-            "client_id": "plexus-mcp-client",
+            "client_id": "primus-mcp-client",
             "scopes": ["mcp:read", "mcp:write"]
         }
     }
 )
 
 # Import the original MCP to get its configuration
-from plexus_fastmcp_server import mcp as original_mcp
+from primus_fastmcp_server import mcp as original_mcp
 
 # Create new authenticated FastMCP with same config but with auth
 mcp = FastMCP(
-    name="Plexus MCP Server (Authenticated)",
+    name="Primus MCP Server (Authenticated)",
     instructions=original_mcp.instructions,
     auth=auth_provider
 )

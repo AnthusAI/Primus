@@ -4,9 +4,9 @@ prompt: |
   For the Compliance Tone score, summarize the current champion version and the
   two most recent evaluations. Include each evaluation id, AC1, accuracy, recall,
   and whether it improved or regressed relative to the previous evaluation.
-  First call plexus.score.info{ id = "score_compliance_tone" }.
-  Then call plexus.score.evaluations for that score and inspect the two most recent
-  evaluations with plexus.evaluation.info.
+  First call primus.score.info{ id = "score_compliance_tone" }.
+  Then call primus.score.evaluations for that score and inspect the two most recent
+  evaluations with primus.evaluation.info.
   Return exactly these top-level fields: score_id, champion_version_id, and evaluations.
   The evaluations field must contain exactly two entries, each including ac1,
   accuracy, recall, and a regression/improvement assessment.
@@ -27,9 +27,9 @@ coverage_tags:
   - evaluations
   - multi_step
 required_apis:
-  - plexus.score.info
-  - plexus.score.evaluations
-  - plexus.evaluation.info
+  - primus.score.info
+  - primus.score.evaluations
+  - primus.evaluation.info
 max_attempts_for_first_try_pass: 1
 fixture_notes: |
   The fixture should include at least three evaluations so the agent must choose

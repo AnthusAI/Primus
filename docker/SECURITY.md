@@ -1,17 +1,17 @@
-# Security Best Practices - Plexus Kubernetes Workers
+# Security Best Practices - Primus Kubernetes Workers
 
-This document outlines the security measures implemented and additional hardening recommendations for Plexus workers deployed to Kubernetes.
+This document outlines the security measures implemented and additional hardening recommendations for Primus workers deployed to Kubernetes.
 
 ## ✅ Security Measures Implemented
 
 ### 1. Container Security
 
 #### Non-Root User
-✅ **Implemented**: Container runs as non-root user `plexus` (UID 1000)
+✅ **Implemented**: Container runs as non-root user `primus` (UID 1000)
 ```dockerfile
-RUN groupadd -r plexus --gid=1000 && \
-    useradd -r -g plexus --uid=1000 --home-dir=/app --shell=/bin/bash plexus
-USER plexus
+RUN groupadd -r primus --gid=1000 && \
+    useradd -r -g primus --uid=1000 --home-dir=/app --shell=/bin/bash primus
+USER primus
 ```
 
 **Why**: Prevents privilege escalation if container is compromised
@@ -79,10 +79,10 @@ securityContext:
 #### Secrets Stored in Kubernetes Secrets
 ✅ **Implemented**: All sensitive data in Kubernetes Secrets, not ConfigMaps or environment variables
 ```yaml
-- name: PLEXUS_API_KEY
+- name: PRIMUS_API_KEY
   valueFrom:
     secretKeyRef:
-      name: plexus-worker-secrets
+      name: primus-worker-secrets
       key: api-key
 ```
 
@@ -102,8 +102,8 @@ serviceAccount:
 #### External Secrets Integration Ready
 ✅ **Implemented**: Helm chart supports `existingSecret` parameter for External Secrets Operator
 ```yaml
-plexus:
-  existingSecret: "external-secrets-plexus"
+primus:
+  existingSecret: "external-secrets-primus"
 ```
 
 **Why**: Secrets can be synced from AWS Secrets Manager, Vault, etc.
@@ -232,7 +232,7 @@ Add to CI/CD pipeline:
 - name: Scan image for vulnerabilities
   uses: aquasecurity/trivy-action@master
   with:
-    image-ref: 'your-registry/plexus-worker:${{ github.sha }}'
+    image-ref: 'your-registry/primus-worker:${{ github.sha }}'
     format: 'sarif'
     output: 'trivy-results.sarif'
     severity: 'CRITICAL,HIGH'
@@ -245,7 +245,7 @@ Add to CI/CD pipeline:
 Sign images with cosign or Notary v2:
 
 ```bash
-cosign sign your-registry/plexus-worker:1.52.0
+cosign sign your-registry/primus-worker:1.52.0
 ```
 
 Use admission controller to verify signatures.
@@ -258,7 +258,7 @@ Enforce Pod Security Standards at namespace level:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: plexus-prod
+  name: primus-prod
   labels:
     pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/audit: restricted
@@ -320,9 +320,9 @@ rules:
 Use separate namespaces per environment:
 
 ```bash
-kubectl create namespace plexus-prod
-kubectl create namespace plexus-staging
-kubectl create namespace plexus-dev
+kubectl create namespace primus-prod
+kubectl create namespace primus-staging
+kubectl create namespace primus-dev
 ```
 
 Apply namespace-scoped network policies.
@@ -335,7 +335,7 @@ Create minimal RBAC roles:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: plexus-worker-role
+  name: primus-worker-role
 rules:
 - apiGroups: [""]
   resources: ["configmaps"]
@@ -405,7 +405,7 @@ Implement automated secret rotation:
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
-  name: plexus-secrets
+  name: primus-secrets
 spec:
   refreshInterval: 1h
 ```

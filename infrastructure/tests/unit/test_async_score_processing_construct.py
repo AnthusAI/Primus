@@ -12,8 +12,8 @@ from aws_cdk import aws_ecr as ecr
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_secretsmanager as secretsmanager
 
-from plexus.infrastructure.constructs import AsyncScoreProcessing
-from plexus.infrastructure.constructs.async_score_processing import (
+from primus.infrastructure.constructs import AsyncScoreProcessing
+from primus.infrastructure.constructs.async_score_processing import (
     AsyncScoreProcessingProps,
 )
 
@@ -28,18 +28,18 @@ def _build_template():
     repository = ecr.Repository.from_repository_name(
         stack,
         "ImageRepository",
-        repository_name="plexus/score-processor-artifacts-development",
+        repository_name="primus/score-processor-artifacts-development",
     )
     secret = secretsmanager.Secret.from_secret_name_v2(
         stack,
         "RuntimeConfig",
-        secret_name="plexus/development/config",
+        secret_name="primus/development/config",
     )
     construct = AsyncScoreProcessing(
         stack,
         "AsyncScoreProcessing",
         props=AsyncScoreProcessingProps(
-            resource_prefix="plexus-development-scoring",
+            resource_prefix="primus-development-scoring",
             environment_name="development",
             image_repository=repository,
             image_tag_or_digest="sha256:1234567890abcdef",
@@ -67,10 +67,10 @@ def test_construct_creates_standard_request_and_response_queues_with_dlqs():
 
     template.resource_count_is("AWS::SQS::Queue", 4)
     for queue_name in [
-        "plexus-development-scoring-standard-request-queue",
-        "plexus-development-scoring-standard-request-dlq",
-        "plexus-development-scoring-response-queue",
-        "plexus-development-scoring-response-dlq",
+        "primus-development-scoring-standard-request-queue",
+        "primus-development-scoring-standard-request-dlq",
+        "primus-development-scoring-response-queue",
+        "primus-development-scoring-response-dlq",
     ]:
         template.has_resource_properties(
             "AWS::SQS::Queue",
@@ -83,7 +83,7 @@ def test_construct_creates_standard_request_and_response_queues_with_dlqs():
     template.has_resource_properties(
         "AWS::SQS::Queue",
         {
-            "QueueName": "plexus-development-scoring-standard-request-queue",
+            "QueueName": "primus-development-scoring-standard-request-queue",
             "VisibilityTimeout": 1800,
             "RedrivePolicy": assertions.Match.object_like(
                 {
@@ -113,7 +113,7 @@ def test_construct_creates_explicit_retained_log_group():
             "DeletionPolicy": "Retain",
             "UpdateReplacePolicy": "Retain",
             "Properties": {
-                "LogGroupName": ("/plexus/score-processor/plexus-development-scoring"),
+                "LogGroupName": ("/primus/score-processor/primus-development-scoring"),
                 "RetentionInDays": 30,
             },
         },
@@ -126,12 +126,12 @@ def test_construct_rejects_visibility_shorter_than_six_lambda_timeouts():
     repository = ecr.Repository.from_repository_name(
         stack,
         "ImageRepository",
-        repository_name="plexus/score-processor-artifacts-development",
+        repository_name="primus/score-processor-artifacts-development",
     )
     secret = secretsmanager.Secret.from_secret_name_v2(
         stack,
         "RuntimeConfig",
-        secret_name="plexus/development/config",
+        secret_name="primus/development/config",
     )
 
     with pytest.raises(ValueError, match="at least six times"):
@@ -139,7 +139,7 @@ def test_construct_rejects_visibility_shorter_than_six_lambda_timeouts():
             stack,
             "AsyncScoreProcessing",
             props=AsyncScoreProcessingProps(
-                resource_prefix="plexus-development-scoring",
+                resource_prefix="primus-development-scoring",
                 environment_name="development",
                 image_repository=repository,
                 image_tag_or_digest="sha256:1234567890abcdef",
@@ -157,7 +157,7 @@ def test_construct_creates_lambda_from_pinned_ecr_image():
     template.has_resource_properties(
         "AWS::Lambda::Function",
         {
-            "FunctionName": "plexus-development-scoring-score-processor",
+            "FunctionName": "primus-development-scoring-score-processor",
             "MemorySize": 3008,
             "PackageType": "Image",
             "ReservedConcurrentExecutions": 25,
@@ -172,11 +172,11 @@ def test_construct_wires_lambda_environment_from_queues_and_secret_mapping():
     template, _ = _build_template()
     template_text = json.dumps(template.to_json())
 
-    assert "PLEXUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL" in template_text
-    assert "PLEXUS_RESPONSE_WORKER_QUEUE_URL" in template_text
-    assert "PLEXUS_ACCOUNT_KEY" in template_text
-    assert "PLEXUS_API_KEY" in template_text
-    assert "PLEXUS_API_URL" in template_text
+    assert "PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL" in template_text
+    assert "PRIMUS_RESPONSE_WORKER_QUEUE_URL" in template_text
+    assert "PRIMUS_ACCOUNT_KEY" in template_text
+    assert "PRIMUS_API_KEY" in template_text
+    assert "PRIMUS_API_URL" in template_text
     assert "OPENAI_API_KEY" in template_text
     assert "CUSTOM_MODE" in template_text
     assert "enabled" in template_text
@@ -222,7 +222,7 @@ def test_construct_creates_dlq_visibility_alarms():
     template.has_resource_properties(
         "AWS::CloudWatch::Alarm",
         {
-            "AlarmName": "plexus-development-scoring-StandardRequestDeadLetterQueueAlarm",
+            "AlarmName": "primus-development-scoring-StandardRequestDeadLetterQueueAlarm",
             "ComparisonOperator": "GreaterThanOrEqualToThreshold",
             "EvaluationPeriods": 1,
             "Threshold": 1,

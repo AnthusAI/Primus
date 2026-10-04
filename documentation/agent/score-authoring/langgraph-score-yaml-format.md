@@ -1,7 +1,7 @@
 ---
 id: score-authoring.langgraph-score-yaml-format
 title: LangGraphScore YAML Format (Deprecated)
-summary: Authoring reference for Plexus LangGraphScore YAML configurations (multi-node graph workflows). Soft-deprecated in favor of TactusScore.
+summary: Authoring reference for Primus LangGraphScore YAML configurations (multi-node graph workflows). Soft-deprecated in favor of TactusScore.
 namespace: score-authoring
 status: deprecated
 disclosure: reference
@@ -20,7 +20,7 @@ This document covers YAML configuration for `LangGraphScore` — a multi-node gr
 
 ## Core Concepts
 
-A **Score** is a first-class model in Plexus that represents an evaluative judgment on content, typically implemented as a text classifier. Scores are configured using YAML and can range from simple classifications to complex multi-step evaluations.
+A **Score** is a first-class model in Primus that represents an evaluative judgment on content, typically implemented as a text classifier. Scores are configured using YAML and can range from simple classifications to complex multi-step evaluations.
 
 A **Scorecard** is a collection of related Scores, typically used to evaluate different aspects of the same content (e.g., different quality metrics for a call center transcript).
 

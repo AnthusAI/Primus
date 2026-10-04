@@ -1,0 +1,319 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "primus-worker.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "primus-worker.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      {{- include "primus-worker.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "primus-worker.podLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "primus-worker.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - name: worker
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        # Worker type
+        - name: WORKER_TYPE
+          value: {{ .Values.workerType | quote }}
+
+        # Common environment variables
+        {{- range $key, $value := .Values.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+
+        {{- if .Values.objectStore.enabled }}
+        # S3-compatible dataset and report storage.
+        - name: AWS_ENDPOINT_URL
+          value: {{ required "objectStore.endpoint is required" .Values.objectStore.endpoint | quote }}
+        - name: PRIMUS_OBJECT_STORE_ENDPOINT
+          value: {{ .Values.objectStore.endpoint | quote }}
+        - name: AWS_DEFAULT_REGION
+          value: {{ .Values.objectStore.region | quote }}
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "primus-worker.objectStoreSecretName" . }}
+              key: {{ .Values.objectStore.accessKeySecretKey }}
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "primus-worker.objectStoreSecretName" . }}
+              key: {{ .Values.objectStore.secretKeySecretKey }}
+        - name: AMPLIFY_STORAGE_DATASETS_BUCKET_NAME
+          value: {{ required "objectStore.buckets.datasets is required" .Values.objectStore.buckets.datasets | quote }}
+        - name: AMPLIFY_STORAGE_REPORTBLOCKDETAILS_BUCKET_NAME
+          value: {{ required "objectStore.buckets.reportBlockDetails is required" .Values.objectStore.buckets.reportBlockDetails | quote }}
+        - name: AMPLIFY_STORAGE_RUBRICMEMORY_BUCKET_NAME
+          value: {{ required "objectStore.buckets.rubricMemory is required" .Values.objectStore.buckets.rubricMemory | quote }}
+        - name: AMPLIFY_STORAGE_TASKATTACHMENTS_BUCKET_NAME
+          value: {{ required "objectStore.buckets.taskAttachments is required" .Values.objectStore.buckets.taskAttachments | quote }}
+        - name: AMPLIFY_STORAGE_SCORERESULTATTACHMENTS_BUCKET_NAME
+          value: {{ required "objectStore.buckets.scoreResultAttachments is required" .Values.objectStore.buckets.scoreResultAttachments | quote }}
+        {{- if .Values.objectStore.caBundle.enabled }}
+        - name: PRIMUS_ARTIFACT_CA_BUNDLE
+          value: {{ required "objectStore.caBundle.mountPath is required" .Values.objectStore.caBundle.mountPath | quote }}
+        # Direct evaluation/report consumers remain on the S3-compatible API
+        # until their GraphQL-ticket migration lands; they trust the same CA.
+        - name: AWS_CA_BUNDLE
+          value: {{ .Values.objectStore.caBundle.mountPath | quote }}
+        {{- end }}
+        {{- end }}
+
+        # Primus API configuration
+        - name: PRIMUS_API_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "primus-worker.secretName" . }}
+              key: api-url
+        - name: PRIMUS_GRAPHQL_AUTH_MODE
+          value: {{ .Values.primus.api.authMode | quote }}
+        {{- if eq .Values.primus.api.authMode "api_key" }}
+        - name: PRIMUS_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "primus-worker.secretName" . }}
+              key: api-key
+        {{- end }}
+        - name: PRIMUS_ACCOUNT_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "primus-worker.secretName" . }}
+              key: account-key
+        {{- if eq .Values.workerType "score-processor" }}
+        # Score Processor specific config
+        - name: PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "primus-worker.fullname" . }}-config
+              key: sqs-request-queue-url
+        - name: PRIMUS_RESPONSE_WORKER_QUEUE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "primus-worker.fullname" . }}-config
+              key: sqs-response-queue-url
+        - name: AWS_DEFAULT_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "primus-worker.fullname" . }}-config
+              key: aws-region
+        {{- if not .Values.serviceAccount.annotations }}
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "primus-worker.awsSecretName" . }}
+              key: aws-access-key-id
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "primus-worker.awsSecretName" . }}
+              key: aws-secret-access-key
+        {{- end }}
+        {{- end }}
+
+        {{- if eq .Values.workerType "celery" }}
+        # Celery specific config
+        - name: CELERY_BROKER_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "primus-worker.celerySecretName" . }}
+              key: broker-url
+        - name: CELERY_APP
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "primus-worker.fullname" . }}-config
+              key: celery-app
+        - name: CELERY_QUEUE
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "primus-worker.fullname" . }}-config
+              key: celery-queue
+        - name: CELERY_CONCURRENCY
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "primus-worker.fullname" . }}-config
+              key: celery-concurrency
+        {{- end }}
+
+        {{- if eq .Values.workerType "scoring-api" }}
+        # Scoring API specific config
+        - name: SCORING_API_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "primus-worker.fullname" . }}-config
+              key: scoring-api-host
+        - name: SCORING_API_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "primus-worker.fullname" . }}-config
+              key: scoring-api-port
+        - name: SCORING_API_AUTH_REQUIRED
+          value: {{ or .Values.scoringApi.auth.required .Values.scoringApi.auth.enabled | quote }}
+        {{- if .Values.scoringApi.auth.enabled }}
+        - name: SCORING_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ default (include "primus-worker.secretName" .) .Values.scoringApi.auth.existingSecret }}
+              key: {{ .Values.scoringApi.auth.secretKey | quote }}
+        {{- end }}
+        {{- end }}
+
+        {{- if eq .Values.workerType "console-worker" }}
+        # Console worker specific config
+        - name: CONSOLE_RESPONSE_TARGET
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "primus-worker.fullname" . }}-config
+              key: console-response-target
+        - name: CONSOLE_LOCAL_WORKER_IDLE_POLL_SECONDS
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "primus-worker.fullname" . }}-config
+              key: console-idle-poll-seconds
+        - name: CONSOLE_LOCAL_WORKER_ERROR_BACKOFF_SECONDS
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "primus-worker.fullname" . }}-config
+              key: console-error-backoff-seconds
+        {{- end }}
+
+        # LLM API Keys
+        {{- if .Values.llm }}
+        {{- if or .Values.llm.openai .Values.llm.existingSecret }}
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ if .Values.llm.existingSecret }}{{ .Values.llm.existingSecret }}{{ else }}{{ include "primus-worker.fullname" . }}-llm-keys{{ end }}
+              key: openai-api-key
+        {{- end }}
+        {{- if .Values.llm.anthropic }}
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ if .Values.llm.existingSecret }}{{ .Values.llm.existingSecret }}{{ else }}{{ include "primus-worker.fullname" . }}-llm-keys{{ end }}
+              key: anthropic-api-key
+        {{- end }}
+        {{- end }}
+
+        {{- if eq .Values.workerType "scoring-api" }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.scoringApi.port }}
+          protocol: TCP
+        {{- end }}
+
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+
+        {{- if .Values.livenessProbe.enabled }}
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+          failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+        {{- end }}
+
+        {{- if .Values.readinessProbe.enabled }}
+        readinessProbe:
+          {{- if eq .Values.workerType "scoring-api" }}
+          httpGet:
+            path: /readyz
+            port: http
+          {{- else }}
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          {{- end }}
+          initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+          failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+        {{- end }}
+
+        volumeMounts:
+        {{- if .Values.volumes.scorecardCache.enabled }}
+        - name: scorecard-cache
+          mountPath: /app/data/scorecards
+        {{- end }}
+        {{- if .Values.volumes.tmp.enabled }}
+        - name: tmp
+          mountPath: /app/tmp
+        {{- end }}
+        {{- if and .Values.objectStore.enabled .Values.objectStore.caBundle.enabled }}
+        - name: object-store-ca
+          mountPath: {{ required "objectStore.caBundle.mountPath is required" .Values.objectStore.caBundle.mountPath | quote }}
+          subPath: {{ .Values.objectStore.caBundle.secretKey | quote }}
+          readOnly: true
+        {{- end }}
+
+      volumes:
+      {{- if .Values.volumes.scorecardCache.enabled }}
+      - name: scorecard-cache
+        emptyDir:
+          sizeLimit: {{ .Values.volumes.scorecardCache.sizeLimit }}
+      {{- end }}
+      {{- if .Values.volumes.tmp.enabled }}
+      - name: tmp
+        emptyDir:
+          sizeLimit: {{ .Values.volumes.tmp.sizeLimit }}
+      {{- end }}
+      {{- if and .Values.objectStore.enabled .Values.objectStore.caBundle.enabled }}
+      - name: object-store-ca
+        secret:
+          secretName: {{ required "objectStore.caBundle.existingSecret is required" .Values.objectStore.caBundle.existingSecret | quote }}
+          items:
+          - key: {{ .Values.objectStore.caBundle.secretKey | quote }}
+            path: {{ .Values.objectStore.caBundle.secretKey | quote }}
+      {{- end }}
+
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

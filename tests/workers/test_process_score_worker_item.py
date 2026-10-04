@@ -2,7 +2,7 @@ import pytest
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
 
-from plexus.workers.ProcessScoreWorker import JobProcessor
+from primus.workers.ProcessScoreWorker import JobProcessor
 
 
 @pytest.mark.asyncio
@@ -21,15 +21,15 @@ async def test_process_job_passes_item_to_scorecard():
     )
     fake_scoring_job = Mock()
 
-    with patch("plexus.workers.ProcessScoreWorker.ScoringJob.get_by_id", return_value=fake_scoring_job):
-        with patch("plexus.workers.ProcessScoreWorker.resolve_scorecard_id", return_value="scorecard-id"):
-            with patch("plexus.workers.ProcessScoreWorker.resolve_score_id", return_value={"id": "score-id"}):
-                with patch("plexus.workers.ProcessScoreWorker.get_text_from_item", return_value="text"):
-                    with patch("plexus.workers.ProcessScoreWorker.get_metadata_from_item", return_value={}):
-                        with patch("plexus.workers.ProcessScoreWorker.get_external_id_from_item", return_value="ext-1"):
-                            with patch("plexus.workers.ProcessScoreWorker.create_scorecard_instance_for_single_score", return_value=fake_scorecard):
-                                with patch("plexus.workers.ProcessScoreWorker.create_score_result", return_value="srid"):
-                                    with patch("plexus.dashboard.api.models.item.Item.get_by_id", return_value=fake_item):
+    with patch("primus.workers.ProcessScoreWorker.ScoringJob.get_by_id", return_value=fake_scoring_job):
+        with patch("primus.workers.ProcessScoreWorker.resolve_scorecard_id", return_value="scorecard-id"):
+            with patch("primus.workers.ProcessScoreWorker.resolve_score_id", return_value={"id": "score-id"}):
+                with patch("primus.workers.ProcessScoreWorker.get_text_from_item", return_value="text"):
+                    with patch("primus.workers.ProcessScoreWorker.get_metadata_from_item", return_value={}):
+                        with patch("primus.workers.ProcessScoreWorker.get_external_id_from_item", return_value="ext-1"):
+                            with patch("primus.workers.ProcessScoreWorker.create_scorecard_instance_for_single_score", return_value=fake_scorecard):
+                                with patch("primus.workers.ProcessScoreWorker.create_score_result", return_value="srid"):
+                                    with patch("primus.dashboard.api.models.item.Item.get_by_id", return_value=fake_item):
                                         await processor.process_job(
                                             "job-1",
                                             "item-123",
