@@ -618,16 +618,16 @@ def execute_lua(lua_code: str, primus: PrimusModule) -> Any:
 
         return call
 
-    lua_plexus = build_lua_primus(lua, primus, wrap=wrap)
+    lua_primus = build_lua_primus(lua, primus, wrap=wrap)
 
     def require(name: str) -> Any:
         if name == "primus":
-            return lua_plexus
+            return lua_primus
         raise PrimusStubError("MODULE_NOT_FOUND", f"No module named {name!r}")
 
     globals_table = lua.globals()
     globals_table["require"] = require
-    globals_table["primus"] = lua_plexus
+    globals_table["primus"] = lua_primus
     for helper_name, namespace_name, method_name in HELPER_BINDINGS:
         namespace = getattr(primus, namespace_name)
         method = getattr(namespace, method_name)
@@ -951,7 +951,7 @@ def run_model_generated_tactus(
     last_error: dict[str, Any] | None = None
     last_check_results: dict[str, Any] | None = None
     last_value: Any = None
-    last_plexus = create_primus_module(usd_limit=1.0)
+    last_primus = create_primus_module(usd_limit=1.0)
     first_try_passed = False
 
     for attempt_index in range(1, repair_attempts + 2):
@@ -960,7 +960,7 @@ def run_model_generated_tactus(
         transcript.extend(attempt_transcript)
         lua_code = extract_lua(raw_text)
         generated_tactus.append(lua_code)
-        last_plexus = primus
+        last_primus = primus
         last_error = None
 
         try:
@@ -1011,7 +1011,7 @@ def run_model_generated_tactus(
     return (
         last_value,
         generated_tactus,
-        last_plexus,
+        last_primus,
         transcript,
         errors,
         last_check_results or {"passed": False, "details": ["no attempts completed"]},
