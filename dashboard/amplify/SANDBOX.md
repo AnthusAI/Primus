@@ -108,7 +108,7 @@ This script:
   asset (`primus/command_worker/Dockerfile`), so the sandbox worker runs
   your local code — not a pinned staging digest
 - Borrows staging's VPC via the same SSM contract
-  `CommandServiceStack` uses (`/plexus/staging/command-service/...`).
+  `CommandServiceStack` uses (`/primus/staging/command-service/...`).
   Same AWS account, no sandbox-specific network to provision or tear down.
 
 You can pass normal sandbox args after `--`, e.g. `-- --identifier my-sandbox`.

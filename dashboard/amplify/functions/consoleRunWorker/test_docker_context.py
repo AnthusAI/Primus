@@ -91,14 +91,14 @@ def test_console_responder_parameter_isolated_by_environment():
     assert "parameterName: props.responderParameterName" in resource
     assert (
         "const consoleResponderParameterName = "
-        "`/plexus/${consoleWorkerEnvironmentName}/console-chat/responder`;" in backend
+        "`/primus/${consoleWorkerEnvironmentName}/console-chat/responder`;" in backend
     )
     assert "responderParameterName: consoleResponderParameterName," in backend
     assert "const consoleResponderParameterName = resolveConsoleResponderParameterName();" in data_resource
     assert "CONSOLE_RESPONDER_PARAMETER_NAME: consoleResponderParameterName," in data_resource
     assert "dispatchConsoleChatFunction.addEnvironment" not in backend
     assert "process.env.CONSOLE_RESPONDER_PARAMETER_NAME" in dispatcher
-    assert "'/plexus/console-chat/responder'" not in dispatcher
+    assert "'/primus/console-chat/responder'" not in dispatcher
 
 
 def test_sandbox_hotpatch_overlays_the_complete_worker_source():

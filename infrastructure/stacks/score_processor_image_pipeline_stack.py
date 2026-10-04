@@ -49,7 +49,7 @@ class ScoreProcessorImagePipelineStack(Stack):
             os.environ.get("PRIMUS_GITHUB_CONNECTION_ARN")
             or ssm.StringParameter.value_for_string_parameter(
                 self,
-                "/plexus/github-connection-arn",
+                "/primus/github-connection-arn",
             )
         )
 

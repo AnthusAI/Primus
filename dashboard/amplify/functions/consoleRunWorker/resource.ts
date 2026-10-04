@@ -149,7 +149,7 @@ export class ConsoleChatResponderStack extends NestedStack {
           "ssm:GetParameters",
         ],
         resources: [
-          `arn:aws:ssm:*:*:parameter/plexus/*`,
+          `arn:aws:ssm:*:*:parameter/primus/*`,
           `arn:aws:ssm:*:*:parameter/amplify/*`,
         ],
       }),
