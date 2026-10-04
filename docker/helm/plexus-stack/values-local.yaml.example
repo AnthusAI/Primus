@@ -2,14 +2,14 @@
 # Copy this to values-local.yaml and fill in your actual API keys
 
 global:
-  namespace: plexus-local
+  namespace: primus-local
   environment: local
 
   services:
     postgresql:
       host: "{{ .Release.Name }}-postgresql"
       port: 5432
-      database: plexus_proxy
+      database: primus_proxy
 
     graphqlProxy:
       host: "{{ .Release.Name }}-graphql-proxy"
@@ -20,7 +20,7 @@ localObjectStore:
   enabled: true
   tls:
     enabled: true
-    existingSecret: "plexus-local-object-store-tls"
+    existingSecret: "primus-local-object-store-tls"
   persistence:
     enabled: true
     size: 2Gi
@@ -30,9 +30,9 @@ postgresql:
   image:
     tag: "latest"
   auth:
-    username: plexus_proxy
-    password: "plexus-local-dev"
-    database: plexus_proxy
+    username: primus_proxy
+    password: "primus-local-dev"
+    database: primus_proxy
   primary:
     persistence:
       enabled: true
@@ -60,7 +60,7 @@ graphql-proxy:
   podDisruptionBudget:
     enabled: false
   image:
-    repository: plexus-graphql-proxy
+    repository: primus-graphql-proxy
     tag: "local"
     pullPolicy: IfNotPresent
   config:
@@ -76,20 +76,20 @@ graphql-proxy:
     scoringJobClaimLeaseSeconds: 15
   artifactStore:
     enabled: true
-    endpoint: "https://plexus-local-object-store:9000"
+    endpoint: "https://primus-local-object-store:9000"
     region: "us-east-1"
     accountId: "local-demo-account"
-    existingSecret: "plexus-local-object-store"
+    existingSecret: "primus-local-object-store"
     buckets:
-      datasets: "plexus-local-datasets"
-      reportBlockDetails: "plexus-local-report-block-details"
-      taskAttachments: "plexus-local-task-attachments"
-      scoreResultAttachments: "plexus-local-score-result-attachments"
+      datasets: "primus-local-datasets"
+      reportBlockDetails: "primus-local-report-block-details"
+      taskAttachments: "primus-local-task-attachments"
+      scoreResultAttachments: "primus-local-score-result-attachments"
   createSecrets: true
   postgresql:
-    username: "plexus_proxy"  # Set username explicitly
+    username: "primus_proxy"  # Set username explicitly
 
-plexus-worker:
+primus-worker:
   enabled: true
   workerType: scoring-api
   replicaCount: 1
@@ -99,7 +99,7 @@ plexus-worker:
   podDisruptionBudget:
     enabled: false
   image:
-    repository: plexus-worker
+    repository: primus-worker
     tag: "local"
     pullPolicy: IfNotPresent
   env:
@@ -110,10 +110,10 @@ plexus-worker:
     HOME: /app/tmp
     XDG_CACHE_HOME: /app/tmp/cache
     MPLCONFIGDIR: /app/tmp/matplotlib
-    PLEXUS_DATA_CACHE_DIRECTORY: /app/tmp/training-data-cache
+    PRIMUS_DATA_CACHE_DIRECTORY: /app/tmp/training-data-cache
     # Do not accept scoring traffic while the local GraphQL proxy is unready.
-    PLEXUS_SCORING_REQUIRE_PROXY_READY: "1"
-    PLEXUS_DISABLE_CLOUDWATCH_LOGS: "1"
+    PRIMUS_SCORING_REQUIRE_PROXY_READY: "1"
+    PRIMUS_DISABLE_CLOUDWATCH_LOGS: "1"
 
   # The demo optimizer evaluates two candidates concurrently in-process.
   # These measured limits prevent the Linux OOM killer from terminating the
@@ -127,20 +127,20 @@ plexus-worker:
       cpu: 2
   objectStore:
     enabled: true
-    endpoint: "https://plexus-local-object-store:9000"
-    existingSecret: "plexus-local-object-store"
+    endpoint: "https://primus-local-object-store:9000"
+    existingSecret: "primus-local-object-store"
     caBundle:
       enabled: true
-      existingSecret: "plexus-local-object-store-tls"
+      existingSecret: "primus-local-object-store-tls"
       secretKey: ca.crt
       mountPath: /app/certs/minio-ca.crt
     buckets:
-      datasets: "plexus-local-datasets"
-      reportBlockDetails: "plexus-local-report-block-details"
-      rubricMemory: "plexus-local-rubric-memory"
-      taskAttachments: "plexus-local-task-attachments"
-      scoreResultAttachments: "plexus-local-score-result-attachments"
-  plexus:
+      datasets: "primus-local-datasets"
+      reportBlockDetails: "primus-local-report-block-details"
+      rubricMemory: "primus-local-rubric-memory"
+      taskAttachments: "primus-local-task-attachments"
+      scoreResultAttachments: "primus-local-score-result-attachments"
+  primus:
     createSecrets: true
     api:
       key: "local-dev-key"
@@ -166,17 +166,17 @@ plexus-worker:
       backendRequestTimeout: "120s"
   celery:
     enabled: false
-    app: plexus.workers.celery_app
+    app: primus.workers.celery_app
     queue: scoring-requests
     concurrency: 2
     broker:
       createSecrets: true
-      url: "amqp://plexus:plexus@host.docker.internal:5672/"
+      url: "amqp://primus:primus@host.docker.internal:5672/"
   llm:
     # Create this secret before Helm install; do not put an API key or a
     # placeholder into a values file that Helm will persist in release history.
     createSecrets: false
-    existingSecret: "plexus-local-llm-keys"
+    existingSecret: "primus-local-llm-keys"
     openai: true
     anthropic: false
   procedureRecovery:

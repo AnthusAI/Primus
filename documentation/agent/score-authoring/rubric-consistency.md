@@ -13,7 +13,7 @@ related:
 # Score Rubric Consistency Check
 
 Before running a full evaluation, it is often worth asking: does this ScoreVersion's code actually
-reflect its rubric? The `plexus.score.contradictions` API runs a lightweight LLM preflight that
+reflect its rubric? The `primus.score.contradictions` API runs a lightweight LLM preflight that
 compares the score code/prompt stored in a `ScoreVersion` against that same version's rubric text
 and produces a short structured verdict.
 
@@ -24,10 +24,10 @@ and produces a short structured verdict.
 - During the optimizer loop — inject a preflight check as part of the promotion packet review.
 - Debugging surprising evaluation results — rule out a rubric/code divergence as the cause.
 
-## API: `plexus.score.contradictions`
+## API: `primus.score.contradictions`
 
 ```lua
-local result = plexus.score.contradictions({
+local result = primus.score.contradictions({
   scorecard = "My Scorecard",
   score     = "My Score",
   version   = "abc123-version-uuid",
@@ -71,14 +71,14 @@ return result
 
 ```lua
 -- 1. Find the candidate version you are about to promote.
-local score = plexus.score.info({
+local score = primus.score.info({
   scorecard = "My Scorecard",
   score     = "My Score",
 })
 local candidate_version_id = score.championVersionId  -- or whichever version you are promoting
 
 -- 2. Run the consistency check.
-local check = plexus.score.contradictions({
+local check = primus.score.contradictions({
   scorecard = "My Scorecard",
   score     = "My Score",
   version   = candidate_version_id,
@@ -111,7 +111,7 @@ check run automatically before predictions start. The result is stored in
 `Evaluation.parameters.score_rubric_consistency_check`:
 
 ```lua
-return plexus.evaluation.run({
+return primus.evaluation.run({
   evaluation_type              = "feedback",
   scorecard                    = "My Scorecard",
   score                        = "My Score",
@@ -119,7 +119,7 @@ return plexus.evaluation.run({
 })
 ```
 
-This is equivalent to passing `--score-rubric-consistency-check` to `plexus evaluate feedback` on
+This is equivalent to passing `--score-rubric-consistency-check` to `primus evaluate feedback` on
 the CLI.
 
 ## Common pattern: spot-check with a real item
@@ -129,10 +129,10 @@ ScoreVersion as a whole; the item is just extra evidence for the model.
 
 ```lua
 -- Get a recent item to use as context.
-local recent = plexus.item.last({})
+local recent = primus.item.last({})
 local item_id = recent.items[1].id
 
-return plexus.score.contradictions({
+return primus.score.contradictions({
   scorecard = "My Scorecard",
   score     = "My Score",
   version   = "abc123-version-uuid",
@@ -145,7 +145,7 @@ return plexus.score.contradictions({
 The champion version UUID is on the score info response:
 
 ```lua
-local info = plexus.score.info({ scorecard = "My Scorecard", score = "My Score" })
+local info = primus.score.info({ scorecard = "My Scorecard", score = "My Score" })
 return info.championVersionId
 ```
 
@@ -153,7 +153,7 @@ Recent evaluation results also carry the version ID in their parameters. You can
 evaluations:
 
 ```lua
-return plexus.evaluation.find_recent({
+return primus.evaluation.find_recent({
   scorecard = "My Scorecard",
   score     = "My Score",
 })
@@ -162,20 +162,20 @@ return plexus.evaluation.find_recent({
 ## CLI equivalent
 
 ```bash
-plexus score contradictions \
+primus score contradictions \
   --scorecard "My Scorecard" \
   --score "My Score" \
   --version abc123-version-uuid
 
 # With an item for spot-check context:
-plexus score contradictions \
+primus score contradictions \
   --scorecard "My Scorecard" \
   --score "My Score" \
   --version abc123-version-uuid \
   --item item-uuid
 
 # JSON output:
-plexus score contradictions ... --format json
+primus score contradictions ... --format json
 ```
 
 ## Notes

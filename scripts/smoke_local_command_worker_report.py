@@ -26,10 +26,10 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_IMAGE = "plexus-command-worker:local-smoke"
+DEFAULT_IMAGE = "primus-command-worker:local-smoke"
 REQUIRED_ENV = (
-    "PLEXUS_API_URL",
-    "PLEXUS_ACCOUNT_ID",
+    "PRIMUS_API_URL",
+    "PRIMUS_ACCOUNT_ID",
     "AMPLIFY_STORAGE_DATASOURCES_BUCKET_NAME",
     "AMPLIFY_STORAGE_REPORTBLOCKDETAILS_BUCKET_NAME",
     "AMPLIFY_STORAGE_SCORERESULTATTACHMENTS_BUCKET_NAME",
@@ -53,7 +53,7 @@ def require_environment() -> dict[str, str]:
     if missing:
         raise RuntimeError(f"Missing required environment variables: {', '.join(missing)}")
     environment = {name: os.environ[name] for name in REQUIRED_ENV}
-    environment["PLEXUS_GRAPHQL_AUTH_MODE"] = "iam"
+    environment["PRIMUS_GRAPHQL_AUTH_MODE"] = "iam"
     return environment
 
 
@@ -91,7 +91,7 @@ def build_image(image: str) -> None:
             "--platform",
             "linux/amd64",
             "-f",
-            str(ROOT / "plexus" / "command_worker" / "Dockerfile"),
+            str(ROOT / "primus" / "command_worker" / "Dockerfile"),
             "-t",
             image,
             str(ROOT),
@@ -105,7 +105,7 @@ def run_worker(image: str, config_id: str, environment: dict[str, str]) -> dict[
     payload = {
         "schema_version": 2,
         "command_id": command_id,
-        "tenant_id": environment["PLEXUS_ACCOUNT_ID"],
+        "tenant_id": environment["PRIMUS_ACCOUNT_ID"],
         "target": "report",
         "idempotency_key": command_id,
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -116,8 +116,8 @@ import json
 import sys
 from datetime import datetime
 from types import SimpleNamespace
-from plexus.command_worker.executors.plexus_cli import PlexusCliExecutor
-from plexus.command_worker.models import CommandEnvelope
+from primus.command_worker.executors.primus_cli import PlexusCliExecutor
+from primus.command_worker.models import CommandEnvelope
 
 payload = json.loads(sys.stdin.read())
 envelope = CommandEnvelope(

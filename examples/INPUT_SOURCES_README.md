@@ -1,4 +1,4 @@
-# Input Sources for Plexus Scores
+# Input Sources for Primus Scores
 
 ## Overview
 
@@ -271,16 +271,16 @@ See example YAML files in this directory:
 
 ```bash
 # Pull score configuration
-plexus score pull --scorecard "My Scorecard" --score "My Score"
+primus score pull --scorecard "My Scorecard" --score "My Score"
 
 # Edit YAML to add input source
 # Edit scorecards/MyScorecard/MyScore.yaml
 
 # Push updated configuration
-plexus score push --scorecard "My Scorecard" --score "My Score"
+primus score push --scorecard "My Scorecard" --score "My Score"
 
 # Test prediction on item with attachment
-plexus predict \
+primus predict \
   --scorecard "My Scorecard" \
   --score "My Score" \
   --item-id "item-with-attachment" \
@@ -299,7 +299,7 @@ INFO: Using item.processors for 'My Score': ['FilterCustomerOnlyProcessor']
 ### 3. Run Evaluations
 
 ```bash
-plexus evaluation run \
+primus evaluation run \
   --scorecard "My Scorecard" \
   --score "My Score" \
   --yaml \
@@ -310,17 +310,17 @@ plexus evaluation run \
 
 ### Files Created
 
-- `plexus/input_sources/InputSource.py` - Abstract base class
-- `plexus/input_sources/TextFileInputSource.py` - Text file implementation
-- `plexus/input_sources/DeepgramInputSource.py` - Deepgram implementation
-- `plexus/input_sources/InputSourceFactory.py` - Factory pattern
-- `plexus/input_sources/__init__.py` - Package exports
+- `primus/input_sources/InputSource.py` - Abstract base class
+- `primus/input_sources/TextFileInputSource.py` - Text file implementation
+- `primus/input_sources/DeepgramInputSource.py` - Deepgram implementation
+- `primus/input_sources/InputSourceFactory.py` - Factory pattern
+- `primus/input_sources/__init__.py` - Package exports
 
 ### Files Modified
 
-- `plexus/Scorecard.py` - Input source integration and processor priority
-- `plexus/Evaluation.py` - Item object fetching for evaluations
-- `plexus/data/FeedbackItems.py` - Added `item_id` column to DataFrames
+- `primus/Scorecard.py` - Input source integration and processor priority
+- `primus/Evaluation.py` - Item object fetching for evaluations
+- `primus/data/FeedbackItems.py` - Added `item_id` column to DataFrames
 
 ### Test Coverage
 
@@ -344,5 +344,5 @@ Potential future input sources:
 ## Support
 
 For questions or issues, see:
-- [Plexus Documentation](https://docs.plexus.ai)
-- [GitHub Issues](https://github.com/AnthusAI/Plexus/issues)
+- [Primus Documentation](https://docs.primus.ai)
+- [GitHub Issues](https://github.com/AnthusAI/Primus/issues)

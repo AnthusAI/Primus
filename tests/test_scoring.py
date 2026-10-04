@@ -1,8 +1,8 @@
-"""Tests for plexus.scoring.evaluate_recall."""
+"""Tests for primus.scoring.evaluate_recall."""
 
 import pytest
 
-from plexus.scoring import evaluate_recall
+from primus.scoring import evaluate_recall
 
 
 def _annotation(file_path, start, end, status="positive"):

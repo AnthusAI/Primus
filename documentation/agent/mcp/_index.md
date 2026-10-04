@@ -14,4 +14,4 @@ Single-tool MCP runtime: discovery, reads, long-running calls, handles, and budg
 
 ## Topics in this namespace
 
-Use `plexus.docs.list({ namespace = "mcp" })` to list every topic, then `plexus.docs.get({ key = "<id>" })` for the full doc.
+Use `primus.docs.list({ namespace = "mcp" })` to list every topic, then `primus.docs.get({ key = "<id>" })` for the full doc.

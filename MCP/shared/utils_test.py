@@ -6,7 +6,7 @@ import pytest
 import os
 from unittest.mock import patch, Mock, MagicMock
 from shared.utils import (
-    get_plexus_url, get_report_url, get_item_url, get_task_url,
+    get_primus_url, get_report_url, get_item_url, get_task_url,
     load_env_file, get_default_account_id
 )
 
@@ -15,64 +15,64 @@ pytestmark = pytest.mark.unit
 class TestURLGeneration:
     """Test URL generation utilities"""
     
-    @patch.dict(os.environ, {"PLEXUS_APP_URL": "https://plexus.anth.us"})
-    def test_get_plexus_url_normal_path(self):
+    @patch.dict(os.environ, {"PRIMUS_APP_URL": "https://primus.anth.us"})
+    def test_get_primus_url_normal_path(self):
         """Test URL construction with normal path"""
-        result = get_plexus_url("lab/items")
-        assert result == "https://plexus.anth.us/lab/items"
+        result = get_primus_url("lab/items")
+        assert result == "https://primus.anth.us/lab/items"
     
-    @patch.dict(os.environ, {"PLEXUS_APP_URL": "https://plexus.anth.us"})
-    def test_get_plexus_url_leading_slash(self):
+    @patch.dict(os.environ, {"PRIMUS_APP_URL": "https://primus.anth.us"})
+    def test_get_primus_url_leading_slash(self):
         """Test URL construction with path that has leading slash"""
-        result = get_plexus_url("/lab/items")
-        assert result == "https://plexus.anth.us/lab/items"
+        result = get_primus_url("/lab/items")
+        assert result == "https://primus.anth.us/lab/items"
     
-    @patch.dict(os.environ, {"PLEXUS_APP_URL": "https://plexus.anth.us/"})
-    def test_get_plexus_url_trailing_slash_in_base(self):
+    @patch.dict(os.environ, {"PRIMUS_APP_URL": "https://primus.anth.us/"})
+    def test_get_primus_url_trailing_slash_in_base(self):
         """Test URL construction with base URL having trailing slash"""
-        result = get_plexus_url("lab/items")
-        assert result == "https://plexus.anth.us/lab/items"
+        result = get_primus_url("lab/items")
+        assert result == "https://primus.anth.us/lab/items"
     
-    @patch.dict(os.environ, {"PLEXUS_APP_URL": "https://plexus.anth.us/"})
-    def test_get_plexus_url_both_slashes(self):
+    @patch.dict(os.environ, {"PRIMUS_APP_URL": "https://primus.anth.us/"})
+    def test_get_primus_url_both_slashes(self):
         """Test URL construction with both trailing slash in base and leading slash in path"""
-        result = get_plexus_url("/lab/items")
-        assert result == "https://plexus.anth.us/lab/items"
+        result = get_primus_url("/lab/items")
+        assert result == "https://primus.anth.us/lab/items"
     
     @patch.dict(os.environ, {}, clear=True)
-    def test_get_plexus_url_default_base(self):
+    def test_get_primus_url_default_base(self):
         """Test URL construction with default base URL when env var is missing"""
-        result = get_plexus_url("lab/items")
-        assert result == "https://plexus.anth.us/lab/items"
+        result = get_primus_url("lab/items")
+        assert result == "https://primus.anth.us/lab/items"
     
-    @patch.dict(os.environ, {"PLEXUS_APP_URL": "https://plexus.anth.us"})
+    @patch.dict(os.environ, {"PRIMUS_APP_URL": "https://primus.anth.us"})
     def test_get_report_url(self):
         """Test report URL generation"""
         report_id = "c4b18932-4b60-4484-afc7-cf3b47739d8d"
-        expected_url = "https://plexus.anth.us/lab/reports/c4b18932-4b60-4484-afc7-cf3b47739d8d"
+        expected_url = "https://primus.anth.us/lab/reports/c4b18932-4b60-4484-afc7-cf3b47739d8d"
         result = get_report_url(report_id)
         assert result == expected_url
     
-    @patch.dict(os.environ, {"PLEXUS_APP_URL": "https://plexus.anth.us"})
+    @patch.dict(os.environ, {"PRIMUS_APP_URL": "https://primus.anth.us"})
     def test_get_item_url(self):
         """Test item URL generation"""
         item_id = "cf749649-2467-4e5c-b27c-787ac6c61edd"
-        expected_url = "https://plexus.anth.us/lab/items/cf749649-2467-4e5c-b27c-787ac6c61edd"
+        expected_url = "https://primus.anth.us/lab/items/cf749649-2467-4e5c-b27c-787ac6c61edd"
         result = get_item_url(item_id)
         assert result == expected_url
     
-    @patch.dict(os.environ, {"PLEXUS_APP_URL": "https://plexus.anth.us"})
+    @patch.dict(os.environ, {"PRIMUS_APP_URL": "https://primus.anth.us"})
     def test_get_task_url(self):
         """Test task URL generation"""
         task_id = "task-123-456"
-        expected_url = "https://plexus.anth.us/lab/tasks/task-123-456"
+        expected_url = "https://primus.anth.us/lab/tasks/task-123-456"
         result = get_task_url(task_id)
         assert result == expected_url
     
-    @patch.dict(os.environ, {"PLEXUS_APP_URL": "http://localhost:3001"})
+    @patch.dict(os.environ, {"PRIMUS_APP_URL": "http://localhost:3001"})
     def test_localhost_url_generation(self):
         """Test URL generation with localhost"""
-        result = get_plexus_url("lab/items/123")
+        result = get_primus_url("lab/items/123")
         assert result == "http://localhost:3001/lab/items/123"
 
 class TestEnvironmentLoading:
@@ -137,9 +137,9 @@ class TestEnvironmentLoading:
 class TestAccountManagement:
     """Test account management utilities"""
     
-    @patch.dict(os.environ, {"PLEXUS_ACCOUNT_KEY": "test-account"})
-    @patch('plexus.cli.shared.client_utils.create_client')
-    @patch('plexus.dashboard.api.models.account.Account.get_by_key')
+    @patch.dict(os.environ, {"PRIMUS_ACCOUNT_KEY": "test-account"})
+    @patch('primus.cli.shared.client_utils.create_client')
+    @patch('primus.dashboard.api.models.account.Account.get_by_key')
     def test_get_default_account_id_success(self, mock_get_by_key, mock_create_client):
         """Test successful default account ID resolution"""
         mock_client = Mock()
@@ -163,7 +163,7 @@ class TestAccountManagement:
     
     @patch.dict(os.environ, {}, clear=True)
     def test_get_default_account_id_no_key(self):
-        """Test when PLEXUS_ACCOUNT_KEY is not set"""
+        """Test when PRIMUS_ACCOUNT_KEY is not set"""
         # Reset the global cache for testing - must clear setup module's globals
         from shared import setup
         setup.DEFAULT_ACCOUNT_ID = None
@@ -174,11 +174,11 @@ class TestAccountManagement:
 
         assert result is None
     
-    @patch.dict(os.environ, {"PLEXUS_ACCOUNT_KEY": "test-account"})
-    @patch('plexus.cli.shared.client_utils.create_client')
-    @patch('plexus.dashboard.api.models.account.Account.get_by_key')
+    @patch.dict(os.environ, {"PRIMUS_ACCOUNT_KEY": "test-account"})
+    @patch('primus.cli.shared.client_utils.create_client')
+    @patch('primus.dashboard.api.models.account.Account.get_by_key')
     def test_get_default_account_id_core_unavailable(self, mock_get_by_key, mock_create_client):
-        """Test when Plexus core is not available (Account.get_by_key raises exception)"""
+        """Test when Primus core is not available (Account.get_by_key raises exception)"""
         # Reset the global cache for testing - must clear setup module's globals
         from shared import setup
         setup.DEFAULT_ACCOUNT_ID = None
@@ -193,8 +193,8 @@ class TestAccountManagement:
 
         assert result is None
     
-    @patch.dict(os.environ, {"PLEXUS_ACCOUNT_KEY": "test-account"})
-    @patch('plexus.cli.shared.client_utils.create_client')
+    @patch.dict(os.environ, {"PRIMUS_ACCOUNT_KEY": "test-account"})
+    @patch('primus.cli.shared.client_utils.create_client')
     def test_get_default_account_id_client_creation_fails(self, mock_create_client):
         """Test when client creation fails"""
         mock_create_client.return_value = None

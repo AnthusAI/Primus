@@ -45,7 +45,7 @@ async def _get_score_results_for_item(item_id: str, client) -> List[Dict[str, An
     try:
         from datetime import datetime
 
-        from plexus.dashboard.api.models.score_result import ScoreResult
+        from primus.dashboard.api.models.score_result import ScoreResult
 
         query = f"""
         query ListScoreResultByItemId($itemId: String!) {{
@@ -126,7 +126,7 @@ async def _get_feedback_items_for_item(item_id: str, client) -> List[Dict[str, A
     Return all feedback items for a specific item, sorted by updatedAt descending.
     """
     try:
-        from plexus.dashboard.api.models.feedback_item import FeedbackItem
+        from primus.dashboard.api.models.feedback_item import FeedbackItem
 
         feedback_items, _ = FeedbackItem.list(
             client=client,
@@ -185,7 +185,7 @@ def _get_item_url(item_id: str) -> str:
     """Generate a dashboard URL for an item."""
     from urllib.parse import urljoin
 
-    base_url = os.environ.get("PLEXUS_APP_URL", "https://plexus.anth.us")
+    base_url = os.environ.get("PRIMUS_APP_URL", "https://primus.anth.us")
     if not base_url.endswith("/"):
         base_url += "/"
     path = f"lab/items/{item_id}".lstrip("/")
@@ -195,8 +195,8 @@ def _get_item_url(item_id: str) -> str:
 def _get_default_account_id() -> Optional[str]:
     """Resolve and return the default account ID for the current environment."""
     try:
-        from plexus.cli.report.utils import resolve_account_id_for_command
-        from plexus.cli.shared.client_utils import create_client
+        from primus.cli.report.utils import resolve_account_id_for_command
+        from primus.cli.shared.client_utils import create_client
 
         client = create_client()
         if client:

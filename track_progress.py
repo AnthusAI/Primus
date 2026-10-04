@@ -3,16 +3,16 @@ import os
 import subprocess
 import re
 
-LOG_FILE = "/Users/ryan.porter/.cursor/projects/Users-ryan-porter-Projects-Plexus/terminals/854872.txt"
+LOG_FILE = "/Users/ryan.porter/.cursor/projects/Users-ryan-porter-Projects-Primus/terminals/854872.txt"
 KBS_ISSUE = "31806e"
 
 def update_kbs(comment):
     print(f"Updating KBS: {comment}")
-    subprocess.run(["kbs", "comment", KBS_ISSUE, comment], cwd="/Users/ryan.porter/Projects/Plexus")
+    subprocess.run(["kbs", "comment", KBS_ISSUE, comment], cwd="/Users/ryan.porter/Projects/Primus")
 
 def main():
     update_kbs("Started background tracker to monitor report generation progress.")
-    subprocess.run(["kbs", "update", KBS_ISSUE, "--status", "in_progress"], cwd="/Users/ryan.porter/Projects/Plexus")
+    subprocess.run(["kbs", "update", KBS_ISSUE, "--status", "in_progress"], cwd="/Users/ryan.porter/Projects/Primus")
     
     last_pos = 0
     current_report = None
@@ -63,7 +63,7 @@ def main():
             # Check if script ended
             if "ended_at:" in new_data:
                 update_kbs("🎉 All background report generation tasks have completed!")
-                subprocess.run(["kbs", "update", KBS_ISSUE, "--status", "done"], cwd="/Users/ryan.porter/Projects/Plexus")
+                subprocess.run(["kbs", "update", KBS_ISSUE, "--status", "done"], cwd="/Users/ryan.porter/Projects/Primus")
                 break
 
 if __name__ == "__main__":

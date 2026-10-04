@@ -29,7 +29,7 @@ class TestLambdaJobProcessor:
         import handler
 
         # Remove required env var
-        monkeypatch.delenv('PLEXUS_ACCOUNT_KEY', raising=False)
+        monkeypatch.delenv('PRIMUS_ACCOUNT_KEY', raising=False)
 
         with pytest.raises(ValueError, match="Missing required environment variables"):
             handler.LambdaJobProcessor()

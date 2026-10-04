@@ -1,7 +1,7 @@
 import pytest
 import re
 from unittest.mock import Mock, MagicMock
-from plexus.input_sources.InputSource import InputSource
+from primus.input_sources.InputSource import InputSource
 
 
 class ConcreteInputSource(InputSource):

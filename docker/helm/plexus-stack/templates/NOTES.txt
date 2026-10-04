@@ -1,6 +1,6 @@
 Thank you for installing {{ .Chart.Name }}!
 
-Your Plexus stack has been deployed to namespace: {{ .Release.Namespace }}
+Your Primus stack has been deployed to namespace: {{ .Release.Namespace }}
 
 Components deployed:
 {{- if .Values.postgresql.enabled }}
@@ -9,8 +9,8 @@ Components deployed:
 {{- if index .Values "graphql-proxy" "enabled" }}
   ✓ GraphQL Proxy (The Adapter)
 {{- end }}
-{{- if index .Values "plexus-worker" "enabled" }}
-  ✓ Plexus workers ({{ index .Values "plexus-worker" "workerType" }} mode)
+{{- if index .Values "primus-worker" "enabled" }}
+  ✓ Primus workers ({{ index .Values "primus-worker" "workerType" }} mode)
 {{- end }}
 
 To check the status of your deployment:
@@ -41,15 +41,15 @@ To connect to PostgreSQL:
   psql -h localhost -U {{ .Values.postgresql.auth.username }} -d {{ .Values.postgresql.auth.database }}
 {{- end }}
 
-{{- if index .Values "plexus-worker" "enabled" }}
+{{- if index .Values "primus-worker" "enabled" }}
 
 To view worker logs:
 
-  kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/name=plexus-worker --tail=100 -f
+  kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/name=primus-worker --tail=100 -f
 {{- end }}
 
 To check the health of all services:
 
   kubectl get all -n {{ .Release.Namespace }}
 
-For more information, visit: https://github.com/AnthusAI/Plexus
+For more information, visit: https://github.com/AnthusAI/Primus

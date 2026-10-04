@@ -1,6 +1,6 @@
 ---
 name: Score Setup
-description: Standard workflow for creating Plexus scorecard and score records via the GraphQL API. Administrative setup (name, external_id, description) only - NOT guidelines or configuration.
+description: Standard workflow for creating Primus scorecard and score records via the GraphQL API. Administrative setup (name, external_id, description) only - NOT guidelines or configuration.
 tags:
   - score-workflow
   - setup
@@ -19,35 +19,35 @@ resources: []
 
 ## Purpose
 
-Create scorecard and score records in Plexus. Administrative setup
+Create scorecard and score records in Primus. Administrative setup
 only — names, external ids, and short descriptions. Guidelines and
 configuration are handled by separate agents and happen after these
 records exist.
 
 ## Tooling
 
-The Plexus MCP server exposes a single tool: `execute_tactus`. All
-Plexus operations go through it via the injected `plexus.*` runtime.
-Do not call the `plexus` CLI for setup.
+The Primus MCP server exposes a single tool: `execute_tactus`. All
+Primus operations go through it via the injected `primus.*` runtime.
+Do not call the `primus` CLI for setup.
 
 ## Console Chat Mode
 
 This skill is console-friendly. Console chat may use `execute_tactus` directly
 for discovery, scorecard setup, score setup, and verification. Planning mode may
 inspect and prepare exact setup payloads, but record creation requires execution
-mode because it mutates Plexus data.
+mode because it mutates Primus data.
 
 ```lua
-return plexus.scorecards.list({})
-return plexus.scorecards.info({ name = "<scorecard-name>" })
-return plexus.scorecards.create({
+return primus.scorecards.list({})
+return primus.scorecards.info({ name = "<scorecard-name>" })
+return primus.scorecards.create({
   name        = "Example Operations Quality",
   key         = "example-operations-quality",
   external_id = "example-operations-quality",
   description = "Short description.",
 })
-return plexus.score.info({ id = "<score-id>" })
-return plexus.score.create({
+return primus.score.info({ id = "<score-id>" })
+return primus.score.create({
   scorecard_name = "Example Operations Quality",
   name           = "Policy Signal Detection",
   external_id    = "policy-signal",
@@ -63,8 +63,8 @@ return plexus.score.create({
 
 ## When NOT to use this skill
 
-- Guidelines work — delegate to `plexus-score-guidelines-updater`.
-- YAML configuration — delegate to `plexus-score-config-updater`.
+- Guidelines work — delegate to `primus-score-guidelines-updater`.
+- YAML configuration — delegate to `primus-score-config-updater`.
 - Classifier types, classes, labels, or scoring logic — those are
   handled during guidelines and configuration phases.
 
@@ -84,23 +84,23 @@ Stop and ask the user if anything is missing. Do not invent values.
 
 For a scorecard:
 
-1. Check if it exists with `plexus.scorecards.list({})`.
-2. Create it with `plexus.scorecards.create({...})` if it does not
+1. Check if it exists with `primus.scorecards.list({})`.
+2. Create it with `primus.scorecards.create({...})` if it does not
    exist.
-3. Verify with `plexus.scorecards.info({ name = "..." })`.
+3. Verify with `primus.scorecards.info({ name = "..." })`.
 
 For a score:
 
-1. Check the parent scorecard with `plexus.scorecards.info`.
-2. Create the score with `plexus.score.create({...})`.
-3. Verify with `plexus.score.info({ id = "..." })`.
+1. Check the parent scorecard with `primus.scorecards.info`.
+2. Create the score with `primus.score.create({...})`.
+3. Verify with `primus.score.info({ id = "..." })`.
 
 ### Phase 3: Handoff
 
 Summarize what was created and tell the user about the next steps:
 
-- Guidelines via the `plexus-score-guidelines-updater` agent.
-- Configuration via the `plexus-score-config-updater` agent.
+- Guidelines via the `primus-score-guidelines-updater` agent.
+- Configuration via the `primus-score-config-updater` agent.
 
 ## Critical rules
 
@@ -112,11 +112,11 @@ Summarize what was created and tell the user about the next steps:
 ## Pointers to canonical docs
 
 - Score YAML format reference (read inside `execute_tactus`):
-  `plexus.docs.get({ key = "score-authoring.score-yaml-format" })`
+  `primus.docs.get({ key = "score-authoring.score-yaml-format" })`
 - Dataset YAML format reference:
-  `plexus.docs.get({ key = "score-authoring.dataset-yaml-format" })`
+  `primus.docs.get({ key = "score-authoring.dataset-yaml-format" })`
 - Scorecard processors:
-  `plexus.docs.get({ key = "score-authoring.scorecard-processors" })`
+  `primus.docs.get({ key = "score-authoring.scorecard-processors" })`
 
 ## Success criteria
 

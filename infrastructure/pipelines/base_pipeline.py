@@ -1,5 +1,5 @@
 """
-Base deployment pipeline for Plexus infrastructure.
+Base deployment pipeline for Primus infrastructure.
 
 This provides shared pipeline logic for both staging and production environments.
 """
@@ -37,7 +37,7 @@ class BasePipelineStack(Stack):
         environment: str,
         branch: str,
         github_owner: str = "AnthusAI",
-        github_repo: str = "Plexus",
+        github_repo: str = "Primus",
         **kwargs
     ) -> None:
         """
@@ -56,10 +56,10 @@ class BasePipelineStack(Stack):
 
         # Resolve the GitHub CodeConnection ARN from SSM at deploy time.
         connection_arn = (
-            os.environ.get("PLEXUS_GITHUB_CONNECTION_ARN")
+            os.environ.get("PRIMUS_GITHUB_CONNECTION_ARN")
             or ssm.StringParameter.value_for_string_parameter(
                 self,
-                "/plexus/github-connection-arn",
+                "/primus/github-connection-arn",
             )
         )
 
@@ -73,7 +73,7 @@ class BasePipelineStack(Stack):
         )
 
         # Reference ECR repository (created in separate EcrRepositoriesStack)
-        # Must be deployed first: cdk deploy plexus-ecr-repositories
+        # Must be deployed first: cdk deploy primus-ecr-repositories
         ecr_repository_name = f"{LAMBDA_SCORE_PROCESSOR_REPOSITORY_BASE}-{environment}"
         ecr_repository = ecr.Repository.from_repository_name(
             self,
@@ -85,7 +85,7 @@ class BasePipelineStack(Stack):
         pipeline = pipelines.CodePipeline(
             self,
             "Pipeline",
-            pipeline_name=f"plexus-infrastructure-{environment}-pipeline",
+            pipeline_name=f"primus-infrastructure-{environment}-pipeline",
             synth=pipelines.ShellStep(
                 "Synth",
                 input=source,
@@ -107,7 +107,7 @@ class BasePipelineStack(Stack):
                     # Grant permission to read GitHub connection ARN from SSM
                     iam.PolicyStatement(
                         actions=["ssm:GetParameter"],
-                        resources=[f"arn:aws:ssm:{kwargs.get('env').region if kwargs.get('env') else 'us-west-2'}:{kwargs.get('env').account if kwargs.get('env') else '*'}:parameter/plexus/github-connection-arn"]
+                        resources=[f"arn:aws:ssm:{kwargs.get('env').region if kwargs.get('env') else 'us-west-2'}:{kwargs.get('env').account if kwargs.get('env') else '*'}:parameter/primus/github-connection-arn"]
                     )
                 ]
             ),
@@ -210,7 +210,7 @@ class DeploymentStage(cdk.Stage):
             self,
             "MLTraining",
             environment=environment,
-            stack_name=f"plexus-ml-training-{environment}",
+            stack_name=f"primus-ml-training-{environment}",
             env=kwargs.get("env")
         )
 
@@ -222,7 +222,7 @@ class DeploymentStage(cdk.Stage):
                 self,
                 "ScoringWorker",
                 environment=environment,
-                stack_name=f"plexus-scoring-worker-{environment}",
+                stack_name=f"primus-scoring-worker-{environment}",
                 env=kwargs.get("env")
             )
 
@@ -233,7 +233,7 @@ class DeploymentStage(cdk.Stage):
                 ecr_repository_name=ecr_repository_name,  # Pass repository name to look up
                 standard_request_queue=scoring_worker_stack.standard_request_queue,
                 response_queue_url=scoring_worker_stack.response_queue.queue_url,
-                stack_name=f"plexus-lambda-score-processor-{environment}",
+                stack_name=f"primus-lambda-score-processor-{environment}",
                 env=kwargs.get("env")
             )
 
@@ -244,7 +244,7 @@ class DeploymentStage(cdk.Stage):
                 self,
                 "MetricsAggregation",
                 environment=environment,
-                stack_name=f"plexus-metrics-aggregation-{environment}",
+                stack_name=f"primus-metrics-aggregation-{environment}",
                 env=kwargs.get("env")
             )
 
@@ -255,7 +255,7 @@ class DeploymentStage(cdk.Stage):
                 self,
                 "CommandWorker",
                 environment=environment,
-                stack_name=f"plexus-command-worker-{environment}",
+                stack_name=f"primus-command-worker-{environment}",
                 env=kwargs.get("env")
             )
 
@@ -264,6 +264,6 @@ class DeploymentStage(cdk.Stage):
         #     self,
         #     "Monitoring",
         #     environment=environment,
-        #     stack_name=f"plexus-monitoring-{environment}",
+        #     stack_name=f"primus-monitoring-{environment}",
         #     env=kwargs.get("env")
         # )

@@ -56,14 +56,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Import Plexus client
+# Import Primus client
 try:
-    from plexus.dashboard.api.client import PlexusDashboardClient
-    from plexus.dashboard.api.models.scoring_job import ScoringJob
-    from plexus.dashboard.api.models.score import Score
+    from primus.dashboard.api.client import PrimusDashboardClient
+    from primus.dashboard.api.models.scoring_job import ScoringJob
+    from primus.dashboard.api.models.score import Score
 except ImportError as e:
-    logger.error(f"Failed to import Plexus modules: {e}")
-    logger.error("Make sure you're running this from the Plexus project root")
+    logger.error(f"Failed to import Primus modules: {e}")
+    logger.error("Make sure you're running this from the Primus project root")
     sys.exit(1)
 
 
@@ -94,7 +94,7 @@ class ScoringJobExtractor:
         self.requeue_filter = requeue_filter
         self.apply_requeue = apply_requeue
         self.sqs_client = boto3.client('sqs')
-        self.dashboard_client = PlexusDashboardClient()
+        self.dashboard_client = PrimusDashboardClient()
 
         # Storage for results
         self.results: List[Dict[str, str]] = []
@@ -958,7 +958,7 @@ def main():
         sys.exit(1)
 
     # Validate environment variables
-    required_env_vars = ['PLEXUS_API_URL', 'PLEXUS_API_KEY']
+    required_env_vars = ['PRIMUS_API_URL', 'PRIMUS_API_KEY']
     missing_vars = [var for var in required_env_vars if not os.getenv(var)]
 
     if missing_vars:

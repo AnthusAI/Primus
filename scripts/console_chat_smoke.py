@@ -19,8 +19,8 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from plexus.dashboard.api.client import ClientContext, PlexusDashboardClient
-from plexus.cli.procedure.builtin_procedures import CONSOLE_CHAT_BUILTIN_ID
+from primus.dashboard.api.client import ClientContext, PrimusDashboardClient
+from primus.cli.procedure.builtin_procedures import CONSOLE_CHAT_BUILTIN_ID
 
 
 CREATE_CHAT_SESSION_MUTATION = """
@@ -105,8 +105,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--account-key",
-        default=os.getenv("PLEXUS_ACCOUNT_KEY"),
-        help="Account key (defaults to PLEXUS_ACCOUNT_KEY).",
+        default=os.getenv("PRIMUS_ACCOUNT_KEY"),
+        help="Account key (defaults to PRIMUS_ACCOUNT_KEY).",
     )
     parser.add_argument(
         "--procedure-id",
@@ -139,7 +139,7 @@ def parse_args() -> argparse.Namespace:
         "--mode",
         choices=["direct", "queue"],
         default="direct",
-        help="Dispatch mode: direct runs the procedure locally with PLEXUS_DISPATCH_TASK_ID; queue waits for worker dispatch.",
+        help="Dispatch mode: direct runs the procedure locally with PRIMUS_DISPATCH_TASK_ID; queue waits for worker dispatch.",
     )
     return parser.parse_args()
 
@@ -167,7 +167,7 @@ def find_assistant_messages(messages: List[Dict[str, Any]], since: dt.datetime) 
 def main() -> int:
     args = parse_args()
     if not args.account_key:
-        print("Missing account key. Set PLEXUS_ACCOUNT_KEY or pass --account-key.", file=sys.stderr)
+        print("Missing account key. Set PRIMUS_ACCOUNT_KEY or pass --account-key.", file=sys.stderr)
         return 1
     if not args.procedure_id:
         print(
@@ -176,7 +176,7 @@ def main() -> int:
         )
         return 1
 
-    client = PlexusDashboardClient(context=ClientContext(account_key=args.account_key))
+    client = PrimusDashboardClient(context=ClientContext(account_key=args.account_key))
     account_id = client._resolve_account_id()
     now = iso_now()
 
@@ -246,9 +246,9 @@ def main() -> int:
 
     if args.mode == "direct":
         direct_env = os.environ.copy()
-        direct_env["PLEXUS_DISPATCH_TASK_ID"] = task_id
-        plexus_cmd = os.environ.get("PLEXUS_CMD", "plexus")
-        command = plexus_cmd.split() + ["procedure", "run", args.procedure_id, "-o", "json"]
+        direct_env["PRIMUS_DISPATCH_TASK_ID"] = task_id
+        primus_cmd = os.environ.get("PRIMUS_CMD", "primus")
+        command = primus_cmd.split() + ["procedure", "run", args.procedure_id, "-o", "json"]
         print(f"Direct run: {' '.join(command)}")
         result = subprocess.run(command, text=True, capture_output=True, check=False, env=direct_env)
         if result.returncode != 0:
@@ -256,7 +256,7 @@ def main() -> int:
             print(result.stderr or result.stdout, file=sys.stderr)
             return 1
     elif args.dispatch_once:
-        command = ["plexus", "command", "dispatcher", "--once", "--account", args.account_key]
+        command = ["primus", "command", "dispatcher", "--once", "--account", args.account_key]
         print(f"Dispatching once: {' '.join(command)}")
         result = subprocess.run(command, text=True, capture_output=True, check=False)
         if result.returncode != 0:

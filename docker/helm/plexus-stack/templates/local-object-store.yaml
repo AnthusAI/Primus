@@ -9,7 +9,7 @@ metadata:
   name: {{ $secretName }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "plexus-stack.labels" . | nindent 4 }}
+    {{- include "primus-stack.labels" . | nindent 4 }}
 type: Opaque
 stringData:
   access-key-id: {{ required "localObjectStore.auth.accessKey is required" .Values.localObjectStore.auth.accessKey | quote }}
@@ -22,7 +22,7 @@ metadata:
   name: {{ $name }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "plexus-stack.labels" . | nindent 4 }}
+    {{- include "primus-stack.labels" . | nindent 4 }}
     app.kubernetes.io/component: object-store
 spec:
   selector:
@@ -40,7 +40,7 @@ metadata:
   name: {{ $name }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "plexus-stack.labels" . | nindent 4 }}
+    {{- include "primus-stack.labels" . | nindent 4 }}
     app.kubernetes.io/component: object-store
 spec:
   accessModes:
@@ -59,7 +59,7 @@ metadata:
   name: {{ $name }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "plexus-stack.labels" . | nindent 4 }}
+    {{- include "primus-stack.labels" . | nindent 4 }}
     app.kubernetes.io/component: object-store
 spec:
   replicas: 1
@@ -156,7 +156,7 @@ metadata:
   name: {{ $name }}-buckets
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "plexus-stack.labels" . | nindent 4 }}
+    {{- include "primus-stack.labels" . | nindent 4 }}
     app.kubernetes.io/component: object-store-init
   annotations:
     helm.sh/hook: post-install,post-upgrade

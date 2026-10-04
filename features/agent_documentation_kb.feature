@@ -1,10 +1,10 @@
 Feature: Frontmatter-aware documentation knowledge base
 
-  Plexus exposes its agent-facing documentation as a knowledge base that
+  Primus exposes its agent-facing documentation as a knowledge base that
   agents can discover and load incrementally. Each document carries YAML
   frontmatter describing identity, summary, namespace, status, and related
-  topics. The knowledge base is consumed by `plexus.docs.list` and
-  `plexus.docs.get` in the `execute_tactus` runtime.
+  topics. The knowledge base is consumed by `primus.docs.list` and
+  `primus.docs.get` in the `execute_tactus` runtime.
 
   Background:
     Given a documentation knowledge base rooted at a temporary directory

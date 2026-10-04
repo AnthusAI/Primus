@@ -1,6 +1,6 @@
-"""Measure current Plexus MCP tool-catalog context overhead.
+"""Measure current Primus MCP tool-catalog context overhead.
 
-This script imports the modular Plexus MCP server, registers its real FastMCP
+This script imports the modular Primus MCP server, registers its real FastMCP
 tools, serializes the MCP tool schemas, and compares that payload to the
 proposed single `execute_tactus` tool description used by this spike.
 """
@@ -36,7 +36,7 @@ def single_tool_schema() -> dict[str, Any]:
             "properties": {
                 "tactus": {
                     "type": "string",
-                    "description": "Tactus code to execute in the Plexus runtime.",
+                    "description": "Tactus code to execute in the Primus runtime.",
                 }
             },
             "required": ["tactus"],
@@ -49,7 +49,7 @@ async def load_current_tool_schemas() -> list[dict[str, Any]]:
     sys.path.insert(0, str(MCP_DIR))
     sys.path.insert(0, str(ROOT))
 
-    # The MCP server imports the full Plexus stack and logs heavily during module
+    # The MCP server imports the full Primus stack and logs heavily during module
     # import. Keep stdout/stderr clean so this script emits machine-readable JSON.
     with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
         import server

@@ -5,8 +5,8 @@ prompt: |
   Tone, but I do not remember the dataset API. Use the docs to find the right
   API, then build the dataset and return the dataset id, row count, and source
   feedback window.
-  Call plexus.docs.list, then plexus.docs.get{ key = "dataset" } before taking
-  action. Then call plexus.dataset.build_from_feedback_window with score_id
+  Call primus.docs.list, then primus.docs.get{ key = "dataset" } before taking
+  action. Then call primus.dataset.build_from_feedback_window with score_id
   score_compliance_tone, window_days 14, and approved = true.
   Return exactly these fields: dataset_id, row_count, and source_window_days.
 expected_outcome:
@@ -23,9 +23,9 @@ coverage_tags:
   - dataset
   - feedback
 required_apis:
-  - plexus.docs.list
-  - plexus.docs.get
-  - plexus.dataset.build_from_feedback_window
+  - primus.docs.list
+  - primus.docs.get
+  - primus.dataset.build_from_feedback_window
 max_attempts_for_first_try_pass: 1
 fixture_notes: |
   The prompt intentionally says the API is unknown. The expected behavior is

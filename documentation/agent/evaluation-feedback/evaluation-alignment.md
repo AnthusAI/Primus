@@ -29,16 +29,16 @@ Systematic process for improving score configurations using evaluation datasets 
 
 ### NEVER Pull Score During This Process
 
-**DO NOT run `plexus score pull` at ANY point during evaluation alignment!**
+**DO NOT run `primus score pull` at ANY point during evaluation alignment!**
 
 Pulling a score will **OVERWRITE your local work-in-progress YAML** with the remote champion version, destroying your changes.
 
 ```bash
 # ❌ NEVER DO THIS during evaluation alignment
-plexus score pull --scorecard "Quality Assurance" --score "Compliance Check"
+primus score pull --scorecard "Quality Assurance" --score "Compliance Check"
 
 # ❌ NEVER DO THIS either through execute_tactus
-return plexus.score.pull{ scorecard_identifier = "...", score_identifier = "..." }
+return primus.score.pull{ scorecard_identifier = "...", score_identifier = "..." }
 ```
 
 ### ALWAYS Use --yaml Flag for Evaluations
@@ -49,15 +49,15 @@ Without this flag, the evaluation tool will fetch the remote score version and *
 
 ```bash
 # ✅ CORRECT - Uses local YAML
-plexus evaluate accuracy --yaml --scorecard "Quality Assurance" --score "Compliance Check"
+primus evaluate accuracy --yaml --scorecard "Quality Assurance" --score "Compliance Check"
 
 # ❌ WRONG - Will overwrite local YAML with remote version
-plexus evaluate accuracy --scorecard "Quality Assurance" --score "Compliance Check"
+primus evaluate accuracy --scorecard "Quality Assurance" --score "Compliance Check"
 ```
 
 ```lua
 # ✅ CORRECT - Uses local YAML
-return plexus.evaluation.run{
+return primus.evaluation.run{
   scorecard_name = "Quality Assurance",
   score_name = "Compliance Check",
   yaml = true, -- REQUIRED
@@ -65,7 +65,7 @@ return plexus.evaluation.run{
 }
 
 # ❌ WRONG - Will overwrite local YAML (yaml defaults to True, but be explicit!)
-return plexus.evaluation.run{
+return primus.evaluation.run{
   scorecard_name = "Quality Assurance",
   score_name = "Compliance Check",
   yaml = false, -- This fetches from API
@@ -89,27 +89,27 @@ return plexus.evaluation.run{
 7. **Comparison**: (Main agent) Compare new metrics to baseline - did it improve?
 8. **Iterate**: Repeat steps 3-7 until performance meets target or no further improvement possible
 
-## Plexus Runtime APIs (Start Here)
+## Primus Runtime APIs (Start Here)
 
 Use the single MCP tool `execute_tactus`. Inside the snippet, call the
-host-injected `plexus` module.
+host-injected `primus` module.
 
 **Runtime APIs the Main Agent Uses:**
-- `plexus.docs.get`: Always open this doc before starting alignment
-- `plexus.api.list`: Discover available runtime namespaces and methods
-- `plexus.evaluation.run`: Run evaluations using LOCAL YAML (`yaml = true`) and return confusion matrix and metrics
-- `plexus.evaluation.info`: Get detailed results for an existing evaluation ID
-- `plexus.score.predict`: Test predictions on specific items using LOCAL YAML (`yaml = true`)
+- `primus.docs.get`: Always open this doc before starting alignment
+- `primus.api.list`: Discover available runtime namespaces and methods
+- `primus.evaluation.run`: Run evaluations using LOCAL YAML (`yaml = true`) and return confusion matrix and metrics
+- `primus.evaluation.info`: Get detailed results for an existing evaluation ID
+- `primus.score.predict`: Test predictions on specific items using LOCAL YAML (`yaml = true`)
 - `Task` tool with `subagent_type="evaluation-analyzer"`: Delegate confusion matrix analysis
 
 **Runtime APIs the Sub-Agents Use:**
-- evaluation-analyzer uses: `plexus.evaluation.info` with `include_score_results = true`
+- evaluation-analyzer uses: `primus.evaluation.info` with `include_score_results = true`
 - evaluation-score-result-analyzer is deprecated; evaluation-analyzer can inspect score results directly from the evaluation payload
 
-**IMPORTANT**: The `evaluation-analyzer` sub-agent should start with `plexus.evaluation.info{ include_score_results = true }` and inspect the returned score-result metadata before requesting full transcript context elsewhere. Full transcript text should only be fetched selectively for 1-2 items when edit comments are insufficient.
+**IMPORTANT**: The `evaluation-analyzer` sub-agent should start with `primus.evaluation.info{ include_score_results = true }` and inspect the returned score-result metadata before requesting full transcript context elsewhere. Full transcript text should only be fetched selectively for 1-2 items when edit comments are insufficient.
 
 **What These Tools Return:**
-Both `plexus.evaluation.run` and `plexus.evaluation.info` return identical structured data:
+Both `primus.evaluation.run` and `primus.evaluation.info` return identical structured data:
 - `evaluation_id`: Unique evaluation identifier
 - `accuracy`: Overall accuracy percentage
 - `metrics`: Array of metric objects (Accuracy, Alignment/AC1, Precision, Recall)
@@ -125,7 +125,7 @@ This is **programmatic output** - no analysis or interpretation. The caller anal
 
 ```lua
 # ✅ ONLY do this ONCE at the start if local YAML doesn't exist
-return plexus.score.pull{
+return primus.score.pull{
   scorecard_identifier = "Quality Assurance v1.0",
   score_identifier = "Compliance Check",
 }
@@ -145,7 +145,7 @@ Establish a quantitative baseline using your current local YAML.
 **CRITICAL**: Always use `yaml = true` to ensure local YAML is used.
 
 ```lua
-return plexus.evaluation.run{
+return primus.evaluation.run{
   scorecard_name = "Quality Assurance v1.0",
   score_name = "Compliance Check",
   n_samples = 200, -- or omit for default (10)
@@ -172,19 +172,19 @@ return plexus.evaluation.run{
 ### Context-Safe Score Result Examination
 
 The evaluation payload is the context-safe starting point:
-- **Default**: Use `plexus.evaluation.info{ include_score_results = true }` to inspect predictions, explanations, edit comments, item IDs, and trace data before fetching transcript text.
+- **Default**: Use `primus.evaluation.info{ include_score_results = true }` to inspect predictions, explanations, edit comments, item IDs, and trace data before fetching transcript text.
 - **Optional**: Request item transcript text only when needed for detailed analysis (10K+ tokens per item).
 
 **How This Protects Context:**
 1. **Main Agent**: Runs evaluations, gets confusion matrix, delegates segment analysis
-2. **evaluation-analyzer**: Calls `plexus.evaluation.info{ include_score_results = true }` and filters the returned score results by confusion-matrix segment
+2. **evaluation-analyzer**: Calls `primus.evaluation.info{ include_score_results = true }` and filters the returned score results by confusion-matrix segment
 3. **Optional**: If edit comments are insufficient, evaluation-analyzer can request transcripts for 1-2 specific items
 
 ### Usage Example - Comprehensive Analysis
 
 ```lua
 # Get the latest evaluation ID first
-return plexus.evaluation.info{
+return primus.evaluation.info{
   use_latest = true,
   account_key = "call-criteria",
   output_format = "json",
@@ -193,7 +193,7 @@ return plexus.evaluation.info{
 
 ```python
 # Use evaluation-analyzer sub-agent to examine ALL error segments
-# The agent will use execute_tactus with plexus.evaluation.info and
+# The agent will use execute_tactus with primus.evaluation.info and
 # include_score_results = true, then filter locally without transcripts.
 Task(
     subagent_type="evaluation-analyzer",
@@ -201,7 +201,7 @@ Task(
     prompt=f"""Analyze ALL error segments from evaluation {evaluation_id}.
 
     Examine BOTH false positives AND false negatives (5 items each):
-    1. Use execute_tactus with plexus.evaluation.info{ evaluation_id='<id>', include_score_results=true } and filter score results locally (no transcripts)
+    1. Use execute_tactus with primus.evaluation.info{ evaluation_id='<id>', include_score_results=true } and filter score results locally (no transcripts)
     2. Review edit comments and explanations to identify patterns
     3. If edit comments are insufficient, request transcripts for 1-2 specific items
     4. False positives: What benign patterns trigger false alarms?
@@ -227,14 +227,14 @@ Task(
     2. What edit comments reveal about correct labeling
     3. What YAML changes could fix these errors
 
-    Examine 5 items using execute_tactus with plexus.evaluation.info{ evaluation_id='<id>', include_score_results=true } and local filtering.
+    Examine 5 items using execute_tactus with primus.evaluation.info{ evaluation_id='<id>', include_score_results=true } and local filtering.
     Only request transcripts if edit comments don't provide sufficient detail.
     Note any potential impact on false positives."""
 )
 ```
 
 **Important Notes:**
-- **Default behavior is SAFE**: start from `plexus.evaluation.info{ include_score_results = true }` and avoid transcript text
+- **Default behavior is SAFE**: start from `primus.evaluation.info{ include_score_results = true }` and avoid transcript text
 - **Start without transcript text**: Review edit comments, explanations, and trace data first (~26K tokens for 5 items)
 - **Request transcript text selectively**: Only use `include_text = true` for 1-2 items when edit comments are insufficient
 - The evaluation-analyzer can call the find tool directly with smart context management
@@ -282,7 +282,7 @@ Edit your local YAML based on hypotheses. **DO NOT pull - edit the existing loca
 vim scorecards/Quality\ Assurance\ v1.0/Compliance\ Check.yaml
 
 # ❌ NEVER pull during alignment
-# plexus score pull  # NO! This overwrites your changes!
+# primus score pull  # NO! This overwrites your changes!
 ```
 
 **Example YAML Changes:**
@@ -318,7 +318,7 @@ Test your YAML changes against the same dataset.
 
 ```lua
 # ✅ CORRECT - Uses your modified local YAML
-return plexus.evaluation.run{
+return primus.evaluation.run{
   scorecard_name = "Quality Assurance v1.0",
   score_name = "Compliance Check",
   n_samples = 200, -- Same sample size as baseline
@@ -338,7 +338,7 @@ return plexus.evaluation.run{
 **If metrics improved:**
 - Document what changed and why
 - Consider additional refinements
-- Test on edge cases using `plexus.score.predict` with `yaml = true`
+- Test on edge cases using `primus.score.predict` with `yaml = true`
 
 **If metrics regressed:**
 - Revert YAML changes
@@ -357,7 +357,7 @@ Test specific items using local YAML to validate behavior:
 
 ```lua
 # ✅ Test single item with local YAML
-return plexus.score.predict{
+return primus.score.predict{
   scorecard_identifier = "Quality Assurance v1.0",
   score_identifier = "Compliance Check",
   item_id = "88ed6e27-b5ae-4641-b024-d47f4c6ba631",
@@ -368,7 +368,7 @@ return plexus.score.predict{
 }
 
 # ✅ Test multiple items with local YAML
-return plexus.score.predict{
+return primus.score.predict{
   scorecard_identifier = "Quality Assurance v1.0",
   score_identifier = "Compliance Check",
   item_ids = "item1,item2,item3",
@@ -382,7 +382,7 @@ return plexus.score.predict{
 ### 1. Initial Setup (ONCE)
 ```lua
 # Only if local YAML doesn't exist - DO THIS ONCE
-return plexus.score.pull{
+return primus.score.pull{
   scorecard_identifier = "Quality Assurance v1.0",
   score_identifier = "Compliance Check",
 }
@@ -390,7 +390,7 @@ return plexus.score.pull{
 
 ### 2. Baseline Evaluation
 ```lua
-return plexus.evaluation.run{
+return primus.evaluation.run{
   scorecard_name = "Quality Assurance v1.0",
   score_name = "Compliance Check",
   n_samples = 200,
@@ -403,7 +403,7 @@ Record: Accuracy=0.75, AC1=0.68, FN=25, FP=15
 ### 3. Error Analysis with Sub-Agents
 ```lua
 # Get latest evaluation
-return plexus.evaluation.info{ use_latest = true }
+return primus.evaluation.info{ use_latest = true }
 ```
 
 ```python
@@ -487,7 +487,7 @@ exclusion_patterns:
 ### 6. Re-Evaluate
 ```lua
 # ✅ Test modified local YAML
-return plexus.evaluation.run{
+return primus.evaluation.run{
   scorecard_name = "Quality Assurance v1.0",
   score_name = "Compliance Check",
   n_samples = 200,
@@ -510,7 +510,7 @@ Task(
     description="Analyze remaining false negatives",
     prompt=f"""Analyze remaining 12 false negatives from latest evaluation.
 
-    Use execute_tactus with plexus.evaluation.info{ evaluation_id='<id>', include_score_results=true } and filter locally to examine 5 items.
+    Use execute_tactus with primus.evaluation.info{ evaluation_id='<id>', include_score_results=true } and filter locally to examine 5 items.
     Review edit comments and explanations to identify what patterns are still being missed.
     Only request transcripts if edit comments don't provide sufficient detail."""
 )
@@ -561,15 +561,15 @@ Test multiple threshold values:
 ```lua
 # Test threshold=0.6
 # (edit YAML, set threshold: 0.6)
-return plexus.evaluation.run{ scorecard_name = "Quality Assurance v1.0", score_name = "Compliance Check", yaml = true }
+return primus.evaluation.run{ scorecard_name = "Quality Assurance v1.0", score_name = "Compliance Check", yaml = true }
 
 # Test threshold=0.7
 # (edit YAML, set threshold: 0.7)
-return plexus.evaluation.run{ scorecard_name = "Quality Assurance v1.0", score_name = "Compliance Check", yaml = true }
+return primus.evaluation.run{ scorecard_name = "Quality Assurance v1.0", score_name = "Compliance Check", yaml = true }
 
 # Test threshold=0.8
 # (edit YAML, set threshold: 0.8)
-return plexus.evaluation.run{ scorecard_name = "Quality Assurance v1.0", score_name = "Compliance Check", yaml = true }
+return primus.evaluation.run{ scorecard_name = "Quality Assurance v1.0", score_name = "Compliance Check", yaml = true }
 ```
 
 Compare metrics to find optimal threshold.
@@ -585,7 +585,7 @@ Task(
     description="Initial false negative analysis",
     prompt=f"""Analyze false negatives from evaluation {eval_id}.
 
-    Use execute_tactus with plexus.evaluation.info{ include_score_results=true } and filter locally with:
+    Use execute_tactus with primus.evaluation.info{ include_score_results=true } and filter locally with:
     - predicted_value: "no"
     - actual_value: "yes"
     - limit: 5
@@ -617,7 +617,7 @@ Task(
     description="Analyze false positives",
     prompt=f"""Analyze false positive segment (predicted=yes, actual=no) from evaluation {eval_id}.
 
-    Use execute_tactus with plexus.evaluation.info{ include_score_results=true } and local filtering to examine 5 items.
+    Use execute_tactus with primus.evaluation.info{ include_score_results=true } and local filtering to examine 5 items.
     Focus on edit comments to identify what benign patterns triggered false alarms.
     Only request transcripts if edit comments are unclear."""
 )
@@ -637,7 +637,7 @@ Task(
 
 Evaluate entire scorecard:
 ```lua
-return plexus.evaluation.run{
+return primus.evaluation.run{
   scorecard_name = "Quality Assurance v1.0",
   -- No score_name = evaluate all scores in scorecard
   yaml = true,
@@ -652,7 +652,7 @@ return plexus.evaluation.run{
 - [ ] Note baseline metrics to measure improvement
 
 **During Each Iteration (Main Agent):**
-- [ ] Run evaluation with `plexus.evaluation.run{ scorecard_name = "...", score_name = "...", yaml = true }`
+- [ ] Run evaluation with `primus.evaluation.run{ scorecard_name = "...", score_name = "...", yaml = true }`
 - [ ] Delegate to `evaluation-analyzer` sub-agent with evaluation_id and target segment
 - [ ] Review pattern insights from sub-agent
 - [ ] Form specific, testable hypothesis based on patterns
@@ -662,16 +662,16 @@ return plexus.evaluation.run{
 - [ ] Document what changed and why
 
 **What Sub-Agents Do (Automatic):**
-- [ ] evaluation-analyzer: Gets confusion matrix, calls `plexus.evaluation.info{ include_score_results = true }`, filters score results locally without transcript text, examines edit comments and explanations, optionally requests transcript text for 1-2 items if needed, returns concise insights
+- [ ] evaluation-analyzer: Gets confusion matrix, calls `primus.evaluation.info{ include_score_results = true }`, filters score results locally without transcript text, examines edit comments and explanations, optionally requests transcript text for 1-2 items if needed, returns concise insights
 
 **Never:**
-- [ ] ❌ Run `plexus score pull` after initial setup
+- [ ] ❌ Run `primus score pull` after initial setup
 - [ ] ❌ Run evaluation without `yaml = true`
 - [ ] ❌ Request transcript text (`include_text = true`) for many items at once
 - [ ] ❌ Push changes without testing first
 
 **Always:**
-- [ ] ✅ Main agent runs evaluations with `plexus.evaluation.run`
+- [ ] ✅ Main agent runs evaluations with `primus.evaluation.run`
 - [ ] ✅ Main agent delegates analysis to `evaluation-analyzer` sub-agent
 - [ ] ✅ evaluation-analyzer starts with default parameters (no transcript text) for efficiency
 - [ ] ✅ Use `yaml = true` for evaluations and predictions
@@ -690,14 +690,14 @@ return plexus.evaluation.run{
 
 ### "I accidentally pulled and lost my changes"
 
-**Cause:** Ran `plexus score pull` during alignment process.
+**Cause:** Ran `primus score pull` during alignment process.
 
 **Fix:**
 1. Check git history: `git diff scorecards/...`
 2. Restore from git if committed: `git restore scorecards/...`
 3. If no git backup, you'll need to redo YAML changes
 
-**Prevention:** NEVER run `plexus score pull` after initial setup!
+**Prevention:** NEVER run `primus score pull` after initial setup!
 
 ### "Sub-agent isn't providing useful insights"
 
@@ -710,7 +710,7 @@ Task(
     description="Analyze false negative patterns",
     prompt=f"""Analyze false negative segment (predicted=no, actual=yes) from evaluation {eval_id}.
 
-    Use execute_tactus with plexus.evaluation.info{ evaluation_id='<id>', include_score_results=true } and local filtering to examine 5 items.
+    Use execute_tactus with primus.evaluation.info{ evaluation_id='<id>', include_score_results=true } and local filtering to examine 5 items.
     Focus on identifying:
     - Common patterns AI is missing (based on edit comments and explanations)
     - What edit comments reveal about labeling criteria
@@ -736,7 +736,7 @@ Task(
 - Changes are conflicting (revert and try one change at a time)
 
 **Debug approach:**
-1. Use `plexus.score.predict` with `yaml = true` on specific failing items
+1. Use `primus.score.predict` with `yaml = true` on specific failing items
 2. Add `include_trace = true` to see detailed execution
 3. Verify your YAML changes are being loaded (check trace output)
 4. Test hypothesis on single item before re-evaluating full dataset
@@ -750,7 +750,7 @@ Task(
 4. You have rich context (edit comments) explaining ground truth
 
 **Remember the golden rules:**
-- ⚠️ **NEVER `plexus score pull` after initial setup**
+- ⚠️ **NEVER `primus score pull` after initial setup**
 - **ALWAYS use `yaml = true` for evaluations and predictions**
 - ⚠️ **ALWAYS use `evaluation-analyzer` sub-agent for result analysis**
 - ⚠️ **START with default behavior (no transcript text) for efficiency**

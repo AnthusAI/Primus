@@ -11,12 +11,12 @@ Store = Union[PostgresStore, VirtuusStore]
 
 
 def resolve_store_type(settings: Settings) -> str:
-    configured = settings.store_type or os.getenv("PLEXUS_STORE", "postgres")
+    configured = settings.store_type or os.getenv("PRIMUS_STORE", "postgres")
     return configured.strip().lower()
 
 
 def resolve_data_dir(settings: Settings) -> str | None:
-    return settings.virtuus_data_dir or os.getenv("PLEXUS_DATA_DIR")
+    return settings.virtuus_data_dir or os.getenv("PRIMUS_DATA_DIR")
 
 
 def create_store(settings: Settings) -> Store:
@@ -25,7 +25,7 @@ def create_store(settings: Settings) -> Store:
         data_dir = resolve_data_dir(settings)
         if not data_dir:
             raise RuntimeError(
-                "PLEXUS_STORE=virtuus requires PLEXUS_VIRTUUS_DATA_DIR or PLEXUS_DATA_DIR"
+                "PRIMUS_STORE=virtuus requires PRIMUS_VIRTUUS_DATA_DIR or PRIMUS_DATA_DIR"
             )
         return VirtuusStore(data_dir)
     return PostgresStore(settings.database_url)

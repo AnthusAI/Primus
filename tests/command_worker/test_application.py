@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from plexus.command_worker import (
+from primus.command_worker import (
     AuditEventType,
     AuthenticatedCommandContext,
     AuthorizationDecision,

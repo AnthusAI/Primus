@@ -2,7 +2,7 @@ import asyncio
 from types import SimpleNamespace
 from unittest.mock import Mock
 
-from plexus.Evaluation import Evaluation
+from primus.Evaluation import Evaluation
 
 
 def test_evaluation_create_score_result_persists_timestamps():

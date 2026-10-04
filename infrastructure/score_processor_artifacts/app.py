@@ -21,17 +21,17 @@ app = cdk.App()
 
 account = os.environ.get("CDK_DEFAULT_ACCOUNT")
 region = os.environ.get("CDK_DEFAULT_REGION", "us-east-1")
-channel = os.environ.get("PLEXUS_SCORE_PROCESSOR_ARTIFACT_CHANNEL", "development")
-branch = os.environ.get("PLEXUS_SCORE_PROCESSOR_ARTIFACT_BRANCH", "develop")
-github_owner = os.environ.get("PLEXUS_SCORE_PROCESSOR_GITHUB_OWNER", "AnthusAI")
-github_repo = os.environ.get("PLEXUS_SCORE_PROCESSOR_GITHUB_REPO", "Plexus")
-trigger_on_push = _bool_env("PLEXUS_SCORE_PROCESSOR_TRIGGER_ON_PUSH", True)
+channel = os.environ.get("PRIMUS_SCORE_PROCESSOR_ARTIFACT_CHANNEL", "development")
+branch = os.environ.get("PRIMUS_SCORE_PROCESSOR_ARTIFACT_BRANCH", "develop")
+github_owner = os.environ.get("PRIMUS_SCORE_PROCESSOR_GITHUB_OWNER", "AnthusAI")
+github_repo = os.environ.get("PRIMUS_SCORE_PROCESSOR_GITHUB_REPO", "Primus")
+trigger_on_push = _bool_env("PRIMUS_SCORE_PROCESSOR_TRIGGER_ON_PUSH", True)
 
 env = cdk.Environment(account=account, region=region)
 
 ScoreProcessorArtifactPipelineStack(
     app,
-    f"plexus-score-processor-artifacts-{channel}",
+    f"primus-score-processor-artifacts-{channel}",
     channel=channel,
     branch=branch,
     github_owner=github_owner,
@@ -39,7 +39,7 @@ ScoreProcessorArtifactPipelineStack(
     trigger_on_push=trigger_on_push,
     env=env,
     description=(
-        "Publishes immutable Plexus score processor container image artifacts"
+        "Publishes immutable Primus score processor container image artifacts"
     ),
 )
 

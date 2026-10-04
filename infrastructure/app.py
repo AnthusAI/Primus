@@ -32,8 +32,8 @@ def optional_int_env(name: str, default=None):
 # Contains repositories for both staging and production
 EcrRepositoriesStack(
     app,
-    "plexus-ecr-repositories",
-    stack_name="plexus-ecr-repositories",
+    "primus-ecr-repositories",
+    stack_name="primus-ecr-repositories",
     env=env,
     description="ECR repositories for Lambda container images (staging and production)"
 )
@@ -42,25 +42,25 @@ EcrRepositoriesStack(
 # Note: Staging infrastructure pipeline removed - staging only uses app deployment pipeline
 ProductionPipelineStack(
     app,
-    "plexus-infrastructure-production-pipeline",
+    "primus-infrastructure-production-pipeline",
     env=env,
-    description="Pipeline for deploying Plexus infrastructure to production"
+    description="Pipeline for deploying Primus infrastructure to production"
 )
 
 # Create staging app deployment pipeline
 AppDeploymentPipelineStack(
     app,
-    "plexus-app-deployment-staging-pipeline",
+    "primus-app-deployment-staging-pipeline",
     environment="staging",
     branch="staging",
     env=env,
-    description="Pipeline for deploying Plexus application code to staging"
+    description="Pipeline for deploying Primus application code to staging"
 )
 
 # Create staging console worker image pipeline
 ConsoleWorkerImagePipelineStack(
     app,
-    "plexus-console-worker-staging-pipeline",
+    "primus-console-worker-staging-pipeline",
     environment="staging",
     branch="staging",
     env=env,
@@ -70,17 +70,17 @@ ConsoleWorkerImagePipelineStack(
 # Create production app deployment pipeline
 AppDeploymentPipelineStack(
     app,
-    "plexus-app-deployment-production-pipeline",
+    "primus-app-deployment-production-pipeline",
     environment="production",
     branch="main",
     env=env,
-    description="Pipeline for deploying Plexus application code to production"
+    description="Pipeline for deploying Primus application code to production"
 )
 
 # Create production console worker image pipeline
 ConsoleWorkerImagePipelineStack(
     app,
-    "plexus-console-worker-production-pipeline",
+    "primus-console-worker-production-pipeline",
     environment="production",
     branch="main",
     env=env,
@@ -89,7 +89,7 @@ ConsoleWorkerImagePipelineStack(
 
 ScoreProcessorImagePipelineStack(
     app,
-    "plexus-score-processor-production-image-pipeline",
+    "primus-score-processor-production-image-pipeline",
     environment="production",
     branch="main",
     env=env,
@@ -98,21 +98,21 @@ ScoreProcessorImagePipelineStack(
 
 ProdToStagingDataMirrorStack(
     app,
-    "plexus-prod-to-staging-data-mirror",
+    "primus-prod-to-staging-data-mirror",
     env=env,
-    description="Manual destructive mirror of Plexus production data into staging"
+    description="Manual destructive mirror of Primus production data into staging"
 )
 
 LambdaScoreProcessorStack(
     app,
-    "plexus-lambda-score-processor-production",
+    "primus-lambda-score-processor-production",
     environment="production",
     ecr_repository_name=f"{LAMBDA_SCORE_PROCESSOR_REPOSITORY_BASE}-production",
     response_queue_url=f"https://sqs.{region}.amazonaws.com/{account}/call-criteria-production-response-queue",
     standard_request_queue_arn=f"arn:aws:sqs:{region}:{account}:call-criteria-production-standard-request-queue",
     standard_request_queue_url=f"https://sqs.{region}.amazonaws.com/{account}/call-criteria-production-standard-request-queue",
-    reserved_concurrency=optional_int_env("PLEXUS_SCORE_PROCESSOR_RESERVED_CONCURRENCY", 500),
-    max_event_source_concurrency=int(os.environ.get("PLEXUS_SCORE_PROCESSOR_MAX_EVENT_SOURCE_CONCURRENCY", "500")),
+    reserved_concurrency=optional_int_env("PRIMUS_SCORE_PROCESSOR_RESERVED_CONCURRENCY", 500),
+    max_event_source_concurrency=int(os.environ.get("PRIMUS_SCORE_PROCESSOR_MAX_EVENT_SOURCE_CONCURRENCY", "500")),
     env=env,
     description="Production Lambda score processor consuming the Call Criteria production queue"
 )

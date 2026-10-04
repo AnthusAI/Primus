@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Core functionality tests for the Plexus MCP server.
+Core functionality tests for the Primus MCP server.
 
 This test suite focuses on the critical business logic that can be tested
 independently of the complex MCP server state and imports. It tests the
@@ -106,7 +106,7 @@ class TestURLGenerationUtilities:
     """Test URL generation utilities that are core to MCP functionality"""
     
     def test_url_joining_patterns(self):
-        """Test URL joining patterns used in get_plexus_url"""
+        """Test URL joining patterns used in get_primus_url"""
         from urllib.parse import urljoin
         
         # Test cases that match the actual urllib.parse.urljoin behavior
@@ -120,7 +120,7 @@ class TestURLGenerationUtilities:
         ]
         
         for base_url, path, expected in test_cases:
-            # Simulate the logic from get_plexus_url
+            # Simulate the logic from get_primus_url
             if not base_url.endswith('/'):
                 base_url += '/'
             path = path.lstrip('/')
@@ -452,8 +452,8 @@ class TestErrorHandlingPatterns:
         def create_client_with_error_handling():
             try:
                 # Simulate the environment check pattern
-                api_url = os.environ.get('PLEXUS_API_URL', '')
-                api_key = os.environ.get('PLEXUS_API_KEY', '')
+                api_url = os.environ.get('PRIMUS_API_URL', '')
+                api_key = os.environ.get('PRIMUS_API_KEY', '')
                 
                 if not api_url or not api_key:
                     return None, "Missing API credentials. API_URL or API_KEY not set in environment."
@@ -473,13 +473,13 @@ class TestErrorHandlingPatterns:
             assert "Missing API credentials" in error
         
         # Test connection error
-        with patch.dict(os.environ, {'PLEXUS_API_URL': 'invalid_url', 'PLEXUS_API_KEY': 'test'}):
+        with patch.dict(os.environ, {'PRIMUS_API_URL': 'invalid_url', 'PRIMUS_API_KEY': 'test'}):
             client, error = create_client_with_error_handling()
             assert client is None
             assert "Could not connect to API" in error
         
         # Test successful creation
-        with patch.dict(os.environ, {'PLEXUS_API_URL': 'https://api.example.com', 'PLEXUS_API_KEY': 'test'}):
+        with patch.dict(os.environ, {'PRIMUS_API_URL': 'https://api.example.com', 'PRIMUS_API_KEY': 'test'}):
             client, error = create_client_with_error_handling()
             assert client is not None
             assert error is None

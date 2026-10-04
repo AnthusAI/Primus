@@ -13,14 +13,14 @@ from docker.demo.harness import DemoHarness
 
 @pytest.fixture(scope="session")
 def harness() -> DemoHarness:
-    output_dir = Path(os.environ["PLEXUS_DEMO_OUTPUT_DIR"])
+    output_dir = Path(os.environ["PRIMUS_DEMO_OUTPUT_DIR"])
     manifest = DemoManifest.load(output_dir / "manifest.json")
     return DemoHarness(
         manifest=manifest,
         output_dir=output_dir,
-        promote=os.environ.get("PLEXUS_DEMO_PROMOTE") == "1",
-        resume=os.environ.get("PLEXUS_DEMO_RESUME") == "1",
-        interrupt_after_optimizer=os.environ.get("PLEXUS_DEMO_INTERRUPT_AFTER_OPTIMIZER") == "1",
+        promote=os.environ.get("PRIMUS_DEMO_PROMOTE") == "1",
+        resume=os.environ.get("PRIMUS_DEMO_RESUME") == "1",
+        interrupt_after_optimizer=os.environ.get("PRIMUS_DEMO_INTERRUPT_AFTER_OPTIMIZER") == "1",
     )
 
 
@@ -78,6 +78,6 @@ def test_07_recovery_and_idempotent_upgrade(harness: DemoHarness) -> None:
 
 
 def test_verify_retained_run(harness: DemoHarness) -> None:
-    if os.environ.get("PLEXUS_DEMO_COMMAND") != "verify":
+    if os.environ.get("PRIMUS_DEMO_COMMAND") != "verify":
         pytest.skip("retained-run verification is a separate command")
     harness.verify_retained()

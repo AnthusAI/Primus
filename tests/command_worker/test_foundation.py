@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from plexus.command_worker import (
+from primus.command_worker import (
     Claim,
     ClaimStatus,
     CommandEnvelope,
@@ -524,7 +524,7 @@ def test_progress_fraction_rejects_out_of_range_or_non_finite_values(fraction):
 
 
 def test_provider_imports_do_not_cross_the_core_boundary():
-    package = Path(__file__).parents[2] / "plexus" / "command_worker"
+    package = Path(__file__).parents[2] / "primus" / "command_worker"
     forbidden = {"boto3", "botocore", "celery", "kubernetes", "dashboard"}
     imported = set()
     for source_file in package.glob("*.py"):

@@ -20,7 +20,7 @@ The evaluation-analyzer will provide:
 
 ## Your Workflow
 
-1. **Fetch Score Result**: Use `plexus.evaluation.score_results`
+1. **Fetch Score Result**: Use `primus.evaluation.score_results`
    (through the single `execute_tactus` MCP tool) with the provided
    parameters.
    - If item_ids provided, fetch those specific items.

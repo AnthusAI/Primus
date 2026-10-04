@@ -21,8 +21,8 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from plexus.dashboard.api.client import ClientContext, PlexusDashboardClient
-from plexus.cli.procedure.builtin_procedures import CONSOLE_CHAT_BUILTIN_ID
+from primus.dashboard.api.client import ClientContext, PrimusDashboardClient
+from primus.cli.procedure.builtin_procedures import CONSOLE_CHAT_BUILTIN_ID
 
 
 LIST_SESSIONS_QUERY = """
@@ -71,8 +71,8 @@ def parse_args() -> argparse.Namespace:
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument(
       "--account-key",
-      default=os.getenv("PLEXUS_ACCOUNT_KEY"),
-      help="Account key (defaults to PLEXUS_ACCOUNT_KEY).",
+      default=os.getenv("PRIMUS_ACCOUNT_KEY"),
+      help="Account key (defaults to PRIMUS_ACCOUNT_KEY).",
   )
   parser.add_argument(
       "--procedure-id",
@@ -333,10 +333,10 @@ def print_percentile_summary(session_metrics: List[Dict[str, float]]) -> None:
 def main() -> int:
   args = parse_args()
   if not args.account_key:
-    print("Missing account key. Set PLEXUS_ACCOUNT_KEY or pass --account-key.", file=sys.stderr)
+    print("Missing account key. Set PRIMUS_ACCOUNT_KEY or pass --account-key.", file=sys.stderr)
     return 1
 
-  client = PlexusDashboardClient(context=ClientContext(account_key=args.account_key))
+  client = PrimusDashboardClient(context=ClientContext(account_key=args.account_key))
 
   if args.session_id:
     sessions = [{"id": args.session_id, "category": "Console", "status": "UNKNOWN", "updatedAt": None}]

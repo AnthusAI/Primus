@@ -1,0 +1,672 @@
+#!/usr/bin/env python3
+"""
+Focused tests for Evaluation.py prediction processing and metrics computation.
+
+Tests the most critical business logic:
+- Metrics calculation accuracy
+- Label standardization 
+- Confusion matrix building
+- Distribution calculations
+- Edge cases and error handling
+"""
+
+import asyncio
+import logging
+import os
+import pytest
+from unittest.mock import AsyncMock, MagicMock, patch
+import pandas as pd
+from datetime import datetime
+
+from primus.Evaluation import Evaluation, AccuracyEvaluation
+from primus.scores.Score import Score
+from primus.Scorecard import Scorecard
+
+
+class MockScorecard:
+    """Mock scorecard for testing"""
+    def __init__(self, name="test_scorecard"):
+        self.name = name
+        self.properties = {'scores': []}
+    
+    def score_names(self):
+        return ["test_score"]
+    
+    def get_accumulated_costs(self):
+        return {"total_cost": 10.0}
+
+
+def create_mock_score_result(predicted_value, actual_label, correct=None, score_name="test_score"):
+    """Create a mock Score.Result for testing"""
+    if correct is None:
+        # Standardize labels for comparison like the real code does
+        pred_clean = str(predicted_value).lower().strip()
+        actual_clean = str(actual_label).lower().strip()
+        pred_clean = 'na' if pred_clean in ['', 'nan', 'n/a', 'none', 'null'] else pred_clean
+        actual_clean = 'na' if actual_clean in ['', 'nan', 'n/a', 'none', 'null'] else actual_clean
+        correct = pred_clean == actual_clean
+    
+    # Create proper Score.Parameters instance
+    parameters = Score.Parameters(
+        name=score_name,
+        scorecard_name="test_scorecard"
+    )
+    
+    result = Score.Result(
+        parameters=parameters,
+        value=predicted_value,
+        explanation=f"Explanation for {predicted_value}",
+        metadata={
+            'human_label': actual_label,
+            'correct': correct,
+            'explanation': f"Explanation for {predicted_value}"
+        }
+    )
+    return result
+
+
+def create_mock_evaluation_results(prediction_pairs, score_name="test_score"):
+    """Create mock evaluation results from (predicted, actual) pairs"""
+    results = []
+    for i, (predicted, actual) in enumerate(prediction_pairs):
+        if predicted == "ERROR":
+            # Create error result
+            parameters = Score.Parameters(
+                name=score_name,
+                scorecard_name="test_scorecard"
+            )
+            score_result = Score.Result(
+                parameters=parameters,
+                value="ERROR",
+                error="Test error",
+                metadata={}
+            )
+        else:
+            score_result = create_mock_score_result(predicted, actual, score_name=score_name)
+        
+        result = {
+            'form_id': f'form_{i}',
+            'results': {
+                score_name: score_result
+            }
+        }
+        results.append(result)
+    
+    return results
+
+
+@pytest.fixture
+def mock_evaluation():
+    """Create a mock evaluation instance"""
+    with patch('primus.Evaluation.PrimusDashboardClient') as mock_client:
+        # Mock the dashboard client to return None to avoid initialization
+        mock_client.for_account.return_value = None
+        
+        evaluation = Evaluation(
+            scorecard_name="test_scorecard",
+            scorecard=MockScorecard(),
+            labeled_samples_filename="test.csv",
+            account_key="test-account"
+        )
+        evaluation.subset_of_score_names = ["test_score"]
+        evaluation.dashboard_client = None  # Ensure it's None to avoid issues
+        return evaluation
+
+
+class TestMetricsCalculation:
+    """Test core metrics calculation logic"""
+
+    def test_metrics_do_not_log_sample_predictions_or_labels(self, mock_evaluation, caplog):
+        results = create_mock_evaluation_results(
+            [("private-predicted-label", "private-actual-label")]
+        )
+
+        with caplog.at_level(logging.INFO):
+            mock_evaluation.calculate_metrics(results)
+
+        assert "private-predicted-label" not in caplog.text
+        assert "private-actual-label" not in caplog.text
+    
+    def test_perfect_binary_classification(self, mock_evaluation):
+        """Test perfect binary classification metrics"""
+        results = create_mock_evaluation_results([
+            ('yes', 'yes'), ('no', 'no'), ('yes', 'yes'), ('no', 'no')
+        ])
+        
+        metrics = mock_evaluation.calculate_metrics(results)
+        
+        assert metrics['accuracy'] == 1.0
+        assert metrics['precision'] == 1.0
+        assert metrics['alignment'] == 1.0
+        assert metrics['recall'] == 1.0
+    
+    def test_imperfect_binary_classification(self, mock_evaluation):
+        """Test binary classification with some errors"""
+        results = create_mock_evaluation_results([
+            ('yes', 'yes'),  # TP
+            ('no', 'no'),    # TN  
+            ('yes', 'no'),   # FP
+            ('no', 'yes')    # FN
+        ])
+        
+        metrics = mock_evaluation.calculate_metrics(results)
+        
+        # TP=1, TN=1, FP=1, FN=1
+        # Accuracy = (TP+TN)/(TP+TN+FP+FN) = 2/4 = 0.5
+        # Precision = TP/(TP+FP) = 1/2 = 0.5
+        # Alignment = Gwet's AC1 coefficient
+        # Recall = TP/(TP+FN) = 1/2 = 0.5  
+        assert metrics['accuracy'] == 0.5
+        assert metrics['precision'] == 0.5
+        assert metrics['alignment'] >= 0  # AC1 can be negative, but gets mapped to 0
+        assert metrics['recall'] == 0.5
+    
+    def test_all_positive_predictions(self, mock_evaluation):
+        """Test edge case where all predictions are positive"""
+        results = create_mock_evaluation_results([
+            ('yes', 'yes'), ('yes', 'no'), ('yes', 'yes'), ('yes', 'no')
+        ])
+        
+        metrics = mock_evaluation.calculate_metrics(results)
+        
+        # TP=2, TN=0, FP=2, FN=0
+        # Precision = TP/(TP+FP) = 2/4 = 0.5
+        # Recall = TP/(TP+FN) = 2/2 = 1.0
+        assert metrics['accuracy'] == 0.5
+        assert metrics['precision'] == 0.5
+        assert metrics['recall'] == 1.0
+    
+    def test_empty_results(self, mock_evaluation):
+        """Test handling of empty results"""
+        metrics = mock_evaluation.calculate_metrics([])
+        
+        assert metrics['accuracy'] == 0
+        assert metrics['precision'] == 0
+        assert metrics['alignment'] == 0
+        assert metrics['recall'] == 0
+        assert 'confusionMatrix' in metrics  # Should have default matrix
+        assert len(metrics['predictedClassDistribution']) == 1
+        assert len(metrics['datasetClassDistribution']) == 1
+
+
+class TestScoreTextProcessing:
+    """Regression tests for row processing in score_text."""
+
+    @pytest.mark.asyncio
+    async def test_score_text_prefers_top_level_metadata_for_feedback_rows(self, mock_evaluation):
+        mock_evaluation.override_data = {}
+        mock_evaluation.processed_items_by_score = {}
+        mock_evaluation.total_skipped = 0
+        mock_evaluation.scorecard.scores = [{"name": "test_score"}]
+
+        mock_result = create_mock_score_result("yes", "yes")
+        mock_evaluation.scorecard.score_entire_text = AsyncMock(
+            return_value={"test_score": mock_result}
+        )
+
+        row = pd.Series({
+            "text": "feedback transcript",
+            "content_id": "content-123",
+            "metadata": {"source": "top-level", "human_label": "yes"},
+            "columns": {"metadata": {"source": "nested"}, "form_id": "form-123"},
+            "test_score_label": "yes",
+        })
+
+        await mock_evaluation.score_text(row, score_name="test_score")
+
+        passed_metadata = mock_evaluation.scorecard.score_entire_text.call_args.kwargs["metadata"]
+        assert passed_metadata["source"] == "top-level"
+        assert passed_metadata["human_label"] == "yes"
+
+    @pytest.mark.asyncio
+    async def test_score_text_times_out_and_returns_error_result(self, mock_evaluation):
+        mock_evaluation.override_data = {}
+        mock_evaluation.processed_items_by_score = {}
+        mock_evaluation.total_skipped = 0
+        mock_evaluation.scorecard.scores = [{"name": "test_score"}]
+
+        async def never_returns(**kwargs):
+            await asyncio.Future()
+
+        mock_evaluation.scorecard.score_entire_text = never_returns
+
+        row = pd.Series({
+            "text": "feedback transcript",
+            "content_id": "content-456",
+            "columns": {"form_id": "form-456"},
+            "test_score_label": "yes",
+        })
+
+        with patch.dict(os.environ, {"PRIMUS_EVALUATION_ITEM_TIMEOUT_SECONDS": "0.01"}):
+            with patch("primus.Evaluation.asyncio.sleep", new=AsyncMock()) as mock_sleep:
+                result = await mock_evaluation.score_text(row, score_name="test_score")
+
+        assert mock_sleep.await_count == 4
+        error_result = result["results"]["test_score"]
+        assert error_result.value == "Error"
+        assert "Timeout/RequestException" in error_result.error
+
+    @pytest.mark.asyncio
+    async def test_score_text_prefers_top_level_linkage_fields(self, mock_evaluation):
+        mock_evaluation.override_data = {}
+        mock_evaluation.processed_items_by_score = {}
+        mock_evaluation.total_skipped = 0
+        mock_evaluation.scorecard.scores = [{"name": "test_score"}]
+        mock_evaluation.dashboard_client = MagicMock()
+        mock_evaluation.experiment_id = "eval-123"
+        mock_evaluation._create_score_result = AsyncMock()
+
+        mock_result = create_mock_score_result("yes", "yes")
+        mock_evaluation.scorecard.score_entire_text = AsyncMock(
+            return_value={"test_score": mock_result}
+        )
+
+        row = pd.Series({
+            "text": "feedback transcript",
+            "content_id": "content-789",
+            "item_id": "item-top-level",
+            "feedback_item_id": "fi-top-level",
+            "columns": {
+                "item_id": "item-nested",
+                "feedback_item_id": "fi-nested",
+                "form_id": "form-789",
+            },
+            "test_score_label": "yes",
+        })
+
+        with patch("primus.dashboard.api.models.item.Item.get_by_id", return_value=None) as mock_get_item:
+            await mock_evaluation.score_text(row, score_name="test_score")
+
+        assert mock_get_item.call_args.args[0] == "item-top-level"
+        assert mock_evaluation._create_score_result.await_args.kwargs["feedback_item_id"] == "fi-top-level"
+
+    @pytest.mark.asyncio
+    async def test_score_text_resolves_item_id_from_report_identifier(self, mock_evaluation):
+        mock_evaluation.override_data = {}
+        mock_evaluation.processed_items_by_score = {}
+        mock_evaluation.total_skipped = 0
+        mock_evaluation.scorecard.scores = [{"name": "test_score"}]
+        mock_evaluation.dashboard_client = MagicMock()
+        mock_evaluation.experiment_id = "eval-123"
+        mock_evaluation.account_id = "acct-123"
+        mock_evaluation._create_score_result = AsyncMock()
+
+        mock_result = create_mock_score_result("yes", "yes")
+        mock_evaluation.scorecard.score_entire_text = AsyncMock(
+            return_value={"test_score": mock_result}
+        )
+
+        resolved_item = MagicMock()
+        resolved_item.id = "acct-123--309517289"
+
+        row = pd.Series({
+            "text": "search dataset transcript",
+            "content_id": "309517289",
+            "columns": {
+                "form_id": "form-309517289",
+            },
+            "test_score_label": "yes",
+        })
+
+        with patch("primus.dashboard.api.models.item.Item.get_by_id", return_value=None):
+            with patch("primus.dashboard.api.models.item.Item.find_by_identifier", return_value=resolved_item):
+                await mock_evaluation.score_text(row, score_name="test_score")
+
+        passed_result = mock_evaluation._create_score_result.await_args.kwargs["result"]
+        assert passed_result["resolved_item_id"] == "acct-123--309517289"
+        assert mock_evaluation._create_score_result.await_args.kwargs["content_id"] == "309517289"
+
+    @pytest.mark.asyncio
+    async def test_score_text_raises_when_score_returns_error_result(self, mock_evaluation):
+        mock_evaluation.override_data = {}
+        mock_evaluation.processed_items_by_score = {}
+        mock_evaluation.total_skipped = 0
+        mock_evaluation.scorecard.scores = [{"name": "test_score"}]
+
+        error_result = Score.Result(
+            parameters=Score.Parameters(name="test_score", scorecard_name="test_scorecard"),
+            value="ERROR",
+            error="'dict object' has no attribute 'other_data'",
+            metadata={},
+        )
+        mock_evaluation.scorecard.score_entire_text = AsyncMock(
+            return_value={"test_score": error_result}
+        )
+
+        row = pd.Series({
+            "text": "feedback transcript",
+            "content_id": "content-999",
+            "item_id": "item-999",
+            "feedback_item_id": "fi-999",
+            "metadata": {"source": "top-level", "human_label": "yes"},
+            "columns": {"form_id": "form-999"},
+            "test_score_label": "yes",
+        })
+
+        with pytest.raises(RuntimeError, match="Initial evaluation failed: score 'test_score' returned ERROR value") as error:
+            await mock_evaluation.score_text(row, score_name="test_score")
+
+        assert "content-999" not in str(error.value)
+        assert "item-999" not in str(error.value)
+        assert "fi-999" not in str(error.value)
+        assert "other_data" not in str(error.value)
+
+
+class TestLabelStandardization:
+    """Test label standardization and comparison logic"""
+    
+    def test_case_insensitive_matching(self, mock_evaluation):
+        """Test that label matching is case insensitive"""
+        results = create_mock_evaluation_results([
+            ('Yes', 'yes'), ('NO', 'no'), ('Yes', 'YES'), ('No', 'NO')
+        ])
+        
+        metrics = mock_evaluation.calculate_metrics(results)
+        assert metrics['accuracy'] == 1.0
+
+
+class TestAccuracyEvaluationRun:
+    @pytest.mark.asyncio
+    async def test_accuracy_evaluation_run_re_raises_run_failures(self):
+        with patch('primus.Evaluation.PrimusDashboardClient') as mock_client:
+            mock_client.return_value = MagicMock()
+            mock_client.for_account.return_value = MagicMock()
+
+            evaluation = AccuracyEvaluation(
+                scorecard_name="test_scorecard",
+                scorecard=MockScorecard(),
+                labeled_samples=[{"text": "hello", "test_score_label": "yes"}],
+                evaluation_id="eval-123",
+                account_key="test-account",
+                subset_of_score_names=["test_score"],
+                skip_local_reports=True,
+            )
+
+        evaluation._run_evaluation = AsyncMock(side_effect=RuntimeError("Initial evaluation failed: score returned ERROR"))
+
+        with patch("primus.dashboard.api.models.evaluation.Evaluation.get_by_id") as mock_get_by_id:
+            mock_record = MagicMock()
+            mock_get_by_id.return_value = mock_record
+
+            with pytest.raises(RuntimeError, match="Initial evaluation failed: score returned ERROR"):
+                await evaluation.run()
+
+        mock_record.update.assert_called_once_with(
+            status="FAILED",
+            errorMessage="Initial evaluation failed: score returned ERROR",
+        )
+    
+    def test_whitespace_handling(self, mock_evaluation):
+        """Test whitespace is handled in label comparison"""
+        results = create_mock_evaluation_results([
+            (' yes ', 'yes'), ('no ', ' no'), ('  yes', 'yes  ')
+        ])
+        
+        metrics = mock_evaluation.calculate_metrics(results)
+        assert metrics['accuracy'] == 1.0
+    
+    def test_null_value_standardization(self, mock_evaluation):
+        """Test various null representations are standardized to 'na'"""
+        results = create_mock_evaluation_results([
+            ('', 'na'),         # Empty string to na
+            ('nan', 'na'),      # nan to na
+            ('n/a', 'na'),      # n/a to na  
+            ('none', 'na'),     # none to na
+            ('null', 'na'),     # null to na
+            ('N/A', 'na'),      # Case insensitive N/A
+        ])
+        
+        metrics = mock_evaluation.calculate_metrics(results)
+        assert metrics['accuracy'] == 1.0
+    
+    def test_mixed_null_representations(self, mock_evaluation):
+        """Test mixed null representations in actual vs predicted"""
+        results = create_mock_evaluation_results([
+            ('', ''),           # Both empty
+            ('nan', 'n/a'),     # Different null representations should match
+            ('none', 'null'),   # Different null representations should match
+            ('N/A', 'na'),      # Case differences in nulls
+        ])
+        
+        metrics = mock_evaluation.calculate_metrics(results)
+        assert metrics['accuracy'] == 1.0
+
+
+class TestConfusionMatrixBuilding:
+    """Test confusion matrix construction logic"""
+    
+    def test_binary_confusion_matrix_structure(self, mock_evaluation):
+        """Test binary confusion matrix has correct structure"""
+        results = create_mock_evaluation_results([
+            ('yes', 'yes'), ('no', 'no'), ('yes', 'no'), ('no', 'yes')
+        ])
+        
+        metrics = mock_evaluation.calculate_metrics(results)
+        confusion_matrix = metrics['confusionMatrix']
+        
+        assert set(confusion_matrix['labels']) == {'yes', 'no'}
+        assert len(confusion_matrix['matrix']) == 2
+        assert len(confusion_matrix['matrix'][0]) == 2
+        
+        # Check matrix values - should be [[1, 1], [1, 1]] (TP, FN, FP, TN)
+        labels = confusion_matrix['labels']
+        matrix = confusion_matrix['matrix']
+        
+        if labels[0] == 'no':  # Labels are sorted
+            # Matrix[actual][predicted]: no->no=1, no->yes=1, yes->no=1, yes->yes=1
+            assert matrix[0][0] == 1  # no predicted as no
+            assert matrix[0][1] == 1  # no predicted as yes
+            assert matrix[1][0] == 1  # yes predicted as no  
+            assert matrix[1][1] == 1  # yes predicted as yes
+        else:
+            # If yes comes first in sorted order
+            assert matrix[0][0] == 1  # yes predicted as yes
+            assert matrix[0][1] == 1  # yes predicted as no
+            assert matrix[1][0] == 1  # no predicted as yes
+            assert matrix[1][1] == 1  # no predicted as no
+    
+    def test_single_class_confusion_matrix(self, mock_evaluation):
+        """Test confusion matrix when only one class is present"""
+        results = create_mock_evaluation_results([
+            ('yes', 'yes'), ('yes', 'yes'), ('yes', 'yes')
+        ])
+        
+        metrics = mock_evaluation.calculate_metrics(results)
+        confusion_matrix = metrics['confusionMatrix']
+        
+        # Should still create a matrix structure, but might be 1x1 or padded
+        assert len(confusion_matrix['labels']) >= 1
+        assert 'yes' in confusion_matrix['labels']
+    
+    def test_multiclass_confusion_matrix(self, mock_evaluation):
+        """Test confusion matrix for multiclass classification"""
+        results = create_mock_evaluation_results([
+            ('class_a', 'class_a'), ('class_b', 'class_a'), 
+            ('class_c', 'class_c'), ('class_a', 'class_b'),
+            ('class_b', 'class_b'), ('class_c', 'class_a')
+        ])
+        
+        metrics = mock_evaluation.calculate_metrics(results)
+        confusion_matrix = metrics['confusionMatrix']
+        
+        assert len(confusion_matrix['labels']) == 3
+        assert set(confusion_matrix['labels']) == {'class_a', 'class_b', 'class_c'}
+        assert len(confusion_matrix['matrix']) == 3
+        assert all(len(row) == 3 for row in confusion_matrix['matrix'])
+
+
+class TestDistributionCalculations:
+    """Test predicted and actual label distribution calculations"""
+    
+    def test_predicted_distribution_accuracy(self, mock_evaluation):
+        """Test predicted label distribution is calculated correctly"""
+        results = create_mock_evaluation_results([
+            ('yes', 'no'), ('yes', 'yes'), ('no', 'no'), ('no', 'yes')
+        ])
+        
+        metrics = mock_evaluation.calculate_metrics(results)
+        pred_dist = {item['label']: item for item in metrics['predictedClassDistribution']}
+        
+        assert pred_dist['yes']['count'] == 2
+        assert pred_dist['no']['count'] == 2
+        assert pred_dist['yes']['percentage'] == 50.0
+        assert pred_dist['no']['percentage'] == 50.0
+        assert pred_dist['yes']['score'] == 'test_score'
+    
+    def test_actual_distribution_accuracy(self, mock_evaluation):
+        """Test actual label distribution is calculated correctly"""
+        results = create_mock_evaluation_results([
+            ('no', 'yes'), ('yes', 'yes'), ('no', 'no'), ('yes', 'yes')
+        ])
+        
+        metrics = mock_evaluation.calculate_metrics(results)
+        actual_dist = {item['label']: item for item in metrics['datasetClassDistribution']}
+        
+        assert actual_dist['yes']['count'] == 3
+        assert actual_dist['no']['count'] == 1
+        assert actual_dist['yes']['percentage'] == 75.0
+        assert actual_dist['no']['percentage'] == 25.0
+        assert actual_dist['yes']['score'] == 'test_score'
+    
+    def test_distribution_with_standardized_labels(self, mock_evaluation):
+        """Test distribution calculation with label standardization"""
+        results = create_mock_evaluation_results([
+            ('Yes', 'yes'), ('NO', 'n/a'), ('', 'na'), ('null', 'NA')
+        ])
+        
+        metrics = mock_evaluation.calculate_metrics(results)
+        pred_dist = {item['label']: item['count'] for item in metrics['predictedClassDistribution']}
+        actual_dist = {item['label']: item['count'] for item in metrics['datasetClassDistribution']}
+        
+        # Check standardization: only specific null values become 'na'
+        assert pred_dist.get('yes', 0) == 1    # 'Yes' -> 'yes'
+        assert pred_dist.get('no', 0) == 1     # 'NO' -> 'no' (not standardized to na)
+        assert pred_dist.get('na', 0) == 2     # '', 'null' -> 'na'
+        assert actual_dist.get('yes', 0) == 1  # 'yes' -> 'yes'
+        assert actual_dist.get('na', 0) == 3   # 'n/a', 'na', 'NA' all become 'na'
+
+
+class TestErrorHandling:
+    """Test error handling in metrics computation"""
+    
+    def test_error_results_filtered_out(self, mock_evaluation):
+        """Test that ERROR results are filtered out of metrics"""
+        results = create_mock_evaluation_results([
+            ('yes', 'yes'), ('ERROR', 'yes'), ('no', 'no'), ('ERROR', 'no')
+        ])
+        
+        metrics = mock_evaluation.calculate_metrics(results)
+        
+        # Only non-ERROR results should be counted
+        assert metrics['accuracy'] == 1.0  # 2 correct out of 2 non-error results
+        
+        # Distributions should only include non-error results
+        total_predicted = sum(item['count'] for item in metrics['predictedClassDistribution'])
+        total_actual = sum(item['count'] for item in metrics['datasetClassDistribution'])
+        assert total_predicted == 2
+        assert total_actual == 2
+    
+    def test_all_error_results(self, mock_evaluation):
+        """Test handling when all results are errors"""
+        results = create_mock_evaluation_results([
+            ('ERROR', 'yes'), ('ERROR', 'no'), ('ERROR', 'yes')
+        ])
+        
+        metrics = mock_evaluation.calculate_metrics(results)
+        
+        # Should handle gracefully with default values
+        assert metrics['accuracy'] == 0
+        # Should still have default distribution entries
+        assert len(metrics['predictedClassDistribution']) == 1
+        assert len(metrics['datasetClassDistribution']) == 1
+    
+    def test_error_as_legitimate_class_label(self, mock_evaluation):
+        """Test that 'error' as a class label (without error attribute) is counted in metrics"""
+        # Create results where "error" is a legitimate prediction class, not a system error
+        results = []
+        for i, (predicted, actual) in enumerate([('yes', 'yes'), ('error', 'yes'), ('no', 'no'), ('error', 'error')]):
+            # Create normal score result without error attribute
+            score_result = create_mock_score_result(predicted, actual, score_name="test_score")
+            result = {
+                'form_id': f'form_{i}',
+                'results': {
+                    'test_score': score_result
+                }
+            }
+            results.append(result)
+        
+        metrics = mock_evaluation.calculate_metrics(results)
+        
+        # All 4 results should be counted (2 correct: yes->yes, error->error; 2 incorrect: error->yes, no->no incorrect)
+        # Wait, let me recalculate: yes==yes (correct), error==yes (incorrect), no==no (correct), error==error (correct)
+        # So 3 correct out of 4 = 75%
+        assert metrics['accuracy'] == 0.75  # 3 correct out of 4 results
+        
+        # Distributions should include all 4 results including "error" as a class
+        total_predicted = sum(item['count'] for item in metrics['predictedClassDistribution'])
+        total_actual = sum(item['count'] for item in metrics['datasetClassDistribution'])
+        assert total_predicted == 4
+        assert total_actual == 4
+        
+        # Check that "error" appears in the distributions as a legitimate class
+        predicted_labels = {item['label'] for item in metrics['predictedClassDistribution']}
+        assert 'error' in predicted_labels
+    
+    def test_missing_metadata_handling(self, mock_evaluation):
+        """Test handling of results with missing metadata"""
+        # Create result with minimal metadata
+        parameters = Score.Parameters(
+            name="test_score",
+            scorecard_name="test_scorecard"
+        )
+        result = {
+            'form_id': 'test_form',
+            'results': {
+                'test_score': Score.Result(
+                    parameters=parameters,
+                    value="yes",
+                    explanation="test",
+                    metadata={
+                        'human_label': 'yes',
+                        'correct': True  # Need this field for metrics calculation
+                    }
+                )
+            }
+        }
+        
+        # Should not crash, should handle missing metadata gracefully
+        metrics = mock_evaluation.calculate_metrics([result])
+        assert isinstance(metrics, dict)
+        assert 'accuracy' in metrics
+
+
+class TestMultiScoreHandling:
+    """Test handling of multiple scores in evaluation"""
+    
+    def test_primary_score_filtering(self, mock_evaluation):
+        """Test that only primary score is used for metrics when specified"""
+        # Create results with multiple scores but set primary score
+        mock_evaluation.subset_of_score_names = ["primary_score"]
+        
+        results = []
+        for i in range(3):
+            result = {
+                'form_id': f'form_{i}',
+                'results': {
+                    'primary_score': create_mock_score_result('yes', 'yes', score_name='primary_score'),
+                    'dependency_score': create_mock_score_result('no', 'no', score_name='dependency_score')
+                }
+            }
+            results.append(result)
+        
+        metrics = mock_evaluation.calculate_metrics(results)
+        
+        # Should only process primary_score results
+        assert metrics['accuracy'] == 1.0
+        # All distribution entries should be for primary_score
+        assert all(item['score'] == 'primary_score' for item in metrics['predictedClassDistribution'])
+        assert all(item['score'] == 'primary_score' for item in metrics['datasetClassDistribution'])
+
+
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])

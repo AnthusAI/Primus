@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "plexus-worker.fullname" . }}
+  name: {{ include "primus-worker.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "plexus-worker.labels" . | nindent 4 }}
+    {{- include "primus-worker.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -16,7 +16,7 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      {{- include "plexus-worker.selectorLabels" . | nindent 6 }}
+      {{- include "primus-worker.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
@@ -26,13 +26,13 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
       labels:
-        {{- include "plexus-worker.podLabels" . | nindent 8 }}
+        {{- include "primus-worker.podLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "plexus-worker.serviceAccountName" . }}
+      serviceAccountName: {{ include "primus-worker.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -56,19 +56,19 @@ spec:
         # S3-compatible dataset and report storage.
         - name: AWS_ENDPOINT_URL
           value: {{ required "objectStore.endpoint is required" .Values.objectStore.endpoint | quote }}
-        - name: PLEXUS_OBJECT_STORE_ENDPOINT
+        - name: PRIMUS_OBJECT_STORE_ENDPOINT
           value: {{ .Values.objectStore.endpoint | quote }}
         - name: AWS_DEFAULT_REGION
           value: {{ .Values.objectStore.region | quote }}
         - name: AWS_ACCESS_KEY_ID
           valueFrom:
             secretKeyRef:
-              name: {{ include "plexus-worker.objectStoreSecretName" . }}
+              name: {{ include "primus-worker.objectStoreSecretName" . }}
               key: {{ .Values.objectStore.accessKeySecretKey }}
         - name: AWS_SECRET_ACCESS_KEY
           valueFrom:
             secretKeyRef:
-              name: {{ include "plexus-worker.objectStoreSecretName" . }}
+              name: {{ include "primus-worker.objectStoreSecretName" . }}
               key: {{ .Values.objectStore.secretKeySecretKey }}
         - name: AMPLIFY_STORAGE_DATASETS_BUCKET_NAME
           value: {{ required "objectStore.buckets.datasets is required" .Values.objectStore.buckets.datasets | quote }}
@@ -81,7 +81,7 @@ spec:
         - name: AMPLIFY_STORAGE_SCORERESULTATTACHMENTS_BUCKET_NAME
           value: {{ required "objectStore.buckets.scoreResultAttachments is required" .Values.objectStore.buckets.scoreResultAttachments | quote }}
         {{- if .Values.objectStore.caBundle.enabled }}
-        - name: PLEXUS_ARTIFACT_CA_BUNDLE
+        - name: PRIMUS_ARTIFACT_CA_BUNDLE
           value: {{ required "objectStore.caBundle.mountPath is required" .Values.objectStore.caBundle.mountPath | quote }}
         # Direct evaluation/report consumers remain on the S3-compatible API
         # until their GraphQL-ticket migration lands; they trust the same CA.
@@ -90,53 +90,53 @@ spec:
         {{- end }}
         {{- end }}
 
-        # Plexus API configuration
-        - name: PLEXUS_API_URL
+        # Primus API configuration
+        - name: PRIMUS_API_URL
           valueFrom:
             secretKeyRef:
-              name: {{ include "plexus-worker.secretName" . }}
+              name: {{ include "primus-worker.secretName" . }}
               key: api-url
-        - name: PLEXUS_GRAPHQL_AUTH_MODE
-          value: {{ .Values.plexus.api.authMode | quote }}
-        {{- if eq .Values.plexus.api.authMode "api_key" }}
-        - name: PLEXUS_API_KEY
+        - name: PRIMUS_GRAPHQL_AUTH_MODE
+          value: {{ .Values.primus.api.authMode | quote }}
+        {{- if eq .Values.primus.api.authMode "api_key" }}
+        - name: PRIMUS_API_KEY
           valueFrom:
             secretKeyRef:
-              name: {{ include "plexus-worker.secretName" . }}
+              name: {{ include "primus-worker.secretName" . }}
               key: api-key
         {{- end }}
-        - name: PLEXUS_ACCOUNT_KEY
+        - name: PRIMUS_ACCOUNT_KEY
           valueFrom:
             secretKeyRef:
-              name: {{ include "plexus-worker.secretName" . }}
+              name: {{ include "primus-worker.secretName" . }}
               key: account-key
         {{- if eq .Values.workerType "score-processor" }}
         # Score Processor specific config
-        - name: PLEXUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL
+        - name: PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL
           valueFrom:
             configMapKeyRef:
-              name: {{ include "plexus-worker.fullname" . }}-config
+              name: {{ include "primus-worker.fullname" . }}-config
               key: sqs-request-queue-url
-        - name: PLEXUS_RESPONSE_WORKER_QUEUE_URL
+        - name: PRIMUS_RESPONSE_WORKER_QUEUE_URL
           valueFrom:
             configMapKeyRef:
-              name: {{ include "plexus-worker.fullname" . }}-config
+              name: {{ include "primus-worker.fullname" . }}-config
               key: sqs-response-queue-url
         - name: AWS_DEFAULT_REGION
           valueFrom:
             configMapKeyRef:
-              name: {{ include "plexus-worker.fullname" . }}-config
+              name: {{ include "primus-worker.fullname" . }}-config
               key: aws-region
         {{- if not .Values.serviceAccount.annotations }}
         - name: AWS_ACCESS_KEY_ID
           valueFrom:
             secretKeyRef:
-              name: {{ include "plexus-worker.awsSecretName" . }}
+              name: {{ include "primus-worker.awsSecretName" . }}
               key: aws-access-key-id
         - name: AWS_SECRET_ACCESS_KEY
           valueFrom:
             secretKeyRef:
-              name: {{ include "plexus-worker.awsSecretName" . }}
+              name: {{ include "primus-worker.awsSecretName" . }}
               key: aws-secret-access-key
         {{- end }}
         {{- end }}
@@ -146,22 +146,22 @@ spec:
         - name: CELERY_BROKER_URL
           valueFrom:
             secretKeyRef:
-              name: {{ include "plexus-worker.celerySecretName" . }}
+              name: {{ include "primus-worker.celerySecretName" . }}
               key: broker-url
         - name: CELERY_APP
           valueFrom:
             configMapKeyRef:
-              name: {{ include "plexus-worker.fullname" . }}-config
+              name: {{ include "primus-worker.fullname" . }}-config
               key: celery-app
         - name: CELERY_QUEUE
           valueFrom:
             configMapKeyRef:
-              name: {{ include "plexus-worker.fullname" . }}-config
+              name: {{ include "primus-worker.fullname" . }}-config
               key: celery-queue
         - name: CELERY_CONCURRENCY
           valueFrom:
             configMapKeyRef:
-              name: {{ include "plexus-worker.fullname" . }}-config
+              name: {{ include "primus-worker.fullname" . }}-config
               key: celery-concurrency
         {{- end }}
 
@@ -170,12 +170,12 @@ spec:
         - name: SCORING_API_HOST
           valueFrom:
             configMapKeyRef:
-              name: {{ include "plexus-worker.fullname" . }}-config
+              name: {{ include "primus-worker.fullname" . }}-config
               key: scoring-api-host
         - name: SCORING_API_PORT
           valueFrom:
             configMapKeyRef:
-              name: {{ include "plexus-worker.fullname" . }}-config
+              name: {{ include "primus-worker.fullname" . }}-config
               key: scoring-api-port
         - name: SCORING_API_AUTH_REQUIRED
           value: {{ or .Values.scoringApi.auth.required .Values.scoringApi.auth.enabled | quote }}
@@ -183,7 +183,7 @@ spec:
         - name: SCORING_API_KEY
           valueFrom:
             secretKeyRef:
-              name: {{ default (include "plexus-worker.secretName" .) .Values.scoringApi.auth.existingSecret }}
+              name: {{ default (include "primus-worker.secretName" .) .Values.scoringApi.auth.existingSecret }}
               key: {{ .Values.scoringApi.auth.secretKey | quote }}
         {{- end }}
         {{- end }}
@@ -193,17 +193,17 @@ spec:
         - name: CONSOLE_RESPONSE_TARGET
           valueFrom:
             configMapKeyRef:
-              name: {{ include "plexus-worker.fullname" . }}-config
+              name: {{ include "primus-worker.fullname" . }}-config
               key: console-response-target
         - name: CONSOLE_LOCAL_WORKER_IDLE_POLL_SECONDS
           valueFrom:
             configMapKeyRef:
-              name: {{ include "plexus-worker.fullname" . }}-config
+              name: {{ include "primus-worker.fullname" . }}-config
               key: console-idle-poll-seconds
         - name: CONSOLE_LOCAL_WORKER_ERROR_BACKOFF_SECONDS
           valueFrom:
             configMapKeyRef:
-              name: {{ include "plexus-worker.fullname" . }}-config
+              name: {{ include "primus-worker.fullname" . }}-config
               key: console-error-backoff-seconds
         {{- end }}
 
@@ -213,14 +213,14 @@ spec:
         - name: OPENAI_API_KEY
           valueFrom:
             secretKeyRef:
-              name: {{ if .Values.llm.existingSecret }}{{ .Values.llm.existingSecret }}{{ else }}{{ include "plexus-worker.fullname" . }}-llm-keys{{ end }}
+              name: {{ if .Values.llm.existingSecret }}{{ .Values.llm.existingSecret }}{{ else }}{{ include "primus-worker.fullname" . }}-llm-keys{{ end }}
               key: openai-api-key
         {{- end }}
         {{- if .Values.llm.anthropic }}
         - name: ANTHROPIC_API_KEY
           valueFrom:
             secretKeyRef:
-              name: {{ if .Values.llm.existingSecret }}{{ .Values.llm.existingSecret }}{{ else }}{{ include "plexus-worker.fullname" . }}-llm-keys{{ end }}
+              name: {{ if .Values.llm.existingSecret }}{{ .Values.llm.existingSecret }}{{ else }}{{ include "primus-worker.fullname" . }}-llm-keys{{ end }}
               key: anthropic-api-key
         {{- end }}
         {{- end }}

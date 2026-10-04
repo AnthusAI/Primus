@@ -10,7 +10,7 @@ import pytest
 import json
 import uuid
 from unittest.mock import Mock, patch
-from plexus.data.DataCache import DataCache
+from primus.data.DataCache import DataCache
 
 
 class MockDataCache(DataCache):
@@ -55,7 +55,7 @@ class TestDataCacheUpsertFunctionality:
         }
         
         # Mock Item.upsert_by_identifiers
-        with patch('plexus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
+        with patch('primus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
             mock_upsert.return_value = (self.item_uuid, True, None)
             
             result = self.data_cache.upsert_item_for_dataset_row(
@@ -95,7 +95,7 @@ class TestDataCacheUpsertFunctionality:
         item_data.text = 'Object text content'
         item_data.metadata = {'type': 'object_test'}
         
-        with patch('plexus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
+        with patch('primus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
             mock_upsert.return_value = (self.item_uuid, False, None)  # Item was updated, not created
             
             result = self.data_cache.upsert_item_for_dataset_row(
@@ -130,7 +130,7 @@ class TestDataCacheUpsertFunctionality:
         override_external_id = "override-123"
         item_data = {'id': 'original-456', 'description': 'Test item'}
         
-        with patch('plexus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
+        with patch('primus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
             mock_upsert.return_value = (self.item_uuid, True, None)
             
             self.data_cache.upsert_item_for_dataset_row(
@@ -158,7 +158,7 @@ class TestDataCacheUpsertFunctionality:
             'metadata': metadata_json  # JSON string
         }
         
-        with patch('plexus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
+        with patch('primus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
             mock_upsert.return_value = (self.item_uuid, True, None)
             
             self.data_cache.upsert_item_for_dataset_row(
@@ -183,7 +183,7 @@ class TestDataCacheUpsertFunctionality:
             'metadata': invalid_json
         }
         
-        with patch('plexus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
+        with patch('primus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
             mock_upsert.return_value = (self.item_uuid, True, None)
             
             self.data_cache.upsert_item_for_dataset_row(
@@ -202,7 +202,7 @@ class TestDataCacheUpsertFunctionality:
         """Test upsert with minimal item data (only external_id)."""
         item_data = {}  # Empty dict
         
-        with patch('plexus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
+        with patch('primus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
             mock_upsert.return_value = (self.item_uuid, True, None)
             
             self.data_cache.upsert_item_for_dataset_row(
@@ -221,7 +221,7 @@ class TestDataCacheUpsertFunctionality:
 
     def test_upsert_with_alternative_id_fields(self):
         """Test extraction of external_id from alternative fields."""
-        with patch('plexus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
+        with patch('primus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
             mock_upsert.return_value = (self.item_uuid, True, None)
             
             # Test with externalId field
@@ -261,7 +261,7 @@ class TestDataCacheUpsertFunctionality:
         """Test error handling when Item.upsert_by_identifiers fails."""
         item_data = {'id': self.external_id, 'description': 'Error test'}
         
-        with patch('plexus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
+        with patch('primus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
             mock_upsert.side_effect = Exception("Database connection failed")
             
             result = self.data_cache.upsert_item_for_dataset_row(
@@ -280,7 +280,7 @@ class TestDataCacheUpsertFunctionality:
         """Test that score_id is properly passed for score association."""
         item_data = {'id': self.external_id, 'description': 'Score association test'}
         
-        with patch('plexus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
+        with patch('primus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
             mock_upsert.return_value = (self.item_uuid, True, None)
             
             self.data_cache.upsert_item_for_dataset_row(
@@ -299,7 +299,7 @@ class TestDataCacheUpsertFunctionality:
         """Test that is_evaluation is always False for dataset items."""
         item_data = {'id': self.external_id}
         
-        with patch('plexus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
+        with patch('primus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
             mock_upsert.return_value = (self.item_uuid, True, None)
             
             self.data_cache.upsert_item_for_dataset_row(
@@ -317,7 +317,7 @@ class TestDataCacheUpsertFunctionality:
         """Test that debug flag is always enabled."""
         item_data = {'id': self.external_id}
         
-        with patch('plexus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
+        with patch('primus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
             mock_upsert.return_value = (self.item_uuid, True, None)
             
             self.data_cache.upsert_item_for_dataset_row(
@@ -342,7 +342,7 @@ class TestDataCacheUpsertFunctionality:
             'content_id': 'content_555'
         }
         
-        with patch('plexus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
+        with patch('primus.dashboard.api.models.item.Item.upsert_by_identifiers') as mock_upsert:
             mock_upsert.return_value = (self.item_uuid, True, None)
             
             self.data_cache.upsert_item_for_dataset_row(

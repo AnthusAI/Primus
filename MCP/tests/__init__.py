@@ -1,1 +1,1 @@
-# Test suite for Plexus MCP Server
+# Test suite for Primus MCP Server

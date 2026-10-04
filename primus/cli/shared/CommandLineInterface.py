@@ -1,0 +1,143 @@
+"""
+Main entry point for the Primus CLI.
+"""
+
+from typing import Dict, Any
+import click
+import os
+import json
+import logging
+
+from primus.cli.task.tasks import tasks, task
+from primus.cli.item.items import items, item
+from primus.cli.score.scores import score, scores
+from primus.cli.shared.CommandDispatch import command
+from primus.cli.batch.operations import batch
+from primus.cli.evaluation.evaluations import evaluate, evaluations
+from primus.cli.prediction.predictions import predict
+from primus.cli.analyze.analysis import analyze
+from primus.cli.tuning.operations import tuning
+from primus.cli.training.operations import train
+from primus.cli.result.results import score_results, score_result, result, results
+from primus.cli.report.reports import report
+from primus.cli.dataset.datasets import dataset
+from primus.cli.score_chat.chat import score_chat
+from primus.cli.data_lake.operations import lake_group
+from primus.cli.feedback.commands import feedback
+from primus.cli.scorecard.scorecards import scorecards, scorecard
+from primus.cli.record_count.counting import count
+from primus.cli.metrics.commands import metrics_group
+from primus.cli.procedure.procedures import procedure
+from primus.cli.rubric_memory.commands import rubric_memory
+from primus.cli.chat.chats import chat
+from primus.cli.execute.execute import execute
+from primus.cli.optimization.commands import optimization
+from primus.cli.auth.commands import login, logout, whoami
+
+_OPTIONAL_COMMAND_IMPORT_ERRORS: Dict[str, Exception] = {}
+
+try:
+    from primus.cli.data.operations import data
+except Exception as exc:  # pragma: no cover - import failure behavior is validated via CLI smoke
+    data = None
+    _OPTIONAL_COMMAND_IMPORT_ERRORS["data"] = exc
+
+# Define OrderCommands class for command ordering
+class OrderCommands(click.Group):
+    def list_commands(self, ctx: click.Context) -> list[str]:
+        return list(self.commands)
+
+# Create the main CLI group
+@click.group(cls=OrderCommands)
+@click.option('--debug', is_flag=True, help="Enable debug logging.")
+def cli(debug):
+    """
+    Primus CLI for managing scorecards, scores, and evaluations.
+    """
+    log_level = logging.DEBUG if debug else logging.INFO
+    # Get the root logger and set its level. This is more robust than
+    # basicConfig, which only works if no handlers are configured.
+    root_logger = logging.getLogger()
+    
+    # If the root logger already has handlers, just update their level
+    if root_logger.handlers:
+        for handler in root_logger.handlers:
+            handler.setLevel(log_level)
+    else:
+        # Otherwise, configure the basicConfig
+        logging.basicConfig(level=log_level)
+    
+    root_logger.setLevel(log_level)
+
+# Register all commands
+cli.add_command(scores)
+cli.add_command(scores, name="score")
+cli.add_command(tasks)
+cli.add_command(task)
+cli.add_command(items)
+cli.add_command(item)
+cli.add_command(command)
+cli.add_command(batch)
+cli.add_command(evaluate)
+cli.add_command(predict)
+cli.add_command(analyze)
+cli.add_command(tuning)
+cli.add_command(train)
+cli.add_command(score_results)
+cli.add_command(score_result)
+cli.add_command(result)
+cli.add_command(results)
+cli.add_command(report)
+cli.add_command(score_chat)
+cli.add_command(lake_group)
+cli.add_command(feedback)
+cli.add_command(scorecards)
+cli.add_command(scorecard)
+cli.add_command(evaluations)
+cli.add_command(count)
+cli.add_command(metrics_group)
+cli.add_command(dataset)
+cli.add_command(procedure)
+cli.add_command(rubric_memory)
+cli.add_command(chat)
+cli.add_command(execute)
+cli.add_command(optimization)
+cli.add_command(login)
+cli.add_command(whoami)
+cli.add_command(logout)
+cli.add_command(optimization)
+
+if data is not None:
+    cli.add_command(data)
+else:
+    @click.command(name="data")
+    def data_unavailable() -> None:
+        error = _OPTIONAL_COMMAND_IMPORT_ERRORS.get("data")
+        detail = f"{error.__class__.__name__}: {error}" if error else "unknown import failure"
+        raise click.ClickException(
+            "The `data` command is unavailable in this environment. "
+            "Install optional data dependencies and retry. "
+            f"Import error: {detail}"
+        )
+
+    cli.add_command(data_unavailable)
+
+def main():
+    """
+    Primus Command Line Interface.
+    This function is the entry point when the `primus` command is run.
+    """
+    # Load YAML configuration first to set environment variables
+    try:
+        from primus.config import load_config
+        load_config()
+    except Exception as e:
+        # Don't fail CLI startup if config loading fails, just log a warning
+        logging.warning(f"Failed to load YAML configuration: {e}")
+    
+    # Execute the main CLI application object
+    # Click will handle parsing arguments and dispatching to the correct command.
+    cli()
+
+if __name__ == '__main__':
+    main()

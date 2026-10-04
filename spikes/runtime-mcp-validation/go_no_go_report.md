@@ -10,18 +10,18 @@ already captures enough signal to make a recommendation.
 - **Did the spike clear the gate?** Yes. Across the readiness runs captured
   during the spike (`gpt-5.4-mini`, `gpt-5.4`, `gpt-5.5`, `gpt-5.3`,
   `gpt-5.4-nano`), the harness consistently produced ≥85% first-try
-  success on representative Plexus tasks once instructions were tightened
+  success on representative Primus tasks once instructions were tightened
   and the harness boilerplate was removed.
 - **Recommendation:** **GO**. Continue building the production `execute_tactus`
   MCP tool on the same shape: a single Tactus runner, a host-registered
-  `plexus` module, helper aliases, runtime-enforced budget, and trace
+  `primus` module, helper aliases, runtime-enforced budget, and trace
   persistence. Re-spike is **not** required to begin v0 implementation;
   the next readiness run becomes a regression check after the v0 lands.
 
 ## 2. Quantitative results (from spike runs)
 
 The headline numbers came from the harness in `harness.py` running against
-fixture-backed stubs at `plexus_module_stub.py`, with `boot_prompt.md`
+fixture-backed stubs at `primus_module_stub.py`, with `boot_prompt.md`
 shipped as the only system prompt and one `execute_tactus` tool exposed.
 Detailed per-task CSVs and JSONL traces live in `results/<run-id>/` for
 each readiness run; that directory is gitignored on purpose because each
@@ -85,7 +85,7 @@ and `tasks/08_tight_budget_*.yaml`). What it did establish:
 
 - The "ambient runtime" model — runtime owns budget, streaming and HITL —
   is what makes the boot prompt small enough to fit. Tasks that previously
-  required `plexus.budget.remaining()` boilerplate became much shorter
+  required `primus.budget.remaining()` boilerplate became much shorter
   prompts once the runtime took over enforcement.
 - The budget-exhaustion-mid-flight scenario (`08_tight_budget_*`) only
   parses cleanly once the budget gate exists in the host; this PR adds
@@ -102,8 +102,8 @@ protocol design is captured in
 implementation in `MCP/tools/tactus_runtime/`:
 
 - Single MCP tool `execute_tactus` taking one `tactus` string. ✅ done.
-- Host-registered `plexus` module with helper aliases. ✅ done.
-- Direct (non-MCP-loopback) reads for `plexus.docs.*` and `plexus.api.*`.
+- Host-registered `primus` module with helper aliases. ✅ done.
+- Direct (non-MCP-loopback) reads for `primus.docs.*` and `primus.api.*`.
   ✅ done. Follow-up tasks filed for `feedback.find`, `evaluation.info`,
   `score.info`, `item.info`.
 - Conservative default budget gate ($0.25 / 60s / depth 3 / 50 calls). ✅ done.

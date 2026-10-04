@@ -13,23 +13,23 @@ related:
 ---
 # Read APIs
 
-Reference for the read-only Plexus runtime APIs available in
+Reference for the read-only Primus runtime APIs available in
 `execute_tactus`. These calls are inexpensive, deterministic, and safe
 to use freely.
 
 ## Scorecards
 
-- `scorecards{ ... }` (alias for `plexus.scorecards.list`) — list all
+- `scorecards{ ... }` (alias for `primus.scorecards.list`) — list all
   scorecards visible to the active account. Returns rows with `id`,
   `key`, `name`, `externalId`, `description`, `createdAt`, `updatedAt`.
-- `scorecards_search{ query = "..." }` (alias for `plexus.scorecards.search`)
+- `scorecards_search{ query = "..." }` (alias for `primus.scorecards.search`)
   — fuzzy rank scorecards by `name`, `key`, `externalId`, and
   `description` using RapidFuzz `WRatio`. Args: `query` (or `q` / `name`),
   `limit` (default 20), `min_score` 0–100 (default 55),
   `scorecard_limit` / `fetch_limit` for how many rows to pull from
   GraphQL before ranking (default 1000). Returns `matches` with
   `match_score`, `matched_choice`, and a nested `scorecard` object.
-- `scorecard{ id = "..." }` (alias for `plexus.scorecards.info`) — fetch
+- `scorecard{ id = "..." }` (alias for `primus.scorecards.info`) — fetch
   a single scorecard with its sections and scores. Accepts `id`, `name`,
   `key`, or `external_id`.
 
@@ -48,11 +48,11 @@ return scorecards_search{ query = "HCS medium", limit = 5, min_score = 55 }
 
 ## Scores
 
-- `score{ id = "..." }` (alias for `plexus.score.info`) — fetch score
+- `score{ id = "..." }` (alias for `primus.score.info`) — fetch score
   details, champion version, and version history. Accepts `id`, `name`,
   `key`, `external_id`, or `score_id` (with optional `scorecard_id`,
   `scorecard_name`, `scorecard_key` to disambiguate).
-- `score_search{ query = "..." }` (alias for `plexus.score.search`) —
+- `score_search{ query = "..." }` (alias for `primus.score.search`) —
   fuzzy rank **scores across scorecards** (or within one scorecard when
   `scorecard` / `scorecard_identifier` is set). Each candidate string
   combines score name, key, external id, scorecard name, and section
@@ -79,9 +79,9 @@ return score_search{ query = "refund", limit = 15, min_score = 55 }
 
 ## Items
 
-- `item{ id = "..." }` (alias for `plexus.item.info`) — fetch a single
+- `item{ id = "..." }` (alias for `primus.item.info`) — fetch a single
   item, including transcript and any attached score results.
-- `last_item{}` (alias for `plexus.item.last`) — fetch the most recent
+- `last_item{}` (alias for `primus.item.last`) — fetch the most recent
   item for the active account (handy when you need a known-good item ID
   for a smoke test).
 
@@ -92,13 +92,13 @@ return item{ id = last.id }
 
 ## Feedback
 
-- `feedback{ ... }` (alias for `plexus.feedback.find`) — find feedback
+- `feedback{ ... }` (alias for `primus.feedback.find`) — find feedback
   items where human reviewers corrected predictions (FN/FP/etc.).
   Required filters typically include `scorecard`, `score`, and one of
   `final_value` / `initial_value` / `kind`. Read
   `evaluation-and-feedback/feedback-alignment` for the full filter
   contract and baseline-first protocol.
-- `feedback_alignment{ ... }` (alias for `plexus.feedback.alignment`) —
+- `feedback_alignment{ ... }` (alias for `primus.feedback.alignment`) —
   generate the confusion matrix, accuracy, and AC1 agreement summary
   for a score over a window. Run this **first** when investigating
   score behavior; raw feedback finds are for drilldown after the
@@ -119,12 +119,12 @@ return {
 
 ## Evaluations (read-only forms)
 
-- `evaluation{ id = "..." }` (alias for `plexus.evaluation.info`) —
+- `evaluation{ id = "..." }` (alias for `primus.evaluation.info`) —
   fetch a specific evaluation's metrics. Without an `id`, returns the
   most recent evaluation for the active account.
-- `recent_evaluations{ ... }` (alias for `plexus.evaluation.find_recent`)
+- `recent_evaluations{ ... }` (alias for `primus.evaluation.find_recent`)
   — list recent evaluations with optional filters.
-- `compare_evaluations{ ... }` (alias for `plexus.evaluation.compare`)
+- `compare_evaluations{ ... }` (alias for `primus.evaluation.compare`)
   — compare two evaluations side-by-side.
 
 ```tactus
@@ -137,9 +137,9 @@ return evaluation{ id = recents[1].id }
 ## Datasets
 
 - `dataset_association{ ... }` (alias for
-  `plexus.dataset.check_associated`) — check whether a dataset is
+  `primus.dataset.check_associated`) — check whether a dataset is
   associated with a given score / scorecard.
-- `dataset{ ... }` (alias for `plexus.dataset.build_from_feedback_window`)
+- `dataset{ ... }` (alias for `primus.dataset.build_from_feedback_window`)
   — build a dataset payload from a feedback window. This is read-shaped
   but can be expensive on wide windows; prefer narrow windows during
   exploration.

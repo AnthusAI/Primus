@@ -6,7 +6,7 @@ Two questions keep surfacing for teams running production classifiers at scale. 
 
 In short: alignment, for everyday classification work, has a labor problem and an institutional-memory problem. These aren't the exotic superintelligence framings of the frontier, but the everyday version most organizations will encounter first.
 
-In a new Anthus research effort built on top of the open-source Plexus platform, we pursue both problems together. We ask whether a scientific process — hypothesis, implementation, test — can be delegated to an AI agent that improves a score's configuration over many cycles, and whether the *meta*-process — the question of which hypothesis strategies work best — can itself be learned empirically by running the optimizer many times and letting a second layer of analysis compare the runs.
+In a new Anthus research effort built on top of the open-source Primus platform, we pursue both problems together. We ask whether a scientific process — hypothesis, implementation, test — can be delegated to an AI agent that improves a score's configuration over many cycles, and whether the *meta*-process — the question of which hypothesis strategies work best — can itself be learned empirically by running the optimizer many times and letting a second layer of analysis compare the runs.
 
 We call the result a **self-aligning meta-cognition loop**. The inner loop aligns a score to human feedback. The outer loop aligns the optimizer's own methodology to what has actually moved metrics across previous runs. Both loops are executed by LLM-driven agents, orchestrated by a domain-specific runtime we call Tactus. The combination lets a single production score improve overnight, and — more interestingly — lets the optimization strategy itself improve from one score to the next.
 
@@ -46,11 +46,11 @@ One direction we are pursuing next is cross-customer transfer: whether the meta-
 
 A second direction is letting the outer loop modify more of the inner loop than the planner prompts. The escalation advisor currently rewrites planning prescriptions and adjusts hypothesis-slot allocations. It does not yet modify the editor agent's tool set, the acceptance thresholds, or the structure of the confusion-matrix context. Each of these is a control surface the meta-cognition layer could learn over, if we give it the interface and enough runs to stabilize.
 
-We are releasing the optimizer procedure, the Tactus runtime, and the MCP tooling that drives it as part of the open-source Plexus distribution. A walk-through of a single end-to-end run, with the full hypothesis log and acceptance trace, is available in the project's documentation, and the escalation-advisor corpus format is specified so that teams running their own Plexus deployments can contribute to — and benefit from — the same meta-cognition layer.
+We are releasing the optimizer procedure, the Tactus runtime, and the MCP tooling that drives it as part of the open-source Primus distribution. A walk-through of a single end-to-end run, with the full hypothesis log and acceptance trace, is available in the project's documentation, and the escalation-advisor corpus format is specified so that teams running their own Primus deployments can contribute to — and benefit from — the same meta-cognition layer.
 
 ---
 
-*¹ Per-cycle budgets, acceptance thresholds, and the full four-phase schema are documented in `plexus/docs/optimizer-procedures.md`. Hypothesis category definitions (A: incremental, B: bold overhaul, C: structural) are maintained in the optimizer cookbook.*
+*¹ Per-cycle budgets, acceptance thresholds, and the full four-phase schema are documented in `primus/docs/optimizer-procedures.md`. Hypothesis category definitions (A: incremental, B: bold overhaul, C: structural) are maintained in the optimizer cookbook.*
 
 *² The item-recurrence taxonomy (OSCILLATING, PERSISTENT, FLIP_FLOP, LATE_EMERGING) and the contradiction-ceiling computation are implemented in the feedback-alignment procedure; comparable implementations for other metrics can be swapped in via the Tactus procedure definition.*
 
@@ -58,5 +58,5 @@ We are releasing the optimizer procedure, the Tactus runtime, and the MCP toolin
 
 **Related work**
 - [The Self-Alignment Flywheel](/) — how continuous feedback closes the loop between SMEs and scorecards
-- [Everything as Code in Plexus](/) — why score configurations live in git alongside their guidelines
+- [Everything as Code in Primus](/) — why score configurations live in git alongside their guidelines
 - [Tactus: a runtime for procedure-shaped AI](/) — the DSL underlying optimizer orchestration

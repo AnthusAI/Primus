@@ -1,15 +1,15 @@
-# Plexus Kubernetes Architecture
+# Primus Kubernetes Architecture
 
-This document explains the complete architecture for deploying Plexus workers to Kubernetes, including the data plane separation strategy with the private GraphQL proxy.
+This document explains the complete architecture for deploying Primus workers to Kubernetes, including the data plane separation strategy with the private GraphQL proxy.
 
 ## Overview
 
-The Plexus Kubernetes proof of concept consists of four main components:
+The Primus Kubernetes proof of concept consists of four main components:
 
 1. **Envoy Gateway** (HTTP entrypoint using Kubernetes Gateway API)
 2. **Private Data Store** (PostgreSQL)
 3. **GraphQL Proxy** ("The Adapter")
-4. **Plexus Scoring API Workers** (synchronous HTTP scoring pods)
+4. **Primus Scoring API Workers** (synchronous HTTP scoring pods)
 
 This POC intentionally does **not** preserve RabbitMQ queue semantics. Existing SQS/Lambda infrastructure remains a separate deployment path.
 
@@ -53,7 +53,7 @@ This POC intentionally does **not** preserve RabbitMQ queue semantics. Existing 
     │  └──────────────────▲───────────────────────────┘   │
     │                     │ HTTP (in-cluster)              │
     │  ┌──────────────────┴───────────────────────────┐  │
-    │  │  Plexus Scoring API Workers                  │  │
+    │  │  Primus Scoring API Workers                  │  │
     │  │  Deployment: 5-30 pods (HPA)                 │  │
     │  │                                               │  │
     │  │  Worker Mode: scoring-api                    │  │
@@ -77,9 +77,9 @@ This POC intentionally does **not** preserve RabbitMQ queue semantics. Existing 
 **Purpose**: Route external HTTP scoring requests into the Kubernetes cluster.
 
 **Deployment**:
-- Envoy Gateway controller installed separately from the Plexus chart
-- Gateway API resources created by the Plexus worker chart for the POC
-- Future clusters can provide a platform-managed Gateway; Plexus can create only HTTPRoutes
+- Envoy Gateway controller installed separately from the Primus chart
+- Gateway API resources created by the Primus worker chart for the POC
+- Future clusters can provide a platform-managed Gateway; Primus can create only HTTPRoutes
 - The local POC script creates the `envoy-gateway` `GatewayClass` and waits for the generated Envoy data-plane Service
 
 **Routes**:
@@ -179,12 +179,12 @@ CREATE TABLE cached_scores (
 **Configuration**:
 ```yaml
 # Environment variables
-PLEXUS_PROXY_DATABASE_URL: postgresql://user:pass@postgres:5432/plexus_proxy
-PLEXUS_PROXY_API_KEY: your-proxy-api-key
-PLEXUS_PROXY_UPSTREAM_API_URL: https://appsync.amazonaws.com/graphql
-PLEXUS_PROXY_UPSTREAM_API_KEY: your-appsync-key
-PLEXUS_PROXY_CACHE_TTL_SECONDS: 900
-PLEXUS_PROXY_CACHE_STALE_SECONDS: 86400
+PRIMUS_PROXY_DATABASE_URL: postgresql://user:pass@postgres:5432/primus_proxy
+PRIMUS_PROXY_API_KEY: your-proxy-api-key
+PRIMUS_PROXY_UPSTREAM_API_URL: https://appsync.amazonaws.com/graphql
+PRIMUS_PROXY_UPSTREAM_API_KEY: your-appsync-key
+PRIMUS_PROXY_CACHE_TTL_SECONDS: 900
+PRIMUS_PROXY_CACHE_STALE_SECONDS: 86400
 ```
 
 **Kubernetes Resources**:
@@ -200,7 +200,7 @@ spec:
     spec:
       containers:
       - name: proxy
-        image: plexus-graphql-proxy:latest
+        image: primus-graphql-proxy:latest
         ports:
         - containerPort: 8000
 
@@ -232,7 +232,7 @@ spec:
 
 For most deployments, the Kubernetes Service is sufficient.
 
-### 4. Plexus Workers
+### 4. Primus Workers
 
 **Purpose**: Process scoring jobs by executing score predictions on items.
 
@@ -265,14 +265,14 @@ Content-Type: application/json
 - Synchronous request/response scoring
 - Clusters where RabbitMQ is not part of the target architecture
 
-For route smoke tests, an incomplete request should return HTTP 422 from FastAPI, confirming Envoy reached the scoring API. A successful score result requires valid Plexus credentials, LLM credentials for the selected score, and real existing `scorecard`, `score`, and `item_id` values.
+For route smoke tests, an incomplete request should return HTTP 422 from FastAPI, confirming Envoy reached the scoring API. A successful score result requires valid Primus credentials, LLM credentials for the selected score, and real existing `scorecard`, `score`, and `item_id` values.
 
 #### Celery Worker (RabbitMQ, optional legacy mode)
 ```yaml
 env:
   WORKER_TYPE: celery
   CELERY_BROKER_URL: amqp://user:pass@rabbitmq:5672/
-  CELERY_APP: plexus.workers.celery_app
+  CELERY_APP: primus.workers.celery_app
   CELERY_QUEUE: scoring-requests
   CELERY_CONCURRENCY: "4"
 ```
@@ -287,8 +287,8 @@ env:
 ```yaml
 env:
   WORKER_TYPE: score-processor
-  PLEXUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL: https://sqs...
-  PLEXUS_RESPONSE_WORKER_QUEUE_URL: https://sqs...
+  PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL: https://sqs...
+  PRIMUS_RESPONSE_WORKER_QUEUE_URL: https://sqs...
 ```
 
 **Best for**:
@@ -334,7 +334,7 @@ podDisruptionBudget:
    └─> Envoy Gateway: POST /v1/score
 
 2. Envoy routes request
-   └─> Plexus scoring-api Service → worker pod
+   └─> Primus scoring-api Service → worker pod
 
 3. Worker pod handles request synchronously
    ├─> Load scorecard configuration (via proxy → AWS AppSync)
@@ -381,7 +381,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: graphql-proxy
-  namespace: plexus
+  namespace: primus
 spec:
   type: ClusterIP
   selector:
@@ -394,8 +394,8 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: plexus-worker
-  namespace: plexus
+  name: primus-worker
+  namespace: primus
 spec:
   type: ClusterIP
   selector:
@@ -411,7 +411,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: postgres
-  namespace: plexus
+  namespace: primus
 spec:
   type: ClusterIP
   selector:
@@ -420,7 +420,7 @@ spec:
   - port: 5432
 ```
 
-Envoy Gateway owns the external entrypoint. Plexus application pods remain behind ClusterIP Services.
+Envoy Gateway owns the external entrypoint. Primus application pods remain behind ClusterIP Services.
 
 ### Network Policies
 
@@ -428,11 +428,11 @@ Envoy Gateway owns the external entrypoint. Plexus application pods remain behin
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: plexus-worker-policy
+  name: primus-worker-policy
 spec:
   podSelector:
     matchLabels:
-      app: plexus-worker
+      app: primus-worker
   policyTypes:
   - Ingress
   - Egress
@@ -462,11 +462,11 @@ spec:
 
 ```
 Worker Pod
-  ├─> GraphQL Proxy: x-api-key header (PLEXUS_PROXY_API_KEY)
+  ├─> GraphQL Proxy: x-api-key header (PRIMUS_PROXY_API_KEY)
   │
   GraphQL Proxy
-    ├─> PostgreSQL: user/password (PLEXUS_PROXY_DATABASE_URL)
-    └─> AWS AppSync: x-api-key header (PLEXUS_PROXY_UPSTREAM_API_KEY)
+    ├─> PostgreSQL: user/password (PRIMUS_PROXY_DATABASE_URL)
+    └─> AWS AppSync: x-api-key header (PRIMUS_PROXY_UPSTREAM_API_KEY)
 ```
 
 ### Secrets Management
@@ -476,10 +476,10 @@ Worker Pod
 apiVersion: v1
 kind: Secret
 metadata:
-  name: plexus-worker-secrets
+  name: primus-worker-secrets
 type: Opaque
 stringData:
-  PLEXUS_PROXY_API_KEY: "..."
+  PRIMUS_PROXY_API_KEY: "..."
   OPENAI_API_KEY: "..."
   ANTHROPIC_API_KEY: "..."
 
@@ -490,8 +490,8 @@ metadata:
   name: graphql-proxy-secrets
 type: Opaque
 stringData:
-  PLEXUS_PROXY_DATABASE_URL: "postgresql://..."
-  PLEXUS_PROXY_UPSTREAM_API_KEY: "..."
+  PRIMUS_PROXY_DATABASE_URL: "postgresql://..."
+  PRIMUS_PROXY_UPSTREAM_API_KEY: "..."
 ```
 
 **Production**: Use AWS Secrets Manager, Azure Key Vault, or HashiCorp Vault with external-secrets operator.
@@ -503,7 +503,7 @@ stringData:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: plexus-worker
+  name: primus-worker
   annotations:
     eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/PlexusWorkerRole
 ```
@@ -542,7 +542,7 @@ This eliminates the need for AWS access keys in secrets.
   "timestamp": "2025-05-27T10:30:00Z",
   "level": "info",
   "component": "scoring-api",
-  "pod": "plexus-worker-abc123",
+  "pod": "primus-worker-abc123",
   "scoring_job_id": "job-456",
   "scorecard": "customer-support",
   "score": "sentiment",
@@ -568,16 +568,16 @@ This eliminates the need for AWS access keys in secrets.
 
 ```bash
 # Deploy new version to "green" namespace
-helm install plexus-worker-green ./helm/plexus-worker \
-  --namespace plexus-green \
+helm install primus-worker-green ./helm/primus-worker \
+  --namespace primus-green \
   --set image.tag=v1.53.0
 
 # Verify health
-kubectl get pods -n plexus-green
+kubectl get pods -n primus-green
 
 # Switch traffic (update HTTPRoute or Gateway references)
 # Drain old pods
-helm uninstall plexus-worker-blue -n plexus-blue
+helm uninstall primus-worker-blue -n primus-blue
 ```
 
 ### Canary Deployment
@@ -587,13 +587,13 @@ helm uninstall plexus-worker-blue -n plexus-blue
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: plexus-worker-canary
+  name: primus-worker-canary
 spec:
   replicas: 1  # 10% of total
   template:
     spec:
       containers:
-      - image: plexus-worker:v1.53.0
+      - image: primus-worker:v1.53.0
 ```
 
 Monitor error rates, then scale up canary and scale down stable.
@@ -654,10 +654,10 @@ The existing SQS deployment path can still use KEDA queue-depth scaling independ
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: plexus-worker-scaler
+  name: primus-worker-scaler
 spec:
   scaleTargetRef:
-    name: plexus-worker
+    name: primus-worker
   triggers:
   - type: rabbitmq
     metadata:
@@ -712,6 +712,6 @@ tolerations:
 
 ## References
 
-- [Helm Chart Documentation](helm/plexus-worker/README.md)
+- [Helm Chart Documentation](helm/primus-worker/README.md)
 - [Security Best Practices](SECURITY.md)
 - [Local Testing Guide](LOCAL_TESTING.md)

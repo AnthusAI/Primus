@@ -18,9 +18,9 @@ REGISTRY="${REGISTRY:-}"
 IMAGE_TAG="${IMAGE_TAG:-}"
 PLATFORMS="${PLATFORMS:-linux/amd64}"
 PUSH="${PUSH:-true}"
-BUILDER_NAME="${BUILDER_NAME:-plexus-multiarch}"
-WORKER_IMAGE_REPOSITORY="${WORKER_IMAGE_REPOSITORY:-plexus-worker}"
-PROXY_IMAGE_REPOSITORY="${PROXY_IMAGE_REPOSITORY:-plexus-graphql-proxy}"
+BUILDER_NAME="${BUILDER_NAME:-primus-multiarch}"
+WORKER_IMAGE_REPOSITORY="${WORKER_IMAGE_REPOSITORY:-primus-worker}"
+PROXY_IMAGE_REPOSITORY="${PROXY_IMAGE_REPOSITORY:-primus-graphql-proxy}"
 
 if [ -z "$IMAGE_TAG" ]; then
   echo "IMAGE_TAG is required (example: IMAGE_TAG=1.52.0)." >&2
@@ -68,7 +68,7 @@ if [ "$PUSH" = "false" ]; then
   BUILD_OUTPUT_FLAG="--load"
 fi
 
-echo "Building Plexus worker image: $WORKER_IMAGE"
+echo "Building Primus worker image: $WORKER_IMAGE"
 docker buildx build \
   --builder "$BUILDER_NAME" \
   --platform "$PLATFORMS" \

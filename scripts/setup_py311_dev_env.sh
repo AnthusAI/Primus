@@ -31,7 +31,7 @@ if [ -z "${CONDA_BIN:-}" ] || [ ! -x "$CONDA_BIN" ]; then
 fi
 
 if [ ! -d "$APP_DIR" ]; then
-  echo "Plexus app directory not found: $APP_DIR" >&2
+  echo "Primus app directory not found: $APP_DIR" >&2
   exit 1
 fi
 

@@ -9,9 +9,9 @@ from datetime import datetime, timezone
 
 from click.testing import CliRunner
 
-from plexus.cli.procedure import procedures
-from plexus.command_worker.executors import PlexusCliExecutor
-from plexus.command_worker.models import CommandEnvelope
+from primus.cli.procedure import procedures
+from primus.command_worker.executors import PlexusCliExecutor
+from primus.command_worker.models import CommandEnvelope
 
 
 class Context:
@@ -33,16 +33,16 @@ def test_worker_argv_preserves_scalar_array_and_nested_procedure_parameters(monk
     captured: dict[str, object] = {}
     monkeypatch.setattr(procedures, "create_client", lambda: Mock())
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command", lambda *_: "account-1"
+        "primus.cli.report.utils.resolve_account_id_for_command", lambda *_: "account-1"
     )
 
     async def run_with_tracking(**kwargs):
         captured.update(kwargs)
-        captured["dispatch_task_id"] = os.environ.get("PLEXUS_DISPATCH_TASK_ID")
+        captured["dispatch_task_id"] = os.environ.get("PRIMUS_DISPATCH_TASK_ID")
         return {"status": "completed", "procedure_id": kwargs["procedure_id"]}
 
     monkeypatch.setattr(
-        "plexus.cli.shared.experiment_runner.run_procedure_with_task_tracking",
+        "primus.cli.shared.experiment_runner.run_procedure_with_task_tracking",
         run_with_tracking,
     )
 

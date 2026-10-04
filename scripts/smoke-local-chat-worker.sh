@@ -3,9 +3,9 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-export PLEXUS_API_URL="${PLEXUS_API_URL:-http://localhost:18080/graphql}"
-export PLEXUS_API_KEY="${PLEXUS_API_KEY:-local-smoke-key}"
-export PLEXUS_ACCOUNT_KEY="${PLEXUS_ACCOUNT_KEY:-local-demo}"
+export PRIMUS_API_URL="${PRIMUS_API_URL:-http://localhost:18080/graphql}"
+export PRIMUS_API_KEY="${PRIMUS_API_KEY:-local-smoke-key}"
+export PRIMUS_ACCOUNT_KEY="${PRIMUS_ACCOUNT_KEY:-local-demo}"
 export SMOKE_CHAT_RESPONSE_TARGET="${SMOKE_CHAT_RESPONSE_TARGET:-local:smoke-worker}"
 export SMOKE_CHAT_PROMPT="${SMOKE_CHAT_PROMPT:-Please multiply 7 by 6.}"
 export SMOKE_PROOF_DIR="${SMOKE_PROOF_DIR:-$ROOT_DIR/tmp/local-control-plane-proof}"
@@ -36,7 +36,7 @@ run_step() {
 }
 
 wait_for_readyz() {
-  local ready_url="${PLEXUS_API_URL%/graphql}/readyz"
+  local ready_url="${PRIMUS_API_URL%/graphql}/readyz"
   local i
 
   for ((i = 1; i <= SMOKE_READY_ATTEMPTS; i++)); do
@@ -58,9 +58,9 @@ create_pending_chat_message() {
   mkdir -p "$(dirname "$SMOKE_CHAT_WORKER_PROOF_FILE")"
   (
     cd "$ROOT_DIR"
-    PLEXUS_API_URL="$PLEXUS_API_URL" \
-    PLEXUS_API_KEY="$PLEXUS_API_KEY" \
-    PLEXUS_ACCOUNT_KEY="$PLEXUS_ACCOUNT_KEY" \
+    PRIMUS_API_URL="$PRIMUS_API_URL" \
+    PRIMUS_API_KEY="$PRIMUS_API_KEY" \
+    PRIMUS_ACCOUNT_KEY="$PRIMUS_ACCOUNT_KEY" \
     SMOKE_CHAT_RESPONSE_TARGET="$SMOKE_CHAT_RESPONSE_TARGET" \
     SMOKE_CHAT_PROMPT="$SMOKE_CHAT_PROMPT" \
     SMOKE_CHAT_WORKER_PROOF_FILE="$SMOKE_CHAT_WORKER_PROOF_FILE" \
@@ -71,18 +71,18 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from plexus.cli.procedure.builtin_procedures import CONSOLE_CHAT_BUILTIN_ID
-from plexus.dashboard.api.client import ClientContext, PlexusDashboardClient
+from primus.cli.procedure.builtin_procedures import CONSOLE_CHAT_BUILTIN_ID
+from primus.dashboard.api.client import ClientContext, PrimusDashboardClient
 
-api_url = os.environ["PLEXUS_API_URL"]
-api_key = os.environ["PLEXUS_API_KEY"]
-account_key = os.environ["PLEXUS_ACCOUNT_KEY"]
+api_url = os.environ["PRIMUS_API_URL"]
+api_key = os.environ["PRIMUS_API_KEY"]
+account_key = os.environ["PRIMUS_ACCOUNT_KEY"]
 response_target = os.environ["SMOKE_CHAT_RESPONSE_TARGET"]
 prompt = os.environ["SMOKE_CHAT_PROMPT"]
 proof_file = Path(os.environ["SMOKE_CHAT_WORKER_PROOF_FILE"])
 ids_file = proof_file.with_suffix(".ids.json")
 
-client = PlexusDashboardClient(
+client = PrimusDashboardClient(
     api_url=api_url,
     api_key=api_key,
     context=ClientContext(account_key=account_key),
@@ -187,14 +187,14 @@ PY
 run_chat_worker_once() {
   (
     cd "$ROOT_DIR"
-    PLEXUS_API_URL="$PLEXUS_API_URL" \
-    PLEXUS_API_KEY="$PLEXUS_API_KEY" \
-    PLEXUS_ACCOUNT_KEY="$PLEXUS_ACCOUNT_KEY" \
+    PRIMUS_API_URL="$PRIMUS_API_URL" \
+    PRIMUS_API_KEY="$PRIMUS_API_KEY" \
+    PRIMUS_ACCOUNT_KEY="$PRIMUS_ACCOUNT_KEY" \
     CONSOLE_AUTO_TITLE_ENABLED=false \
     SMOKE_CHAT_RESPONSE_TARGET="$SMOKE_CHAT_RESPONSE_TARGET" \
     SMOKE_CHAT_LIMIT="$SMOKE_CHAT_LIMIT" \
-    poetry run python - <<'PY' >/tmp/plexus-smoke-chat-worker.out
-from plexus.cli.chat.chats import chat
+    poetry run python - <<'PY' >/tmp/primus-smoke-chat-worker.out
+from primus.cli.chat.chats import chat
 import os
 
 chat.main(
@@ -216,8 +216,8 @@ PY
 verify_chat_completion() {
   (
     cd "$ROOT_DIR"
-    PLEXUS_API_URL="$PLEXUS_API_URL" \
-    PLEXUS_API_KEY="$PLEXUS_API_KEY" \
+    PRIMUS_API_URL="$PRIMUS_API_URL" \
+    PRIMUS_API_KEY="$PRIMUS_API_KEY" \
     SMOKE_CHAT_WORKER_PROOF_FILE="$SMOKE_CHAT_WORKER_PROOF_FILE" \
     poetry run python - <<'PY'
 import json
@@ -225,7 +225,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from plexus.dashboard.api.client import PlexusDashboardClient
+from primus.dashboard.api.client import PrimusDashboardClient
 
 proof_file = Path(os.environ["SMOKE_CHAT_WORKER_PROOF_FILE"])
 proof = json.loads(proof_file.read_text())
@@ -233,9 +233,9 @@ session_id = proof["session_id"]
 trigger_message_id = proof["trigger_message_id"]
 trigger_created_at = proof["created_at"]
 
-client = PlexusDashboardClient(
-    api_url=os.environ["PLEXUS_API_URL"],
-    api_key=os.environ["PLEXUS_API_KEY"],
+client = PrimusDashboardClient(
+    api_url=os.environ["PRIMUS_API_URL"],
+    api_key=os.environ["PRIMUS_API_KEY"],
 )
 
 get_message = """
@@ -334,7 +334,7 @@ assert_no_upstream_requests() {
     return 0
   fi
 
-  local debug_url="${PLEXUS_API_URL%/graphql}/debug/upstream-requests"
+  local debug_url="${PRIMUS_API_URL%/graphql}/debug/upstream-requests"
   local payload
 
   payload="$(curl -fsS -m 10 "$debug_url")"

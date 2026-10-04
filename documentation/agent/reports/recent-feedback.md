@@ -35,7 +35,7 @@ Optional:
 ## Tactus Run
 
 ```tactus
-local h = plexus.report.run({
+local h = primus.report.run({
   block_class = "RecentFeedback",
   block_config = {
     scorecard = "<resolved-scorecard-id>",

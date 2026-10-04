@@ -8,7 +8,7 @@ from types import ModuleType, SimpleNamespace
 
 import pytest
 
-from plexus.command_worker.runtime.entrypoint import (
+from primus.command_worker.runtime.entrypoint import (
     CommandWorkerRuntimeConfig,
     build_celery_app,
     configure_runtime_filesystem,
@@ -21,7 +21,7 @@ def environment(**overrides: str) -> dict[str, str]:
     values = {
         "AWS_REGION": "us-east-1",
         "COMMAND_QUEUE_URL": "https://sqs.us-east-1.amazonaws.com/123456789012/command-queue",
-        "PLEXUS_API_URL": "https://example.appsync-api.us-east-1.amazonaws.com/graphql",
+        "PRIMUS_API_URL": "https://example.appsync-api.us-east-1.amazonaws.com/graphql",
         "COMMAND_WORKER_EXECUTOR_FACTORY": "test_executor:create_executor",
         "COMMAND_WORKER_LEASE_SECONDS": "300",
         "COMMAND_WORKER_HEARTBEAT_SECONDS": "60",
@@ -48,7 +48,7 @@ def test_runtime_configuration_parses_queue_and_explicit_durations() -> None:
     assert config.lease_duration.total_seconds() == 300
     assert config.heartbeat_interval.total_seconds() == 60
     assert config.visibility_timeout.total_seconds() == 900
-    assert config.task_name == "plexus.command_worker.execute"
+    assert config.task_name == "primus.command_worker.execute"
     assert (
         config.api_url == "https://example.appsync-api.us-east-1.amazonaws.com/graphql"
     )
@@ -137,7 +137,7 @@ def test_build_celery_app_uses_predefined_queue_and_registers_portable_task(
 ) -> None:
     client = SimpleNamespace(execute=lambda *_args, **_kwargs: {})
     monkeypatch.setattr(
-        "plexus.command_worker.runtime.entrypoint.PlexusDashboardClient",
+        "primus.command_worker.runtime.entrypoint.PrimusDashboardClient",
         lambda **_kwargs: client,
     )
     config = CommandWorkerRuntimeConfig.from_environment(environment())
@@ -158,7 +158,7 @@ def test_main_starts_a_worker_for_the_configured_queue(monkeypatch) -> None:
     observed: list[list[str]] = []
     monkeypatch.setattr(CommandWorkerRuntimeConfig, "from_environment", lambda: config)
     monkeypatch.setattr(
-        "plexus.command_worker.runtime.entrypoint.build_celery_app",
+        "primus.command_worker.runtime.entrypoint.build_celery_app",
         lambda received: worker,
     )
 

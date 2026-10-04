@@ -1,14 +1,14 @@
 apiVersion: v2
-name: plexus-worker
-description: Helm chart for Plexus workers (score-processor, celery, console)
+name: primus-worker
+description: Helm chart for Primus workers (score-processor, celery, console)
 type: application
 version: 1.0.0
 appVersion: "1.52.0"
 keywords:
-  - plexus
+  - primus
   - worker
   - scoring
   - celery
-home: https://github.com/AnthusAI/Plexus
+home: https://github.com/AnthusAI/Primus
 maintainers:
   - name: Anthus AI

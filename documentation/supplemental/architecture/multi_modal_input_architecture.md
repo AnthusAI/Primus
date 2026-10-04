@@ -1,7 +1,7 @@
 # Multi-Modal Input Architecture Re-Architecture
 
 ## Overview
-Re-architect Plexus to support multi-modal inputs (text, images, audio) by creating a consistent pipeline that transforms Item → Score.Input through input sources and processors. This ensures the exact same input format is used across all contexts: production predictions, evaluations, training, fine-tuning examples, and topic analysis.
+Re-architect Primus to support multi-modal inputs (text, images, audio) by creating a consistent pipeline that transforms Item → Score.Input through input sources and processors. This ensures the exact same input format is used across all contexts: production predictions, evaluations, training, fine-tuning examples, and topic analysis.
 
 ## Status Summary
 
@@ -46,10 +46,10 @@ populate the `text` column from `Score.Input.text`.
 - When generating datasets, run the full pipeline per item and extract the text
 
 **Files to update**:
-- `plexus/data/DataCache.py` - Base class with `load_dataframe()` method
-- `plexus/data/AWSDataLakeCache.py` - Likely generates text from items
-- `plexus/data/FeedbackItems.py` - Another data source
-- `plexus/cli/dataset/datasets.py` - CLI command that uses DataCache
+- `primus/data/DataCache.py` - Base class with `load_dataframe()` method
+- `primus/data/AWSDataLakeCache.py` - Likely generates text from items
+- `primus/data/FeedbackItems.py` - Another data source
+- `primus/cli/dataset/datasets.py` - CLI command that uses DataCache
 
 ## Problem Statement
 The current system assumes text-only inputs:
@@ -189,7 +189,7 @@ class Score.Input(BaseModel):
 ### Phase 1: Core Infrastructure ✅ (IN PROGRESS)
 
 #### 1.1 Add Item.to_score_input() Method ✅
-**File**: `plexus/dashboard/api/models/item.py`
+**File**: `primus/dashboard/api/models/item.py`
 
 Added method that:
 - Uses InputSource if specified in item_config
@@ -198,14 +198,14 @@ Added method that:
 
 #### 1.2 Refactor InputSource to Return Score.Input ✅
 **Files**:
-- `plexus/input_sources/InputSource.py` (base class) ✅
-- `plexus/input_sources/DeepgramInputSource.py` ✅
-- `plexus/input_sources/TextFileInputSource.py` ✅
+- `primus/input_sources/InputSource.py` (base class) ✅
+- `primus/input_sources/DeepgramInputSource.py` ✅
+- `primus/input_sources/TextFileInputSource.py` ✅
 
 Changed signature to return Score.Input with metadata instead of string.
 
 #### 1.3 Replace DataframeProcessor with New Processor Base Class ✅
-**File**: `plexus/processors/DataframeProcessor.py` ✅
+**File**: `primus/processors/DataframeProcessor.py` ✅
 
 Replaced with:
 ```python
@@ -242,7 +242,7 @@ class Processor(ABC):
 ### Phase 2: Update All Usage Points (NOT STARTED)
 
 #### 2.1 Production Predictions
-**File**: `plexus/cli/prediction/predictions.py`
+**File**: `primus/cli/prediction/predictions.py`
 
 Replace:
 ```python
@@ -259,7 +259,7 @@ score_input = item.to_score_input(item_config)
 ```
 
 #### 2.2 Evaluations
-**File**: `plexus/cli/evaluation/evaluations.py`
+**File**: `primus/cli/evaluation/evaluations.py`
 
 Replace dataset text access with:
 ```python
@@ -270,7 +270,7 @@ score_input = item.to_score_input(item_config)
 ```
 
 #### 2.3 Scorecard.score_entire_text()
-**File**: `plexus/Scorecard.py`
+**File**: `primus/Scorecard.py`
 
 Update signature:
 ```python
@@ -282,7 +282,7 @@ async def score_entire_text(self, score_input: Score.Input, ...):
 ```
 
 #### 2.4 Topic Analysis Report
-**File**: `plexus/reports/blocks/topic_analysis.py`
+**File**: `primus/reports/blocks/topic_analysis.py`
 
 Replace:
 ```python
@@ -320,27 +320,27 @@ This is a major version change that completely breaks the old architecture.
 ## Critical Files Modified
 
 ### Core Models
-- ✅ `plexus/dashboard/api/models/item.py` - Added to_score_input()
-- ⏳ `plexus/scores/Score.py` - Need to update Score.Input handling
+- ✅ `primus/dashboard/api/models/item.py` - Added to_score_input()
+- ⏳ `primus/scores/Score.py` - Need to update Score.Input handling
 
 ### Input Sources
-- ✅ `plexus/input_sources/InputSource.py` - Changed return type
-- ✅ `plexus/input_sources/DeepgramInputSource.py` - Returns Score.Input
-- ✅ `plexus/input_sources/TextFileInputSource.py` - Returns Score.Input
+- ✅ `primus/input_sources/InputSource.py` - Changed return type
+- ✅ `primus/input_sources/DeepgramInputSource.py` - Returns Score.Input
+- ✅ `primus/input_sources/TextFileInputSource.py` - Returns Score.Input
 
 ### Processors
-- ✅ `plexus/processors/DataframeProcessor.py` - Replaced with new Processor base class
-- ✅ `plexus/processors/FilterCustomerOnlyProcessor.py` - Converted
-- ✅ `plexus/processors/RemoveSpeakerIdentifiersTranscriptFilter.py` - Converted
-- ✅ `plexus/processors/RemoveStopWordsTranscriptFilter.py` - Converted
-- ✅ `plexus/processors/ExpandContractionsProcessor.py` - Converted
-- ✅ `plexus/processors/RelevantWindowsTranscriptFilter.py` - Converted
-- ⏳ `plexus/processors/AddUnknownSpeakerIdentifiersTranscriptFilter.py` - Pending
-- ⏳ `plexus/processors/AddEnumeratedSpeakerIdentifiersTranscriptFilter.py` - Pending
-- ⏳ `plexus/processors/ByColumnValueDatasetFilter.py` - Pending
-- ⏳ `plexus/processors/ColumnDatasetFilter.py` - Pending
-- ⏳ `plexus/processors/DownsampleClassDatasetFilter.py` - Pending
-- ⏳ `plexus/processors/MergeColumnsDatasetFilter.py` - Pending
+- ✅ `primus/processors/DataframeProcessor.py` - Replaced with new Processor base class
+- ✅ `primus/processors/FilterCustomerOnlyProcessor.py` - Converted
+- ✅ `primus/processors/RemoveSpeakerIdentifiersTranscriptFilter.py` - Converted
+- ✅ `primus/processors/RemoveStopWordsTranscriptFilter.py` - Converted
+- ✅ `primus/processors/ExpandContractionsProcessor.py` - Converted
+- ✅ `primus/processors/RelevantWindowsTranscriptFilter.py` - Converted
+- ⏳ `primus/processors/AddUnknownSpeakerIdentifiersTranscriptFilter.py` - Pending
+- ⏳ `primus/processors/AddEnumeratedSpeakerIdentifiersTranscriptFilter.py` - Pending
+- ⏳ `primus/processors/ByColumnValueDatasetFilter.py` - Pending
+- ⏳ `primus/processors/ColumnDatasetFilter.py` - Pending
+- ⏳ `primus/processors/DownsampleClassDatasetFilter.py` - Pending
+- ⏳ `primus/processors/MergeColumnsDatasetFilter.py` - Pending
 
 ### Test Files
 - ✅ `tests/test_input_sources/test_deepgram_input_source.py` - Updated
@@ -348,18 +348,18 @@ This is a major version change that completely breaks the old architecture.
 - ✅ `tests/test_input_sources/test_scorecard_integration.py` - Updated
 
 ### Prediction & Evaluation
-- ✅ `plexus/cli/prediction/predictions.py` - Updated to use Item.to_score_input()
-- ✅ `plexus/Scorecard.py` - score_entire_text() signature updated (backwards compatible)
-- ⏳ `plexus/cli/evaluation/evaluations.py` - NO CHANGES NEEDED (reads from text column)
+- ✅ `primus/cli/prediction/predictions.py` - Updated to use Item.to_score_input()
+- ✅ `primus/Scorecard.py` - score_entire_text() signature updated (backwards compatible)
+- ⏳ `primus/cli/evaluation/evaluations.py` - NO CHANGES NEEDED (reads from text column)
 
 ### Reports
-- ⏳ `plexus/reports/blocks/topic_analysis.py` - NO CHANGES NEEDED (reads from text column)
+- ⏳ `primus/reports/blocks/topic_analysis.py` - NO CHANGES NEEDED (reads from text column)
 
 ### Dataset Generation (REMAINING WORK)
-- ⏳ `plexus/data/FeedbackItems.py` - Update _create_dataset_rows to use item.to_score_input()
-- ⏳ `plexus/data/AWSDataLakeCache.py` - Update process_content_item to use pipeline
-- ⏳ `plexus/data/DataCache.py` - Add item_config parameter support
-- ⏳ `plexus/cli/dataset/datasets.py` - Pass item_config from YAML to DataCache
+- ⏳ `primus/data/FeedbackItems.py` - Update _create_dataset_rows to use item.to_score_input()
+- ⏳ `primus/data/AWSDataLakeCache.py` - Update process_content_item to use pipeline
+- ⏳ `primus/data/DataCache.py` - Add item_config parameter support
+- ⏳ `primus/cli/dataset/datasets.py` - Pass item_config from YAML to DataCache
 
 ## Current Status (as of 2025-01-14 Late Evening)
 

@@ -5,14 +5,14 @@ turning an optimizer result into a stakeholder or promotion decision.
 
 ## Canonical sequence
 
-1. Call `plexus.optimization.rank` for the complete requested scope.
-2. Call `plexus.optimization.assess` with exact score IDs from that result.
-3. Call `plexus.optimization.diagnose` for semantic rubric and feedback checks.
+1. Call `primus.optimization.rank` for the complete requested scope.
+2. Call `primus.optimization.assess` with exact score IDs from that result.
+3. Call `primus.optimization.diagnose` for semantic rubric and feedback checks.
 4. Present the exact ready target list and obtain approval.
-5. Call `plexus.optimization.run` only for that approved list.
+5. Call `primus.optimization.run` only for that approved list.
 6. Let every legitimate evaluation and RCA stage finish.
-7. Call `plexus.optimization.review` on terminal optimizer evidence.
-8. Call `plexus.optimization.summary` for the user-facing portfolio update.
+7. Call `primus.optimization.review` on terminal optimizer evidence.
+8. Call `primus.optimization.summary` for the user-facing portfolio update.
 
 Do not replace these methods with a second ranking formula, cohort builder,
 optimizer, or promotion path.
@@ -40,7 +40,7 @@ coverage evidence; compact output is not sampling.
 Use account-wide ranking when no selector is supplied:
 
 ```lua
-plexus.optimization.rank({})
+primus.optimization.rank({})
 ```
 
 To restrict the portfolio, supply exact opaque IDs, literal name prefixes, or
@@ -48,9 +48,9 @@ both. Prefix matching is case-insensitive and begins at the complete scorecard
 name; it is not fuzzy matching or a regular expression.
 
 ```lua
-plexus.optimization.rank({ scorecard_ids = { "opaque-scorecard-id" } })
-plexus.optimization.rank({ scorecard_name_prefixes = { "Example Portfolio" } })
-plexus.optimization.rank({
+primus.optimization.rank({ scorecard_ids = { "opaque-scorecard-id" } })
+primus.optimization.rank({ scorecard_name_prefixes = { "Example Portfolio" } })
+primus.optimization.rank({
   scorecard_ids = { "opaque-scorecard-id" },
   scorecard_name_prefixes = { "Example Portfolio" },
 })
@@ -70,7 +70,7 @@ evidence, never an exact rank or count, and never include out-of-scope rows.
 The CLI can deterministically re-rank already collected complete evidence:
 
 ```bash
-plexus optimization rank --input @complete-rank-evidence.json \
+primus optimization rank --input @complete-rank-evidence.json \
   --option 'scorecard_ids=["opaque-scorecard-id"]'
 ```
 
@@ -136,7 +136,7 @@ the score is safe to optimize.
 
 ## Launch approval
 
-`plexus.optimization.run` is an execution-mode operation. It requires:
+`primus.optimization.run` is an execution-mode operation. It requires:
 
 - `approved = true`;
 - the exact approved targets, never more than five;
@@ -153,7 +153,7 @@ Treat `promotion_ready` as a request for human approval, not a promotion.
 Require terminal matched recent evaluation, independent historical regression
 evidence, class-specific metrics, no prediction-mode collapse, complete RCA and
 artifacts, and a measurable safe improvement. Continue to use
-`plexus.score.set_champion` only after explicit approval.
+`primus.score.set_champion` only after explicit approval.
 
 Never automatically invalidate feedback, promote a candidate, stop an
 evaluation, or mutate feedback-collection settings.

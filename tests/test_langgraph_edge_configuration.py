@@ -14,7 +14,7 @@ import os
 # Add the project root to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from plexus.scores.LangGraphScore import LangGraphScore
+from primus.scores.LangGraphScore import LangGraphScore
 from langgraph.graph import StateGraph, END
 
 
@@ -258,7 +258,7 @@ class TestLangGraphEdgeConfiguration(unittest.TestCase):
             "Value setter node should be created with correct name"
         )
 
-    @patch('plexus.scores.LangGraphScore.logging')
+    @patch('primus.scores.LangGraphScore.logging')
     def test_logging_output(self, mock_logging):
         """
         Test that appropriate log messages are generated when handling final node edges.

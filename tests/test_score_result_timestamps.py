@@ -1,4 +1,4 @@
-from plexus.utils.score_result_timestamps import extract_score_result_timestamps
+from primus.utils.score_result_timestamps import extract_score_result_timestamps
 
 
 def test_extracts_structured_snake_case_timestamps():

@@ -12,7 +12,7 @@ from docker.demo.harness import DemoHarness
 
 
 def parser() -> argparse.ArgumentParser:
-    root = argparse.ArgumentParser(description="Run the Plexus Docker Desktop Kubernetes demo suite.")
+    root = argparse.ArgumentParser(description="Run the Primus Docker Desktop Kubernetes demo suite.")
     commands = root.add_subparsers(dest="command", required=True)
     for name in ("run", "resume", "verify"):
         command = commands.add_parser(name)
@@ -45,7 +45,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
     run_id = validate_run_id(args.run_id) if args.run_id else generated_run_id()
     output_dir = require_external_output_dir(
-        args.output_dir or Path("/tmp/plexus-k8s-demo") / run_id
+        args.output_dir or Path("/tmp/primus-k8s-demo") / run_id
     )
     manifest_path = output_dir / "manifest.json"
 
@@ -80,11 +80,11 @@ def main(argv: list[str] | None = None) -> int:
     env = os.environ.copy()
     env.update(
         {
-            "PLEXUS_DEMO_COMMAND": args.command,
-            "PLEXUS_DEMO_OUTPUT_DIR": str(output_dir.resolve()),
-            "PLEXUS_DEMO_PROMOTE": "1" if args.promote else "0",
-            "PLEXUS_DEMO_RESUME": "1" if args.command == "resume" else "0",
-            "PLEXUS_DEMO_INTERRUPT_AFTER_OPTIMIZER": (
+            "PRIMUS_DEMO_COMMAND": args.command,
+            "PRIMUS_DEMO_OUTPUT_DIR": str(output_dir.resolve()),
+            "PRIMUS_DEMO_PROMOTE": "1" if args.promote else "0",
+            "PRIMUS_DEMO_RESUME": "1" if args.command == "resume" else "0",
+            "PRIMUS_DEMO_INTERRUPT_AFTER_OPTIMIZER": (
                 "1" if getattr(args, "interrupt_after_optimizer", False) else "0"
             ),
         }

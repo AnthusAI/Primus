@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from behave import given, then, when
 
-from plexus.command_worker import (
+from primus.command_worker import (
     Claim,
     ClaimStatus,
     CommandEnvelope,
@@ -369,7 +369,7 @@ def stale_worker_mutates(context):
 
 @when("the legacy Celery command modules are imported")
 def import_legacy_modules(context):
-    from plexus.cli.shared import CommandDispatch, CommandTasks
+    from primus.cli.shared import CommandDispatch, CommandTasks
 
     context.legacy_modules = (CommandDispatch, CommandTasks)
 

@@ -1,7 +1,7 @@
 # Global values shared across all subcharts
 global:
   # Namespace for all resources
-  namespace: plexus
+  namespace: primus
 
   # Environment identifier
   environment: development
@@ -12,20 +12,20 @@ global:
     postgresql:
       host: "{{ .Release.Name }}-postgresql"
       port: 5432
-      database: plexus_proxy
+      database: primus_proxy
       # For external PostgreSQL (production), set:
-      # host: "plexus-prod-rds.amazonaws.com"
+      # host: "primus-prod-rds.amazonaws.com"
 
     graphqlProxy:
       host: "{{ .Release.Name }}-graphql-proxy"
       port: 8000
       path: "/graphql"
       # For external proxy, set:
-      # externalUrl: "https://proxy.plexus.example.com/graphql"
+      # externalUrl: "https://proxy.primus.example.com/graphql"
 
   # Shared labels applied to all resources
   labels:
-    app.kubernetes.io/part-of: plexus
+    app.kubernetes.io/part-of: primus
     app.kubernetes.io/managed-by: helm
 
 # Optional S3-compatible storage for the self-contained local stack. Production
@@ -42,8 +42,8 @@ localObjectStore:
     pullPolicy: IfNotPresent
   auth:
     existingSecret: ""
-    accessKey: plexus-local
-    secretKey: plexus-local-secret
+    accessKey: primus-local
+    secretKey: primus-local-secret
   service:
     port: 9000
   tls:
@@ -57,11 +57,11 @@ localObjectStore:
     size: 2Gi
     storageClass: ""
   buckets:
-    datasets: plexus-local-datasets
-    reportBlockDetails: plexus-local-report-block-details
-    rubricMemory: plexus-local-rubric-memory
-    taskAttachments: plexus-local-task-attachments
-    scoreResultAttachments: plexus-local-score-result-attachments
+    datasets: primus-local-datasets
+    reportBlockDetails: primus-local-report-block-details
+    rubricMemory: primus-local-rubric-memory
+    taskAttachments: primus-local-task-attachments
+    scoreResultAttachments: primus-local-score-result-attachments
   resources:
     requests:
       memory: 256Mi
@@ -75,8 +75,8 @@ postgresql:
   enabled: true
 
   auth:
-    username: plexus_proxy
-    database: plexus_proxy
+    username: primus_proxy
+    database: primus_proxy
     existingSecret: ""  # Set to use external secret
     # If existingSecret is not set, password will be generated
 
@@ -116,7 +116,7 @@ graphql-proxy:
   replicaCount: 2
 
   image:
-    repository: plexus-graphql-proxy
+    repository: primus-graphql-proxy
     tag: "latest"
     pullPolicy: IfNotPresent
 
@@ -172,8 +172,8 @@ graphql-proxy:
   createSecrets: true
   existingSecret: ""
 
-# Plexus Worker configuration
-plexus-worker:
+# Primus Worker configuration
+primus-worker:
   enabled: true
 
   # Envoy Gateway POC uses synchronous HTTP scoring instead of RabbitMQ.
@@ -182,7 +182,7 @@ plexus-worker:
   replicaCount: 2
 
   image:
-    repository: plexus-worker
+    repository: primus-worker
     tag: "latest"
     pullPolicy: IfNotPresent
 
@@ -204,11 +204,11 @@ plexus-worker:
   env:
     LOG_LEVEL: INFO
     MAX_JOBS_PER_WORKER: "100"
-    PLEXUS_DATA_CACHE_DIRECTORY: /app/tmp/training-data-cache
-    PLEXUS_DISABLE_CLOUDWATCH_LOGS: "1"
+    PRIMUS_DATA_CACHE_DIRECTORY: /app/tmp/training-data-cache
+    PRIMUS_DISABLE_CLOUDWATCH_LOGS: "1"
 
-  # Plexus API configuration (points to proxy)
-  plexus:
+  # Primus API configuration (points to proxy)
+  primus:
     createSecrets: true
     existingSecret: ""
     api:
@@ -240,7 +240,7 @@ plexus-worker:
   # Celery configuration, retained only for explicit RabbitMQ deployments.
   celery:
     enabled: false
-    app: plexus.workers.celery_app
+    app: primus.workers.celery_app
     queue: scoring-requests
     concurrency: 4
 

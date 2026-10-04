@@ -1,9 +1,9 @@
-# Default values for plexus-worker Helm chart
+# Default values for primus-worker Helm chart
 # This file can be overridden per environment (dev, staging, prod)
 
 # Container image configuration
 image:
-  repository: plexus-worker
+  repository: primus-worker
   pullPolicy: IfNotPresent
   tag: "latest"  # Override with specific version in production
 
@@ -169,9 +169,9 @@ env:
   HOME: /app/tmp
   XDG_CACHE_HOME: /app/tmp/cache
   MPLCONFIGDIR: /app/tmp/matplotlib
-  PLEXUS_DATA_CACHE_DIRECTORY: /app/tmp/training-data-cache
+  PRIMUS_DATA_CACHE_DIRECTORY: /app/tmp/training-data-cache
   # Disable CloudWatch log shipping — K8s captures stdout/stderr natively.
-  PLEXUS_DISABLE_CLOUDWATCH_LOGS: "1"
+  PRIMUS_DISABLE_CLOUDWATCH_LOGS: "1"
 
 # S3-compatible storage used by datasets, report blocks, and optimization
 # attachments. Credentials are always read from a Kubernetes Secret.
@@ -194,8 +194,8 @@ objectStore:
     taskAttachments: ""
     scoreResultAttachments: ""
 
-# Plexus API configuration (from secrets)
-plexus:
+# Primus API configuration (from secrets)
+primus:
   # Create secrets from these values or reference existing secrets
   createSecrets: true
   existingSecret: ""  # Use existing secret instead of creating new one
@@ -228,7 +228,7 @@ scoreProcessor:
 # Celery worker specific configuration
 celery:
   enabled: false
-  app: plexus.cli.score_chat.celery
+  app: primus.cli.score_chat.celery
   queue: score_chat
   concurrency: 4
 
@@ -246,7 +246,7 @@ scoringApi:
     enabled: false
     required: false
     # Separate inbound API key for HTTP callers of POST /v1/score.
-    # Do not reuse the Plexus GraphQL/API key used by the worker.
+    # Do not reuse the Primus GraphQL/API key used by the worker.
     apiKey: ""
     existingSecret: ""
     secretKey: scoring-api-key
@@ -285,7 +285,7 @@ procedureRecovery:
   lookbackHours: 72
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 3
-  # The recovery command loads the full Plexus runtime. Keep this aligned with
+  # The recovery command loads the full Primus runtime. Keep this aligned with
   # the worker's baseline so a cold start is not OOM-killed before it can
   # inspect stale procedures.
   resources:

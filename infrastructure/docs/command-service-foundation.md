@@ -19,7 +19,7 @@ imports. Do not rely on the staging foundation: each environment has an
 isolated network and repository.
 
 1. Identify the IAM role used by the production Amplify backend deployment.
-   Set its ARN as `PLEXUS_AMPLIFY_DEPLOYMENT_ROLE_ARN` in the Amplify `main`
+   Set its ARN as `PRIMUS_AMPLIFY_DEPLOYMENT_ROLE_ARN` in the Amplify `main`
    branch environment. The same ARN is passed to the foundation deployment so
    that it can grant only the ECR and SSM access required by the build.
    The production branch must have this variable before the Amplify deployment;
@@ -31,10 +31,10 @@ isolated network and repository.
    bootstrapped.
 
    ```bash
-   # Run from the repository root so the Python app can import Plexus.
+   # Run from the repository root so the Python app can import Primus.
    PYTHONPATH="$PWD" conda run -n py311 npx cdk bootstrap aws://ACCOUNT_ID/REGION
-   PLEXUS_COMMAND_SERVICE_ENVIRONMENT=production \
-   PLEXUS_AMPLIFY_DEPLOYMENT_ROLE_ARN=ROLE_ARN \
+   PRIMUS_COMMAND_SERVICE_ENVIRONMENT=production \
+   PRIMUS_AMPLIFY_DEPLOYMENT_ROLE_ARN=ROLE_ARN \
    PYTHONPATH="$PWD" conda run -n py311 npx cdk \
      --app "python infrastructure/command_service_foundation_app.py" \
      deploy CommandServiceFoundationProduction
@@ -48,14 +48,14 @@ isolated network and repository.
 
    ```bash
    aws cloudformation describe-stacks \
-     --stack-name plexus-command-service-foundation-production
+     --stack-name primus-command-service-foundation-production
    aws ssm get-parameters \
      --names \
-       /plexus/production/command-service/vpc-id \
-       /plexus/production/command-service/availability-zones \
-       /plexus/production/command-service/private-subnet-ids \
-       /plexus/production/command-service/worker-image-repository-uri \
-       /plexus/production/command-service/worker-image-repository-arn
+       /primus/production/command-service/vpc-id \
+       /primus/production/command-service/availability-zones \
+       /primus/production/command-service/private-subnet-ids \
+       /primus/production/command-service/worker-image-repository-uri \
+       /primus/production/command-service/worker-image-repository-arn
    ```
 
 4. Merge the application to `main`. The Amplify build publishes the immutable
@@ -68,14 +68,14 @@ foundation, so this runbook must be completed before the first production
 command-service deployment.
 
 The Amplify build obtains the foundation's environment-scoped ECR repository
-URI from SSM, builds `plexus/command_worker/Dockerfile` from the repository
+URI from SSM, builds `primus/command_worker/Dockerfile` from the repository
 root, resolves a digest, and passes only `repository@sha256` to the backend
 deployment. Its immutable tag is the SHA-256 of the Dockerfile, lockfile,
-package metadata, and every file under the copied `plexus` package tree.
+package metadata, and every file under the copied `primus` package tree.
 Dashboard-only
 changes therefore do not replace the ECS task definition.
 
-Configure `PLEXUS_AMPLIFY_DEPLOYMENT_ROLE_ARN` in both the foundation deployment
+Configure `PRIMUS_AMPLIFY_DEPLOYMENT_ROLE_ARN` in both the foundation deployment
 and the matching Amplify build environment. The initial application deployment
 attaches an inline policy to that identity containing only `dynamodb:Scan` on
 the generated Task table. This application-owned grant avoids a foundation

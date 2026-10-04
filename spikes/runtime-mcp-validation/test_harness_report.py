@@ -14,7 +14,7 @@ from harness import (
     execute_lua,
     extract_lua,
     classify_failure,
-    create_plexus_module,
+    create_primus_module,
     load_tasks,
     normalize_provider_usage,
     parse_model_ids,
@@ -260,28 +260,28 @@ def test_all_task_prompts_name_required_apis_and_output_contract_terms() -> None
 
 def test_budget_calls_are_not_required_apis_for_any_task() -> None:
     for task in load_tasks():
-        assert "plexus.budget.remaining" not in task.required_apis, (
-            f"{task.id} should not require explicit plexus.budget.remaining; "
+        assert "primus.budget.remaining" not in task.required_apis, (
+            f"{task.id} should not require explicit primus.budget.remaining; "
             "budget enforcement is ambient runtime behavior."
         )
 
 
 def test_streaming_evaluation_task_no_longer_demands_explicit_budget_call() -> None:
     task = next(task for task in load_tasks() if task.id == "run_streaming_feedback_evaluation")
-    assert "plexus.budget.remaining" not in task.required_apis
-    assert task.required_apis == ["plexus.evaluation.run"]
+    assert "primus.budget.remaining" not in task.required_apis
+    assert task.required_apis == ["primus.evaluation.run"]
 
 
 def test_helper_bindings_cover_spike_api_catalog() -> None:
-    plexus = create_plexus_module()
-    catalog = plexus.api.list()
+    primus = create_primus_module()
+    catalog = primus.api.list()
     helpers = {helper_name for helper_name, _, _ in harness.HELPER_BINDINGS}
 
     expected_helpers = {
-        f"{namespace.removeprefix('plexus.')}_{method}"
+        f"{namespace.removeprefix('primus.')}_{method}"
         for namespace, methods in catalog.items()
         for method in methods
-        if namespace not in {"plexus.budget", "plexus.cost"}
+        if namespace not in {"primus.budget", "primus.cost"}
     }
 
     assert len(helpers) == len([binding[0] for binding in harness.HELPER_BINDINGS])
@@ -327,7 +327,7 @@ def test_structured_summary_rejects_empty_representative_item_id() -> None:
                 {"label": "c", "example_count": 2, "representative_item_id": "item_1103"},
             ]
         },
-        api_calls=["plexus.feedback.find", "plexus.feedback.alignment", "plexus.item.info"],
+        api_calls=["primus.feedback.find", "primus.feedback.alignment", "primus.item.info"],
         stream_events=[],
     )
     assert result["passed"] is False
@@ -367,7 +367,7 @@ def test_repair_loop_recovers_from_first_attempt_syntax_error(monkeypatch) -> No
     assert result.succeeded_first_try is False
     assert result.check_results["passed"] is True
     assert result.failure_classification is None
-    assert "plexus.evaluation.run" in result.api_calls
+    assert "primus.evaluation.run" in result.api_calls
 
 
 def test_repair_loop_preserves_first_try_passed_when_first_attempt_succeeds(monkeypatch) -> None:
@@ -443,7 +443,7 @@ def test_repair_loop_disabled_when_repair_attempts_zero(monkeypatch) -> None:
 
 def test_evaluate_helper_returns_runtime_captured_value_without_require_or_return() -> None:
     pytest.importorskip("lupa")
-    plexus = create_plexus_module()
+    primus = create_primus_module()
 
     value = execute_lua(
         """
@@ -452,7 +452,7 @@ evaluate{
   item_count = 200,
 }
 """,
-        plexus,
+        primus,
     )
 
     assert isinstance(value, dict)
@@ -460,15 +460,15 @@ evaluate{
     assert value["processed_items"] == 200
     assert value["final_ac1"] is not None
     assert value["total_cost"] is not None
-    api_calls = [entry["api"] for entry in plexus.call_log()]
-    assert "plexus.evaluation.run" in api_calls
-    assert "plexus.budget.remaining" not in api_calls
-    assert any(event.get("event") == "progress" for event in plexus.stream_events())
+    api_calls = [entry["api"] for entry in primus.call_log()]
+    assert "primus.evaluation.run" in api_calls
+    assert "primus.budget.remaining" not in api_calls
+    assert any(event.get("event") == "progress" for event in primus.stream_events())
 
 
 def test_explicit_return_overrides_runtime_capture() -> None:
     pytest.importorskip("lupa")
-    plexus = create_plexus_module()
+    primus = create_primus_module()
 
     value = execute_lua(
         """
@@ -481,7 +481,7 @@ return {
   predicted_value = prediction.value,
 }
 """,
-        plexus,
+        primus,
     )
 
     assert value == {
@@ -492,7 +492,7 @@ return {
 
 def test_runtime_records_budget_spend_without_explicit_budget_call() -> None:
     pytest.importorskip("lupa")
-    plexus = create_plexus_module()
+    primus = create_primus_module()
 
     execute_lua(
         """
@@ -501,22 +501,22 @@ evaluate{
   item_count = 200,
 }
 """,
-        plexus,
+        primus,
     )
 
-    api_calls = [entry["api"] for entry in plexus.call_log()]
-    assert "plexus.budget.remaining" not in api_calls
-    spent = plexus.budget.remaining()["usd_spent"]
+    api_calls = [entry["api"] for entry in primus.call_log()]
+    assert "primus.budget.remaining" not in api_calls
+    spent = primus.budget.remaining()["usd_spent"]
     assert spent > 0
     assert any(
-        event.get("operation", "").startswith("plexus.evaluation.run")
-        for event in plexus.budget_events()
+        event.get("operation", "").startswith("primus.evaluation.run")
+        for event in primus.budget_events()
     )
 
 
 def test_helper_aliases_map_to_expected_namespace_methods() -> None:
     pytest.importorskip("lupa")
-    plexus = create_plexus_module()
+    primus = create_primus_module()
 
     execute_lua(
         """
@@ -527,24 +527,24 @@ feedback{ score_id = "score_compliance_tone", kind = "FN", approved = true }
 dataset{ score_id = "score_compliance_tone", window_days = 14 }
 procedure{ id = "proc_alignment_optimizer" }
 """,
-        plexus,
+        primus,
     )
 
-    api_calls = [entry["api"] for entry in plexus.call_log()]
+    api_calls = [entry["api"] for entry in primus.call_log()]
     for expected in [
-        "plexus.score.info",
-        "plexus.item.info",
-        "plexus.score.predict",
-        "plexus.feedback.find",
-        "plexus.dataset.build_from_feedback_window",
-        "plexus.procedure.info",
+        "primus.score.info",
+        "primus.item.info",
+        "primus.score.predict",
+        "primus.feedback.find",
+        "primus.dataset.build_from_feedback_window",
+        "primus.procedure.info",
     ]:
         assert expected in api_calls, f"missing {expected} in {api_calls}"
 
 
 def test_canonical_helper_aliases_map_to_expected_namespace_methods() -> None:
     pytest.importorskip("lupa")
-    plexus = create_plexus_module()
+    primus = create_primus_module()
 
     execute_lua(
         """
@@ -558,34 +558,34 @@ procedure_chat_sessions{ procedure_id = "proc_alignment_optimizer" }
 docs_get{ key = "reports" }
 api_list{}
 """,
-        plexus,
+        primus,
     )
 
-    api_calls = [entry["api"] for entry in plexus.call_log()]
+    api_calls = [entry["api"] for entry in primus.call_log()]
     for expected in [
-        "plexus.scorecards.list",
-        "plexus.score.info",
-        "plexus.item.last",
-        "plexus.feedback.alignment",
-        "plexus.evaluation.info",
-        "plexus.report.configurations_list",
-        "plexus.procedure.chat_sessions",
-        "plexus.docs.get",
-        "plexus.api.list",
+        "primus.scorecards.list",
+        "primus.score.info",
+        "primus.item.last",
+        "primus.feedback.alignment",
+        "primus.evaluation.info",
+        "primus.report.configurations_list",
+        "primus.procedure.chat_sessions",
+        "primus.docs.get",
+        "primus.api.list",
     ]:
         assert expected in api_calls, f"missing {expected} in {api_calls}"
 
 
-def test_explicit_require_plexus_still_works_for_back_compat() -> None:
+def test_explicit_require_primus_still_works_for_back_compat() -> None:
     pytest.importorskip("lupa")
-    plexus = create_plexus_module()
+    primus = create_primus_module()
 
     value = execute_lua(
         """
-local plexus = require("plexus")
-return plexus.score.info{ id = "score_compliance_tone" }.id
+local primus = require("primus")
+return primus.score.info{ id = "score_compliance_tone" }.id
 """,
-        plexus,
+        primus,
     )
 
     assert value == "score_compliance_tone"
@@ -593,12 +593,12 @@ return plexus.score.info{ id = "score_compliance_tone" }.id
 
 def test_async_evaluation_accepts_nested_lua_table_args() -> None:
     pytest.importorskip("lupa")
-    plexus = create_plexus_module()
+    primus = create_primus_module()
 
     value = execute_lua(
         """
-local plexus = require("plexus")
-local handle = plexus.evaluation.run{
+local primus = require("primus")
+local handle = primus.evaluation.run{
   score_id = "Compliance Tone",
   item_count = 1000,
   filter = {
@@ -612,20 +612,20 @@ local handle = plexus.evaluation.run{
     tool_calls = 10,
   },
 }
-local status = plexus.handle.status{ id = handle.id }
+local status = primus.handle.status{ id = handle.id }
 return {
   handle_id = handle.id,
   status = status.status,
-  check_later_with = "plexus.handle.status",
+  check_later_with = "primus.handle.status",
 }
 """,
-        plexus,
+        primus,
     )
 
     assert value == {
         "handle_id": "handle_eval_stub_compliance_tone_1000",
         "status": "running",
-        "check_later_with": "plexus.handle.status",
+        "check_later_with": "primus.handle.status",
     }
 
 
@@ -740,7 +740,7 @@ def test_classify_failure_detects_boot_prompt_gap() -> None:
     classification = classify_failure(
         model_id="openai:gpt-example",
         errors=[],
-        check_results={"passed": False, "details": ["missing required APIs: ['plexus.docs.get']"]},
+        check_results={"passed": False, "details": ["missing required APIs: ['primus.docs.get']"]},
     )
 
     assert classification == "boot_prompt"

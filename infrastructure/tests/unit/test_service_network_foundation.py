@@ -2,7 +2,7 @@ import aws_cdk as cdk
 import aws_cdk.assertions as assertions
 import pytest
 
-from plexus.infrastructure.service_network import (
+from primus.infrastructure.service_network import (
     ServiceNetworkFoundationStack,
     resolve_service_network_environment,
 )
@@ -36,7 +36,7 @@ def test_foundation_publishes_isolated_network_and_image_contract() -> None:
     stack = ServiceNetworkFoundationStack(
         app,
         "Foundation",
-        service_prefix="plexus",
+        service_prefix="primus",
         environment="staging",
         amplify_deployment_role_arn=ROLE_ARN,
         env=ENV,
@@ -82,17 +82,17 @@ def test_foundation_publishes_isolated_network_and_image_contract() -> None:
     } in statements
     parameters = template.find_resources("AWS::SSM::Parameter")
     assert {resource["Properties"]["Name"] for resource in parameters.values()} == {
-        "/plexus/staging/command-service/vpc-id",
-        "/plexus/staging/command-service/availability-zones",
-        "/plexus/staging/command-service/private-subnet-ids",
-        "/plexus/staging/command-service/worker-image-repository-uri",
-        "/plexus/staging/command-service/worker-image-repository-arn",
+        "/primus/staging/command-service/vpc-id",
+        "/primus/staging/command-service/availability-zones",
+        "/primus/staging/command-service/private-subnet-ids",
+        "/primus/staging/command-service/worker-image-repository-uri",
+        "/primus/staging/command-service/worker-image-repository-arn",
     }
     outputs = template.to_json()["Outputs"]
     assert {output["Export"]["Name"] for output in outputs.values()} == {
-        "plexus-staging-command-service-vpc-id",
-        "plexus-staging-command-service-availability-zones",
-        "plexus-staging-command-service-private-subnet-ids",
-        "plexus-staging-command-service-worker-image-repository-uri",
-        "plexus-staging-command-service-worker-image-repository-arn",
+        "primus-staging-command-service-vpc-id",
+        "primus-staging-command-service-availability-zones",
+        "primus-staging-command-service-private-subnet-ids",
+        "primus-staging-command-service-worker-image-repository-uri",
+        "primus-staging-command-service-worker-image-repository-arn",
     }

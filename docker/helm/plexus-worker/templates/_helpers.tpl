@@ -1,21 +1,21 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "plexus-worker.name" -}}
+{{- define "primus-worker.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create the name of the object-store credential Secret.
 */}}
-{{- define "plexus-worker.objectStoreSecretName" -}}
+{{- define "primus-worker.objectStoreSecretName" -}}
 {{- required "objectStore.existingSecret is required when objectStore.enabled=true" .Values.objectStore.existingSecret -}}
 {{- end }}
 
 {{/*
 Create a default fully qualified app name.
 */}}
-{{- define "plexus-worker.fullname" -}}
+{{- define "primus-worker.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -31,16 +31,16 @@ Create a default fully qualified app name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "plexus-worker.chart" -}}
+{{- define "primus-worker.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "plexus-worker.labels" -}}
-helm.sh/chart: {{ include "plexus-worker.chart" . }}
-{{ include "plexus-worker.selectorLabels" . }}
+{{- define "primus-worker.labels" -}}
+helm.sh/chart: {{ include "primus-worker.chart" . }}
+{{ include "primus-worker.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -50,8 +50,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "plexus-worker.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "plexus-worker.name" . }}
+{{- define "primus-worker.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "primus-worker.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: worker
 {{- end }}
@@ -59,39 +59,39 @@ app.kubernetes.io/component: worker
 {{/*
 Pod labels
 */}}
-{{- define "plexus-worker.podLabels" -}}
-{{ include "plexus-worker.selectorLabels" . }}
+{{- define "primus-worker.podLabels" -}}
+{{ include "primus-worker.selectorLabels" . }}
 worker-type: {{ .Values.workerType }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "plexus-worker.serviceAccountName" -}}
+{{- define "primus-worker.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "plexus-worker.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "primus-worker.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
 
 {{/*
-Create the name of the secret to use for Plexus API
+Create the name of the secret to use for Primus API
 */}}
-{{- define "plexus-worker.secretName" -}}
-{{- if .Values.plexus.existingSecret }}
-{{- .Values.plexus.existingSecret }}
+{{- define "primus-worker.secretName" -}}
+{{- if .Values.primus.existingSecret }}
+{{- .Values.primus.existingSecret }}
 {{- else }}
-{{- include "plexus-worker.fullname" . }}-secrets
+{{- include "primus-worker.fullname" . }}-secrets
 {{- end }}
 {{- end }}
 
 {{/*
-Create the Plexus API URL for the worker secret.
+Create the Primus API URL for the worker secret.
 */}}
-{{- define "plexus-worker.apiUrl" -}}
-{{- if .Values.plexus.api.url -}}
-{{- .Values.plexus.api.url -}}
+{{- define "primus-worker.apiUrl" -}}
+{{- if .Values.primus.api.url -}}
+{{- .Values.primus.api.url -}}
 {{- else -}}
 {{- $global := default dict .Values.global -}}
 {{- $services := default dict $global.services -}}
@@ -112,43 +112,43 @@ Create the Plexus API URL for the worker secret.
 {{/*
 Create the name of the secret to use for AWS credentials
 */}}
-{{- define "plexus-worker.awsSecretName" -}}
+{{- define "primus-worker.awsSecretName" -}}
 {{- if .Values.scoreProcessor.aws.existingSecret }}
 {{- .Values.scoreProcessor.aws.existingSecret }}
 {{- else }}
-{{- include "plexus-worker.fullname" . }}-aws-secrets
+{{- include "primus-worker.fullname" . }}-aws-secrets
 {{- end }}
 {{- end }}
 
 {{/*
 Create the name of the secret to use for Celery broker
 */}}
-{{- define "plexus-worker.celerySecretName" -}}
+{{- define "primus-worker.celerySecretName" -}}
 {{- if .Values.celery.broker.existingSecret }}
 {{- .Values.celery.broker.existingSecret }}
 {{- else }}
-{{- include "plexus-worker.fullname" . }}-celery-secrets
+{{- include "primus-worker.fullname" . }}-celery-secrets
 {{- end }}
 {{- end }}
 
 {{/*
 Create the Gateway name for scoring API HTTP routing.
 */}}
-{{- define "plexus-worker.gatewayName" -}}
+{{- define "primus-worker.gatewayName" -}}
 {{- if .Values.scoringApi.gateway.gatewayName }}
 {{- .Values.scoringApi.gateway.gatewayName | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- printf "%s-gateway" (include "plexus-worker.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-gateway" (include "primus-worker.fullname" .) | trunc 63 | trimSuffix "-" }}
 {{- end }}
 {{- end }}
 
 {{/*
 Create the HTTPRoute name for scoring API HTTP routing.
 */}}
-{{- define "plexus-worker.routeName" -}}
+{{- define "primus-worker.routeName" -}}
 {{- if .Values.scoringApi.gateway.routeName }}
 {{- .Values.scoringApi.gateway.routeName | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- printf "%s-route" (include "plexus-worker.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-route" (include "primus-worker.fullname" .) | trunc 63 | trimSuffix "-" }}
 {{- end }}
 {{- end }}

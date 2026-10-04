@@ -25,17 +25,17 @@ env:
   LOG_LEVEL: INFO
   MAX_JOBS_PER_WORKER: "50"
 
-# Staging-specific Plexus config
-plexus:
+# Staging-specific Primus config
+primus:
   createSecrets: true
   api:
     url: "https://your-staging-api.appsync-api.us-west-2.amazonaws.com/graphql"
     # Set via Octopus variables:
-    # key: "#{Plexus.Staging.ApiKey}"
+    # key: "#{Primus.Staging.ApiKey}"
 
   account:
     # Set via Octopus variables:
-    # key: "#{Plexus.Staging.AccountKey}"
+    # key: "#{Primus.Staging.AccountKey}"
 
 scoreProcessor:
   aws:

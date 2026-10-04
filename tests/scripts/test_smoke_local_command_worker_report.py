@@ -43,7 +43,7 @@ def test_worker_container_receives_the_json_payload_on_stdin(monkeypatch):
         "worker:smoke",
         "config-123",
         {
-            "PLEXUS_ACCOUNT_ID": "tenant-123",
+            "PRIMUS_ACCOUNT_ID": "tenant-123",
             "AWS_ACCESS_KEY_ID": "key",
             "AWS_SECRET_ACCESS_KEY": "secret",
             "AWS_SESSION_TOKEN": "token",

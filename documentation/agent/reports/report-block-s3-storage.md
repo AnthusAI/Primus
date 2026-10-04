@@ -52,8 +52,8 @@ The bucket comes from:
 
 Primary files:
 
-- `plexus/reports/service.py`
-- `plexus/reports/s3_utils.py`
+- `primus/reports/service.py`
+- `primus/reports/s3_utils.py`
 
 During report generation:
 
@@ -84,7 +84,7 @@ The compaction behavior is controlled by:
 
 ## Programmatic attachment API
 
-Use `add_file_to_report_block()` in `plexus/reports/s3_utils.py` to append attachments to an existing block.
+Use `add_file_to_report_block()` in `primus/reports/s3_utils.py` to append attachments to an existing block.
 
 High-level behavior:
 
@@ -113,6 +113,6 @@ Bucket routing is based on file prefix:
 
 CLI command:
 
-- `plexus report check-s3`
+- `primus report check-s3`
 
 This validates list/read/write/delete permissions for the report block details bucket.

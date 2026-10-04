@@ -26,17 +26,17 @@ env:
   LOG_LEVEL: DEBUG
   MAX_JOBS_PER_WORKER: "10"  # Restart frequently in dev
 
-# Dev-specific Plexus config
-plexus:
+# Dev-specific Primus config
+primus:
   createSecrets: true
   api:
-    url: "https://dev-api.plexus.example.com"
+    url: "https://dev-api.primus.example.com"
     # Set via Octopus variables:
-    # key: "#{Plexus.Dev.ApiKey}"
+    # key: "#{Primus.Dev.ApiKey}"
 
   account:
     # Set via Octopus variables:
-    # key: "#{Plexus.Dev.AccountKey}"
+    # key: "#{Primus.Dev.AccountKey}"
 
 scoreProcessor:
   aws:

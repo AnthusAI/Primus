@@ -25,13 +25,13 @@ def test_scorecard_retarget_runtime_plans_single_score():
 
     assert result["changed"] is True
     assert result["candidate"]["model_name"] == "gpt-5.4-nano"
-    assert module.api_calls == ["plexus.scorecard_retarget.plan_score"]
+    assert module.api_calls == ["primus.scorecard_retarget.plan_score"]
 
 
-def test_scorecard_retarget_is_listed_in_plexus_api_list():
+def test_scorecard_retarget_is_listed_in_primus_api_list():
     module = execute.PlexusRuntimeModule()
 
     catalog = module.api.list()
 
-    assert "plexus.scorecard_retarget" in catalog
-    assert "plan_score" in catalog["plexus.scorecard_retarget"]
+    assert "primus.scorecard_retarget" in catalog
+    assert "plan_score" in catalog["primus.scorecard_retarget"]

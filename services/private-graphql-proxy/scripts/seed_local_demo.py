@@ -8,8 +8,8 @@ from typing import Any
 import requests
 
 
-API_URL = os.getenv("PLEXUS_API_URL", "http://localhost:18080/graphql")
-API_KEY = os.getenv("PLEXUS_API_KEY", os.getenv("PLEXUS_PROXY_API_KEY", "local-smoke-key"))
+API_URL = os.getenv("PRIMUS_API_URL", "http://localhost:18080/graphql")
+API_KEY = os.getenv("PRIMUS_API_KEY", os.getenv("PRIMUS_PROXY_API_KEY", "local-smoke-key"))
 
 
 def now() -> str:
@@ -55,9 +55,9 @@ def create(model: str, input_doc: dict[str, Any]) -> dict[str, Any]:
 def main() -> None:
     wait_for_proxy()
     ts = now()
-    feedback_fixture_count = int(os.getenv("PLEXUS_LOCAL_FEEDBACK_FIXTURE_COUNT", "200"))
+    feedback_fixture_count = int(os.getenv("PRIMUS_LOCAL_FEEDBACK_FIXTURE_COUNT", "200"))
     if feedback_fixture_count < 1:
-        raise RuntimeError("PLEXUS_LOCAL_FEEDBACK_FIXTURE_COUNT must be >= 1")
+        raise RuntimeError("PRIMUS_LOCAL_FEEDBACK_FIXTURE_COUNT must be >= 1")
     account_id = "local-demo-account"
     scorecard_id = "local-demo-scorecard"
     section_id = "local-demo-section"
@@ -91,7 +91,7 @@ def main() -> None:
     })
     create("User", {
         "id": "demo-user",
-        "email": "demo@plexus.local",
+        "email": "demo@primus.local",
         "displayName": "Demo User",
         "createdAt": ts,
         "updatedAt": ts,
@@ -414,7 +414,7 @@ def main() -> None:
         "type": "evaluation",
         "status": "COMPLETED",
         "target": "Local Demo Evaluation",
-        "command": "plexus evaluate local-demo",
+        "command": "primus evaluate local-demo",
         "description": "Seeded task showing local control-plane task data.",
         "dispatchStatus": "DISPATCHED",
         "metadata": {"source": "local-demo"},
@@ -575,7 +575,7 @@ def main() -> None:
         "createdAt": ts,
     })
 
-    print(f"Seeded local Plexus demo data through {API_URL}")
+    print(f"Seeded local Primus demo data through {API_URL}")
 
 
 if __name__ == "__main__":

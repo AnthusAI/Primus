@@ -7,7 +7,7 @@ This runbook proves the local GraphQL control plane is usable by CLI tools and t
 Run:
 
 ```bash
-cd /Users/ryan.porter/Projects/Plexus-codex-control-plane
+cd /Users/ryan.porter/Projects/Primus-codex-control-plane
 bash scripts/bootstrap-local-mvp.sh
 ```
 
@@ -24,20 +24,20 @@ This script enforces:
 Run:
 
 ```bash
-cd /Users/ryan.porter/Projects/Plexus-codex-control-plane/dashboard
+cd /Users/ryan.porter/Projects/Primus-codex-control-plane/dashboard
 npm run dev:local-control-plane
 ```
 
 Expected local mode settings:
 
-- `PLEXUS_BACKEND_MODE=local`
-- `NEXT_PUBLIC_PLEXUS_BACKEND=local`
-- `PLEXUS_API_URL=http://localhost:18080/graphql`
-- `PLEXUS_API_KEY=local-smoke-key`
-- `PLEXUS_ACCOUNT_KEY=local-demo`
-- `PLEXUS_VECTOR_STORE_PROVIDER=qdrant`
-- `PLEXUS_VECTOR_STORE_URL=http://localhost:19002`
-- `PLEXUS_VECTOR_STORE_COLLECTION=topic-memory-local`
+- `PRIMUS_BACKEND_MODE=local`
+- `NEXT_PUBLIC_PRIMUS_BACKEND=local`
+- `PRIMUS_API_URL=http://localhost:18080/graphql`
+- `PRIMUS_API_KEY=local-smoke-key`
+- `PRIMUS_ACCOUNT_KEY=local-demo`
+- `PRIMUS_VECTOR_STORE_PROVIDER=qdrant`
+- `PRIMUS_VECTOR_STORE_URL=http://localhost:19002`
+- `PRIMUS_VECTOR_STORE_COLLECTION=topic-memory-local`
 
 ## 3) Assert backend health and seeded data
 
@@ -86,7 +86,7 @@ The seed also creates a deterministic feedback-evaluation fixture set:
 Run:
 
 ```bash
-cd /Users/ryan.porter/Projects/Plexus-codex-control-plane
+cd /Users/ryan.porter/Projects/Primus-codex-control-plane
 bash scripts/smoke-local-cli.sh
 ```
 
@@ -108,7 +108,7 @@ SMOKE_CLEANUP=0 bash scripts/smoke-local-cli.sh
 Run:
 
 ```bash
-cd /Users/ryan.porter/Projects/Plexus-codex-control-plane
+cd /Users/ryan.porter/Projects/Primus-codex-control-plane
 bash scripts/smoke-local-predict.sh
 ```
 
@@ -117,7 +117,7 @@ The prediction smoke is strict and validates:
 - Nira call-center fixture records exist (`nira-demo-scorecard`, `nira-demo-score`, `nira-demo-score-version`, `nira-demo-item-1`).
 - Champion path is wired (`getScore(...).championVersionId` resolves to the seeded version).
 - Champion version config is executable local score config (`class: TactusScore`).
-- `plexus predict` succeeds against local GraphQL with `--no-cache --format json`.
+- `primus predict` succeeds against local GraphQL with `--no-cache --format json`.
 - The returned `score_result_id` exists in GraphQL and is linked to expected `itemId`, `accountId`, `scorecardId`, `scoreId`, and `scoreVersionId`.
 - The exact `score_result_id` is written to `tmp/local-control-plane-proof/prediction.json`.
 - The proxy debug audit shows no upstream GraphQL requests.
@@ -132,7 +132,7 @@ Note:
 After prediction smoke has written `tmp/local-control-plane-proof/prediction.json`, run:
 
 ```bash
-cd /Users/ryan.porter/Projects/Plexus-codex-control-plane
+cd /Users/ryan.porter/Projects/Primus-codex-control-plane
 bash scripts/smoke-local-browser.sh
 ```
 
@@ -156,14 +156,14 @@ tmp/local-control-plane-browser-smoke/
 Run:
 
 ```bash
-cd /Users/ryan.porter/Projects/Plexus-codex-control-plane
+cd /Users/ryan.porter/Projects/Primus-codex-control-plane
 bash scripts/smoke-local-feedback-evaluation.sh
 ```
 
 The feedback smoke validates:
 
 - The local seed contains at least 200 Nira feedback-labeled fixtures.
-- `plexus evaluate feedback` runs in local mode against the seeded scorecard/score/champion score version.
+- `primus evaluate feedback` runs in local mode against the seeded scorecard/score/champion score version.
 - The emitted evaluation record is persisted and linked correctly.
 - At least 200 evaluation `ScoreResult` records are persisted and linked to that evaluation.
 - The proof artifact is written to `tmp/local-control-plane-proof/feedback-evaluation.json`.
@@ -174,14 +174,14 @@ The feedback smoke validates:
 To prove the full MVP path from a clean smoke database, run:
 
 ```bash
-cd /Users/ryan.porter/Projects/Plexus-codex-control-plane
+cd /Users/ryan.porter/Projects/Primus-codex-control-plane
 bash scripts/prove-local-control-plane.sh
 ```
 
 The proof harness:
 
 - Resets only the smoke Docker Compose stack and volumes from `services/private-graphql-proxy/docker-compose.smoke.yml`.
-- Starts PostgreSQL, MinIO, Qdrant, and the local GraphQL proxy with `PLEXUS_BACKEND_MODE=local` and `PLEXUS_PROXY_UPSTREAM_DISABLED=true`.
+- Starts PostgreSQL, MinIO, Qdrant, and the local GraphQL proxy with `PRIMUS_BACKEND_MODE=local` and `PRIMUS_PROXY_UPSTREAM_DISABLED=true`.
 - Seeds deterministic local demo data.
 - Runs strict CLI smoke with no fallback reads.
 - Runs prediction smoke and writes the exact proof file.
@@ -195,7 +195,7 @@ The proof harness:
 After the clean proof harness passes, run:
 
 ```bash
-cd /Users/ryan.porter/Projects/Plexus-codex-control-plane
+cd /Users/ryan.porter/Projects/Primus-codex-control-plane
 bash scripts/vet-local-control-plane.sh
 ```
 
@@ -203,13 +203,13 @@ The vetting harness writes `tmp/local-control-plane-proof/production-vetting.jso
 
 ## 10) Optional trusted-open smoke
 
-Trusted-open mode is intentionally unauthenticated and unauthorised inside Plexus. Use it only when access to the GraphQL port is controlled externally.
+Trusted-open mode is intentionally unauthenticated and unauthorised inside Primus. Use it only when access to the GraphQL port is controlled externally.
 
 Start the clean proof stack in trusted-open mode:
 
 ```bash
-cd /Users/ryan.porter/Projects/Plexus-codex-control-plane
-PLEXUS_PROXY_AUTH_MODE=trusted_open bash scripts/prove-local-control-plane.sh
+cd /Users/ryan.porter/Projects/Primus-codex-control-plane
+PRIMUS_PROXY_AUTH_MODE=trusted_open bash scripts/prove-local-control-plane.sh
 ```
 
 Then run:
@@ -229,7 +229,7 @@ Use the dedicated runbook:
 Quick proof commands:
 
 ```bash
-cd /Users/ryan.porter/Projects/Plexus-codex-control-plane
+cd /Users/ryan.porter/Projects/Primus-codex-control-plane
 bash scripts/smoke-local-task-dispatch.sh
 bash scripts/smoke-local-chat-worker.sh
 bash scripts/prove-local-worker-orchestration.sh

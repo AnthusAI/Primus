@@ -3,14 +3,14 @@
 This directory contains the gating spike for Kanbus epic `plx-f978d2`.
 
 The goal is to measure whether frontier models can use a single
-`execute_tactus`-style interface to write Plexus-flavored Tactus code against a
-stubbed `plexus` module.
+`execute_tactus`-style interface to write Primus-flavored Tactus code against a
+stubbed `primus` module.
 
 ## Contents
 
 - `boot_prompt.md` — compact tool-description / boot prompt used in the spike.
-- `plexus_module_stub.py` — deterministic fixture-backed `plexus.*` module.
-- `fixtures/plexus_stub_data.json` — scorecards, scores, items, evaluations,
+- `primus_module_stub.py` — deterministic fixture-backed `primus.*` module.
+- `fixtures/primus_stub_data.json` — scorecards, scores, items, evaluations,
   feedback, datasets, reports, procedures, and docs fixtures.
 - `tasks/*.yaml` — curated representative tasks and expected outcomes.
 - `harness.py` — task loader, Tactus executor, provider adapters, outcome checkers,
@@ -19,8 +19,8 @@ stubbed `plexus` module.
 - `measure_mcp_catalog.py` — measures current FastMCP tool-schema context cost
   against the proposed single-tool payload.
 - `report_template.md` — final report requirements and gate reminder.
-- `host_module_contract.md` — contract between Plexus and Tactus for
-  `runtime.register_python_module("plexus", ...)`.
+- `host_module_contract.md` — contract between Primus and Tactus for
+  `runtime.register_python_module("primus", ...)`.
 - `results/` — ignored generated output from harness runs.
 
 ## Local Smoke Test
@@ -152,13 +152,13 @@ For real model runs, the harness:
 1. Sends `boot_prompt.md` plus the task prompt to the selected model.
 2. Asks for Tactus code only.
 3. Extracts fenced or raw Tactus code.
-4. Executes it with Lupa and a host-provided `require("plexus")` shim.
+4. Executes it with Lupa and a host-provided `require("primus")` shim.
 5. Converts Tactus table values back to Python values.
 6. Checks the final value, API calls, stream events, forbidden APIs, cost, and
    structured errors against the task definition.
 
 This is a spike harness, not the production `execute_tactus` implementation.
-The `require("plexus")` shim is a temporary stand-in for the Tactus host-module
+The `require("primus")` shim is a temporary stand-in for the Tactus host-module
 mechanism tracked in epic `plx-cb988c`.
 
 The production integration contract is documented in `host_module_contract.md`.

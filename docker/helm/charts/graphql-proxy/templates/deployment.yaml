@@ -46,7 +46,7 @@ spec:
           containerPort: 8000
           protocol: TCP
         env:
-        {{- $dbUser := .Values.postgresql.username | default "plexus_proxy" }}
+        {{- $dbUser := .Values.postgresql.username | default "primus_proxy" }}
         {{- $dbHost := tpl .Values.global.services.postgresql.host . }}
         {{- $dbPort := .Values.global.services.postgresql.port }}
         {{- $dbName := .Values.global.services.postgresql.database }}
@@ -66,14 +66,14 @@ spec:
               key: {{ .Values.postgresql.existingSecretPasswordKey | default "password" }}
 
         # Proxy API key (for workers to authenticate)
-        - name: PLEXUS_PROXY_API_KEY
+        - name: PRIMUS_PROXY_API_KEY
           valueFrom:
             secretKeyRef:
               name: {{ include "graphql-proxy.secretName" . }}
               key: proxy-api-key
 
         # Upstream AWS AppSync key
-        - name: PLEXUS_PROXY_UPSTREAM_API_KEY
+        - name: PRIMUS_PROXY_UPSTREAM_API_KEY
           valueFrom:
             secretKeyRef:
               name: {{ include "graphql-proxy.secretName" . }}
@@ -82,12 +82,12 @@ spec:
         {{- if .Values.artifactStore.enabled }}
         # Local object-store credentials are held by the proxy signer only;
         # workers receive short-lived HTTPS tickets for migrated artifacts.
-        - name: PLEXUS_ARTIFACT_STORE_ACCESS_KEY_ID
+        - name: PRIMUS_ARTIFACT_STORE_ACCESS_KEY_ID
           valueFrom:
             secretKeyRef:
               name: {{ required "artifactStore.existingSecret is required" .Values.artifactStore.existingSecret | quote }}
               key: {{ .Values.artifactStore.accessKeySecretKey | quote }}
-        - name: PLEXUS_ARTIFACT_STORE_SECRET_ACCESS_KEY
+        - name: PRIMUS_ARTIFACT_STORE_SECRET_ACCESS_KEY
           valueFrom:
             secretKeyRef:
               name: {{ .Values.artifactStore.existingSecret | quote }}

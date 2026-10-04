@@ -6,12 +6,12 @@ Worker Type: {{ .Values.workerType }}
 
 To check the status of your deployment:
 
-  kubectl get deployment {{ include "plexus-worker.fullname" . }} -n {{ .Values.global.namespace }}
-  kubectl get pods -l app.kubernetes.io/name={{ include "plexus-worker.name" . }} -n {{ .Values.global.namespace }}
+  kubectl get deployment {{ include "primus-worker.fullname" . }} -n {{ .Values.global.namespace }}
+  kubectl get pods -l app.kubernetes.io/name={{ include "primus-worker.name" . }} -n {{ .Values.global.namespace }}
 
 To view logs:
 
-  kubectl logs -f deployment/{{ include "plexus-worker.fullname" . }} -n {{ .Values.global.namespace }}
+  kubectl logs -f deployment/{{ include "primus-worker.fullname" . }} -n {{ .Values.global.namespace }}
 
 {{- if .Values.autoscaling.enabled }}
 
@@ -21,7 +21,7 @@ Autoscaling is enabled:
 
 To check HPA status:
 
-  kubectl get hpa {{ include "plexus-worker.fullname" . }} -n {{ .Values.global.namespace }}
+  kubectl get hpa {{ include "primus-worker.fullname" . }} -n {{ .Values.global.namespace }}
 {{- else }}
 
 Autoscaling is disabled. Running {{ .Values.replicaCount }} replicas.
@@ -46,11 +46,11 @@ Celery Worker Configuration:
 {{- if eq .Values.workerType "scoring-api" }}
 
 Scoring API Configuration:
-  Service: {{ include "plexus-worker.fullname" . }}:{{ .Values.service.port }}
+  Service: {{ include "primus-worker.fullname" . }}:{{ .Values.service.port }}
   Endpoint: POST /v1/score
 {{- if .Values.scoringApi.gateway.enabled }}
-  Gateway: {{ include "plexus-worker.gatewayName" . }}
-  HTTPRoute: {{ include "plexus-worker.routeName" . }}
+  Gateway: {{ include "primus-worker.gatewayName" . }}
+  HTTPRoute: {{ include "primus-worker.routeName" . }}
 {{- end }}
 {{- end }}
 

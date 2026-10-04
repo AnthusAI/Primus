@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Plexus'
+project = 'Primus'
 copyright = 'Anthus AI Solutions'
 author = 'Anthus AI Solutions'
 release = '0.1'
@@ -26,7 +26,7 @@ exclude_patterns = [
 
 import os
 import sys
-basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'plexus'))
+basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'primus'))
 sys.path.insert(0, basedir)
 
 autodoc_default_options = {

@@ -1,11 +1,11 @@
-# Plexus Worker Helm Chart
+# Primus Worker Helm Chart
 
-Helm chart for deploying Plexus workers to Kubernetes.
+Helm chart for deploying Primus workers to Kubernetes.
 
 ## Files Structure
 
 ```
-plexus-worker/
+primus-worker/
 ├── Chart.yaml                     # Chart metadata
 ├── values.yaml                    # Default values (committed)
 ├── values-dev.yaml.example        # Dev template (committed)
@@ -48,7 +48,7 @@ cp values-prod.yaml.example values-prod.yaml
 Edit your values file and replace placeholders:
 
 ```yaml
-plexus:
+primus:
   api:
     url: "https://your-actual-api-url"
     authMode: api_key
@@ -68,9 +68,9 @@ scoreProcessor:
 ### 3. Deploy
 
 ```bash
-helm install plexus-worker . \
+helm install primus-worker . \
   -f values-dev.yaml \
-  --namespace plexus-dev \
+  --namespace primus-dev \
   --create-namespace
 ```
 
@@ -90,9 +90,9 @@ and use an immutable worker image tag such as a git SHA or digest-derived tag.
 The chart rejects `latest` and `local` tags when `global.environment` is not
 `local`, `development`, `dev`, or `test`.
 
-Set `plexus.api.authMode` explicitly to `api_key` for current secret-backed
+Set `primus.api.authMode` explicitly to `api_key` for current secret-backed
 deployments or `iam` for a service account with an authorized AWS role. IAM
-mode does not inject `PLEXUS_API_KEY` into worker or recovery-job containers.
+mode does not inject `PRIMUS_API_KEY` into worker or recovery-job containers.
 Any other authentication mode is rejected during chart rendering.
 
 ## Envoy Gateway Scoring API
@@ -121,8 +121,8 @@ scoringApi:
 ```
 
 For exposed environments, keep `scoringApi.auth.enabled` on and require callers
-to send `x-plexus-scoring-api-key`. This inbound key is separate from the
-worker's `PLEXUS_API_KEY`, which is used for backend GraphQL access.
+to send `x-primus-scoring-api-key`. This inbound key is separate from the
+worker's `PRIMUS_API_KEY`, which is used for backend GraphQL access.
 `scoringApi.auth.required` sets `SCORING_API_AUTH_REQUIRED=true` so the API
 fails closed if the inbound key is missing.
 

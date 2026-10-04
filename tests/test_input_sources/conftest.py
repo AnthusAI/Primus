@@ -11,9 +11,9 @@ def isolate_tests():
 
     # Reload modules BEFORE each test to ensure clean state
     modules_to_reload = [
-        'plexus.utils.score_result_s3_utils',
-        'plexus.input_sources.TextFileInputSource',
-        'plexus.input_sources.DeepgramInputSource',
+        'primus.utils.score_result_s3_utils',
+        'primus.input_sources.TextFileInputSource',
+        'primus.input_sources.DeepgramInputSource',
     ]
     for module_name in modules_to_reload:
         if module_name in sys.modules:
@@ -38,5 +38,5 @@ def isolate_tests():
     # Clean up any modules loaded during the test
     new_modules = set(sys.modules.keys()) - original_modules
     for module_name in new_modules:
-        if module_name.startswith('plexus.input_sources') or module_name.startswith('plexus.utils.score_result'):
+        if module_name.startswith('primus.input_sources') or module_name.startswith('primus.utils.score_result'):
             sys.modules.pop(module_name, None)

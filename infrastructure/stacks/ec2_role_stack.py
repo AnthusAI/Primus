@@ -50,7 +50,7 @@ class EC2RoleStack(Stack):
         self.ec2_role = iam.Role(
             self,
             f"EC2Role-{environment}",
-            role_name=f"plexus-ec2-basic-role-{environment}",
+            role_name=f"primus-ec2-basic-role-{environment}",
             assumed_by=iam.ServicePrincipal("ec2.amazonaws.com"),
             managed_policies=[
                 iam.ManagedPolicy.from_aws_managed_policy_name("AmazonSSMManagedInstanceCore"),

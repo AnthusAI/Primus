@@ -1,25 +1,25 @@
-# Quick Reference - Plexus Kubernetes Deployment
+# Quick Reference - Primus Kubernetes Deployment
 
 ## TL;DR - Envoy Gateway POC Locally
 
 ```bash
 # 1. Create local stack values
-cp docker/helm/plexus-stack/values-local.yaml.example \
-   docker/helm/plexus-stack/values-local.yaml
+cp docker/helm/primus-stack/values-local.yaml.example \
+   docker/helm/primus-stack/values-local.yaml
 
 # 2. Edit values with API/account/LLM keys
-vim docker/helm/plexus-stack/values-local.yaml
+vim docker/helm/primus-stack/values-local.yaml
 
 # 3. Build, install Envoy Gateway, and deploy to kind
 docker/scripts/setup_envoy_gateway_poc.sh
 
 # 4. Check status
-kubectl get pods -n plexus-local
-kubectl get gateway,httproute -n plexus-local
+kubectl get pods -n primus-local
+kubectl get gateway,httproute -n primus-local
 
 # 5. Find and port-forward the Envoy data-plane Service
 kubectl get svc -A \
-  -l gateway.envoyproxy.io/owning-gateway-name=plexus-plexus-worker-gateway
+  -l gateway.envoyproxy.io/owning-gateway-name=primus-primus-worker-gateway
 kubectl port-forward -n <envoy-service-namespace> svc/<envoy-service-name> 8080:80
 
 # 6. Smoke test routing to the scoring API
@@ -46,7 +46,7 @@ docker/
 ├── README.md                     # Complete guide
 ├── SECURITY.md                   # Security practices
 ├── LOCAL_TESTING.md             # This guide for local testing
-└── helm/plexus-worker/          # Helm chart for deployment
+└── helm/primus-worker/          # Helm chart for deployment
     ├── values-dev.yaml          # Dev environment
     ├── values-staging.yaml      # Staging environment
     ├── values-prod.yaml         # Production environment
@@ -58,16 +58,16 @@ docker/
 ### Build & Deploy
 ```bash
 # Build local native image (kind / local k8s)
-docker build -f docker/Dockerfile -t plexus-worker:VERSION .
+docker build -f docker/Dockerfile -t primus-worker:VERSION .
 
 # Build/push publishable linux/amd64 worker+proxy images
 REGISTRY=your-registry IMAGE_TAG=VERSION docker/scripts/build_k8s_images.sh
 
 # Deploy to local K8s
-helm install RELEASE docker/helm/plexus-worker -f values-ENV.yaml
+helm install RELEASE docker/helm/primus-worker -f values-ENV.yaml
 
 # Upgrade
-helm upgrade RELEASE docker/helm/plexus-worker -f values-ENV.yaml
+helm upgrade RELEASE docker/helm/primus-worker -f values-ENV.yaml
 ```
 
 ### Debug
@@ -106,7 +106,7 @@ Set via `workerType` in values:
 
 | Type | Purpose | Required Config |
 |------|---------|----------------|
-| `scoring-api` | Envoy-routed synchronous HTTP scoring | Plexus API/account keys |
+| `scoring-api` | Envoy-routed synchronous HTTP scoring | Primus API/account keys |
 | `score-processor` | SQS-based scoring | AWS creds, SQS URLs |
 | `celery` | RabbitMQ tasks | Broker URL |
 | `console-worker` | Console chat | Response target |
@@ -123,7 +123,7 @@ Set via `workerType` in values:
 ```yaml
 # Image
 image:
-  repository: your-registry/plexus-worker
+  repository: your-registry/primus-worker
   tag: "1.52.0"
 
 # Worker type
@@ -168,7 +168,7 @@ serviceAccount:
 
 **ImagePullBackOff**: Image not found
 ```bash
-docker images | grep plexus-worker
+docker images | grep primus-worker
 ```
 
 **CrashLoopBackOff**: Check logs

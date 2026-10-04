@@ -33,13 +33,13 @@ class FakeS3:
 
     def generate_presigned_url(self, operation, *, Params, ExpiresIn):
         self.calls.append((operation, Params, ExpiresIn))
-        return f"https://plexus-local-object-store:9000/signed/{Params['Key']}"
+        return f"https://primus-local-object-store:9000/signed/{Params['Key']}"
 
 
 def configuration(**overrides):
     values = {
         "enabled": True,
-        "endpoint": "https://plexus-local-object-store:9000",
+        "endpoint": "https://primus-local-object-store:9000",
         "region": "us-east-1",
         "access_key_id": "local-access",
         "secret_access_key": "local-secret",
@@ -164,4 +164,4 @@ def test_missing_and_cross_account_resources_fail_closed():
 
 def test_configuration_rejects_http_endpoint():
     with pytest.raises(ValueError, match="HTTPS"):
-        configuration(endpoint="http://plexus-local-object-store:9000").validate()
+        configuration(endpoint="http://primus-local-object-store:9000").validate()

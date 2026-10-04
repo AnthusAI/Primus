@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-import plexus.input_sources.DeepgramInputSource  # noqa: F401
+import primus.input_sources.DeepgramInputSource  # noqa: F401
 
 
 class TestDeepgramInputSource:
@@ -13,11 +13,11 @@ class TestDeepgramInputSource:
             return json.load(f)
 
     @patch.object(
-        sys.modules["plexus.input_sources.DeepgramInputSource"],
+        sys.modules["primus.input_sources.DeepgramInputSource"],
         "download_score_result_trace_file",
     )
     def test_extract_returns_raw_transcript_text_and_deepgram_metadata(self, mock_download):
-        from plexus.input_sources.DeepgramInputSource import DeepgramInputSource
+        from primus.input_sources.DeepgramInputSource import DeepgramInputSource
 
         deepgram_data = self.load_fixture("deepgram_simple_conversation.json")
         mock_download.return_value = (deepgram_data, None)
@@ -38,11 +38,11 @@ class TestDeepgramInputSource:
         assert result.metadata["deepgram"] == deepgram_data
 
     @patch.object(
-        sys.modules["plexus.input_sources.DeepgramInputSource"],
+        sys.modules["primus.input_sources.DeepgramInputSource"],
         "download_score_result_trace_file",
     )
     def test_extract_ignores_formatting_options(self, mock_download):
-        from plexus.input_sources.DeepgramInputSource import DeepgramInputSource
+        from primus.input_sources.DeepgramInputSource import DeepgramInputSource
 
         deepgram_data = self.load_fixture("deepgram_simple_conversation.json")
         mock_download.return_value = (deepgram_data, None)
@@ -68,7 +68,7 @@ class TestDeepgramInputSource:
         assert result.metadata["deepgram"] == deepgram_data
 
     def test_extract_no_matching_attachment(self):
-        from plexus.input_sources.DeepgramInputSource import DeepgramInputSource
+        from primus.input_sources.DeepgramInputSource import DeepgramInputSource
 
         source = DeepgramInputSource(pattern=r".*deepgram.*\.json$")
         item = Mock()
@@ -82,11 +82,11 @@ class TestDeepgramInputSource:
         assert "Available attachments:" in str(exc_info.value)
 
     @patch.object(
-        sys.modules["plexus.input_sources.DeepgramInputSource"],
+        sys.modules["primus.input_sources.DeepgramInputSource"],
         "download_score_result_trace_file",
     )
     def test_extract_download_failure_propagates(self, mock_download):
-        from plexus.input_sources.DeepgramInputSource import DeepgramInputSource
+        from primus.input_sources.DeepgramInputSource import DeepgramInputSource
 
         mock_download.side_effect = Exception("S3 download failed")
 
@@ -99,11 +99,11 @@ class TestDeepgramInputSource:
             source.extract(item)
 
     @patch.object(
-        sys.modules["plexus.input_sources.DeepgramInputSource"],
+        sys.modules["primus.input_sources.DeepgramInputSource"],
         "download_score_result_trace_file",
     )
     def test_extract_malformed_json_raises_key_error(self, mock_download):
-        from plexus.input_sources.DeepgramInputSource import DeepgramInputSource
+        from primus.input_sources.DeepgramInputSource import DeepgramInputSource
 
         mock_download.return_value = ({"invalid": "structure"}, None)
 
@@ -116,11 +116,11 @@ class TestDeepgramInputSource:
             source.extract(item)
 
     @patch.object(
-        sys.modules["plexus.input_sources.DeepgramInputSource"],
+        sys.modules["primus.input_sources.DeepgramInputSource"],
         "download_score_result_trace_file",
     )
     def test_extract_merges_existing_item_metadata(self, mock_download):
-        from plexus.input_sources.DeepgramInputSource import DeepgramInputSource
+        from primus.input_sources.DeepgramInputSource import DeepgramInputSource
 
         deepgram_data = self.load_fixture("deepgram_minimal.json")
         mock_download.return_value = (deepgram_data, None)
@@ -136,11 +136,11 @@ class TestDeepgramInputSource:
         assert result.metadata["deepgram"] == deepgram_data
 
     @patch.object(
-        sys.modules["plexus.input_sources.DeepgramInputSource"],
+        sys.modules["primus.input_sources.DeepgramInputSource"],
         "download_score_result_trace_file",
     )
     def test_extract_parses_string_metadata(self, mock_download):
-        from plexus.input_sources.DeepgramInputSource import DeepgramInputSource
+        from primus.input_sources.DeepgramInputSource import DeepgramInputSource
 
         deepgram_data = self.load_fixture("deepgram_minimal.json")
         mock_download.return_value = (deepgram_data, None)

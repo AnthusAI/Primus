@@ -32,7 +32,7 @@ def _prepare_import_path() -> None:
             cleaned.append(entry)
             continue
         if (
-            resolved.startswith(str(REPO_ROOT.parent / "Plexus"))
+            resolved.startswith(str(REPO_ROOT.parent / "Primus"))
             and resolved != repo
             and not resolved.startswith(repo + os.sep)
         ):
@@ -66,19 +66,19 @@ def _require_env(name: str) -> str:
 
 
 def _auth_mode() -> str:
-    return str(os.getenv("PLEXUS_GRAPHQL_AUTH_MODE") or "api_key").strip().lower()
+    return str(os.getenv("PRIMUS_GRAPHQL_AUTH_MODE") or "api_key").strip().lower()
 
 
 def _client_and_account() -> tuple[Any, str]:
-    from plexus.cli.report.utils import resolve_account_id_for_command
-    from plexus.cli.shared.client_utils import create_client
+    from primus.cli.report.utils import resolve_account_id_for_command
+    from primus.cli.shared.client_utils import create_client
 
     client = create_client()
     if not client:
-        raise RuntimeError("Could not create Plexus dashboard client")
+        raise RuntimeError("Could not create Primus dashboard client")
     account_id = resolve_account_id_for_command(client, None)
     if not account_id:
-        raise RuntimeError("Could not resolve account id from PLEXUS_ACCOUNT_KEY")
+        raise RuntimeError("Could not resolve account id from PRIMUS_ACCOUNT_KEY")
     return client, account_id
 
 
@@ -122,7 +122,7 @@ def _block_tactus(
     child_seconds: int = 90,
 ) -> str:
     return f"""
-local h = plexus.report.run({{
+local h = primus.report.run({{
   block_class = "ScoreChampionVersionTimeline",
   block_config = {{
     scorecard = "{scorecard}",
@@ -138,8 +138,8 @@ return h
 
 
 def _find_report_for_cache_key(client: Any, account_id: str, cache_key: str) -> tuple[str | None, int]:
-    from plexus.dashboard.api.models.report import Report
-    from plexus.dashboard.api.models.report_block import ReportBlock
+    from primus.dashboard.api.models.report import Report
+    from primus.dashboard.api.models.report_block import ReportBlock
 
     reports = Report.list_by_account_id(account_id, client, limit=50, max_items=300)
     for report in reports:
@@ -224,7 +224,7 @@ def _process_is_running(pid: int) -> bool:
 
 
 def _wait_task(client: Any, task_id: str, timeout_seconds: int, poll_seconds: float) -> Any:
-    from plexus.dashboard.api.models.task import Task
+    from primus.dashboard.api.models.task import Task
 
     deadline = time.time() + timeout_seconds
     last_snapshot: dict[str, Any] = {"id": task_id, "state": "not_observed"}
@@ -257,7 +257,7 @@ def _wait_task(client: Any, task_id: str, timeout_seconds: int, poll_seconds: fl
 
 
 def _create_report_block_task(cache_key: str) -> dict[str, Any]:
-    from plexus.reports.service import run_block_cached
+    from primus.reports.service import run_block_cached
 
     client, account_id = _client_and_account()
     output, log_output, _cached = run_block_cached(
@@ -282,11 +282,11 @@ def _create_report_block_task(cache_key: str) -> dict[str, Any]:
 
 
 def _create_log_demo_procedure() -> str:
-    from plexus.cli.procedure.service import ProcedureService
+    from primus.cli.procedure.service import ProcedureService
 
     client, _account_id = _client_and_account()
-    account = _require_env("PLEXUS_ACCOUNT_KEY")
-    yaml_config = (REPO_ROOT / "plexus" / "procedures" / "examples" / "log_demo.yaml").read_text()
+    account = _require_env("PRIMUS_ACCOUNT_KEY")
+    yaml_config = (REPO_ROOT / "primus" / "procedures" / "examples" / "log_demo.yaml").read_text()
     result = ProcedureService(client).create_procedure(
         account_identifier=account,
         yaml_config=yaml_config,
@@ -327,7 +327,7 @@ def _wait_handle_dispatched_task(
 
 
 def canary_direct_local_report(args: argparse.Namespace) -> dict[str, Any]:
-    os.environ["PLEXUS_DISPATCH_MODE"] = "local"
+    os.environ["PRIMUS_DISPATCH_MODE"] = "local"
     client, account_id = _client_and_account()
     cache_key = _cache_key("direct-local-report")
     before = _recent_tasks_for_account(client, account_id, limit=50)
@@ -411,12 +411,12 @@ def canary_local_task_dispatcher(args: argparse.Namespace) -> dict[str, Any]:
     )
 
     env = os.environ.copy()
-    env["PLEXUS_DISPATCH_MODE"] = "local"
-    env["PLEXUS_FETCH_SCHEMA_FROM_TRANSPORT"] = "false"
+    env["PRIMUS_DISPATCH_MODE"] = "local"
+    env["PRIMUS_FETCH_SCHEMA_FROM_TRANSPORT"] = "false"
     command = [
         sys.executable,
         "-m",
-        "plexus.cli",
+        "primus.cli",
         "command",
         "dispatcher",
         "--once",
@@ -458,9 +458,9 @@ def canary_local_task_dispatcher(args: argparse.Namespace) -> dict[str, Any]:
 
 
 def canary_direct_local_evaluation(args: argparse.Namespace) -> dict[str, Any]:
-    os.environ["PLEXUS_DISPATCH_MODE"] = "local"
+    os.environ["PRIMUS_DISPATCH_MODE"] = "local"
     tactus = """
-local h = plexus.evaluation.run({
+local h = primus.evaluation.run({
   evaluation_type = "accuracy",
   scorecard_name = "%s",
   score_name = "%s",
@@ -525,12 +525,12 @@ return h
 
 
 def canary_direct_local_procedure(args: argparse.Namespace) -> dict[str, Any]:
-    os.environ["PLEXUS_DISPATCH_MODE"] = "local"
+    os.environ["PRIMUS_DISPATCH_MODE"] = "local"
     procedure_id = args.procedure_id or _create_log_demo_procedure()
     result = asyncio.run(
         _execute_tactus(
             f"""
-return plexus.procedure.run({{
+return primus.procedure.run({{
   procedure_id = "{procedure_id}",
   dry_run = true,
   async = true,
@@ -542,7 +542,7 @@ return plexus.procedure.run({{
     if not result.get("ok"):
         raise RuntimeError(f"execute_tactus failed: {_json(result)}")
 
-    from plexus.dashboard.api.models.procedure import Procedure
+    from primus.dashboard.api.models.procedure import Procedure
 
     client, _account_id = _client_and_account()
 
@@ -570,9 +570,9 @@ return plexus.procedure.run({{
 
 
 def canary_remote_evaluation_task(args: argparse.Namespace) -> dict[str, Any]:
-    os.environ["PLEXUS_DISPATCH_MODE"] = "celery"
+    os.environ["PRIMUS_DISPATCH_MODE"] = "celery"
     tactus = """
-local h = plexus.evaluation.run({
+local h = primus.evaluation.run({
   evaluation_type = "accuracy",
   scorecard_name = "%s",
   score_name = "%s",
@@ -611,12 +611,12 @@ return h
 
 
 def canary_remote_procedure_task(args: argparse.Namespace) -> dict[str, Any]:
-    os.environ["PLEXUS_DISPATCH_MODE"] = "celery"
+    os.environ["PRIMUS_DISPATCH_MODE"] = "celery"
     procedure_id = args.procedure_id or _create_log_demo_procedure()
     result = asyncio.run(
         _execute_tactus(
             f"""
-return plexus.procedure.run({{
+return primus.procedure.run({{
   procedure_id = "{procedure_id}",
   dry_run = true,
   async = true,
@@ -650,13 +650,13 @@ return plexus.procedure.run({{
 
 
 def canary_procedure_chat_linkage(args: argparse.Namespace) -> dict[str, Any]:
-    os.environ["PLEXUS_DISPATCH_MODE"] = "local"
+    os.environ["PRIMUS_DISPATCH_MODE"] = "local"
     procedure_id = args.procedure_id or _create_log_demo_procedure()
 
     result = asyncio.run(
         _execute_tactus(
             f"""
-return plexus.procedure.run({{
+return primus.procedure.run({{
   procedure_id = "{procedure_id}",
   dry_run = true,
   async = true,
@@ -668,7 +668,7 @@ return plexus.procedure.run({{
     if not result.get("ok"):
         raise RuntimeError(f"execute_tactus failed: {_json(result)}")
 
-    from plexus.dashboard.api.models.procedure import Procedure
+    from primus.dashboard.api.models.procedure import Procedure
 
     client, _account_id = _client_and_account()
 
@@ -738,10 +738,10 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     _prepare_import_path()
     _load_env()
-    _require_env("PLEXUS_API_URL")
+    _require_env("PRIMUS_API_URL")
     if _auth_mode() != "iam":
-        _require_env("PLEXUS_API_KEY")
-    _require_env("PLEXUS_ACCOUNT_KEY")
+        _require_env("PRIMUS_API_KEY")
+    _require_env("PRIMUS_ACCOUNT_KEY")
 
     args = parse_args()
     scenario_names = [args.scenario]

@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock, Mock
 from pathlib import Path
 
 def _load_scoring_module():
-    scoring_path = Path(__file__).resolve().parents[1] / "plexus" / "utils" / "scoring.py"
-    spec = importlib.util.spec_from_file_location("plexus_utils_scoring_test", scoring_path)
+    scoring_path = Path(__file__).resolve().parents[1] / "primus" / "utils" / "scoring.py"
+    spec = importlib.util.spec_from_file_location("primus_utils_scoring_test", scoring_path)
     module = importlib.util.module_from_spec(spec)
     if "boto3" not in sys.modules:
         sys.modules["boto3"] = SimpleNamespace(client=lambda *_args, **_kwargs: None)

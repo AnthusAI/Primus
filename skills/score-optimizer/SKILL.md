@@ -1,6 +1,6 @@
 ---
 name: score-optimizer
-description: Rank feedback-driven optimization opportunities, assess and diagnose score readiness, run or steer the Plexus feedback-alignment optimizer, review promotion evidence, and report feedback-investment recommendations. Use for portfolio triage, diminishing-returns analysis, rubric questions, optimizer procedures, and approval-gated score improvement work.
+description: Rank feedback-driven optimization opportunities, assess and diagnose score readiness, run or steer the Primus feedback-alignment optimizer, review promotion evidence, and report feedback-investment recommendations. Use for portfolio triage, diminishing-returns analysis, rubric questions, optimizer procedures, and approval-gated score improvement work.
 tags:
   - score-workflow
   - optimizer
@@ -18,11 +18,11 @@ allowed_modes:
 resources: []
 ---
 
-# Plexus Score Optimizer
+# Primus Score Optimizer
 
-Use this skill when the task is to run, monitor, debug, or steer a feedback-alignment optimization procedure for a Plexus score.
+Use this skill when the task is to run, monitor, debug, or steer a feedback-alignment optimization procedure for a Primus score.
 
-Examples below assume you are in the repo root and are using `python -m plexus.cli`. If your shell does not provide `python`, replace it with the repo's Python interpreter.
+Examples below assume you are in the repo root and are using `python -m primus.cli`. If your shell does not provide `python`, replace it with the repo's Python interpreter.
 
 ## Console Chat Mode
 
@@ -31,14 +31,14 @@ docs, recent rubric memory, score versions, feedback reports, evaluations,
 procedure records, and procedure chat history through `execute_tactus`.
 
 Optimizer execution from console should use existing runtime procedure APIs such
-as `plexus.procedure.optimize` only when those APIs cover the requested work and
+as `primus.procedure.optimize` only when those APIs cover the requested work and
 the chat is in execution mode. If the task requires direct CLI logs, local
 process control, repository files, or shell-only debugging, route it to an IDE
 or operator workflow instead of simulating the CLI from console chat.
 
 Any score code changes proposed by optimizer work must still go through
-`plexus.score.edit` or an optimizer procedure path that uses the dedicated score
-editor worker. Console chat must not directly call `plexus.score.update` with
+`primus.score.edit` or an optimizer procedure path that uses the dedicated score
+editor worker. Console chat must not directly call `primus.score.update` with
 score code or full YAML.
 
 ## Purpose and Optimization Mindset
@@ -109,7 +109,7 @@ resolve it.
 
 ## Optimization Decision Toolchain
 
-Use the shared `plexus.optimization.*` workflow before composing portfolio
+Use the shared `primus.optimization.*` workflow before composing portfolio
 triage, readiness, launch, and reporting steps by hand. Read
 [references/optimization-decision-toolchain.md](references/optimization-decision-toolchain.md)
 for the API sequence, decision states, evidence contract, and approval gates.
@@ -121,11 +121,11 @@ blocked by missing or contradictory rubric evidence.
 
 ### Scope portfolio ranking deliberately
 
-Use `plexus.optimization.rank({})` for the whole account. To restrict the
+Use `primus.optimization.rank({})` for the whole account. To restrict the
 portfolio, supply one or both optional selectors:
 
 ```lua
-plexus.optimization.rank({
+primus.optimization.rank({
   scorecard_ids = { "opaque-scorecard-id" },
   scorecard_name_prefixes = { "Example Portfolio" },
 })
@@ -185,7 +185,7 @@ Before curation or optimization, proactively check recent rubric memory for the
 score, matching score prefix, and scorecard:
 
 ```bash
-python -m plexus.cli rubric-memory recent \
+python -m primus.cli rubric-memory recent \
   --scorecard "<scorecard>" \
   --score "<score>" \
   --days 30 \
@@ -205,7 +205,7 @@ After the guidelines reflect the current rubric, run feedback contradictions
 with rubric-memory context enabled:
 
 ```bash
-python -m plexus.cli feedback report contradictions \
+python -m primus.cli feedback report contradictions \
   --scorecard "<scorecard>" \
   --score "<score>" \
   --days <days> \
@@ -233,8 +233,8 @@ questions, and "cannot improve" conclusions.
 
 ### Semantic-budget release and pilot gate
 
-Follow **Tactus release/main -> Plexus pin/lock -> local/sandbox -> production read-only**.
-The semantic model and pricing policy are frozen by Plexus and
+Follow **Tactus release/main -> Primus pin/lock -> local/sandbox -> production read-only**.
+The semantic model and pricing policy are frozen by Primus and
 must not be caller-overridden. Before any dogfood or provider run, explicitly
 verify identity and budget: authenticated operator/account scope, optimizer
 `max_cost_usd`, decimal-string `max_semantic_cost_usd`, maximum diagnoses, and
@@ -247,7 +247,7 @@ Read [references/feedback-cohorts.md](references/feedback-cohorts.md) before
 building or accepting optimizer evaluation cohorts.
 
 - Use the direct CLI for optimizer execution and debugging. Do not treat dashboard or dispatcher state alone as proof that a run is healthy.
-- Prefer `python -m plexus.cli` from the repo root over a possibly stale installed `plexus` binary.
+- Prefer `python -m primus.cli` from the repo root over a possibly stale installed `primus` binary.
 - Capture stdout/stderr with `tee` for real runs so you keep the traceback and early procedure/task IDs.
 - Baseline evaluations are the real start of meaningful optimizer work. Procedure creation alone is not.
 - Let every legitimate evaluation run through terminal completion, including root-cause analysis and artifact finalization. Do not stop, cancel, or kill an evaluation merely because partial metrics already support a decision, a candidate is clearly winning or losing, or the remaining work seems unnecessary. Premature stopping saves too little human attention and leaves incomplete evidence and stale runtime state. Intervene only when the user explicitly requests cancellation or execution is clearly unauthorized or harmful.
@@ -257,9 +257,9 @@ building or accepting optimizer evaluation cohorts.
 - Only invalidate items after the user explicitly approves the exact group.
 - Start invalidation triage from contradiction report output, not ad hoc individual item inspection.
 - The optimizer never promotes champion automatically. Champion promotion is always a separate manual operator step.
-- Promoting an untested ScoreVersion to champion is a policy violation. Before any champion promotion, confirm the exact version has at least one associated feedback or accuracy evaluation. The `plexus_score_set_champion` tool enforces this by default; use `force=true` only when the user explicitly authorizes an emergency override.
+- Promoting an untested ScoreVersion to champion is a policy violation. Before any champion promotion, confirm the exact version has at least one associated feedback or accuracy evaluation. The `primus_score_set_champion` tool enforces this by default; use `force=true` only when the user explicitly authorizes an emergency override.
 - Use MCP for inspection around the optimizer when helpful, but not as the primary execution path during debugging.
-- When you prepare a score for optimizer work with `python -m plexus.cli score push`, remember that CLI-published guidelines come from `scorecards/<scorecard>/guidelines/<score>.md`. A sidecar markdown file next to the YAML is not the canonical guidelines path for CLI push.
+- When you prepare a score for optimizer work with `python -m primus.cli score push`, remember that CLI-published guidelines come from `scorecards/<scorecard>/guidelines/<score>.md`. A sidecar markdown file next to the YAML is not the canonical guidelines path for CLI push.
 
 ## Candidate Integrity Before Promotion
 
@@ -280,7 +280,7 @@ No candidate is promotion-ready until these checks pass and the user explicitly 
 During development and debugging, the direct CLI log is the source of truth:
 
 ```bash
-python -m plexus.cli procedure optimize ...
+python -m primus.cli procedure optimize ...
 ```
 
 Do not infer optimizer health from:
@@ -326,7 +326,7 @@ Do not waste time resolving UUIDs manually unless there is an ambiguity or you n
 ```bash
 ts=$(date +%Y%m%d-%H%M%S)
 log=/tmp/optimizer-$ts.log
-python -m plexus.cli procedure optimize \
+python -m primus.cli procedure optimize \
   --scorecard "<scorecard>" \
   --score "<score>" \
   --days <days> \
@@ -398,8 +398,8 @@ ps -o pid,ppid,etime,command -ax | rg "<procedure-id>|procedure optimize|procedu
 
 Do not narrow this search too aggressively. Older or wrapper-style launches can appear as:
 
-- `python -m plexus.cli procedure optimize ...`
-- `python -m plexus.cli procedure run ...`
+- `python -m primus.cli procedure optimize ...`
+- `python -m primus.cli procedure run ...`
 - `python -c ... score.main(args=['optimize', ...])`
 
 Expected outcomes:
@@ -430,7 +430,7 @@ kill -9 <pid>
 
 Important limitations:
 
-- `python -m plexus.cli procedure show <procedure-id>` does not currently expose runtime PID or host information.
+- `python -m primus.cli procedure show <procedure-id>` does not currently expose runtime PID or host information.
 - For non-stale runs, PID correlation may require `ps` plus direct CLI log correlation rather than a single CLI lookup command.
 - Killing a local PID stops the process. It does not by itself rewrite database state from `RUNNING` to `STALLED` or `FAILED`.
 
@@ -441,7 +441,7 @@ Use stale-timeout when you need to decide whether persisted `RUNNING` procedures
 Manual dry-run command:
 
 ```bash
-python -m plexus.cli procedure timeout-stale \
+python -m primus.cli procedure timeout-stale \
   --threshold-seconds <seconds> \
   --lookback-hours <hours> \
   --dry-run \
@@ -477,7 +477,7 @@ Important caveats:
 ### Resolve the score context
 
 ```bash
-python -m plexus.cli score info \
+python -m primus.cli score info \
   --scorecard "<scorecard>" \
   --score "<score>"
 ```
@@ -487,7 +487,7 @@ python -m plexus.cli score info \
 If a current contradictions report does not already exist for the score and time window, run one:
 
 ```bash
-python -m plexus.cli feedback report contradictions \
+python -m primus.cli feedback report contradictions \
   --scorecard "<scorecard>" \
   --score "<score>" \
   --days <days> \
@@ -498,7 +498,7 @@ python -m plexus.cli feedback report contradictions \
 If you queue it in the background, process it with:
 
 ```bash
-python -m plexus.cli command dispatcher --once
+python -m primus.cli command dispatcher --once
 ```
 
 Use the report to sort findings into these buckets:
@@ -515,7 +515,7 @@ When you need a true pre/post comparison, do not rely on memory, Kanbus summarie
 List recent reports and match by title plus timestamp:
 
 ```bash
-python -m plexus.cli report list --limit 30
+python -m primus.cli report list --limit 30
 ```
 
 Notes:
@@ -527,7 +527,7 @@ Notes:
 Inspect a specific historical report once you have the ID:
 
 ```bash
-python -m plexus.cli report show <report_id>
+python -m primus.cli report show <report_id>
 ```
 
 `report show` gives you:
@@ -542,9 +542,9 @@ If you need the full historical contradiction payload for a diff, load the repor
 
 ```bash
 python - <<'PY'
-from plexus.cli.shared.client_utils import create_client
-from plexus.dashboard.api.models.report_block import ReportBlock
-from plexus.cli.dataset.curation import _load_feedback_contradictions_output_from_block
+from primus.cli.shared.client_utils import create_client
+from primus.dashboard.api.models.report_block import ReportBlock
+from primus.cli.dataset.curation import _load_feedback_contradictions_output_from_block
 
 client = create_client()
 blocks = ReportBlock.list_by_report_id("<report_id>", client=client)
@@ -577,9 +577,9 @@ When the top-level CLI output is too shallow and you need the actual exemplar pa
 
 ```bash
 python - <<'PY'
-from plexus.cli.shared.client_utils import create_client
-from plexus.dashboard.api.models.report_block import ReportBlock
-from plexus.cli.dataset.curation import _load_feedback_contradictions_output_from_block
+from primus.cli.shared.client_utils import create_client
+from primus.dashboard.api.models.report_block import ReportBlock
+from primus.cli.dataset.curation import _load_feedback_contradictions_output_from_block
 
 client = create_client()
 block = ReportBlock.get_by_id("<report_block_id>", client=client)
@@ -633,7 +633,7 @@ When the report reveals a contradiction cluster:
 Once the user approves an exact group, invalidate items one at a time:
 
 ```bash
-python -m plexus.cli feedback invalidate "<identifier>" \
+python -m primus.cli feedback invalidate "<identifier>" \
   --scorecard "<scorecard>" \
   --score "<score>"
 ```
@@ -652,12 +652,12 @@ Use this conservative loop when a score has likely rubric-drift labels and you n
 Important: the contradictions report excludes `isInvalid=true` rows before analysis. If a rubric changed materially and prior invalidations may reflect the old rubric, first ask the user whether to reset curation for the affected score family. Only after explicit approval, list and reinstate the invalidated rows:
 
 ```bash
-python -m plexus.cli feedback invalidated \
+python -m primus.cli feedback invalidated \
   --scorecard "<scorecard>" \
   --score "<score>" \
   --format json
 
-python -m plexus.cli feedback uninvalidate \
+python -m primus.cli feedback uninvalidate \
   --all-for-score \
   --scorecard "<scorecard>" \
   --score "<score>" \
@@ -671,7 +671,7 @@ After reset, rerun contradictions against the updated rubric authority. If the u
 1. Run a fresh contradictions report for the score and window:
 
 ```bash
-python -m plexus.cli feedback report contradictions \
+python -m primus.cli feedback report contradictions \
   --scorecard "<scorecard>" \
   --score "<score>" \
   --score-version "<optional-tested-candidate-score-version-id>" \
@@ -683,7 +683,7 @@ python -m plexus.cli feedback report contradictions \
 2. Run a fresh feedback evaluation for the same score and window:
 
 ```bash
-python -m plexus.cli evaluate feedback \
+python -m primus.cli evaluate feedback \
   --scorecard "<scorecard>" \
   --score "<score>" \
   --days <days> \
@@ -698,9 +698,9 @@ Example direct check:
 
 ```bash
 python - <<'PY'
-from plexus.dashboard.api.client import PlexusDashboardClient
+from primus.dashboard.api.client import PrimusDashboardClient
 
-client = PlexusDashboardClient()
+client = PrimusDashboardClient()
 evaluation_id = "<evaluation_id>"
 query = """
 query Q($evaluationId: String!) {
@@ -744,9 +744,9 @@ If you need an explicit overlap check, compare the stored contradiction payload 
 ```bash
 python - <<'PY'
 import json
-from plexus.cli.shared.client_utils import create_client
-from plexus.dashboard.api.models.report_block import ReportBlock
-from plexus.cli.dataset.curation import _load_feedback_contradictions_output_from_block
+from primus.cli.shared.client_utils import create_client
+from primus.dashboard.api.models.report_block import ReportBlock
+from primus.cli.dataset.curation import _load_feedback_contradictions_output_from_block
 
 client = create_client()
 report_block = ReportBlock.get_by_id("<report_block_id>", client=client)
@@ -869,7 +869,7 @@ Keep this path for cases where you want to inspect or patch optimizer YAML direc
 List recent procedures:
 
 ```bash
-python -m plexus.cli procedure list \
+python -m primus.cli procedure list \
   --account "call-criteria" \
   --scorecard "<scorecard>"
 ```
@@ -877,7 +877,7 @@ python -m plexus.cli procedure list \
 Pull the latest YAML from a recent optimizer procedure:
 
 ```bash
-python -m plexus.cli procedure pull <procedure_id> \
+python -m primus.cli procedure pull <procedure_id> \
   --output /tmp/optimizer_patched.yaml
 ```
 
@@ -924,7 +924,7 @@ hint:
 Create the procedure from YAML:
 
 ```bash
-python -m plexus.cli procedure create \
+python -m primus.cli procedure create \
   --account "call-criteria" \
   --scorecard "<scorecard>" \
   --score "<score>" \
@@ -935,5 +935,5 @@ python -m plexus.cli procedure create \
 Then run it:
 
 ```bash
-python -m plexus.cli procedure run <procedure_id>
+python -m primus.cli procedure run <procedure_id>
 ```

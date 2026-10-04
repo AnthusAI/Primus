@@ -1,7 +1,7 @@
-plexus
+primus
 ======
 
 .. toctree::
    :maxdepth: 4
 
-   plexus
+   primus

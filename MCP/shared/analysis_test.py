@@ -18,7 +18,7 @@ class TestBuildFeedbackContext:
         WHEN build_feedback_context is called
         THEN it should include the original and corrected values
         """
-        from plexus.rca_analysis import build_feedback_context
+        from primus.rca_analysis import build_feedback_context
 
         ctx = build_feedback_context(
             feedback_comment="Agent said medications are free",
@@ -37,7 +37,7 @@ class TestBuildFeedbackContext:
         WHEN build_feedback_context is called
         THEN it should explain the agreement scenario clearly
         """
-        from plexus.rca_analysis import build_feedback_context
+        from primus.rca_analysis import build_feedback_context
 
         ctx = build_feedback_context(
             feedback_comment="Agree",
@@ -55,7 +55,7 @@ class TestBuildFeedbackContext:
         WHEN build_feedback_context is called
         THEN it should return an empty string
         """
-        from plexus.rca_analysis import build_feedback_context
+        from primus.rca_analysis import build_feedback_context
 
         ctx = build_feedback_context()
         assert ctx == ""
@@ -66,7 +66,7 @@ class TestBuildFeedbackContext:
         WHEN build_feedback_context is called
         THEN it should include the comment
         """
-        from plexus.rca_analysis import build_feedback_context
+        from primus.rca_analysis import build_feedback_context
 
         ctx = build_feedback_context(feedback_comment="This is wrong")
         assert "Reviewer comment: This is wrong" in ctx
@@ -77,7 +77,7 @@ class TestBuildFeedbackContext:
         WHEN build_feedback_context is called
         THEN the comment should be truncated to 300 chars
         """
-        from plexus.rca_analysis import build_feedback_context
+        from primus.rca_analysis import build_feedback_context
 
         long_comment = "x" * 500
         ctx = build_feedback_context(feedback_comment=long_comment)
@@ -95,7 +95,7 @@ class TestAnalyzeScoreResult:
         AND the OpenAI helper responds successfully
         THEN it should return (detailed_cause, suggested_fix) from two turns
         """
-        from plexus.rca_analysis import analyze_score_result
+        from primus.rca_analysis import analyze_score_result
 
         call_count = [0]
         responses = [
@@ -108,7 +108,7 @@ class TestAnalyzeScoreResult:
             call_count[0] += 1
             return text
 
-        with patch("plexus.rca_analysis._invoke_rca_openai_text", side_effect=fake_invoke):
+        with patch("primus.rca_analysis._invoke_rca_openai_text", side_effect=fake_invoke):
             cause, fix = analyze_score_result(
                 primary_input="Agent: SelectRx is a free service for you.",
                 predicted="No",
@@ -129,10 +129,10 @@ class TestAnalyzeScoreResult:
         WHEN the OpenAI call fails with an exception
         THEN it should return empty strings without raising
         """
-        from plexus.rca_analysis import analyze_score_result
+        from primus.rca_analysis import analyze_score_result
 
         with patch(
-            "plexus.rca_analysis._invoke_rca_openai_text",
+            "primus.rca_analysis._invoke_rca_openai_text",
             side_effect=Exception("OpenAI unavailable"),
         ):
             cause, fix = analyze_score_result(
@@ -151,7 +151,7 @@ class TestAnalyzeScoreResult:
         WHEN analyze_score_result is called
         THEN the feedback context should appear in the prompt sent to the LLM
         """
-        from plexus.rca_analysis import analyze_score_result
+        from primus.rca_analysis import analyze_score_result
 
         captured_messages: list = []
 
@@ -159,7 +159,7 @@ class TestAnalyzeScoreResult:
             captured_messages.append(messages)
             return "Analysis result"
 
-        with patch("plexus.rca_analysis._invoke_rca_openai_text", side_effect=fake_invoke):
+        with patch("primus.rca_analysis._invoke_rca_openai_text", side_effect=fake_invoke):
             analyze_score_result(
                 primary_input="Some input artifact",
                 predicted="No",
@@ -174,7 +174,7 @@ class TestAnalyzeScoreResult:
 
 
 class TestPayloadRootCauseInclusion:
-    """BDD tests for root_cause inclusion in plexus_evaluation_info payload."""
+    """BDD tests for root_cause inclusion in primus_evaluation_info payload."""
 
     def test_root_cause_included_when_available(self):
         """

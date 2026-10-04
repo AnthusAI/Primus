@@ -3,16 +3,16 @@ set -e
 
 echo "Validating services are running..."
 
-# Check if plexus-command-worker service exists and validate it
-if sudo systemctl list-unit-files | grep -q plexus-command-worker; then
-    if sudo systemctl is-active --quiet plexus-command-worker; then
-        echo "✓ plexus-command-worker service is running"
+# Check if primus-command-worker service exists and validate it
+if sudo systemctl list-unit-files | grep -q primus-command-worker; then
+    if sudo systemctl is-active --quiet primus-command-worker; then
+        echo "✓ primus-command-worker service is running"
     else
-        echo "✗ plexus-command-worker service is not running"
+        echo "✗ primus-command-worker service is not running"
         exit 1
     fi
 else
-    echo "○ plexus-command-worker service not found (staging environment)"
+    echo "○ primus-command-worker service not found (staging environment)"
 fi
 
 # Check if fastapi service exists and validate it

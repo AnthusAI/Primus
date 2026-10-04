@@ -2,11 +2,11 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ include "plexus-worker.fullname" . }}-procedure-recovery
+  name: {{ include "primus-worker.fullname" . }}-procedure-recovery
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "plexus-worker.labels" . | nindent 4 }}
-    plexus.ai/job: procedure-recovery
+    {{- include "primus-worker.labels" . | nindent 4 }}
+    primus.ai/job: procedure-recovery
 spec:
   schedule: {{ .Values.procedureRecovery.schedule | quote }}
   concurrencyPolicy: Forbid
@@ -18,11 +18,11 @@ spec:
       template:
         metadata:
           labels:
-            {{- include "plexus-worker.selectorLabels" . | nindent 12 }}
-            plexus.ai/job: procedure-recovery
+            {{- include "primus-worker.selectorLabels" . | nindent 12 }}
+            primus.ai/job: procedure-recovery
         spec:
           restartPolicy: OnFailure
-          serviceAccountName: {{ include "plexus-worker.serviceAccountName" . }}
+          serviceAccountName: {{ include "primus-worker.serviceAccountName" . }}
           securityContext:
             {{- toYaml .Values.podSecurityContext | nindent 12 }}
           containers:
@@ -32,7 +32,7 @@ spec:
             image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
             imagePullPolicy: {{ .Values.image.pullPolicy }}
             command:
-            - plexus
+            - primus
             - procedure
             - timeout-stale
             - --threshold-seconds
@@ -46,24 +46,24 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
-            - name: PLEXUS_API_URL
+            - name: PRIMUS_API_URL
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "plexus-worker.secretName" . }}
+                  name: {{ include "primus-worker.secretName" . }}
                   key: api-url
-            - name: PLEXUS_GRAPHQL_AUTH_MODE
-              value: {{ .Values.plexus.api.authMode | quote }}
-            {{- if eq .Values.plexus.api.authMode "api_key" }}
-            - name: PLEXUS_API_KEY
+            - name: PRIMUS_GRAPHQL_AUTH_MODE
+              value: {{ .Values.primus.api.authMode | quote }}
+            {{- if eq .Values.primus.api.authMode "api_key" }}
+            - name: PRIMUS_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "plexus-worker.secretName" . }}
+                  name: {{ include "primus-worker.secretName" . }}
                   key: api-key
             {{- end }}
-            - name: PLEXUS_ACCOUNT_KEY
+            - name: PRIMUS_ACCOUNT_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "plexus-worker.secretName" . }}
+                  name: {{ include "primus-worker.secretName" . }}
                   key: account-key
             resources:
               {{- toYaml .Values.procedureRecovery.resources | nindent 14 }}

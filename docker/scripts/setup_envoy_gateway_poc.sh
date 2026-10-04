@@ -3,12 +3,12 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-CLUSTER_NAME="${CLUSTER_NAME:-plexus-envoy-poc}"
-NAMESPACE="${NAMESPACE:-plexus-local}"
+CLUSTER_NAME="${CLUSTER_NAME:-primus-envoy-poc}"
+NAMESPACE="${NAMESPACE:-primus-local}"
 ENVOY_NAMESPACE="${ENVOY_NAMESPACE:-envoy-gateway-system}"
 ENVOY_GATEWAY_CHART_VERSION="${ENVOY_GATEWAY_CHART_VERSION:-1.8.1}"
-RELEASE_NAME="${RELEASE_NAME:-plexus}"
-VALUES_FILE="${VALUES_FILE:-$PROJECT_ROOT/docker/helm/plexus-stack/values-local.yaml}"
+RELEASE_NAME="${RELEASE_NAME:-primus}"
+VALUES_FILE="${VALUES_FILE:-$PROJECT_ROOT/docker/helm/primus-stack/values-local.yaml}"
 
 require_command() {
   local command_name="$1"
@@ -25,7 +25,7 @@ require_command helm
 
 if [ ! -f "$VALUES_FILE" ]; then
   echo "Missing values file: $VALUES_FILE" >&2
-  echo "Create it from docker/helm/plexus-stack/values-local.yaml.example and fill in required keys." >&2
+  echo "Create it from docker/helm/primus-stack/values-local.yaml.example and fill in required keys." >&2
   exit 1
 fi
 
@@ -57,36 +57,36 @@ EOF
 
 kubectl wait --for=condition=Accepted gatewayclass/envoy-gateway --timeout=180s
 
-echo "Building local native-arch Plexus images for kind"
-docker build -t plexus-worker:local -f "$PROJECT_ROOT/docker/Dockerfile" "$PROJECT_ROOT"
-docker build -t plexus-graphql-proxy:local -f "$PROJECT_ROOT/services/private-graphql-proxy/Dockerfile" "$PROJECT_ROOT"
+echo "Building local native-arch Primus images for kind"
+docker build -t primus-worker:local -f "$PROJECT_ROOT/docker/Dockerfile" "$PROJECT_ROOT"
+docker build -t primus-graphql-proxy:local -f "$PROJECT_ROOT/services/private-graphql-proxy/Dockerfile" "$PROJECT_ROOT"
 
 echo "Loading images into kind"
-kind load docker-image plexus-worker:local --name "$CLUSTER_NAME"
-kind load docker-image plexus-graphql-proxy:local --name "$CLUSTER_NAME"
+kind load docker-image primus-worker:local --name "$CLUSTER_NAME"
+kind load docker-image primus-graphql-proxy:local --name "$CLUSTER_NAME"
 
 echo "Updating Helm dependencies"
-helm dependency update "$PROJECT_ROOT/docker/helm/plexus-stack"
+helm dependency update "$PROJECT_ROOT/docker/helm/primus-stack"
 
-echo "Deploying Plexus stack"
-helm upgrade --install "$RELEASE_NAME" "$PROJECT_ROOT/docker/helm/plexus-stack" \
+echo "Deploying Primus stack"
+helm upgrade --install "$RELEASE_NAME" "$PROJECT_ROOT/docker/helm/primus-stack" \
   --namespace "$NAMESPACE" \
   --create-namespace \
   --values "$VALUES_FILE" \
-  --set plexus-worker.image.repository=plexus-worker \
-  --set plexus-worker.image.tag=local \
-  --set plexus-worker.image.pullPolicy=IfNotPresent \
-  --set graphql-proxy.image.repository=plexus-graphql-proxy \
+  --set primus-worker.image.repository=primus-worker \
+  --set primus-worker.image.tag=local \
+  --set primus-worker.image.pullPolicy=IfNotPresent \
+  --set graphql-proxy.image.repository=primus-graphql-proxy \
   --set graphql-proxy.image.tag=local \
   --set graphql-proxy.image.pullPolicy=IfNotPresent
 
 kubectl rollout restart deployment/"$RELEASE_NAME-graphql-proxy" -n "$NAMESPACE"
-kubectl rollout restart deployment/"$RELEASE_NAME-plexus-worker" -n "$NAMESPACE"
+kubectl rollout restart deployment/"$RELEASE_NAME-primus-worker" -n "$NAMESPACE"
 
 kubectl rollout status deployment/"$RELEASE_NAME-graphql-proxy" -n "$NAMESPACE" --timeout=180s
-kubectl rollout status deployment/"$RELEASE_NAME-plexus-worker" -n "$NAMESPACE" --timeout=180s
+kubectl rollout status deployment/"$RELEASE_NAME-primus-worker" -n "$NAMESPACE" --timeout=180s
 
-WORKER_TYPE="$(kubectl get deployment/"$RELEASE_NAME-plexus-worker" \
+WORKER_TYPE="$(kubectl get deployment/"$RELEASE_NAME-primus-worker" \
   -n "$NAMESPACE" \
   -o jsonpath='{range .spec.template.spec.containers[*].env[?(@.name=="WORKER_TYPE")]}{.value}{end}')"
 if [ "$WORKER_TYPE" != "scoring-api" ]; then
@@ -99,8 +99,8 @@ kubectl port-forward -n "$NAMESPACE" "svc/$RELEASE_NAME-graphql-proxy" 18080:800
 PF_PID=$!
 sleep 3
 
-PLEXUS_API_URL="http://localhost:18080/graphql" \
-PLEXUS_API_KEY="" \
+PRIMUS_API_URL="http://localhost:18080/graphql" \
+PRIMUS_API_KEY="" \
   python3 "$PROJECT_ROOT/services/private-graphql-proxy/scripts/seed_local_demo.py"
 
 echo "Verifying seeded data via GraphQL"
@@ -117,15 +117,15 @@ fi
 
 kill "$PF_PID" 2>/dev/null || true
 
-kubectl get svc/"$RELEASE_NAME-plexus-worker" -n "$NAMESPACE" >/dev/null
-kubectl get gateway/"$RELEASE_NAME-plexus-worker-gateway" -n "$NAMESPACE" >/dev/null
-kubectl get httproute/"$RELEASE_NAME-plexus-worker-route" -n "$NAMESPACE" >/dev/null
+kubectl get svc/"$RELEASE_NAME-primus-worker" -n "$NAMESPACE" >/dev/null
+kubectl get gateway/"$RELEASE_NAME-primus-worker-gateway" -n "$NAMESPACE" >/dev/null
+kubectl get httproute/"$RELEASE_NAME-primus-worker-route" -n "$NAMESPACE" >/dev/null
 
 echo "Waiting for Envoy data-plane Service"
 ENVOY_SERVICE=""
 for _ in {1..60}; do
   ENVOY_SERVICE="$(kubectl get svc -A \
-    -l gateway.envoyproxy.io/owning-gateway-name="$RELEASE_NAME-plexus-worker-gateway" \
+    -l gateway.envoyproxy.io/owning-gateway-name="$RELEASE_NAME-primus-worker-gateway" \
     -o jsonpath='{range .items[*]}{.metadata.namespace}/{.metadata.name}{"\n"}{end}' | head -n 1)"
   if [ -n "$ENVOY_SERVICE" ]; then
     break
@@ -149,7 +149,7 @@ Inspect Gateway API resources:
   kubectl get gateway,httproute -n $NAMESPACE
 
 Find the Envoy data-plane Service created for the Gateway:
-  kubectl get svc -A -l gateway.envoyproxy.io/owning-gateway-name=$RELEASE_NAME-plexus-worker-gateway
+  kubectl get svc -A -l gateway.envoyproxy.io/owning-gateway-name=$RELEASE_NAME-primus-worker-gateway
 
 Port-forward that Service to test locally, then POST to /v1/score:
   kubectl port-forward -n ${ENVOY_SERVICE%%/*} svc/${ENVOY_SERVICE##*/} 8080:80

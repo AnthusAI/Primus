@@ -1,4 +1,4 @@
-Plexus
+Primus
 ======
 
 An AI/ML orchestration system for managing classification, extraction and other scoring at scale.
@@ -7,13 +7,13 @@ An AI/ML orchestration system for managing classification, extraction and other 
    :maxdepth: 2
    :caption: Contents:
 
-   plexus
-   plexus.data
-   plexus.scores
-   plexus.processors
-   plexus.storage
-   plexus.cli
-   plexus.dashboard
+   primus
+   primus.data
+   primus.scores
+   primus.processors
+   primus.storage
+   primus.cli
+   primus.dashboard
 
 Test
 ----

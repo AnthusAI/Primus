@@ -5,7 +5,7 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[2]
-CHART = ROOT / "docker" / "helm" / "plexus-worker"
+CHART = ROOT / "docker" / "helm" / "primus-worker"
 
 
 def render_worker_chart(*set_values, values_file=None, expect_success=True):
@@ -51,19 +51,19 @@ def test_scoring_api_renders_service_gateway_and_route():
         "scoringApi.gateway.enabled=true",
     )
 
-    service = find_manifest(docs, "Service", "test-plexus-worker")
+    service = find_manifest(docs, "Service", "test-primus-worker")
     assert service["spec"]["selector"]["worker-type"] == "scoring-api"
     assert service["spec"]["ports"][0]["targetPort"] == "http"
 
-    gateway = find_manifest(docs, "Gateway", "test-plexus-worker-gateway")
+    gateway = find_manifest(docs, "Gateway", "test-primus-worker-gateway")
     assert gateway["spec"]["gatewayClassName"] == "envoy-gateway"
 
-    route = find_manifest(docs, "HTTPRoute", "test-plexus-worker-route")
+    route = find_manifest(docs, "HTTPRoute", "test-primus-worker-route")
     assert route["spec"]["rules"][0]["matches"][0]["path"] == {
         "type": "PathPrefix",
         "value": "/v1/score",
     }
-    assert route["spec"]["rules"][0]["backendRefs"][0]["name"] == "test-plexus-worker"
+    assert route["spec"]["rules"][0]["backendRefs"][0]["name"] == "test-primus-worker"
 
 
 def test_celery_broker_secret_only_renders_for_celery_mode():
@@ -72,19 +72,19 @@ def test_celery_broker_secret_only_renders_for_celery_mode():
         doc
         for doc in scoring_docs
         if doc.get("kind") == "Secret"
-        and doc.get("metadata", {}).get("name") == "test-plexus-worker-celery-secrets"
+        and doc.get("metadata", {}).get("name") == "test-primus-worker-celery-secrets"
     ]
 
     celery_docs = render_worker_chart("workerType=celery", "celery.broker.url=amqp://example")
-    celery_secret = find_manifest(celery_docs, "Secret", "test-plexus-worker-celery-secrets")
+    celery_secret = find_manifest(celery_docs, "Secret", "test-primus-worker-celery-secrets")
     assert celery_secret["stringData"]["broker-url"] == "amqp://example"
-    env = container_env(find_manifest(celery_docs, "Deployment", "test-plexus-worker"))
+    env = container_env(find_manifest(celery_docs, "Deployment", "test-primus-worker"))
     assert "CELERY_BROKER_URL" in env
 
 
 def test_worker_type_is_not_part_of_deployment_selector_labels():
     docs = render_worker_chart("workerType=scoring-api")
-    deployment = find_manifest(docs, "Deployment", "test-plexus-worker")
+    deployment = find_manifest(docs, "Deployment", "test-primus-worker")
 
     assert "worker-type" not in deployment["spec"]["selector"]["matchLabels"]
     assert deployment["spec"]["template"]["metadata"]["labels"]["worker-type"] == "scoring-api"
@@ -97,14 +97,14 @@ def test_scoring_api_auth_uses_separate_secret_key_and_fail_closed_env():
         "scoringApi.auth.apiKey=test-inbound-key",
     )
 
-    secret = find_manifest(docs, "Secret", "test-plexus-worker-secrets")
+    secret = find_manifest(docs, "Secret", "test-primus-worker-secrets")
     assert secret["stringData"]["scoring-api-key"] == "test-inbound-key"
-    assert "x-plexus-scoring-api-key" not in secret["stringData"]
+    assert "x-primus-scoring-api-key" not in secret["stringData"]
 
-    env = container_env(find_manifest(docs, "Deployment", "test-plexus-worker"))
+    env = container_env(find_manifest(docs, "Deployment", "test-primus-worker"))
     assert env["SCORING_API_AUTH_REQUIRED"]["value"] == "true"
     assert env["SCORING_API_KEY"]["valueFrom"]["secretKeyRef"] == {
-        "name": "test-plexus-worker-secrets",
+        "name": "test-primus-worker-secrets",
         "key": "scoring-api-key",
     }
 
@@ -113,7 +113,7 @@ def test_missing_worker_api_url_fails_render(tmp_path):
     values_file = tmp_path / "missing-api-url.yaml"
     values_file.write_text(
         """
-plexus:
+primus:
   api:
     url: ""
 global:
@@ -146,6 +146,6 @@ def test_non_local_environment_accepts_immutable_worker_image_tag():
         "image.tag=git-sha-abcdef1",
     )
 
-    deployment = find_manifest(docs, "Deployment", "test-plexus-worker")
+    deployment = find_manifest(docs, "Deployment", "test-primus-worker")
     image = deployment["spec"]["template"]["spec"]["containers"][0]["image"]
-    assert image == "plexus-worker:git-sha-abcdef1"
+    assert image == "primus-worker:git-sha-abcdef1"

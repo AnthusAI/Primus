@@ -56,19 +56,19 @@ env:
   MAX_JOBS_PER_WORKER: "100"
   ERROR_RETRY_DELAY: "10"  # Longer backoff in prod
 
-# Production Plexus config
-plexus:
+# Production Primus config
+primus:
   createSecrets: true
   api:
     url: "https://your-prod-api.appsync-api.us-west-2.amazonaws.com/graphql"
     # Use "iam" when the worker service account role is authorized for AppSync.
     authMode: api_key
     # Set via Octopus variables:
-    # key: "#{Plexus.Prod.ApiKey}"
+    # key: "#{Primus.Prod.ApiKey}"
 
   account:
     # Set via Octopus variables:
-    # key: "#{Plexus.Prod.AccountKey}"
+    # key: "#{Primus.Prod.AccountKey}"
 
 scoreProcessor:
   aws:
@@ -90,7 +90,7 @@ affinity:
         - key: app.kubernetes.io/name
           operator: In
           values:
-          - plexus-worker
+          - primus-worker
       topologyKey: kubernetes.io/hostname
   nodeAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:

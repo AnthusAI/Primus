@@ -12,7 +12,7 @@ tags: [processors, scorecard]
 
 ## Overview
 
-Processors are a powerful feature in Plexus that allow you to transform text and filter datasets automatically during training, evaluation, and prediction. They ensure consistent data preprocessing across all operations, which is critical for model performance and reliability.
+Processors are a powerful feature in Primus that allow you to transform text and filter datasets automatically during training, evaluation, and prediction. They ensure consistent data preprocessing across all operations, which is critical for model performance and reliability.
 
 **Key Benefits:**
 - **Consistency**: Same transformations apply across training, evaluation, and production
@@ -653,8 +653,8 @@ data:
 
 **Solutions**:
 1. Verify processor class name is spelled correctly (case-sensitive)
-2. Check that processor exists in `plexus/processors/` directory
-3. Verify processor is imported in `plexus/processors/__init__.py`
+2. Check that processor exists in `primus/processors/` directory
+3. Verify processor is imported in `primus/processors/__init__.py`
 
 **Available Processors**:
 - Text: RemoveSpeakerIdentifiersTranscriptFilter, FilterCustomerOnlyProcessor, RemoveStopWordsTranscriptFilter, ExpandContractionsProcessor, AddUnknownSpeakerIdentifiersTranscriptFilter, RelevantWindowsTranscriptFilter
@@ -726,11 +726,11 @@ processors:
 
 To create a custom processor:
 
-1. **Create processor class** in `plexus/processors/YourProcessor.py`:
+1. **Create processor class** in `primus/processors/YourProcessor.py`:
 
 ```python
 import pandas as pd
-from plexus.processors.DataframeProcessor import DataframeProcessor
+from primus.processors.DataframeProcessor import DataframeProcessor
 
 class YourProcessor(DataframeProcessor):
     def __init__(self, **parameters):
@@ -846,13 +846,13 @@ data:
 
 ## Additional Resources
 
-- **Source Code**: `plexus/processors/`
-- **Tests**: `plexus/tests/test_processor*.py`
-- **Factory**: `plexus/processors/ProcessorFactory.py`
+- **Source Code**: `primus/processors/`
+- **Tests**: `primus/tests/test_processor*.py`
+- **Factory**: `primus/processors/ProcessorFactory.py`
 - **Integration**:
-  - Training: `plexus/scores/core/ScoreData.py` (lines 188-232)
-  - Prediction: `plexus/scores/Score.py` (lines 847-901)
-  - Evaluation: `plexus/Scorecard.py` (lines 480-507)
+  - Training: `primus/scores/core/ScoreData.py` (lines 188-232)
+  - Prediction: `primus/scores/Score.py` (lines 847-901)
+  - Evaluation: `primus/Scorecard.py` (lines 480-507)
 
 ---
 
@@ -863,4 +863,4 @@ data:
 
 ---
 
-**Need Help?** Contact the Plexus team or check the test files for usage examples.
+**Need Help?** Contact the Primus team or check the test files for usage examples.

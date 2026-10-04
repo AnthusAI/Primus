@@ -2,9 +2,9 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-export PLEXUS_API_URL="${PLEXUS_API_URL:-http://localhost:18080/graphql}"
-export PLEXUS_API_KEY="${PLEXUS_API_KEY:-local-smoke-key}"
-export PLEXUS_ACCOUNT_KEY="${PLEXUS_ACCOUNT_KEY:-local-demo}"
+export PRIMUS_API_URL="${PRIMUS_API_URL:-http://localhost:18080/graphql}"
+export PRIMUS_API_KEY="${PRIMUS_API_KEY:-local-smoke-key}"
+export PRIMUS_ACCOUNT_KEY="${PRIMUS_ACCOUNT_KEY:-local-demo}"
 SMOKE_CLEANUP="${SMOKE_CLEANUP:-1}"
 SMOKE_READY_ATTEMPTS="${SMOKE_READY_ATTEMPTS:-60}"
 SMOKE_READY_SLEEP_SECONDS="${SMOKE_READY_SLEEP_SECONDS:-2}"
@@ -31,7 +31,7 @@ run_step() {
 }
 
 wait_for_readyz() {
-  local ready_url="${PLEXUS_API_URL%/graphql}/readyz"
+  local ready_url="${PRIMUS_API_URL%/graphql}/readyz"
   local i
 
   for ((i = 1; i <= SMOKE_READY_ATTEMPTS; i++)); do
@@ -54,9 +54,9 @@ assert_seeded_graphql_records() {
   query='query LocalSeedCheck { account:getAccount(id:"local-demo-account"){id key} scorecard:getScorecard(id:"local-demo-scorecard"){id} item:getItem(id:"local-demo-item-1"){id} task:getTask(id:"local-demo-task"){id} evaluation:getEvaluation(id:"local-demo-evaluation"){id} report:getReport(id:"local-demo-report"){id} procedure:getProcedure(id:"local-demo-procedure"){id} chatSession:getChatSession(id:"local-demo-chat-session"){id} }'
 
   local payload
-  payload="$(curl -fsS -m 10 "$PLEXUS_API_URL" \
+  payload="$(curl -fsS -m 10 "$PRIMUS_API_URL" \
     -H 'content-type: application/json' \
-    -H "x-api-key: $PLEXUS_API_KEY" \
+    -H "x-api-key: $PRIMUS_API_KEY" \
     --data "$(python3 -c 'import json,sys; print(json.dumps({"query":sys.argv[1]}))' "$query")" 2>/dev/null || true)"
 
   [[ -n "$payload" ]] || return 1
@@ -80,14 +80,14 @@ if account.get("key")!="local-demo":
 cli_items_list() {
   (
     cd "$ROOT_DIR"
-    PLEXUS_API_URL="$PLEXUS_API_URL" \
-    PLEXUS_API_KEY="$PLEXUS_API_KEY" \
-    PLEXUS_ACCOUNT_KEY="$PLEXUS_ACCOUNT_KEY" \
-    poetry run python - <<'PY' >/tmp/plexus-smoke-items-list.out
-from plexus.cli.item.items import items
+    PRIMUS_API_URL="$PRIMUS_API_URL" \
+    PRIMUS_API_KEY="$PRIMUS_API_KEY" \
+    PRIMUS_ACCOUNT_KEY="$PRIMUS_ACCOUNT_KEY" \
+    poetry run python - <<'PY' >/tmp/primus-smoke-items-list.out
+from primus.cli.item.items import items
 import os
 
-account = os.environ["PLEXUS_ACCOUNT_KEY"]
+account = os.environ["PRIMUS_ACCOUNT_KEY"]
 
 items.main(
     args=["list", "--account", account, "--limit", "1"],
@@ -101,13 +101,13 @@ PY
 cli_tasks_last() {
   (
     cd "$ROOT_DIR"
-    PLEXUS_API_URL="$PLEXUS_API_URL" \
-    PLEXUS_API_KEY="$PLEXUS_API_KEY" \
-    PLEXUS_ACCOUNT_KEY="$PLEXUS_ACCOUNT_KEY" \
-    poetry run python - <<'PY' >/tmp/plexus-smoke-tasks-last.out
-from plexus.cli.task.tasks import tasks
+    PRIMUS_API_URL="$PRIMUS_API_URL" \
+    PRIMUS_API_KEY="$PRIMUS_API_KEY" \
+    PRIMUS_ACCOUNT_KEY="$PRIMUS_ACCOUNT_KEY" \
+    poetry run python - <<'PY' >/tmp/primus-smoke-tasks-last.out
+from primus.cli.task.tasks import tasks
 
-account = __import__("os").environ["PLEXUS_ACCOUNT_KEY"]
+account = __import__("os").environ["PRIMUS_ACCOUNT_KEY"]
 
 tasks.main(
     args=["last", "--account", account],
@@ -121,19 +121,19 @@ PY
 cli_create_and_lookup() {
   (
     cd "$ROOT_DIR"
-    PLEXUS_API_URL="$PLEXUS_API_URL" \
-    PLEXUS_API_KEY="$PLEXUS_API_KEY" \
-    PLEXUS_ACCOUNT_KEY="$PLEXUS_ACCOUNT_KEY" \
+    PRIMUS_API_URL="$PRIMUS_API_URL" \
+    PRIMUS_API_KEY="$PRIMUS_API_KEY" \
+    PRIMUS_ACCOUNT_KEY="$PRIMUS_ACCOUNT_KEY" \
     SMOKE_CLEANUP="$SMOKE_CLEANUP" \
-    poetry run python - <<'PY' >/tmp/plexus-smoke-item-create-info-delete.out
+    poetry run python - <<'PY' >/tmp/primus-smoke-item-create-info-delete.out
 import io
 import os
 import re
 from contextlib import redirect_stdout
 
-from plexus.cli.item.items import items
+from primus.cli.item.items import items
 
-account = os.environ["PLEXUS_ACCOUNT_KEY"]
+account = os.environ["PRIMUS_ACCOUNT_KEY"]
 cleanup = os.environ.get("SMOKE_CLEANUP", "1") == "1"
 external_id = f"local-cli-smoke-{__import__('time').strftime('%Y%m%d%H%M%S')}"
 
@@ -199,7 +199,7 @@ assert_no_upstream_requests() {
     return 0
   fi
 
-  local debug_url="${PLEXUS_API_URL%/graphql}/debug/upstream-requests"
+  local debug_url="${PRIMUS_API_URL%/graphql}/debug/upstream-requests"
   local payload
   payload="$(curl -fsS -m 10 "$debug_url")"
   python3 -c '

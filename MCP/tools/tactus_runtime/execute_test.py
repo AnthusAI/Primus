@@ -117,7 +117,7 @@ def test_attach_console_audit_events_adds_events_to_envelope() -> None:
         "cost": {"usd": 0},
         "trace_id": "trace-1",
         "partial": False,
-        "api_calls": ["plexus.score.edit"],
+        "api_calls": ["primus.score.edit"],
     }
     runtime_context = {
         "console_audit_events": [
@@ -175,7 +175,7 @@ def test_truncate_envelope_preserves_console_audit_events() -> None:
         "cost": {"usd": 0},
         "trace_id": "trace-1",
         "partial": False,
-        "api_calls": ["plexus.score.edit"],
+        "api_calls": ["primus.score.edit"],
         "console_audit_events": [
             {
                 "kind": "score_edit",
@@ -194,12 +194,12 @@ def test_truncate_envelope_preserves_console_audit_events() -> None:
     assert truncated["score_edit_audit_compact"]["v"] == "v-1"
 
 
-def test_wrap_tactus_snippet_injects_plexus_helpers_and_capture() -> None:
+def test_wrap_tactus_snippet_injects_primus_helpers_and_capture() -> None:
     wrapped = execute._wrap_tactus_snippet(
         'evaluate{ score_id = "score_compliance_tone", item_count = 200 }'
     )
 
-    assert 'local plexus = require("plexus")' in wrapped
+    assert 'local primus = require("primus")' in wrapped
     assert "function evaluate(args)" in wrapped
     assert "function scorecards_list(args)" in wrapped
     assert "function scorecards(args)" in wrapped
@@ -216,7 +216,7 @@ def test_wrap_tactus_snippet_injects_plexus_helpers_and_capture() -> None:
     assert "function scorecards_search(args)" in wrapped
     assert "function score_search(args)" in wrapped
     assert "function score_resolve(args)" in wrapped
-    assert "return __plexus_last_result" in wrapped
+    assert "return __primus_last_result" in wrapped
     assert "__execute_tactus_user_snippet" in wrapped
 
 
@@ -226,7 +226,7 @@ def test_helper_bindings_cover_advertised_runtime_api_surface() -> None:
     helpers = {helper_name for helper_name, _, _ in execute.HELPER_BINDINGS}
 
     expected_helpers = {
-        f"{namespace.removeprefix('plexus.')}_{method}"
+        f"{namespace.removeprefix('primus.')}_{method}"
         for namespace, methods in catalog.items()
         for method in methods
     }
@@ -235,8 +235,8 @@ def test_helper_bindings_cover_advertised_runtime_api_surface() -> None:
     assert expected_helpers <= helpers
 
 
-def test_plexus_facade_delegates_score_info_call_to_direct_handler() -> None:
-    """plexus.score.info must go through DIRECT_HANDLERS, not MCP loopback."""
+def test_primus_facade_delegates_score_info_call_to_direct_handler() -> None:
+    """primus.score.info must go through DIRECT_HANDLERS, not MCP loopback."""
 
     class FakeMCP:
         def __init__(self) -> None:
@@ -263,7 +263,7 @@ def test_plexus_facade_delegates_score_info_call_to_direct_handler() -> None:
     assert value == {"id": "score_compliance_tone", "name": "Compliance Tone"}
     assert info_args == [{"id": "score_compliance_tone"}]
     assert fake_mcp.calls == []
-    assert facade.api_calls == ["plexus.score.info"]
+    assert facade.api_calls == ["primus.score.info"]
 
 
 def test_default_score_info_accepts_version_alias(monkeypatch) -> None:
@@ -351,11 +351,11 @@ def test_default_score_info_accepts_version_alias(monkeypatch) -> None:
             raise AssertionError(f"Unexpected query: {query}")
 
     monkeypatch.setattr(
-        "plexus.cli.scorecard.scorecards.resolve_scorecard_identifier",
+        "primus.cli.scorecard.scorecards.resolve_scorecard_identifier",
         lambda _client, identifier: "sc-1" if identifier == "Example Scorecard" else None,
     )
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client",
+        "primus.cli.shared.client_utils.create_client",
         lambda: FakeClient(),
     )
 
@@ -380,8 +380,8 @@ def test_default_score_info_accepts_version_alias(monkeypatch) -> None:
     assert result["versions"][0]["id"] == "sv-candidate"
 
 
-def test_plexus_facade_uses_direct_scorecards_handler_without_mcp_loopback() -> None:
-    """plexus.scorecards.list/info must go through DIRECT_HANDLERS, not MCP loopback."""
+def test_primus_facade_uses_direct_scorecards_handler_without_mcp_loopback() -> None:
+    """primus.scorecards.list/info must go through DIRECT_HANDLERS, not MCP loopback."""
 
     class FakeMCP:
         def __init__(self) -> None:
@@ -442,9 +442,9 @@ def test_plexus_facade_uses_direct_scorecards_handler_without_mcp_loopback() -> 
     assert search_args == [{"query": "HCS"}]
     assert fake_mcp.calls == []
     assert facade.api_calls == [
-        "plexus.scorecards.list",
-        "plexus.scorecards.info",
-        "plexus.scorecards.search",
+        "primus.scorecards.list",
+        "primus.scorecards.info",
+        "primus.scorecards.search",
     ]
 
 
@@ -477,9 +477,9 @@ def test_tactus_dataflow_preserves_opaque_id_between_collection_calls(monkeypatc
     monkeypatch.setattr(execute, "PlexusRuntimeModule", module_factory)
     result = execute._run_tactus_sync(
         """
-        local page = plexus.scorecards.list({ return_metadata = true })
+        local page = primus.scorecards.list({ return_metadata = true })
         local record = page.items[1]
-        local detail = plexus.scorecards.info({ identifier = record.id })
+        local detail = primus.scorecards.info({ identifier = record.id })
         return { id = record.id, name = detail.name }
         """,
         FastMCP("test-opaque-value-dataflow"),
@@ -514,7 +514,7 @@ def test_complete_collection_program_returns_empty_coverage_without_batch_call(
     monkeypatch.setattr(execute, "PlexusRuntimeModule", module_factory)
     result = execute._run_tactus_sync(
         """
-        local page = plexus.scorecards.list({ return_metadata = true })
+        local page = primus.scorecards.list({ return_metadata = true })
         local scorecard_ids = {}
         for _, record in ipairs(page.items or {}) do
           scorecard_ids[#scorecard_ids + 1] = record.id
@@ -524,7 +524,7 @@ def test_complete_collection_program_returns_empty_coverage_without_batch_call(
             target_count = 0, completed_count = 0, failed_count = 0, complete = true,
           } }
         end
-        local analysis = plexus.feedback.alignment_batch({ scorecards = scorecard_ids })
+        local analysis = primus.feedback.alignment_batch({ scorecards = scorecard_ids })
         return analysis.coverage
         """,
         FastMCP("test-empty-complete-coverage"),
@@ -544,7 +544,7 @@ def test_complete_collection_program_returns_empty_coverage_without_batch_call(
         },
     }
     assert batch_calls == []
-    assert result["api_calls"] == ["plexus.scorecards.list"]
+    assert result["api_calls"] == ["primus.scorecards.list"]
 
 
 def test_complete_collection_program_retries_failed_page_then_stops_before_batch(
@@ -579,12 +579,12 @@ def test_complete_collection_program_retries_failed_page_then_stops_before_batch
           local ok, page = pcall(function()
             local args = { return_metadata = true }
             if token then args.next_token = token end
-            return plexus.scorecards.list(args)
+            return primus.scorecards.list(args)
           end)
           if ok and page == nil then ok = false end
           if not ok then
             ok, page = pcall(function()
-              return plexus.scorecards.list({ return_metadata = true, next_token = token })
+              return primus.scorecards.list({ return_metadata = true, next_token = token })
             end)
           end
           if ok and page == nil then ok = false end
@@ -597,7 +597,7 @@ def test_complete_collection_program_retries_failed_page_then_stops_before_batch
           end
           token = page.nextToken
         until not token
-        local analysis = plexus.feedback.alignment_batch({ scorecards = scorecard_ids })
+        local analysis = primus.feedback.alignment_batch({ scorecards = scorecard_ids })
         return analysis.coverage
         """,
         FastMCP("test-incomplete-collection-coverage"),
@@ -615,7 +615,7 @@ def test_complete_collection_program_retries_failed_page_then_stops_before_batch
 
 def test_default_scorecards_list_returns_metadata_for_account_wide_pages(monkeypatch) -> None:
     """Metadata pagination remains available without identifier resolution."""
-    from plexus.cli.shared import client_utils, memoized_resolvers
+    from primus.cli.shared import client_utils, memoized_resolvers
 
     queries: list[str] = []
 
@@ -665,7 +665,7 @@ def test_default_scorecards_list_requests_only_newest_version_activity_for_rank_
     monkeypatch,
 ) -> None:
     """Exhaustive rank inventory receives immutable score activity evidence."""
-    from plexus.cli.shared import client_utils
+    from primus.cli.shared import client_utils
 
     queries: list[str] = []
     opaque_version_id = "version:opaque/with+punctuation_123"
@@ -708,7 +708,7 @@ def test_default_scorecards_list_requests_only_newest_version_activity_for_rank_
 
 def test_default_scorecards_list_uses_identifier_resolution_for_single_record_lookup(monkeypatch) -> None:
     """Targeted single-record lookup retains its canonical resolver behavior."""
-    from plexus.cli.shared import client_utils, memoized_resolvers
+    from primus.cli.shared import client_utils, memoized_resolvers
 
     class FakeClient:
         def execute(self, query: str) -> dict[str, Any]:
@@ -728,8 +728,8 @@ def test_default_scorecards_list_uses_identifier_resolution_for_single_record_lo
 
 
 def test_default_score_update_applies_actor_attribution(monkeypatch) -> None:
-    from plexus.cli.shared import client_utils, direct_identifier_resolution
-    from plexus.linting import schemas
+    from primus.cli.shared import client_utils, direct_identifier_resolution
+    from primus.linting import schemas
 
     mutation_inputs: list[dict[str, Any]] = []
 
@@ -838,7 +838,7 @@ def test_default_rubric_memory_recent_entries_runs_provider_awaitable(monkeypatc
             return FakeContext()
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client",
+        "primus.cli.shared.client_utils.create_client",
         object,
     )
     monkeypatch.setattr(
@@ -847,7 +847,7 @@ def test_default_rubric_memory_recent_entries_runs_provider_awaitable(monkeypatc
         lambda client, scorecard_identifier, score_identifier, score_id: "score-1",
     )
     monkeypatch.setattr(
-        "plexus.rubric_memory.RubricMemoryRecentBriefingProvider",
+        "primus.rubric_memory.RubricMemoryRecentBriefingProvider",
         FakeProvider,
     )
 
@@ -884,7 +884,7 @@ def test_default_rubric_memory_evidence_pack_runs_provider_awaitable(monkeypatch
             raise AssertionError("synthesize=false should use retrieval-only context")
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client",
+        "primus.cli.shared.client_utils.create_client",
         object,
     )
     monkeypatch.setattr(
@@ -893,7 +893,7 @@ def test_default_rubric_memory_evidence_pack_runs_provider_awaitable(monkeypatch
         lambda client, scorecard_identifier, score_identifier, score_id: "score-1",
     )
     monkeypatch.setattr(
-        "plexus.rubric_memory.RubricMemoryContextProvider",
+        "primus.rubric_memory.RubricMemoryContextProvider",
         FakeProvider,
     )
 
@@ -1007,7 +1007,7 @@ def test_default_procedure_chat_messages_handles_null_sequence_number(
             return {"data": {"getChatSession": session_payload}}
 
     monkeypatch.setattr(
-        "plexus.dashboard.api.client.PlexusDashboardClient",
+        "primus.dashboard.api.client.PrimusDashboardClient",
         lambda *a, **kw: FakeClient(),
     )
 
@@ -1053,7 +1053,7 @@ def test_default_scorecards_search_ranks_matches(monkeypatch) -> None:
             return {"listScorecards": {"items": items, "nextToken": None}}
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: FakeClient()
+        "primus.cli.shared.client_utils.create_client", lambda: FakeClient()
     )
 
     result = execute._default_scorecards_search(
@@ -1138,10 +1138,10 @@ def test_default_score_search_cross_scorecards_and_scorecard_filter(monkeypatch)
             raise AssertionError(f"Unexpected query: {query!r}")
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: FakeClient()
+        "primus.cli.shared.client_utils.create_client", lambda: FakeClient()
     )
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda client, key: "00000000-0000-0000-0000-000000000001",
     )
 
@@ -1153,7 +1153,7 @@ def test_default_score_search_cross_scorecards_and_scorecard_filter(monkeypatch)
     assert wide["matches"][0]["match_score"] >= wide["matches"][1]["match_score"]
 
     monkeypatch.setattr(
-        "plexus.cli.scorecard.scorecards.resolve_scorecard_identifier",
+        "primus.cli.scorecard.scorecards.resolve_scorecard_identifier",
         lambda client, ident: "sc-one" if ident == "Card One" else None,
     )
     narrow = execute._default_score_search(
@@ -1202,7 +1202,7 @@ def test_default_score_set_champion_serializes_champion_history_metadata(
             raise AssertionError(f"Unexpected query: {query}")
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: FakeClient()
+        "primus.cli.shared.client_utils.create_client", lambda: FakeClient()
     )
 
     result = execute._default_score_set_champion(
@@ -1256,7 +1256,7 @@ def test_default_score_set_champion_promotes_when_expected_champion_matches(
             raise AssertionError(f"Unexpected query: {query}")
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: FakeClient()
+        "primus.cli.shared.client_utils.create_client", lambda: FakeClient()
     )
 
     result = execute._default_score_set_champion({
@@ -1296,7 +1296,7 @@ def test_default_score_set_champion_rejects_stale_expected_champion(
             raise AssertionError(f"Unexpected query: {query}")
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: FakeClient()
+        "primus.cli.shared.client_utils.create_client", lambda: FakeClient()
     )
 
     result = execute._default_score_set_champion({
@@ -1342,7 +1342,7 @@ def test_default_score_set_champion_fails_closed_when_current_champion_unavailab
             raise AssertionError(f"Unexpected query: {query}")
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: FakeClient()
+        "primus.cli.shared.client_utils.create_client", lambda: FakeClient()
     )
 
     result = execute._default_score_set_champion({
@@ -1396,7 +1396,7 @@ def test_default_score_set_champion_fails_closed_when_conditional_write_loses_ra
             raise AssertionError(f"Unexpected query: {query}")
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: FakeClient()
+        "primus.cli.shared.client_utils.create_client", lambda: FakeClient()
     )
 
     result = execute._default_score_set_champion({
@@ -1444,7 +1444,7 @@ def test_default_score_set_champion_keeps_legacy_behavior_without_precondition(
             raise AssertionError(f"Unexpected query: {query}")
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: FakeClient()
+        "primus.cli.shared.client_utils.create_client", lambda: FakeClient()
     )
 
     result = execute._default_score_set_champion({
@@ -1490,17 +1490,17 @@ def test_default_score_update_serializes_attribution_metadata(monkeypatch) -> No
                 }
             raise AssertionError(f"Unexpected query: {query}")
 
-    monkeypatch.setenv("PLEXUS_ACTOR_USER_ID", "user-1")
+    monkeypatch.setenv("PRIMUS_ACTOR_USER_ID", "user-1")
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client",
+        "primus.cli.shared.client_utils.create_client",
         lambda: FakeClient(),
     )
     monkeypatch.setattr(
-        "plexus.cli.shared.direct_identifier_resolution.direct_resolve_scorecard_identifier",
+        "primus.cli.shared.direct_identifier_resolution.direct_resolve_scorecard_identifier",
         lambda _client, _identifier: "scorecard-1",
     )
     monkeypatch.setattr(
-        "plexus.cli.shared.direct_identifier_resolution.direct_resolve_score_identifier",
+        "primus.cli.shared.direct_identifier_resolution.direct_resolve_score_identifier",
         lambda _client, _scorecard_id, _identifier: "score-1",
     )
 
@@ -1570,15 +1570,15 @@ def test_default_score_update_rejects_invalid_guidelines_before_mutation(monkeyp
             return {}
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client",
+        "primus.cli.shared.client_utils.create_client",
         lambda: FakeClient(),
     )
     monkeypatch.setattr(
-        "plexus.cli.shared.direct_identifier_resolution.direct_resolve_scorecard_identifier",
+        "primus.cli.shared.direct_identifier_resolution.direct_resolve_scorecard_identifier",
         lambda _client, _identifier: "scorecard-1",
     )
     monkeypatch.setattr(
-        "plexus.cli.shared.direct_identifier_resolution.direct_resolve_score_identifier",
+        "primus.cli.shared.direct_identifier_resolution.direct_resolve_score_identifier",
         lambda _client, _scorecard_id, _identifier: "score-1",
     )
 
@@ -1632,15 +1632,15 @@ def test_default_score_update_preserves_parent_guidelines_for_code_only_edits(
             raise AssertionError(f"Unexpected query: {query}")
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client",
+        "primus.cli.shared.client_utils.create_client",
         lambda: FakeClient(),
     )
     monkeypatch.setattr(
-        "plexus.cli.shared.direct_identifier_resolution.direct_resolve_scorecard_identifier",
+        "primus.cli.shared.direct_identifier_resolution.direct_resolve_scorecard_identifier",
         lambda _client, _identifier: "scorecard-1",
     )
     monkeypatch.setattr(
-        "plexus.cli.shared.direct_identifier_resolution.direct_resolve_score_identifier",
+        "primus.cli.shared.direct_identifier_resolution.direct_resolve_score_identifier",
         lambda _client, _scorecard_id, _identifier: "score-1",
     )
 
@@ -1699,15 +1699,15 @@ def test_default_score_update_preserves_empty_parent_guidelines_for_code_only_ed
             raise AssertionError(f"Unexpected query: {query}")
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client",
+        "primus.cli.shared.client_utils.create_client",
         lambda: FakeClient(),
     )
     monkeypatch.setattr(
-        "plexus.cli.shared.direct_identifier_resolution.direct_resolve_scorecard_identifier",
+        "primus.cli.shared.direct_identifier_resolution.direct_resolve_scorecard_identifier",
         lambda _client, _identifier: "scorecard-1",
     )
     monkeypatch.setattr(
-        "plexus.cli.shared.direct_identifier_resolution.direct_resolve_score_identifier",
+        "primus.cli.shared.direct_identifier_resolution.direct_resolve_score_identifier",
         lambda _client, _scorecard_id, _identifier: "score-1",
     )
 
@@ -1776,7 +1776,7 @@ def test_default_score_set_champion_does_not_duplicate_open_history_entry(
             raise AssertionError(f"Unexpected query: {query}")
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: FakeClient()
+        "primus.cli.shared.client_utils.create_client", lambda: FakeClient()
     )
 
     result = execute._default_score_set_champion(
@@ -1841,7 +1841,7 @@ def test_default_score_set_champion_updates_previous_champion_metadata_only(
             raise AssertionError(f"Unexpected query: {query}")
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: FakeClient()
+        "primus.cli.shared.client_utils.create_client", lambda: FakeClient()
     )
 
     result = execute._default_score_set_champion(
@@ -1866,7 +1866,7 @@ def test_default_score_set_champion_updates_previous_champion_metadata_only(
     assert outgoing_metadata["championHistory"][0]["exitedAt"] is not None
 
 
-def test_plexus_facade_delegates_score_set_champion_to_direct_handler() -> None:
+def test_primus_facade_delegates_score_set_champion_to_direct_handler() -> None:
     champion_args: list[dict] = []
 
     def fake_set_champion(args):
@@ -1885,7 +1885,7 @@ def test_plexus_facade_delegates_score_set_champion_to_direct_handler() -> None:
 
     assert value == {"success": True, "championVersionId": "version-new"}
     assert champion_args == [{"score_id": "score-1", "version_id": "version-new"}]
-    assert facade.api_calls == ["plexus.score.set_champion"]
+    assert facade.api_calls == ["primus.score.set_champion"]
 
 
 def test_dispatch_routes_scorecards_to_direct_handlers() -> None:
@@ -1916,12 +1916,12 @@ def test_dispatch_routes_procedure_archive_to_direct_handler() -> None:
     assert ("procedure", "archive") not in execute.MCP_TOOL_MAP
 
 
-def test_plexus_facade_uses_direct_procedure_handlers_without_mcp_loopback(
+def test_primus_facade_uses_direct_procedure_handlers_without_mcp_loopback(
     monkeypatch,
 ) -> None:
-    """plexus.procedure read methods must NOT loop back."""
+    """primus.procedure read methods must NOT loop back."""
 
-    monkeypatch.setenv("PLEXUS_ACCOUNT_KEY", "call-criteria")
+    monkeypatch.setenv("PRIMUS_ACCOUNT_KEY", "call-criteria")
 
     class FakeMCP:
         async def call_tool(self, name, arguments):
@@ -1963,15 +1963,15 @@ def test_plexus_facade_uses_direct_procedure_handlers_without_mcp_loopback(
         "steering_messages",
     ]
     assert facade.api_calls == [
-        "plexus.procedure.list",
-        "plexus.procedure.info",
-        "plexus.procedure.chat_sessions",
-        "plexus.procedure.chat_messages",
-        "plexus.procedure.steering_messages",
+        "primus.procedure.list",
+        "primus.procedure.info",
+        "primus.procedure.chat_sessions",
+        "primus.procedure.chat_messages",
+        "primus.procedure.steering_messages",
     ]
 
 
-def test_plexus_facade_uses_direct_procedure_archive_handler_without_mcp_loopback() -> None:
+def test_primus_facade_uses_direct_procedure_archive_handler_without_mcp_loopback() -> None:
     received_args: dict[str, Any] = {}
 
     def fake_archive(args: dict[str, Any]) -> dict[str, Any]:
@@ -1984,7 +1984,7 @@ def test_plexus_facade_uses_direct_procedure_archive_handler_without_mcp_loopbac
 
         async def call_tool(self, name, arguments):
             self.calls.append((name, arguments))
-            raise AssertionError("plexus.procedure.archive must not call MCP tools")
+            raise AssertionError("primus.procedure.archive must not call MCP tools")
 
     fake_mcp = FakeMCP()
     module = execute.PlexusRuntimeModule(fake_mcp, procedure_archive=fake_archive)
@@ -1993,7 +1993,7 @@ def test_plexus_facade_uses_direct_procedure_archive_handler_without_mcp_loopbac
 
     assert value == {"success": True, "procedure_id": "proc-1", "status": "ARCHIVED"}
     assert received_args == {"id": "proc-1", "reason": "noise cleanup"}
-    assert module.api_calls == ["plexus.procedure.archive"]
+    assert module.api_calls == ["primus.procedure.archive"]
     assert fake_mcp.calls == []
 
 
@@ -2011,7 +2011,7 @@ def test_extract_tool_value_parses_result_json_string() -> None:
     assert execute._extract_tool_value(result) == {"id": "score-1", "name": "Score"}
 
 
-def test_plexus_docs_get_reads_filesystem_directly(tmp_path) -> None:
+def test_primus_docs_get_reads_filesystem_directly(tmp_path) -> None:
     docs_dir = tmp_path / "docs"
     docs_dir.mkdir()
     (docs_dir / "score-yaml-format.md").write_text(
@@ -2035,7 +2035,7 @@ def test_plexus_docs_get_reads_filesystem_directly(tmp_path) -> None:
 
         async def call_tool(self, name, arguments):
             self.calls.append((name, arguments))
-            raise AssertionError("plexus.docs.get must not call MCP tools")
+            raise AssertionError("primus.docs.get must not call MCP tools")
 
     fake_mcp = FakeMCP()
     facade = execute.PlexusRuntimeModule(fake_mcp, docs_dir=str(docs_dir))
@@ -2047,7 +2047,7 @@ def test_plexus_docs_get_reads_filesystem_directly(tmp_path) -> None:
     assert value["content"] == "# Score docs"
     assert value["metadata"]["title"] == "Score YAML Format"
     assert fake_mcp.calls == []
-    assert facade.api_calls == ["plexus.docs.get"]
+    assert facade.api_calls == ["primus.docs.get"]
 
 
 def test_structured_error_extracts_tactus_line_number() -> None:
@@ -2089,7 +2089,7 @@ async def test_execute_tactus_tool_description_contains_curated_examples() -> No
 
     for term in (
         "execute_tactus",
-        "plexus.docs.get",
+        "primus.docs.get",
         "api_list()",
         "docs_list()",
         "docs_get",
@@ -2124,7 +2124,7 @@ def test_execute_tactus_description_constant_includes_themed_doc_pointers() -> N
     assert "mcp.execute-tactus-overview" in description, (
         "tool description should point at the canonical overview topic id"
     )
-    assert "plexus.docs.list" in description, (
+    assert "primus.docs.list" in description, (
         "tool description should tell agents how to discover topics"
     )
     for namespace in (
@@ -2147,7 +2147,7 @@ def test_execute_tactus_description_teaches_complete_coverage_composition() -> N
     assert "Never silently reduce complete requested coverage to a sample" in description
     assert "scorecards.list" in description
     assert "metadata pagination" in description
-    assert "plexus.feedback.alignment_batch" in description
+    assert "primus.feedback.alignment_batch" in description
     assert "coverage" in description
     assert "Never return the unaggregated alignment batch payload" in description
     assert "ranked_from_count" in description
@@ -2164,8 +2164,8 @@ def test_execute_tactus_description_teaches_complete_coverage_composition() -> N
 def test_execute_tactus_description_documents_optimization_approval_boundary() -> None:
     description = execute.EXECUTE_TACTUS_DESCRIPTION
 
-    assert "plexus.optimization.rank" in description
-    assert "plexus.optimization.run" in description
+    assert "primus.optimization.rank" in description
+    assert "primus.optimization.run" in description
     assert "approved = true" in description
     assert "never promotes a champion" in description
     assert "no inline output fallback" in description
@@ -2236,8 +2236,8 @@ def test_execute_tactus_description_teaches_progressive_disclosure() -> None:
 def test_execute_tactus_description_teaches_skill_progressive_disclosure() -> None:
     description = execute.EXECUTE_TACTUS_DESCRIPTION
 
-    assert "plexus.skills.list" in description
-    assert "plexus.skills.get" in description
+    assert "primus.skills.list" in description
+    assert "primus.skills.get" in description
     assert "skills_list{}" in description
     assert "metadata only" in description
     assert "loads one full skill body" in description
@@ -2276,7 +2276,7 @@ async def test_execute_tactus_streams_runtime_events_to_mcp_context(
                 "stage": "started",
             }
         )
-        stream_handler.api_call("plexus.docs.list")
+        stream_handler.api_call("primus.docs.list")
         stream_handler.emit(
             kind="execution",
             message="runtime completed",
@@ -2299,13 +2299,13 @@ async def test_execute_tactus_streams_runtime_events_to_mcp_context(
             },
             "trace_id": trace_id,
             "partial": False,
-            "api_calls": ["plexus.docs.list"],
+            "api_calls": ["primus.docs.list"],
         }
 
     monkeypatch.setattr(execute, "_run_tactus_sync", fake_run_tactus_sync)
 
     result = await execute._execute_tactus_tool(
-        'plexus.docs.list{}',
+        'primus.docs.list{}',
         FastMCP("test-streaming"),
         ctx=ctx,
     )
@@ -2313,19 +2313,19 @@ async def test_execute_tactus_streams_runtime_events_to_mcp_context(
     assert result["ok"] is True
     assert [item["message"] for item in ctx.progress] == [
         "runtime started",
-        "Calling plexus.docs.list",
+        "Calling primus.docs.list",
         "runtime completed",
     ]
     messages = [item["message"] for item in ctx.info_messages]
     assert "worker started" in messages
-    assert "Calling plexus.docs.list" in messages
+    assert "Calling primus.docs.list" in messages
     streamed_event = next(
         item["extra"]["event"]
         for item in ctx.info_messages
-        if item["message"] == "Calling plexus.docs.list"
+        if item["message"] == "Calling primus.docs.list"
     )
     assert streamed_event["kind"] == "api_call"
-    assert streamed_event["payload"] == {"api_call": "plexus.docs.list"}
+    assert streamed_event["payload"] == {"api_call": "primus.docs.list"}
 
 
 @pytest.mark.asyncio
@@ -2422,7 +2422,7 @@ async def test_execute_tactus_tool_returns_structured_contract(monkeypatch) -> N
             },
             "trace_id": trace_id,
             "partial": False,
-            "api_calls": ["plexus.api.list"],
+            "api_calls": ["primus.api.list"],
         }
 
     monkeypatch.setattr(execute, "_run_tactus_sync", fake_run_tactus_sync)
@@ -2439,7 +2439,7 @@ async def test_execute_tactus_tool_returns_structured_contract(monkeypatch) -> N
     assert structured["cost"]["tool_calls"] == 1
     assert isinstance(structured["trace_id"], str) and structured["trace_id"]
     assert structured["partial"] is False
-    assert structured["api_calls"] == ["plexus.api.list"]
+    assert structured["api_calls"] == ["primus.api.list"]
 
 
 @pytest.mark.asyncio
@@ -2482,7 +2482,7 @@ async def test_execute_tactus_runs_helper_call_through_host_module() -> None:
     }
     assert result["ok"] is True
     assert result["error"] is None
-    assert result["api_calls"] == ["plexus.score.info"]
+    assert result["api_calls"] == ["primus.score.info"]
     assert result["cost"]["tool_calls"] == 1
 
 
@@ -2504,7 +2504,7 @@ async def test_execute_tactus_runs_canonical_helper_call_through_host_module() -
         "name": "Compliance Tone",
     }
     assert result["ok"] is True
-    assert result["api_calls"] == ["plexus.score.info"]
+    assert result["api_calls"] == ["primus.score.info"]
 
 
 @pytest.mark.asyncio
@@ -2522,7 +2522,7 @@ async def test_execute_tactus_score_predict_uses_canonical_identifiers(
 
     result = await execute._execute_tactus_tool(
         (
-            'return plexus.score.predict({ scorecard_identifier = "card", '
+            'return primus.score.predict({ scorecard_identifier = "card", '
             'score_identifier = "score", item_id = "item-1" })'
         ),
         mcp,
@@ -2534,7 +2534,7 @@ async def test_execute_tactus_score_predict_uses_canonical_identifiers(
         "success": True,
         "predictions": [{"item_id": "item-1"}],
     }
-    assert result["api_calls"] == ["plexus.score.predict"]
+    assert result["api_calls"] == ["primus.score.predict"]
     assert seen["scorecard_identifier"] == "card"
     assert seen["score_identifier"] == "score"
     assert seen["item_id"] == "item-1"
@@ -2563,10 +2563,10 @@ def test_default_score_predict_requires_account_context(monkeypatch) -> None:
     )
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: fake_client
+        "primus.cli.shared.client_utils.create_client", lambda: fake_client
     )
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda *_args, **_kwargs: (_ for _ in ()).throw(
             AssertionError("default account resolver should not run")
         ),
@@ -2661,14 +2661,14 @@ def test_default_score_predict_uses_account_context_for_item_resolution(
     fake_client = FakeClient()
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: fake_client
+        "primus.cli.shared.client_utils.create_client", lambda: fake_client
     )
     monkeypatch.setattr(
-        "plexus.cli.scorecard.scorecards.resolve_scorecard_identifier",
+        "primus.cli.scorecard.scorecards.resolve_scorecard_identifier",
         lambda client, identifier: f"sc:{identifier}",
     )
     monkeypatch.setattr(
-        "plexus.cli.shared.identifier_resolution.resolve_score_identifier",
+        "primus.cli.shared.identifier_resolution.resolve_score_identifier",
         lambda client, scorecard_id, identifier: f"score:{identifier}",
     )
 
@@ -2680,7 +2680,7 @@ def test_default_score_predict_uses_account_context_for_item_resolution(
         return "item-internal"
 
     monkeypatch.setattr(
-        "plexus.cli.shared.identifier_resolution.resolve_item_identifier",
+        "primus.cli.shared.identifier_resolution.resolve_item_identifier",
         fake_resolve_item_identifier,
     )
     def fake_load_scorecard_from_api(*args, **kwargs):
@@ -2688,11 +2688,11 @@ def test_default_score_predict_uses_account_context_for_item_resolution(
         return FakeScorecard()
 
     monkeypatch.setattr(
-        "plexus.cli.evaluation.evaluations.load_scorecard_from_api",
+        "primus.cli.evaluation.evaluations.load_scorecard_from_api",
         fake_load_scorecard_from_api,
     )
     monkeypatch.setattr(
-        "plexus.dashboard.api.models.item.Item.from_dict",
+        "primus.dashboard.api.models.item.Item.from_dict",
         lambda item_data, client: SimpleNamespace(id=item_data["id"]),
     )
 
@@ -2748,7 +2748,7 @@ async def test_execute_tactus_reports_tactus_syntax_error_as_structured_error() 
 
 def test_sanitize_instruction_string_literals_converts_to_lua_long_brackets() -> None:
     tactus = (
-        "local edit = plexus.score.edit({ scorecard_identifier = \"sc\", "
+        "local edit = primus.score.edit({ scorecard_identifier = \"sc\", "
         "score_identifier = \"s\", instruction = 'Tighten customer''s evidence requirement', "
         "async = true })\n"
     )
@@ -2819,7 +2819,7 @@ async def test_execute_tactus_retries_once_after_unterminated_string_for_instruc
     monkeypatch.setattr(execute, "_run_tactus_sync", fake_run_tactus_sync)
 
     snippet = (
-        "local edit = plexus.score.edit({ scorecard_identifier = \"sc\", "
+        "local edit = primus.score.edit({ scorecard_identifier = \"sc\", "
         "score_identifier = \"s\", instruction = 'Tighten customer''s evidence requirement', "
         "async = true })\n"
     )
@@ -2830,36 +2830,36 @@ async def test_execute_tactus_retries_once_after_unterminated_string_for_instruc
     assert "instruction = [[" in calls[1]
 
 
-def test_plexus_facade_rejects_unsupported_namespace_method() -> None:
+def test_primus_facade_rejects_unsupported_namespace_method() -> None:
     facade = execute.PlexusRuntimeModule(FastMCP("test"))
 
-    with pytest.raises(ValueError, match="Unsupported Plexus runtime API"):
+    with pytest.raises(ValueError, match="Unsupported Primus runtime API"):
         facade._call("score", "no_such_method", {"id": "x"})
 
 
-def test_plexus_api_list_advertises_known_namespaces() -> None:
+def test_primus_api_list_advertises_known_namespaces() -> None:
     facade = execute.PlexusRuntimeModule(FastMCP("test"))
 
     catalog = facade.api.list()
 
-    assert "plexus.docs" in catalog
-    assert "plexus.skills" in catalog
-    assert "plexus.guidelines" in catalog
-    assert "plexus.api" in catalog
-    assert "plexus.score" in catalog
-    assert "info" in catalog["plexus.score"]
-    assert "create" in catalog["plexus.score"]
-    assert "plexus.scorecards" in catalog
-    assert "create" in catalog["plexus.scorecards"]
-    assert catalog["plexus.skills"] == ["get", "list"]
-    assert catalog["plexus.guidelines"] == ["validate"]
-    assert facade.api_calls == ["plexus.api.list"]
+    assert "primus.docs" in catalog
+    assert "primus.skills" in catalog
+    assert "primus.guidelines" in catalog
+    assert "primus.api" in catalog
+    assert "primus.score" in catalog
+    assert "info" in catalog["primus.score"]
+    assert "create" in catalog["primus.score"]
+    assert "primus.scorecards" in catalog
+    assert "create" in catalog["primus.scorecards"]
+    assert catalog["primus.skills"] == ["get", "list"]
+    assert catalog["primus.guidelines"] == ["validate"]
+    assert facade.api_calls == ["primus.api.list"]
 
 
 def test_optimization_namespace_advertises_all_decision_methods_and_helpers() -> None:
     module = execute.PlexusRuntimeModule(FastMCP("test-optimization-catalog"))
 
-    assert module.api.list()["plexus.optimization"] == [
+    assert module.api.list()["primus.optimization"] == [
         "assess", "diagnose", "portfolio_run", "rank", "review", "run", "summary"
     ]
     helpers = {name for name, _, _ in execute.HELPER_BINDINGS}
@@ -2917,7 +2917,7 @@ def test_optimization_read_methods_delegate_to_injected_handlers_in_planning_mod
 
     assert [method for method, _ in calls] == ["rank", "assess", "diagnose", "review", "summary"]
     assert all(args["account_id"] == "acct-opaque" for _, args in calls)
-    assert module.api_calls == [f"plexus.optimization.{method}" for method, _ in calls]
+    assert module.api_calls == [f"primus.optimization.{method}" for method, _ in calls]
 
 
 def test_optimization_run_is_execution_only_and_never_promotes() -> None:
@@ -2950,7 +2950,7 @@ def _ready_optimization_target(
     scorecard_id: str, score_id: str, champion_version: str, feedback_watermark: str
 ) -> dict:
     """Build an actual ready assessment packet for public-run provenance tests."""
-    from plexus.optimization.decision import assess_investment
+    from primus.optimization.decision import assess_investment
 
     assessment = assess_investment({
         "scorecard_id": scorecard_id, "score_id": score_id,
@@ -3003,7 +3003,7 @@ def test_default_portfolio_runtime_constructs_the_graphql_optimizer_child_dispat
     """The real runtime never falls back to a local optimizer subprocess."""
     from hashlib import sha256
     from pathlib import Path
-    from plexus.auth import cognito
+    from primus.auth import cognito
 
     captured: dict[str, object] = {}
     authority_events: list[str] = []
@@ -3025,13 +3025,13 @@ def test_default_portfolio_runtime_constructs_the_graphql_optimizer_child_dispat
         AssertionError("constructing child dispatch must not perform a GraphQL mutation")
     ))
     monkeypatch.setattr(cognito, "CognitoAuthService", AvailableAuthority)
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", lambda: client)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: client)
     monkeypatch.setattr(
-        "plexus.dashboard.api.models.account.Account.get_by_id",
+        "primus.dashboard.api.models.account.Account.get_by_id",
         lambda _account_id, _client: SimpleNamespace(settings={}),
     )
     monkeypatch.setattr(
-        "plexus.optimization.portfolio_run.OptimizationPortfolioRunner",
+        "primus.optimization.portfolio_run.OptimizationPortfolioRunner",
         CapturingRunner,
     )
 
@@ -3062,7 +3062,7 @@ def test_default_portfolio_runtime_constructs_the_graphql_optimizer_child_dispat
         },
     })
     expected_bytes = (
-        Path(execute.PLEXUS_PROJECT_ROOT) / "plexus" / "procedures" /
+        Path(execute.PRIMUS_PROJECT_ROOT) / "primus" / "procedures" /
         "feedback_alignment_optimizer.yaml"
     ).read_bytes()
     assert child_request["optimizer_yaml"] == expected_bytes.decode("utf-8")
@@ -3329,7 +3329,7 @@ def test_default_portfolio_runtime_builds_chat_message_authority_from_the_authen
         def resolve_first_valid_response(self, *_args, **_kwargs):
             return None
 
-    from plexus.auth import cognito
+    from primus.auth import cognito
 
     class AvailableAuthority:
         def get_access_token(self):
@@ -3338,15 +3338,15 @@ def test_default_portfolio_runtime_builds_chat_message_authority_from_the_authen
 
     monkeypatch.setattr(cognito, "CognitoAuthService", AvailableAuthority)
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client",
+        "primus.cli.shared.client_utils.create_client",
         lambda: authority_events.append("client") or client,
     )
     monkeypatch.setattr(
-        "plexus.dashboard.api.models.account.Account.get_by_id",
+        "primus.dashboard.api.models.account.Account.get_by_id",
         lambda _account_id, _client: SimpleNamespace(settings={}),
     )
-    monkeypatch.setattr("plexus.optimization.run_report.OptimizationRunReportService", ReportService)
-    monkeypatch.setattr("plexus.chat.ChatMessageActionService", ActionService)
+    monkeypatch.setattr("primus.optimization.run_report.OptimizationRunReportService", ReportService)
+    monkeypatch.setattr("primus.chat.ChatMessageActionService", ActionService)
     assessment = _ready_optimization_target(
         "card-opaque", "score-opaque", "champion-1", "2026-01-01T00:00:00Z"
     )["assessment"]
@@ -3384,8 +3384,8 @@ def test_default_portfolio_runtime_builds_chat_message_authority_from_the_authen
 @pytest.mark.parametrize(
     ("failure_type", "guidance"),
     [
-        ("MissingApplicationSession", "plexus login"),
-        ("RefreshCredentialRejected", "plexus login"),
+        ("MissingApplicationSession", "primus login"),
+        ("RefreshCredentialRejected", "primus login"),
         ("RefreshTransportFailure", "Retry the request"),
     ],
 )
@@ -3395,7 +3395,7 @@ def test_default_portfolio_runtime_proves_application_authority_before_any_stake
     guidance,
 ):
     """An unavailable application session must stop before Task/Report access."""
-    from plexus.auth import cognito
+    from primus.auth import cognito
 
     failure = getattr(cognito, failure_type)(
         f"Actionable guidance: {guidance}"
@@ -3411,11 +3411,11 @@ def test_default_portfolio_runtime_proves_application_authority_before_any_stake
 
     monkeypatch.setattr(cognito, "CognitoAuthService", UnavailableAuthority)
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client",
+        "primus.cli.shared.client_utils.create_client",
         lambda: client_requests.append(True),
     )
     monkeypatch.setattr(
-        "plexus.dashboard.api.models.account.Account.get_by_id",
+        "primus.dashboard.api.models.account.Account.get_by_id",
         lambda *_args: account_reads.append(True),
     )
 
@@ -3436,14 +3436,14 @@ def test_application_authority_preflight_does_not_broaden_to_read_only_optimizat
     monkeypatch,
 ):
     """The keychain check is exclusive to the stateful portfolio coordinator."""
-    from plexus.auth import cognito
+    from primus.auth import cognito
 
     token_requests = []
 
     class UnavailableAuthority:
         def get_access_token(self):
             token_requests.append(True)
-            raise cognito.MissingApplicationSession("Run `plexus login`.")
+            raise cognito.MissingApplicationSession("Run `primus login`.")
 
     monkeypatch.setattr(cognito, "CognitoAuthService", UnavailableAuthority)
     module = execute.PlexusRuntimeModule(
@@ -4178,11 +4178,11 @@ def test_optimization_assessment_freezes_content_digests_without_exposing_conten
     assert changed_code["evidence_fingerprint"] != first["evidence_fingerprint"]
     assert changed_guidelines["evidence_fingerprint"] != first["evidence_fingerprint"]
     assert missing_guidelines["guideline_digest"] == sha256(
-        b"plexus:optimization:missing-guidelines:v1"
+        b"primus:optimization:missing-guidelines:v1"
     ).hexdigest()
     assert missing_guidelines["guideline_digest_state"] == "missing"
     assert missing_inputs["configuration_digest"] == sha256(
-        b"plexus:optimization:missing-configuration:v1"
+        b"primus:optimization:missing-configuration:v1"
     ).hexdigest()
     assert missing_inputs["configuration_digest_state"] == "missing"
     serialized = json.dumps(first, sort_keys=True)
@@ -4227,7 +4227,7 @@ def test_portfolio_assessment_reads_each_exact_score_configuration_directly_once
 
     client = Client()
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client",
+        "primus.cli.shared.client_utils.create_client",
         lambda: create_client_calls.append(object()) or client,
     )
     module = execute.PlexusRuntimeModule(
@@ -4343,7 +4343,7 @@ def test_portfolio_assessment_marks_only_a_mismatched_exact_target_incomplete(
             }
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: Client(),
+        "primus.cli.shared.client_utils.create_client", lambda: Client(),
     )
     module = execute.PlexusRuntimeModule(
         FastMCP("test-portfolio-assessment-target-mismatch"),
@@ -4392,7 +4392,7 @@ def test_portfolio_assessment_rejects_a_scorecard_from_another_account(
                 }
             }
 
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", lambda: Client())
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: Client())
     module = execute.PlexusRuntimeModule(FastMCP("test-portfolio-assessment-account"))
     result = module.optimization.assess({
         "account_id": "account-opaque",
@@ -4435,7 +4435,7 @@ def test_portfolio_assessment_rejects_a_champion_changed_since_frozen_ranking(
                 }
             }
 
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", lambda: Client())
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: Client())
     module = execute.PlexusRuntimeModule(FastMCP("test-portfolio-assessment-stale-champion"))
     result = module.optimization.assess({
         "account_id": "account-opaque",
@@ -4479,7 +4479,7 @@ def test_portfolio_assessment_rejects_a_champion_relation_without_its_id(
                 }
             }
 
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", lambda: Client())
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: Client())
     module = execute.PlexusRuntimeModule(FastMCP("test-portfolio-assessment-champion-relation"))
     result = module.optimization.assess({
         "account_id": "account-opaque",
@@ -4597,13 +4597,13 @@ def test_default_optimization_diagnose_marks_dependency_failure_incomplete_witho
     [
         pytest.param(
             lambda: __import__(
-                "plexus.optimization.semantic_authority", fromlist=["SemanticAuthorityError"]
+                "primus.optimization.semantic_authority", fromlist=["SemanticAuthorityError"]
             ).SemanticAuthorityError("reservation publication failed"),
             id="precontact-publication",
         ),
         pytest.param(
             lambda: __import__(
-                "plexus.optimization.semantic_authority", fromlist=["SemanticOutcomeUnknown"]
+                "primus.optimization.semantic_authority", fromlist=["SemanticOutcomeUnknown"]
             ).SemanticOutcomeUnknown("provider outcome unknown"),
             id="postcontact-unknown",
         ),
@@ -4918,7 +4918,7 @@ def test_optimization_review_ignores_caller_supplied_safety_booleans() -> None:
     assert result["promotion_ready"] is False
 
 
-def test_plexus_api_list_stays_complete_in_planning_mode() -> None:
+def test_primus_api_list_stays_complete_in_planning_mode() -> None:
     facade = execute.PlexusRuntimeModule(
         FastMCP("test"),
         runtime_context={"tool_access_mode": "planning"},
@@ -4926,12 +4926,12 @@ def test_plexus_api_list_stays_complete_in_planning_mode() -> None:
 
     catalog = facade.api.list()
 
-    assert "run" in catalog["plexus.report"]
-    assert "run" in catalog["plexus.evaluation"]
-    assert "optimize" in catalog["plexus.procedure"]
-    assert catalog["plexus.skills"] == ["get", "list"]
-    assert catalog["plexus.guidelines"] == ["validate"]
-    assert facade.api_calls == ["plexus.api.list"]
+    assert "run" in catalog["primus.report"]
+    assert "run" in catalog["primus.evaluation"]
+    assert "optimize" in catalog["primus.procedure"]
+    assert catalog["primus.skills"] == ["get", "list"]
+    assert catalog["primus.guidelines"] == ["validate"]
+    assert facade.api_calls == ["primus.api.list"]
 
 
 def test_guidelines_validate_returns_structured_validation_result() -> None:
@@ -4952,7 +4952,7 @@ def test_guidelines_validate_returns_structured_validation_result() -> None:
     assert result["classifier_type"] == "binary"
     assert result["missing_sections"] == ["Conditions for No"]
     assert "found_sections" in result
-    assert module.api_calls == ["plexus.guidelines.validate"]
+    assert module.api_calls == ["primus.guidelines.validate"]
 
 
 def test_guidelines_validate_accepts_content_alias_and_is_allowed_in_planning_mode() -> None:
@@ -4974,7 +4974,7 @@ def test_guidelines_validate_accepts_content_alias_and_is_allowed_in_planning_mo
     )
 
     assert result["is_valid"] is True
-    assert module.api_calls == ["plexus.guidelines.validate"]
+    assert module.api_calls == ["primus.guidelines.validate"]
 
 
 def test_guidelines_validate_requires_markdown_text() -> None:
@@ -5085,7 +5085,7 @@ def _report_artifact_descriptor(
 
 
 def _install_report_fixture(monkeypatch, report, *, listed=None):
-    from plexus.dashboard.api.models.report import Report
+    from primus.dashboard.api.models.report import Report
 
     class FakeClient:
         context = None
@@ -5095,7 +5095,7 @@ def _install_report_fixture(monkeypatch, report, *, listed=None):
             return f"https://dashboard.example/lab/reports/{values['reportId']}"
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: FakeClient()
+        "primus.cli.shared.client_utils.create_client", lambda: FakeClient()
     )
     monkeypatch.setattr(
         Report,
@@ -5756,7 +5756,7 @@ async def test_planning_mode_blocks_procedure_start() -> None:
 
     result = await execute._execute_tactus_tool(
         (
-            'return plexus.procedure.run({ procedure_id = "proc-1", '
+            'return primus.procedure.run({ procedure_id = "proc-1", '
             'async = true, budget = { usd = 0.01, wallclock_seconds = 10, '
             'depth = 1, tool_calls = 1 } })'
         ),
@@ -5767,7 +5767,7 @@ async def test_planning_mode_blocks_procedure_start() -> None:
 
     assert result["ok"] is False
     assert result["error"]["code"] == "tool_not_allowed_in_planning_mode"
-    assert "plexus.procedure.run" in result["error"]["message"]
+    assert "primus.procedure.run" in result["error"]["message"]
     assert called is False
 
 
@@ -5788,7 +5788,7 @@ def test_planning_mode_blocks_champion_promotion() -> None:
     with pytest.raises(execute.PlanningModeToolNotAllowed) as exc_info:
         module.score.set_champion({"score_id": "score-1", "version_id": "version-1"})
 
-    assert "plexus.score.set_champion" in str(exc_info.value)
+    assert "primus.score.set_champion" in str(exc_info.value)
     assert called is False
 
 
@@ -5809,7 +5809,7 @@ def test_planning_mode_blocks_score_create() -> None:
     with pytest.raises(execute.PlanningModeToolNotAllowed) as exc_info:
         module.score.create({"scorecard_identifier": "card-1", "name": "New Score"})
 
-    assert "plexus.score.create" in str(exc_info.value)
+    assert "primus.score.create" in str(exc_info.value)
     assert called is False
 
 
@@ -5849,7 +5849,7 @@ def test_default_score_delete_keeps_runtime_confirmation_out_of_graphql_input(
             return {"deleteScore": {"id": "score-1"}}
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: FakeClient()
+        "primus.cli.shared.client_utils.create_client", lambda: FakeClient()
     )
 
     assert execute._default_score_delete({"id": "score-1", "confirmed": True}) == {
@@ -5876,7 +5876,7 @@ def test_planning_mode_blocks_score_delete() -> None:
     with pytest.raises(execute.PlanningModeToolNotAllowed) as exc_info:
         module.score.delete({"id": "score-1", "confirmed": True})
 
-    assert "plexus.score.delete" in str(exc_info.value)
+    assert "primus.score.delete" in str(exc_info.value)
     assert called is False
 
 
@@ -5917,10 +5917,10 @@ def test_default_scorecards_update_keeps_attribution_metadata_out_of_graphql_inp
             return {"updateScorecard": {"id": "card-1", "name": "Renamed"}}
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: FakeClient()
+        "primus.cli.shared.client_utils.create_client", lambda: FakeClient()
     )
     monkeypatch.setattr(
-        "plexus.cli.shared.direct_identifier_resolution.direct_resolve_scorecard_identifier",
+        "primus.cli.shared.direct_identifier_resolution.direct_resolve_scorecard_identifier",
         lambda _client, _identifier: "card-1",
     )
 
@@ -5947,7 +5947,7 @@ def test_planning_mode_blocks_scorecards_create() -> None:
     with pytest.raises(execute.PlanningModeToolNotAllowed) as exc_info:
         module.scorecards.create({"name": "New Scorecard"})
 
-    assert "plexus.scorecards.create" in str(exc_info.value)
+    assert "primus.scorecards.create" in str(exc_info.value)
     assert called is False
 
 
@@ -5968,7 +5968,7 @@ def test_planning_mode_blocks_procedure_archive() -> None:
     with pytest.raises(execute.PlanningModeToolNotAllowed) as exc_info:
         module.procedure.archive({"id": "proc-1"})
 
-    assert "plexus.procedure.archive" in str(exc_info.value)
+    assert "primus.procedure.archive" in str(exc_info.value)
     assert called is False
 
 
@@ -6061,11 +6061,11 @@ async def test_execute_tactus_docs_list_and_get_use_repository(tmp_path) -> None
     )
     (docs_dir / "README.md").write_text("# index\n")
 
-    original_docs_dir = execute.PLEXUS_DOCS_DIR
-    execute.PLEXUS_DOCS_DIR = str(docs_dir)
+    original_docs_dir = execute.PRIMUS_DOCS_DIR
+    execute.PRIMUS_DOCS_DIR = str(docs_dir)
     try:
         list_result = await execute._execute_tactus_tool(
-            "return plexus.docs.list()",
+            "return primus.docs.list()",
             mcp,
         )
 
@@ -6078,10 +6078,10 @@ async def test_execute_tactus_docs_list_and_get_use_repository(tmp_path) -> None
         for entry in list_result["value"]:
             assert "title" in entry and "summary" in entry and "namespace" in entry
             assert "content" not in entry and "body" not in entry
-        assert list_result["api_calls"] == ["plexus.docs.list"]
+        assert list_result["api_calls"] == ["primus.docs.list"]
 
         get_result = await execute._execute_tactus_tool(
-            'return plexus.docs.get{ key = "score-authoring.score-yaml-format" }',
+            'return primus.docs.get{ key = "score-authoring.score-yaml-format" }',
             mcp,
         )
 
@@ -6092,10 +6092,10 @@ async def test_execute_tactus_docs_list_and_get_use_repository(tmp_path) -> None
         assert value["content"] == "# Score YAML\n"
         assert value["metadata"]["title"] == "Score YAML"
         assert value["metadata"]["namespace"] == "score-authoring"
-        assert get_result["api_calls"] == ["plexus.docs.get"]
+        assert get_result["api_calls"] == ["primus.docs.get"]
         assert get_result["cost"]["tool_calls"] == 1
     finally:
-        execute.PLEXUS_DOCS_DIR = original_docs_dir
+        execute.PRIMUS_DOCS_DIR = original_docs_dir
 
 
 @pytest.mark.asyncio
@@ -6128,12 +6128,12 @@ async def test_execute_tactus_skills_list_and_get_use_repository(tmp_path) -> No
         allowed_modes="[ide]",
     )
 
-    original_skills_dir = execute.PLEXUS_SKILLS_DIR
-    execute.PLEXUS_SKILLS_DIR = str(skills_dir)
+    original_skills_dir = execute.PRIMUS_SKILLS_DIR
+    execute.PRIMUS_SKILLS_DIR = str(skills_dir)
     try:
         list_result = await execute._execute_tactus_tool(
             (
-                'return plexus.skills.list({ query = "score", '
+                'return primus.skills.list({ query = "score", '
                 'tags = {"score-workflow"}, mode = "planning" })'
             ),
             mcp,
@@ -6147,7 +6147,7 @@ async def test_execute_tactus_skills_list_and_get_use_repository(tmp_path) -> No
         assert entry["requires_subagent"] is True
         assert entry["console_supported"] is True
         assert "content" not in entry and "body" not in entry
-        assert list_result["api_calls"] == ["plexus.skills.list"]
+        assert list_result["api_calls"] == ["primus.skills.list"]
 
         get_result = await execute._execute_tactus_tool(
             'return skills_get{ id = "score-code-editor", mode = "console" }',
@@ -6163,9 +6163,9 @@ async def test_execute_tactus_skills_list_and_get_use_repository(tmp_path) -> No
         assert "Hide this from console." not in value["content"]
         assert "Console must use score.edit." in value["content"]
         assert value["resources"] in ([], {})
-        assert get_result["api_calls"] == ["plexus.skills.get"]
+        assert get_result["api_calls"] == ["primus.skills.get"]
     finally:
-        execute.PLEXUS_SKILLS_DIR = original_skills_dir
+        execute.PRIMUS_SKILLS_DIR = original_skills_dir
 
 
 @pytest.mark.asyncio
@@ -6179,8 +6179,8 @@ async def test_planning_mode_allows_skills_list_and_get(tmp_path) -> None:
         body="# Score Setup\n",
     )
 
-    original_skills_dir = execute.PLEXUS_SKILLS_DIR
-    execute.PLEXUS_SKILLS_DIR = str(skills_dir)
+    original_skills_dir = execute.PRIMUS_SKILLS_DIR
+    execute.PRIMUS_SKILLS_DIR = str(skills_dir)
     try:
         result = await execute._execute_tactus_tool(
             (
@@ -6192,14 +6192,14 @@ async def test_planning_mode_allows_skills_list_and_get(tmp_path) -> None:
             runtime_context={"tool_access_mode": "planning"},
         )
     finally:
-        execute.PLEXUS_SKILLS_DIR = original_skills_dir
+        execute.PRIMUS_SKILLS_DIR = original_skills_dir
 
     assert result["ok"] is True
     assert result["value"] == {"count": 1, "skill_id": "score-setup"}
-    assert result["api_calls"] == ["plexus.skills.list", "plexus.skills.get"]
+    assert result["api_calls"] == ["primus.skills.list", "primus.skills.get"]
 
 
-def test_plexus_runtime_module_docs_get_rejects_unsafe_keys(tmp_path) -> None:
+def test_primus_runtime_module_docs_get_rejects_unsafe_keys(tmp_path) -> None:
     docs_dir = tmp_path / "docs"
     docs_dir.mkdir()
     _write_doc(
@@ -6212,19 +6212,19 @@ def test_plexus_runtime_module_docs_get_rejects_unsafe_keys(tmp_path) -> None:
 
     module = execute.PlexusRuntimeModule(FastMCP("test"), docs_dir=str(docs_dir))
 
-    with pytest.raises(ValueError, match="Invalid plexus.docs key"):
+    with pytest.raises(ValueError, match="Invalid primus.docs key"):
         module._docs_read("../etc/passwd")
-    with pytest.raises(ValueError, match="Invalid plexus.docs key"):
+    with pytest.raises(ValueError, match="Invalid primus.docs key"):
         module._docs_read("")
-    with pytest.raises(ValueError, match="Invalid plexus.docs key"):
+    with pytest.raises(ValueError, match="Invalid primus.docs key"):
         module._docs_read("/etc/passwd")
-    with pytest.raises(ValueError, match="Invalid plexus.docs key"):
+    with pytest.raises(ValueError, match="Invalid primus.docs key"):
         module._docs_read("evaluation/../../etc/passwd")
     with pytest.raises(FileNotFoundError):
         module._docs_read("missing.id")
 
 
-def test_plexus_runtime_module_docs_list_excludes_readme_and_index(tmp_path) -> None:
+def test_primus_runtime_module_docs_list_excludes_readme_and_index(tmp_path) -> None:
     docs_dir = tmp_path / "docs"
     docs_dir.mkdir()
     _write_doc(
@@ -6257,7 +6257,7 @@ def test_plexus_runtime_module_docs_list_excludes_readme_and_index(tmp_path) -> 
     assert ids == ["ns.alpha", "ns.beta"]
 
 
-def test_plexus_runtime_module_docs_list_returns_namespaced_metadata(tmp_path) -> None:
+def test_primus_runtime_module_docs_list_returns_namespaced_metadata(tmp_path) -> None:
     docs_dir = tmp_path / "docs"
     (docs_dir / "evaluation-feedback").mkdir(parents=True)
     (docs_dir / "score-authoring").mkdir(parents=True)
@@ -6296,7 +6296,7 @@ def test_plexus_runtime_module_docs_list_returns_namespaced_metadata(tmp_path) -
     assert namespaces == {"evaluation-feedback", "score-authoring"}
 
 
-def test_plexus_runtime_module_docs_list_supports_namespace_filter(tmp_path) -> None:
+def test_primus_runtime_module_docs_list_supports_namespace_filter(tmp_path) -> None:
     docs_dir = tmp_path / "docs"
     (docs_dir / "mcp").mkdir(parents=True)
     (docs_dir / "score-authoring").mkdir(parents=True)
@@ -6321,7 +6321,7 @@ def test_plexus_runtime_module_docs_list_supports_namespace_filter(tmp_path) -> 
     assert [e["id"] for e in mcp_entries] == ["mcp.discovery"]
 
 
-def test_plexus_runtime_module_docs_read_returns_metadata_and_body(tmp_path) -> None:
+def test_primus_runtime_module_docs_read_returns_metadata_and_body(tmp_path) -> None:
     docs_dir = tmp_path / "docs"
     (docs_dir / "evaluation-feedback").mkdir(parents=True)
     _write_doc(
@@ -6340,7 +6340,7 @@ def test_plexus_runtime_module_docs_read_returns_metadata_and_body(tmp_path) -> 
     assert metadata["namespace"] == "evaluation-feedback"
 
 
-def test_plexus_runtime_module_docs_read_unknown_id_raises(tmp_path) -> None:
+def test_primus_runtime_module_docs_read_unknown_id_raises(tmp_path) -> None:
     docs_dir = tmp_path / "docs"
     (docs_dir / "procedures").mkdir(parents=True)
     _write_doc(
@@ -6357,8 +6357,8 @@ def test_plexus_runtime_module_docs_read_unknown_id_raises(tmp_path) -> None:
         module._docs_read("procedures.no-such-doc")
 
 
-def test_plexus_docs_repository_layout_exposes_themed_keys() -> None:
-    docs_dir = execute.PLEXUS_DOCS_DIR
+def test_primus_docs_repository_layout_exposes_themed_keys() -> None:
+    docs_dir = execute.PRIMUS_DOCS_DIR
     module = execute.PlexusRuntimeModule(FastMCP("test"), docs_dir=docs_dir)
 
     entries = module._docs_list()
@@ -6425,7 +6425,7 @@ async def test_execute_tactus_explicit_return_overrides_helper_capture() -> None
 
     assert result["ok"] is True
     assert result["value"] == {"override": True}
-    assert result["api_calls"] == ["plexus.score.info"]
+    assert result["api_calls"] == ["primus.score.info"]
 
 
 @pytest.mark.asyncio
@@ -6448,9 +6448,9 @@ async def test_execute_tactus_writes_trace_for_successful_run() -> None:
     record = store.records[0]
     assert record["trace_id"] == result["trace_id"]
     assert record["ok"] is True
-    assert record["api_calls"] == ["plexus.score.info"]
+    assert record["api_calls"] == ["primus.score.info"]
     assert record["submitted_tactus"] == 'score{ id = "score_trace" }'
-    assert 'local plexus = require("plexus")' in record["wrapped_tactus"]
+    assert 'local primus = require("primus")' in record["wrapped_tactus"]
     assert record["error"] is None
     assert record["cost"]["tool_calls"] == 1
     assert record["partial"] is False
@@ -6551,7 +6551,7 @@ def test_file_trace_store_writes_json_file_per_trace(tmp_path) -> None:
     record = {
         "trace_id": "abc-123",
         "ok": True,
-        "api_calls": ["plexus.api.list"],
+        "api_calls": ["primus.api.list"],
         "value": {"hello": "world"},
         "started_at": "2026-04-29T00:00:00Z",
         "ended_at": "2026-04-29T00:00:00Z",
@@ -6574,7 +6574,7 @@ def test_file_trace_store_writes_json_file_per_trace(tmp_path) -> None:
 
 def test_default_trace_store_honours_env_override(monkeypatch, tmp_path) -> None:
     target = tmp_path / "custom-traces"
-    monkeypatch.setenv("PLEXUS_TACTUS_TRACE_DIR", str(target))
+    monkeypatch.setenv("PRIMUS_TACTUS_TRACE_DIR", str(target))
 
     store = execute._default_trace_store()
 
@@ -6583,7 +6583,7 @@ def test_default_trace_store_honours_env_override(monkeypatch, tmp_path) -> None
 
 
 def test_default_trace_store_uses_lambda_writable_tmp(monkeypatch) -> None:
-    monkeypatch.delenv("PLEXUS_TACTUS_TRACE_DIR", raising=False)
+    monkeypatch.delenv("PRIMUS_TACTUS_TRACE_DIR", raising=False)
     monkeypatch.setenv("AWS_LAMBDA_FUNCTION_NAME", "console-chat-responder")
 
     store = execute._default_trace_store()
@@ -6633,7 +6633,7 @@ def test_budget_gate_trips_on_wallclock() -> None:
     assert gate.exceeded is True
 
 
-def test_plexus_runtime_module_records_tool_call_against_budget(tmp_path) -> None:
+def test_primus_runtime_module_records_tool_call_against_budget(tmp_path) -> None:
     docs_dir = tmp_path / "docs"
     docs_dir.mkdir()
     _write_doc(
@@ -6656,7 +6656,7 @@ def test_plexus_runtime_module_records_tool_call_against_budget(tmp_path) -> Non
     assert gate.exceeded is False
 
 
-def test_plexus_runtime_module_blocks_call_when_budget_already_exceeded(
+def test_primus_runtime_module_blocks_call_when_budget_already_exceeded(
     tmp_path,
 ) -> None:
     docs_dir = tmp_path / "docs"
@@ -6687,7 +6687,7 @@ async def test_execute_tactus_returns_budget_exceeded_when_tool_calls_overrun() 
     store = _RecordingTraceStore()
 
     result = await execute._execute_tactus_tool(
-        "plexus.api.list()\nplexus.api.list()\nreturn 'never'",
+        "primus.api.list()\nprimus.api.list()\nreturn 'never'",
         mcp,
         trace_store=store,
         budget=tight_budget,
@@ -6695,7 +6695,7 @@ async def test_execute_tactus_returns_budget_exceeded_when_tool_calls_overrun() 
 
     assert result["ok"] is False
     assert result["error"]["code"] == "budget_exceeded"
-    assert result["api_calls"] == ["plexus.api.list"]
+    assert result["api_calls"] == ["primus.api.list"]
     assert result["cost"]["tool_calls"] == 1
     assert result["cost"]["budget_remaining_tool_calls"] == 0
     assert len(store.records) == 1
@@ -6711,7 +6711,7 @@ def test_long_running_methods_constant_lists_run_apis() -> None:
     assert ("procedure", "run") in execute.DIRECT_HANDLERS
 
 
-def test_plexus_runtime_module_requires_async_for_evaluation_run() -> None:
+def test_primus_runtime_module_requires_async_for_evaluation_run() -> None:
     class FakeMCP:
         def __init__(self) -> None:
             self.calls: list[tuple[str, dict]] = []
@@ -6729,7 +6729,7 @@ def test_plexus_runtime_module_requires_async_for_evaluation_run() -> None:
         module.evaluation.run({"scorecard_name": "x"})
 
     assert module.handle_protocol_required == ("evaluation", "run")
-    assert module.api_calls == ["plexus.evaluation.run"]
+    assert module.api_calls == ["primus.evaluation.run"]
     assert fake_mcp.calls == []
 
 
@@ -6740,7 +6740,7 @@ async def test_execute_tactus_returns_requires_handle_protocol_for_blocking_run(
     mcp = FastMCP("test-execute-tactus-handle")
 
     @mcp.tool()
-    def plexus_evaluation_run(scorecard_name: str):  # pragma: no cover - must not run
+    def primus_evaluation_run(scorecard_name: str):  # pragma: no cover - must not run
         raise AssertionError("MCP-loopback long-running run should be blocked in v0")
 
     store = _RecordingTraceStore()
@@ -6753,7 +6753,7 @@ async def test_execute_tactus_returns_requires_handle_protocol_for_blocking_run(
     assert result["ok"] is False
     assert result["error"]["code"] == "requires_handle_protocol"
     assert "evaluation.run" in result["error"]["message"]
-    assert result["api_calls"] == ["plexus.evaluation.run"]
+    assert result["api_calls"] == ["primus.evaluation.run"]
     assert len(store.records) == 1
     assert store.records[0]["error"]["code"] == "requires_handle_protocol"
 
@@ -6812,7 +6812,7 @@ def test_evaluation_run_async_creates_handle_and_records_budget() -> None:
     }
     assert gate.tool_calls == 3
     assert gate.spent_usd == pytest.approx(0.01)
-    assert module.api_calls == ["plexus.evaluation.run"]
+    assert module.api_calls == ["primus.evaluation.run"]
     assert handles.created[0]["dispatch_result"]["evaluation_id"] == "eval-1"
     assert handles.created[0]["child_budget"] == budget
 
@@ -6836,7 +6836,7 @@ def test_evaluation_run_async_requires_explicit_child_budget() -> None:
         )
 
     assert called is False
-    assert module.api_calls == ["plexus.evaluation.run"]
+    assert module.api_calls == ["primus.evaluation.run"]
 
 
 def test_score_edit_blocking_requires_handle_protocol() -> None:
@@ -6852,7 +6852,7 @@ def test_score_edit_blocking_requires_handle_protocol() -> None:
         )
 
     assert module.handle_protocol_required == ("score", "edit")
-    assert module.api_calls == ["plexus.score.edit"]
+    assert module.api_calls == ["primus.score.edit"]
 
 
 def test_score_edit_async_always_waits_and_records_budget(tmp_path, monkeypatch) -> None:
@@ -6878,7 +6878,7 @@ def test_score_edit_async_always_waits_and_records_budget(tmp_path, monkeypatch)
         score_edit_runner=fake_runner,
     )
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client",
+        "primus.cli.shared.client_utils.create_client",
         object,
     )
     monkeypatch.setattr(
@@ -6907,7 +6907,7 @@ def test_score_edit_async_always_waits_and_records_budget(tmp_path, monkeypatch)
     assert completed["status"] == "completed"
     assert completed["result"]["version_id"] == "sv-abc"
     assert seen_args["instruction"] == "tighten refund handling"
-    assert module.api_calls == ["plexus.score.edit", "plexus.handle.await"]
+    assert module.api_calls == ["primus.score.edit", "primus.handle.await"]
     assert handles.created[0]["id"] == "handle-1"
     assert handles.created[0]["dispatch_result"]["result_file"] == str(result_file)
     assert handles.created[0]["child_budget"] == budget
@@ -6931,7 +6931,7 @@ def test_score_edit_async_waits_for_terminal_result_by_default(tmp_path, monkeyp
         score_edit_runner=fake_runner,
     )
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client",
+        "primus.cli.shared.client_utils.create_client",
         object,
     )
     monkeypatch.setattr(
@@ -6958,7 +6958,7 @@ def test_score_edit_async_waits_for_terminal_result_by_default(tmp_path, monkeyp
 
     assert completed["status"] == "completed"
     assert completed["result"]["version_id"] == "sv-123"
-    assert module.api_calls == ["plexus.score.edit", "plexus.handle.await"]
+    assert module.api_calls == ["primus.score.edit", "primus.handle.await"]
 
 
 def test_score_edit_chains_followup_from_session_latest(tmp_path, monkeypatch) -> None:
@@ -6987,7 +6987,7 @@ def test_score_edit_chains_followup_from_session_latest(tmp_path, monkeypatch) -
         handle_store=handles,
         score_edit_runner=fake_runner,
     )
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", object)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", object)
     monkeypatch.setattr(
         execute,
         "_resolve_scorecard_for_score_edit",
@@ -7051,7 +7051,7 @@ def test_score_edit_cache_is_keyed_by_score(tmp_path, monkeypatch) -> None:
         handle_store=_MemoryHandleStore(),
         score_edit_runner=fake_runner,
     )
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", object)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", object)
     monkeypatch.setattr(
         execute,
         "_resolve_scorecard_for_score_edit",
@@ -7107,7 +7107,7 @@ def test_score_edit_explicit_version_and_champion_start_override_cache(
         handle_store=_MemoryHandleStore(),
         score_edit_runner=fake_runner,
     )
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", object)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", object)
     monkeypatch.setattr(
         execute,
         "_resolve_scorecard_for_score_edit",
@@ -7167,7 +7167,7 @@ def test_score_update_chains_parent_from_session_latest(monkeypatch) -> None:
         trace_id="trace-1",
         score_update=fake_update,
     )
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", object)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", object)
     monkeypatch.setattr(
         execute,
         "_resolve_scorecard_for_score_edit",
@@ -7205,7 +7205,7 @@ def test_score_update_chains_parent_from_session_latest(monkeypatch) -> None:
 async def test_console_origin_score_update_code_returns_structured_guard_error() -> None:
     result = await execute._execute_tactus_tool(
         (
-            'return plexus.score.update({ '
+            'return primus.score.update({ '
             'scorecard_identifier = "nonexistent-console-skills-smoke", '
             'score_identifier = "nonexistent-score", '
             'code = "name: x\\nkey: x" })'
@@ -7216,7 +7216,7 @@ async def test_console_origin_score_update_code_returns_structured_guard_error()
 
     assert result["ok"] is False
     assert result["error"]["code"] == "console_score_code_update_requires_subagent"
-    assert result["api_calls"] == ["plexus.score.update"]
+    assert result["api_calls"] == ["primus.score.update"]
 
 
 def test_console_origin_score_update_yaml_content_is_rejected() -> None:
@@ -7260,7 +7260,7 @@ def test_console_origin_score_update_guidelines_only_is_allowed(monkeypatch) -> 
             "console_user_message": "Please update this score's guidelines wording.",
         },
     )
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", object)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", object)
     monkeypatch.setattr(
         execute,
         "_resolve_scorecard_for_score_edit",
@@ -7309,7 +7309,7 @@ def test_console_origin_score_update_guidelines_requires_guidelines_intent(monke
             ),
         },
     )
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", object)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", object)
 
     with pytest.raises(execute.ConsoleGuidelinesUpdateRequiresGuidelinesIntent):
         module.score.update(
@@ -7469,7 +7469,7 @@ def test_non_console_score_update_code_is_allowed(monkeypatch) -> None:
         FastMCP("test-non-console-score-update-code"),
         score_update=fake_update,
     )
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", object)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", object)
     monkeypatch.setattr(
         execute,
         "_resolve_scorecard_for_score_edit",
@@ -7526,7 +7526,7 @@ def test_console_origin_score_edit_routes_through_worker(tmp_path, monkeypatch) 
         handle_store=_MemoryHandleStore(),
         runtime_context=runtime_context,
     )
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", object)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", object)
     monkeypatch.setattr(
         execute,
         "_resolve_scorecard_for_score_edit",
@@ -7606,7 +7606,7 @@ def test_run_score_edit_job_runs_post_submit_smoke_test_for_code_changes(
 
     monkeypatch.setitem(sys.modules, "openai", SimpleNamespace(OpenAI=FakeOpenAI))
     monkeypatch.setattr(
-        "plexus.cli.procedure.tactus_adapters.score_editor_toolset.ScoreEditorToolset",
+        "primus.cli.procedure.tactus_adapters.score_editor_toolset.ScoreEditorToolset",
         FakeToolset,
     )
     monkeypatch.setattr(
@@ -7703,7 +7703,7 @@ def test_run_score_edit_job_ignores_llm_guidelines_edits_by_default(
 
     monkeypatch.setitem(sys.modules, "openai", SimpleNamespace(OpenAI=FakeOpenAI))
     monkeypatch.setattr(
-        "plexus.cli.procedure.tactus_adapters.score_editor_toolset.ScoreEditorToolset",
+        "primus.cli.procedure.tactus_adapters.score_editor_toolset.ScoreEditorToolset",
         FakeToolset,
     )
     monkeypatch.setattr(
@@ -7785,7 +7785,7 @@ def test_run_score_edit_job_skips_post_submit_smoke_test_without_code_change(
 
     monkeypatch.setitem(sys.modules, "openai", SimpleNamespace(OpenAI=FakeOpenAI))
     monkeypatch.setattr(
-        "plexus.cli.procedure.tactus_adapters.score_editor_toolset.ScoreEditorToolset",
+        "primus.cli.procedure.tactus_adapters.score_editor_toolset.ScoreEditorToolset",
         FakeToolset,
     )
     monkeypatch.setattr(
@@ -7870,7 +7870,7 @@ def test_run_score_edit_job_fails_when_candidate_guidelines_change_unexpectedly(
 
     monkeypatch.setitem(sys.modules, "openai", SimpleNamespace(OpenAI=FakeOpenAI))
     monkeypatch.setattr(
-        "plexus.cli.procedure.tactus_adapters.score_editor_toolset.ScoreEditorToolset",
+        "primus.cli.procedure.tactus_adapters.score_editor_toolset.ScoreEditorToolset",
         FakeToolset,
     )
     monkeypatch.setattr(
@@ -7960,7 +7960,7 @@ def test_run_score_edit_job_retries_with_fallback_model_after_parse_failure(
 
     monkeypatch.setitem(sys.modules, "openai", SimpleNamespace(OpenAI=FakeOpenAI))
     monkeypatch.setattr(
-        "plexus.cli.procedure.tactus_adapters.score_editor_toolset.ScoreEditorToolset",
+        "primus.cli.procedure.tactus_adapters.score_editor_toolset.ScoreEditorToolset",
         FakeToolset,
     )
     monkeypatch.setattr(
@@ -8051,7 +8051,7 @@ def test_run_score_edit_job_retries_after_post_save_smoke_failure(
 
     monkeypatch.setitem(sys.modules, "openai", SimpleNamespace(OpenAI=FakeOpenAI))
     monkeypatch.setattr(
-        "plexus.cli.procedure.tactus_adapters.score_editor_toolset.ScoreEditorToolset",
+        "primus.cli.procedure.tactus_adapters.score_editor_toolset.ScoreEditorToolset",
         FakeToolset,
     )
     monkeypatch.setattr(
@@ -8132,7 +8132,7 @@ def test_evaluation_run_uses_cached_latest_score_version_after_edit(monkeypatch)
         evaluation_runner=fake_evaluation_runner,
         handle_store=_MemoryHandleStore(),
     )
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", object)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", object)
     monkeypatch.setattr(
         execute,
         "_resolve_scorecard_for_score_edit",
@@ -8412,7 +8412,7 @@ def test_score_resolve_returns_unique_exact_score_match(monkeypatch) -> None:
             raise AssertionError(f"Unexpected query: {query}")
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client",
+        "primus.cli.shared.client_utils.create_client",
         lambda: FakeClient(),
     )
     module = execute.PlexusRuntimeModule(FastMCP("test"))
@@ -8428,7 +8428,7 @@ def test_score_resolve_returns_unique_exact_score_match(monkeypatch) -> None:
     assert result["scorecard_id"] == "sc-1"
     assert result["score_id"] == "score-1"
     assert result["score"]["name"] == "Example Score"
-    assert module.api_calls == ["plexus.score.resolve"]
+    assert module.api_calls == ["primus.score.resolve"]
 
 
 def test_score_resolve_returns_ambiguous_score_candidates(monkeypatch) -> None:
@@ -8484,7 +8484,7 @@ def test_score_resolve_returns_ambiguous_score_candidates(monkeypatch) -> None:
             raise AssertionError(f"Unexpected query: {query}")
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client",
+        "primus.cli.shared.client_utils.create_client",
         lambda: FakeClient(),
     )
     module = execute.PlexusRuntimeModule(FastMCP("test"))
@@ -8564,14 +8564,14 @@ def test_score_edit_preflight_gate_blocks_dispatch_on_ambiguous_targets(monkeypa
         pass
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client",
+        "primus.cli.shared.client_utils.create_client",
         lambda: FakeClient(),
     )
     monkeypatch.setattr(
         execute,
         "_resolve_scorecard_for_score_edit",
         lambda _client, _identifier: (_ for _ in ()).throw(
-            ValueError("Clarification required before plexus.score.edit: scorecard_identifier is ambiguous")
+            ValueError("Clarification required before primus.score.edit: scorecard_identifier is ambiguous")
         ),
     )
 
@@ -8582,7 +8582,7 @@ def test_score_edit_preflight_gate_blocks_dispatch_on_ambiguous_targets(monkeypa
         score_edit_runner=fake_runner,
     )
     budget = _child_budget()
-    with pytest.raises(ValueError, match="Clarification required before plexus.score.edit"):
+    with pytest.raises(ValueError, match="Clarification required before primus.score.edit"):
         module.score.edit(
             {
                 "scorecard_identifier": "Example Scorecard",
@@ -8597,7 +8597,7 @@ def test_score_edit_preflight_gate_blocks_dispatch_on_ambiguous_targets(monkeypa
 
 
 def test_default_score_pull_does_not_fallback_to_fuzzy_search(monkeypatch) -> None:
-    from plexus.cli.shared import client_utils, direct_identifier_resolution
+    from primus.cli.shared import client_utils, direct_identifier_resolution
 
     class FakeClient:
         def execute(self, query: str, variables: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -8714,7 +8714,7 @@ def test_async_child_budget_overrun_blocks_dispatch() -> None:
 
     assert called is False
     assert gate.exceeded is True
-    assert module.api_calls == ["plexus.evaluation.run"]
+    assert module.api_calls == ["primus.evaluation.run"]
 
 
 def test_default_evaluation_runner_dispatches_cli_without_mcp_loopback(
@@ -8737,7 +8737,7 @@ def test_default_evaluation_runner_dispatches_cli_without_mcp_loopback(
         async def call_tool(self, name, arguments):  # pragma: no cover - must not run
             raise AssertionError("default evaluation runner must not call MCP tools")
 
-    monkeypatch.setattr("shutil.which", lambda name: "/usr/local/bin/plexus")
+    monkeypatch.setattr("shutil.which", lambda name: "/usr/local/bin/primus")
     monkeypatch.setattr("subprocess.Popen", fake_popen)
     monkeypatch.setattr("time.sleep", lambda _: None)
 
@@ -8770,7 +8770,7 @@ def test_default_evaluation_runner_dispatches_cli_without_mcp_loopback(
     if emit_idx is not None:
         cmd = cmd[:emit_idx] + cmd[emit_idx + 2:]
     assert cmd == [
-        "/usr/local/bin/plexus",
+        "/usr/local/bin/primus",
         "evaluate",
         "feedback",
         "--scorecard",
@@ -8787,8 +8787,8 @@ def test_default_evaluation_runner_dispatches_cli_without_mcp_loopback(
         "proc-123",
     ]
     assert captured["kwargs"]["start_new_session"] is True
-    assert json.loads(captured["kwargs"]["env"]["PLEXUS_CHILD_BUDGET"]) == _child_budget()
-    assert json.loads(captured["kwargs"]["env"]["PLEXUS_ACTOR_CONTEXT_JSON"])["actor_user_id"] == "user-ctx-123"
+    assert json.loads(captured["kwargs"]["env"]["PRIMUS_CHILD_BUDGET"]) == _child_budget()
+    assert json.loads(captured["kwargs"]["env"]["PRIMUS_ACTOR_CONTEXT_JSON"])["actor_user_id"] == "user-ctx-123"
     assert result["child_budget"] == _child_budget()
 
 
@@ -8799,7 +8799,7 @@ def test_default_evaluation_runner_reports_clean_child_exit_before_evaluation_cr
         def poll(self) -> int:
             return 0
 
-    monkeypatch.setattr("shutil.which", lambda name: "/usr/local/bin/plexus")
+    monkeypatch.setattr("shutil.which", lambda name: "/usr/local/bin/primus")
     monkeypatch.setattr("subprocess.Popen", lambda *args, **kwargs: CleanExitProcess())
     monkeypatch.setattr("time.sleep", lambda _: None)
 
@@ -8830,7 +8830,7 @@ def test_default_evaluation_runner_passes_frozen_feedback_window(monkeypatch) ->
         captured["cmd"] = cmd
         return FakeProcess()
 
-    monkeypatch.setattr("shutil.which", lambda name: "/usr/local/bin/plexus")
+    monkeypatch.setattr("shutil.which", lambda name: "/usr/local/bin/primus")
     monkeypatch.setattr("subprocess.Popen", fake_popen)
     monkeypatch.setattr("time.sleep", lambda _: None)
 
@@ -8867,7 +8867,7 @@ def test_default_evaluation_runner_forwards_exact_feedback_item_ids(monkeypatch)
         captured["cmd"] = cmd
         return FakeProcess()
 
-    monkeypatch.setattr("shutil.which", lambda name: "/usr/local/bin/plexus")
+    monkeypatch.setattr("shutil.which", lambda name: "/usr/local/bin/primus")
     monkeypatch.setattr("subprocess.Popen", fake_popen)
     monkeypatch.setattr("time.sleep", lambda _: None)
 
@@ -8892,7 +8892,7 @@ def test_handle_peek_refreshes_evaluation_status() -> None:
     handle = handles.create(
         kind="evaluation",
         parent_trace_id="trace-1",
-        api_call="plexus.evaluation.run",
+        api_call="primus.evaluation.run",
         args={"async": True},
         dispatch_result={"evaluation_id": "eval-1"},
     )
@@ -8910,7 +8910,7 @@ def test_handle_peek_refreshes_evaluation_status() -> None:
 
     assert snapshot["status"] == "completed"
     assert snapshot["evaluation"] == {"id": "eval-1", "status": "COMPLETED"}
-    assert module.api_calls == ["plexus.handle.peek"]
+    assert module.api_calls == ["primus.handle.peek"]
 
 
 def test_handle_peek_captures_late_evaluation_id_file(tmp_path) -> None:
@@ -8920,7 +8920,7 @@ def test_handle_peek_captures_late_evaluation_id_file(tmp_path) -> None:
     handle = handles.create(
         kind="evaluation",
         parent_trace_id="trace-1",
-        api_call="plexus.evaluation.run",
+        api_call="primus.evaluation.run",
         args={"async": True},
         dispatch_result={
             "process_id": 4242,
@@ -8951,7 +8951,7 @@ def test_handle_peek_marks_no_id_exited_process_failed(monkeypatch) -> None:
     handle = handles.create(
         kind="evaluation",
         parent_trace_id="trace-1",
-        api_call="plexus.evaluation.run",
+        api_call="primus.evaluation.run",
         args={"async": True},
         dispatch_result={"process_id": 4242},
     )
@@ -8984,7 +8984,7 @@ def test_handle_peek_marks_no_id_successful_process_failed_with_logs(
     handle = handles.create(
         kind="evaluation",
         parent_trace_id="trace-1",
-        api_call="plexus.evaluation.run",
+        api_call="primus.evaluation.run",
         args={"async": True},
         dispatch_result={
             "process_id": 4242,
@@ -9017,7 +9017,7 @@ def test_handle_peek_marks_running_evaluation_exited_process_failed(monkeypatch)
     handle = handles.create(
         kind="evaluation",
         parent_trace_id="trace-1",
-        api_call="plexus.evaluation.run",
+        api_call="primus.evaluation.run",
         args={"async": True},
         dispatch_result={"evaluation_id": "eval-1", "process_id": 4242},
     )
@@ -9048,7 +9048,7 @@ def test_handle_peek_marks_successfully_exited_nonterminal_evaluation_failed(mon
     handle = handles.create(
         kind="evaluation",
         parent_trace_id="trace-1",
-        api_call="plexus.evaluation.run",
+        api_call="primus.evaluation.run",
         args={"async": True},
         dispatch_result={"evaluation_id": "eval-1", "process_id": 4242},
     )
@@ -9084,7 +9084,7 @@ def test_handle_peek_reaps_completed_evaluation_process(monkeypatch) -> None:
     handle = handles.create(
         kind="evaluation",
         parent_trace_id="trace-1",
-        api_call="plexus.evaluation.run",
+        api_call="primus.evaluation.run",
         args={"async": True},
         dispatch_result={"evaluation_id": "eval-1", "process_id": 4242},
     )
@@ -9114,7 +9114,7 @@ def test_handle_peek_keeps_completed_evaluation_running_until_its_process_exits(
     handle = handles.create(
         kind="evaluation",
         parent_trace_id="trace-1",
-        api_call="plexus.evaluation.run",
+        api_call="primus.evaluation.run",
         args={"async": True},
         dispatch_result={"evaluation_id": "eval-1", "process_id": 4242},
     )
@@ -9141,7 +9141,7 @@ def test_handle_cancel_terminates_process() -> None:
     handle = handles.create(
         kind="evaluation",
         parent_trace_id="trace-1",
-        api_call="plexus.evaluation.run",
+        api_call="primus.evaluation.run",
         args={"async": True},
         dispatch_result={"process_id": 4242},
     )
@@ -9168,7 +9168,7 @@ def test_handle_cancel_terminates_process() -> None:
         {"kind": "process", "id": "4242", "status": "terminated"}
     ]
     assert killed == [(4242, execute.signal.SIGTERM)]
-    assert module.api_calls == ["plexus.handle.cancel"]
+    assert module.api_calls == ["primus.handle.cancel"]
 
 
 def test_handle_cancel_marks_dashboard_task_cancelled(monkeypatch) -> None:
@@ -9176,7 +9176,7 @@ def test_handle_cancel_marks_dashboard_task_cancelled(monkeypatch) -> None:
     handle = handles.create(
         kind="report",
         parent_trace_id="trace-1",
-        api_call="plexus.report.run",
+        api_call="primus.report.run",
         args={"async": True},
         dispatch_result={"task_id": "task-1"},
     )
@@ -9194,9 +9194,9 @@ def test_handle_cancel_marks_dashboard_task_cancelled(monkeypatch) -> None:
             return FakeTask()
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: "client"
+        "primus.cli.shared.client_utils.create_client", lambda: "client"
     )
-    monkeypatch.setattr("plexus.dashboard.api.models.task.Task", FakeTaskModel)
+    monkeypatch.setattr("primus.dashboard.api.models.task.Task", FakeTaskModel)
 
     module = execute.PlexusRuntimeModule(
         FastMCP("test"),
@@ -9224,7 +9224,7 @@ def test_handle_cancel_marks_evaluation_cancelled(monkeypatch) -> None:
     handle = handles.create(
         kind="evaluation",
         parent_trace_id="trace-1",
-        api_call="plexus.evaluation.run",
+        api_call="primus.evaluation.run",
         args={"async": True},
         dispatch_result={"evaluation_id": "eval-1"},
     )
@@ -9242,10 +9242,10 @@ def test_handle_cancel_marks_evaluation_cancelled(monkeypatch) -> None:
             return FakeEvaluation()
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: "client"
+        "primus.cli.shared.client_utils.create_client", lambda: "client"
     )
     monkeypatch.setattr(
-        "plexus.dashboard.api.models.evaluation.Evaluation",
+        "primus.dashboard.api.models.evaluation.Evaluation",
         FakeEvaluationModel,
     )
 
@@ -9297,7 +9297,7 @@ async def test_execute_tactus_evaluation_run_async_returns_handle() -> None:
     assert result["ok"] is True
     assert result["value"]["kind"] == "evaluation"
     assert result["value"]["id"] == "handle-1"
-    assert result["api_calls"] == ["plexus.evaluation.run"]
+    assert result["api_calls"] == ["primus.evaluation.run"]
     assert result["cost"]["tool_calls"] == 3
     assert store.records[0]["value"]["id"] == "handle-1"
     assert result["value"]["child_budget"] == _child_budget()
@@ -9321,7 +9321,7 @@ async def test_execute_tactus_async_run_without_budget_returns_clear_error() -> 
     assert result["ok"] is False
     assert result["error"]["code"] == "child_budget_required"
     assert "explicit budget" in result["error"]["message"]
-    assert result["api_calls"] == ["plexus.evaluation.run"]
+    assert result["api_calls"] == ["primus.evaluation.run"]
     assert called is False
 
 
@@ -9363,7 +9363,7 @@ def test_report_run_async_creates_handle_and_records_budget() -> None:
         "async": True,
         "budget": budget,
     }
-    assert module.api_calls == ["plexus.report.run"]
+    assert module.api_calls == ["primus.report.run"]
     assert handles.created[0]["dispatch_result"]["task_id"] == "task-1"
     assert handles.created[0]["child_budget"] == budget
 
@@ -9380,9 +9380,9 @@ def test_handle_status_can_resume_report_by_durable_task_id(monkeypatch) -> None
         updatedAt = "2026-07-17T00:00:00Z"
         completedAt = "2026-07-17T00:00:00Z"
 
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", lambda: object())
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: object())
     monkeypatch.setattr(
-        "plexus.dashboard.api.models.task.Task.get_by_id",
+        "primus.dashboard.api.models.task.Task.get_by_id",
         lambda task_id, _client: FakeTask() if task_id == "task-1" else None,
     )
 
@@ -9458,7 +9458,7 @@ def test_score_champion_version_timeline_convenience_maps_report_block() -> None
         "days": 21,
         "include_unchanged": True,
     }
-    assert module.api_calls == ["plexus.report.run"]
+    assert module.api_calls == ["primus.report.run"]
 
 
 def test_default_report_runner_uses_remote_dispatch_by_default(monkeypatch) -> None:
@@ -9470,12 +9470,12 @@ def test_default_report_runner_uses_remote_dispatch_by_default(monkeypatch) -> N
         return ({"status": "dispatched", "cache_key": "report-cache", "task_id": "task-1"}, None, False)
 
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda _client, _account: "acct-1",
     )
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", lambda: client)
-    monkeypatch.setattr("plexus.reports.service.run_block_cached", fake_run_block_cached)
-    monkeypatch.delenv("PLEXUS_DISPATCH_MODE", raising=False)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: client)
+    monkeypatch.setattr("primus.reports.service.run_block_cached", fake_run_block_cached)
+    monkeypatch.delenv("PRIMUS_DISPATCH_MODE", raising=False)
     monkeypatch.setattr(
         "subprocess.Popen",
         lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("local subprocess should not run")),
@@ -9537,12 +9537,12 @@ def test_default_report_runner_normalizes_cached_output_without_status(monkeypat
         return ({"rows": [{"score": "A"}]}, None, True)
 
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda _client, _account: "acct-1",
     )
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", lambda: client)
-    monkeypatch.setattr("plexus.reports.service.run_block_cached", fake_run_block_cached)
-    monkeypatch.delenv("PLEXUS_DISPATCH_MODE", raising=False)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: client)
+    monkeypatch.setattr("primus.reports.service.run_block_cached", fake_run_block_cached)
+    monkeypatch.delenv("PRIMUS_DISPATCH_MODE", raising=False)
 
     result = execute._default_report_runner(
         {
@@ -9565,12 +9565,12 @@ def test_default_report_runner_rejects_empty_remote_payload(monkeypatch) -> None
         return ({}, None, False)
 
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda _client, _account: "acct-1",
     )
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", lambda: client)
-    monkeypatch.setattr("plexus.reports.service.run_block_cached", fake_run_block_cached)
-    monkeypatch.delenv("PLEXUS_DISPATCH_MODE", raising=False)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: client)
+    monkeypatch.setattr("primus.reports.service.run_block_cached", fake_run_block_cached)
+    monkeypatch.delenv("PRIMUS_DISPATCH_MODE", raising=False)
 
     with pytest.raises(ValueError, match="empty payload"):
         execute._default_report_runner(
@@ -9591,12 +9591,12 @@ def test_default_report_runner_disables_feedback_alignment_memory_by_default(mon
         return ({"status": "dispatched", "cache_key": "report-cache", "task_id": "task-1"}, None, False)
 
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda _client, _account: "acct-1",
     )
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", lambda: client)
-    monkeypatch.setattr("plexus.reports.service.run_block_cached", fake_run_block_cached)
-    monkeypatch.delenv("PLEXUS_DISPATCH_MODE", raising=False)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: client)
+    monkeypatch.setattr("primus.reports.service.run_block_cached", fake_run_block_cached)
+    monkeypatch.delenv("PRIMUS_DISPATCH_MODE", raising=False)
 
     result = execute._default_report_runner(
         {
@@ -9623,12 +9623,12 @@ def test_default_report_runner_preserves_explicit_feedback_alignment_memory(monk
         return ({"status": "dispatched", "cache_key": "report-cache", "task_id": "task-1"}, None, False)
 
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda _client, _account: "acct-1",
     )
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", lambda: client)
-    monkeypatch.setattr("plexus.reports.service.run_block_cached", fake_run_block_cached)
-    monkeypatch.delenv("PLEXUS_DISPATCH_MODE", raising=False)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: client)
+    monkeypatch.setattr("primus.reports.service.run_block_cached", fake_run_block_cached)
+    monkeypatch.delenv("PRIMUS_DISPATCH_MODE", raising=False)
 
     execute._default_report_runner(
         {
@@ -9650,14 +9650,14 @@ def test_default_report_runner_requires_account_context_without_null_key(monkeyp
         context=SimpleNamespace(account_id=None, account_key=None)
     )
 
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", lambda: fake_client)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: fake_client)
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda *_args, **_kwargs: (_ for _ in ()).throw(
             AssertionError("must not resolve default account with a null key")
         ),
     )
-    monkeypatch.delenv("PLEXUS_DISPATCH_MODE", raising=False)
+    monkeypatch.delenv("PRIMUS_DISPATCH_MODE", raising=False)
 
     with pytest.raises(execute.AccountContextRequired, match="requires account context"):
         execute._default_report_runner({"block_class": "FeedbackAlignment"})
@@ -9671,13 +9671,13 @@ def test_default_report_runner_uses_remote_dispatch_for_celery_mode(monkeypatch)
         calls.append(kwargs)
         return ({"status": "dispatched", "cache_key": "report-cache", "task_id": "task-1"}, None, False)
 
-    monkeypatch.setenv("PLEXUS_DISPATCH_MODE", "celery")
+    monkeypatch.setenv("PRIMUS_DISPATCH_MODE", "celery")
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda _client, _account: "acct-1",
     )
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", lambda: client)
-    monkeypatch.setattr("plexus.reports.service.run_block_cached", fake_run_block_cached)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: client)
+    monkeypatch.setattr("primus.reports.service.run_block_cached", fake_run_block_cached)
 
     result = execute._default_report_runner(
         {
@@ -9701,12 +9701,12 @@ def test_default_report_runner_dispatches_report_config_remotely(monkeypatch) ->
         return SimpleNamespace(id="task-1")
 
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda _client, _account: "acct-1",
     )
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", lambda: client)
-    monkeypatch.setattr("plexus.dashboard.api.models.task.Task.create", fake_create)
-    monkeypatch.delenv("PLEXUS_DISPATCH_MODE", raising=False)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: client)
+    monkeypatch.setattr("primus.dashboard.api.models.task.Task.create", fake_create)
+    monkeypatch.delenv("PRIMUS_DISPATCH_MODE", raising=False)
     monkeypatch.setattr(
         "subprocess.Popen",
         lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("local subprocess should not run")),
@@ -9741,19 +9741,19 @@ def test_default_report_runner_dispatches_report_config_remotely(monkeypatch) ->
 
 
 def test_default_report_runner_rejects_invalid_dispatch_mode(monkeypatch) -> None:
-    monkeypatch.setenv("PLEXUS_DISPATCH_MODE", "invalid")
+    monkeypatch.setenv("PRIMUS_DISPATCH_MODE", "invalid")
 
-    with pytest.raises(ValueError, match="Invalid PLEXUS_DISPATCH_MODE"):
+    with pytest.raises(ValueError, match="Invalid PRIMUS_DISPATCH_MODE"):
         execute._default_report_runner({"block_class": "AcceptanceRate"})
 
 
 def test_runtime_env_dispatch_mode_overrides_dotenv_default() -> None:
     # Reproduce the historical regression: importing execute used to let .env
-    # overwrite an explicitly set PLEXUS_DISPATCH_MODE.
+    # overwrite an explicitly set PRIMUS_DISPATCH_MODE.
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
     script = (
         "import os\n"
-        "os.environ['PLEXUS_DISPATCH_MODE'] = 'celery'\n"
+        "os.environ['PRIMUS_DISPATCH_MODE'] = 'celery'\n"
         "from MCP.tools.tactus_runtime import execute\n"
         "print(execute._resolve_report_dispatch_mode())\n"
     )
@@ -9806,11 +9806,11 @@ def test_default_report_runner_launches_detached_local_subprocess(monkeypatch) -
         return proc
 
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda _client, _account: "acct-1",
     )
-    monkeypatch.setenv("PLEXUS_DISPATCH_MODE", "local")
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", object)
+    monkeypatch.setenv("PRIMUS_DISPATCH_MODE", "local")
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", object)
     monkeypatch.setattr("subprocess.Popen", fake_popen)
 
     with execute.set_runtime_actor_context(
@@ -9844,7 +9844,7 @@ def test_default_report_runner_launches_detached_local_subprocess(monkeypatch) -
     assert captured["cmd"] == [
         captured["cmd"][0],
         "-m",
-        "plexus",
+        "primus",
         "feedback",
         "report",
         "contradictions",
@@ -9871,7 +9871,7 @@ def test_default_report_runner_launches_detached_local_subprocess(monkeypatch) -
     ]
     assert captured["kwargs"]["stdout"] is not None
     assert captured["kwargs"]["stderr"] is not None
-    assert json.loads(captured["kwargs"]["env"]["PLEXUS_ACTOR_CONTEXT_JSON"])["actor_user_id"] == "user-ctx-123"
+    assert json.loads(captured["kwargs"]["env"]["PRIMUS_ACTOR_CONTEXT_JSON"])["actor_user_id"] == "user-ctx-123"
 
 
 def test_default_report_runner_launches_score_champion_timeline_command(monkeypatch) -> None:
@@ -9886,11 +9886,11 @@ def test_default_report_runner_launches_score_champion_timeline_command(monkeypa
         return FakeProcess()
 
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda _client, _account: "acct-1",
     )
-    monkeypatch.setenv("PLEXUS_DISPATCH_MODE", "local")
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", object)
+    monkeypatch.setenv("PRIMUS_DISPATCH_MODE", "local")
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", object)
     monkeypatch.setattr("subprocess.Popen", fake_popen)
 
     result = execute._default_report_runner(
@@ -9909,7 +9909,7 @@ def test_default_report_runner_launches_score_champion_timeline_command(monkeypa
     assert result == {"status": "running", "block_class": "ScoreChampionVersionTimeline", "pid": 12345}
     assert captured["cmd"][1:] == [
         "-m",
-        "plexus",
+        "primus",
         "feedback",
         "report",
         "score-champion-version-timeline",
@@ -9926,11 +9926,11 @@ def test_default_report_runner_launches_score_champion_timeline_command(monkeypa
 
 def test_default_report_runner_rejects_unknown_block_class_for_local_dispatch(monkeypatch) -> None:
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda _client, _account: "acct-1",
     )
-    monkeypatch.setenv("PLEXUS_DISPATCH_MODE", "local")
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", object)
+    monkeypatch.setenv("PRIMUS_DISPATCH_MODE", "local")
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", object)
 
     with pytest.raises(ValueError) as exc:
         execute._default_report_runner(
@@ -9950,7 +9950,7 @@ def test_report_run_blocking_requires_handle_protocol() -> None:
         module.report.run({"block_class": "FeedbackContradictions"})
 
     assert module.handle_protocol_required == ("report", "run")
-    assert module.api_calls == ["plexus.report.run"]
+    assert module.api_calls == ["primus.report.run"]
 
 
 def test_procedure_run_async_creates_handle_and_records_budget() -> None:
@@ -9991,7 +9991,7 @@ def test_procedure_run_async_creates_handle_and_records_budget() -> None:
         "async": True,
         "budget": budget,
     }
-    assert module.api_calls == ["plexus.procedure.run"]
+    assert module.api_calls == ["primus.procedure.run"]
     assert handles.created[0]["dispatch_result"]["procedure_id"] == "proc-1"
     assert handles.created[0]["child_budget"] == budget
 
@@ -10034,7 +10034,7 @@ def test_procedure_run_blocking_requires_handle_protocol() -> None:
         module.procedure.run({"procedure_id": "proc-1"})
 
     assert module.handle_protocol_required == ("procedure", "run")
-    assert module.api_calls == ["plexus.procedure.run"]
+    assert module.api_calls == ["primus.procedure.run"]
 
 
 @pytest.mark.asyncio
@@ -10065,16 +10065,16 @@ async def test_execute_tactus_report_run_async_returns_handle() -> None:
     assert result["value"]["kind"] == "report"
     assert result["value"]["id"] == "handle-1"
     assert result["value"]["dispatch_result"]["task_id"] == "task-1"
-    assert result["api_calls"] == ["plexus.report.run"]
+    assert result["api_calls"] == ["primus.report.run"]
     assert result["cost"]["tool_calls"] == 3
 
 
 @pytest.mark.asyncio
 async def test_execute_tactus_report_run_async_remote_dispatch_when_mode_celery(monkeypatch) -> None:
     monkeypatch.setattr(execute, "_resolve_report_dispatch_mode", lambda: "celery")
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", object)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", object)
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda _client, _account: "acct-1",
     )
 
@@ -10088,7 +10088,7 @@ async def test_execute_tactus_report_run_async_remote_dispatch_when_mode_celery(
             False,
         )
 
-    monkeypatch.setattr("plexus.reports.service.run_block_cached", fake_run_block_cached)
+    monkeypatch.setattr("primus.reports.service.run_block_cached", fake_run_block_cached)
 
     handles = _MemoryHandleStore()
     mcp = FastMCP("test-execute-tactus-report-run-celery-dispatch")
@@ -10123,13 +10123,13 @@ async def test_execute_tactus_report_run_async_remote_dispatch_when_mode_celery(
 @pytest.mark.asyncio
 async def test_execute_tactus_report_run_async_local_dispatch_when_mode_local(monkeypatch) -> None:
     monkeypatch.setattr(execute, "_resolve_report_dispatch_mode", lambda: "local")
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", object)
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", object)
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda _client, _account: "acct-1",
     )
     monkeypatch.setattr(
-        "plexus.reports.service.run_block_cached",
+        "primus.reports.service.run_block_cached",
         lambda **_kwargs: (_ for _ in ()).throw(
             AssertionError("remote dispatcher should not run in local mode")
         ),
@@ -10169,10 +10169,10 @@ async def test_execute_tactus_report_run_async_local_dispatch_when_mode_local(mo
 
 @pytest.mark.asyncio
 async def test_execute_tactus_report_run_async_invalid_dispatch_mode_returns_error(monkeypatch) -> None:
-    monkeypatch.setenv("PLEXUS_DISPATCH_MODE", "invalid-mode")
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", object)
+    monkeypatch.setenv("PRIMUS_DISPATCH_MODE", "invalid-mode")
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", object)
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda _client, _account: "acct-1",
     )
 
@@ -10187,7 +10187,7 @@ async def test_execute_tactus_report_run_async_invalid_dispatch_mode_returns_err
     )
 
     assert result["ok"] is False
-    assert "Invalid PLEXUS_DISPATCH_MODE" in result["error"]["message"]
+    assert "Invalid PRIMUS_DISPATCH_MODE" in result["error"]["message"]
 
 
 @pytest.mark.asyncio
@@ -10204,7 +10204,7 @@ async def test_execute_tactus_procedure_run_async_returns_handle() -> None:
 
     result = await execute._execute_tactus_tool(
         (
-            'return plexus.procedure.run{ procedure_id = "proc-1", async = true, '
+            'return primus.procedure.run{ procedure_id = "proc-1", async = true, '
             'budget = { usd = 0.01, wallclock_seconds = 10, '
             'depth = 1, tool_calls = 2 } }'
         ),
@@ -10216,7 +10216,7 @@ async def test_execute_tactus_procedure_run_async_returns_handle() -> None:
     assert result["ok"] is True
     assert result["value"]["kind"] == "procedure"
     assert result["value"]["id"] == "handle-1"
-    assert result["api_calls"] == ["plexus.procedure.run"]
+    assert result["api_calls"] == ["primus.procedure.run"]
     assert result["cost"]["tool_calls"] == 3
 
 
@@ -10271,7 +10271,7 @@ def test_feedback_find_uses_injected_finder_and_skips_mcp_loopback() -> None:
 
         async def call_tool(self, name, arguments):
             self.calls.append((name, arguments))
-            raise AssertionError("plexus.feedback.find must not call MCP tools")
+            raise AssertionError("primus.feedback.find must not call MCP tools")
 
     fake_mcp = FakeMCP()
     module = execute.PlexusRuntimeModule(fake_mcp, feedback_finder=fake_finder)
@@ -10287,7 +10287,7 @@ def test_feedback_find_uses_injected_finder_and_skips_mcp_loopback() -> None:
         "days": 14,
         "limit": 3,
     }
-    assert module.api_calls == ["plexus.feedback.find"]
+    assert module.api_calls == ["primus.feedback.find"]
     assert fake_mcp.calls == []
 
 
@@ -10304,7 +10304,7 @@ def test_feedback_find_records_one_tool_call_against_budget() -> None:
 
     assert gate.tool_calls == 1
     assert gate.exceeded is False
-    assert module.api_calls == ["plexus.feedback.find"]
+    assert module.api_calls == ["primus.feedback.find"]
 
 
 def test_feedback_find_validates_required_args_through_default_finder() -> None:
@@ -10314,13 +10314,13 @@ def test_feedback_find_validates_required_args_through_default_finder() -> None:
         module.feedback.find({"scorecard_name": "only-one"})
 
 
-def test_feedback_find_is_listed_in_plexus_api_list() -> None:
+def test_feedback_find_is_listed_in_primus_api_list() -> None:
     module = execute.PlexusRuntimeModule(FastMCP("test"))
 
     catalog = module.api.list()
 
-    assert "find" in catalog["plexus.feedback"]
-    assert "alignment" in catalog["plexus.feedback"]
+    assert "find" in catalog["primus.feedback"]
+    assert "alignment" in catalog["primus.feedback"]
 
 
 def test_evaluation_info_no_longer_in_mcp_tool_map() -> None:
@@ -10333,15 +10333,15 @@ def test_evaluation_archive_no_longer_in_mcp_tool_map() -> None:
     assert ("evaluation", "archive") in execute.DIRECT_HANDLERS
 
 
-def test_evaluation_info_is_listed_in_plexus_api_list() -> None:
+def test_evaluation_info_is_listed_in_primus_api_list() -> None:
     module = execute.PlexusRuntimeModule(FastMCP("test"))
 
     catalog = module.api.list()
 
-    assert "info" in catalog["plexus.evaluation"]
-    assert "compare" in catalog["plexus.evaluation"]
-    assert "find_recent" in catalog["plexus.evaluation"]
-    assert "archive" in catalog["plexus.evaluation"]
+    assert "info" in catalog["primus.evaluation"]
+    assert "compare" in catalog["primus.evaluation"]
+    assert "find_recent" in catalog["primus.evaluation"]
+    assert "archive" in catalog["primus.evaluation"]
 
 
 def test_evaluation_info_uses_injected_function_and_skips_mcp_loopback() -> None:
@@ -10358,7 +10358,7 @@ def test_evaluation_info_uses_injected_function_and_skips_mcp_loopback() -> None
 
         async def call_tool(self, name, arguments):
             self.calls.append((name, arguments))
-            raise AssertionError("plexus.evaluation.info must not call MCP tools")
+            raise AssertionError("primus.evaluation.info must not call MCP tools")
 
     fake_mcp = FakeMCP()
     module = execute.PlexusRuntimeModule(fake_mcp, evaluation_info=fake_evaluation_info)
@@ -10372,7 +10372,7 @@ def test_evaluation_info_uses_injected_function_and_skips_mcp_loopback() -> None
         "evaluation_id": "eval-1",
         "include_score_results": True,
     }
-    assert module.api_calls == ["plexus.evaluation.info"]
+    assert module.api_calls == ["primus.evaluation.info"]
     assert fake_mcp.calls == []
 
 
@@ -10389,10 +10389,10 @@ def test_evaluation_info_records_one_tool_call_against_budget() -> None:
 
     assert gate.tool_calls == 1
     assert gate.exceeded is False
-    assert module.api_calls == ["plexus.evaluation.info"]
+    assert module.api_calls == ["primus.evaluation.info"]
 
 
-def test_plexus_facade_uses_direct_evaluation_archive_handler_without_mcp_loopback() -> None:
+def test_primus_facade_uses_direct_evaluation_archive_handler_without_mcp_loopback() -> None:
     received_args: dict[str, Any] = {}
 
     def fake_archive(args: dict[str, Any]) -> dict[str, Any]:
@@ -10405,7 +10405,7 @@ def test_plexus_facade_uses_direct_evaluation_archive_handler_without_mcp_loopba
 
         async def call_tool(self, name, arguments):
             self.calls.append((name, arguments))
-            raise AssertionError("plexus.evaluation.archive must not call MCP tools")
+            raise AssertionError("primus.evaluation.archive must not call MCP tools")
 
     fake_mcp = FakeMCP()
     module = execute.PlexusRuntimeModule(fake_mcp, evaluation_archive=fake_archive)
@@ -10414,12 +10414,12 @@ def test_plexus_facade_uses_direct_evaluation_archive_handler_without_mcp_loopba
 
     assert value == {"success": True, "evaluation_id": "eval-1", "status": "ARCHIVED"}
     assert received_args == {"id": "eval-1", "reason": "duplicate run"}
-    assert module.api_calls == ["plexus.evaluation.archive"]
+    assert module.api_calls == ["primus.evaluation.archive"]
     assert fake_mcp.calls == []
 
 
 def test_default_evaluation_info_gets_by_id(monkeypatch) -> None:
-    from plexus.Evaluation import Evaluation
+    from primus.Evaluation import Evaluation
 
     captured: dict = {}
 
@@ -10443,7 +10443,7 @@ def test_default_evaluation_info_gets_by_id(monkeypatch) -> None:
 
 
 def test_default_evaluation_info_gets_latest(monkeypatch) -> None:
-    from plexus.Evaluation import Evaluation
+    from primus.Evaluation import Evaluation
 
     captured: dict = {}
 
@@ -10512,7 +10512,7 @@ def test_default_evaluation_archive_sets_archived_status_and_metadata(
                 }
             raise AssertionError(f"Unexpected query: {query}")
 
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", lambda: FakeClient())
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: FakeClient())
 
     result = execute._default_evaluation_archive(
         {"id": "eval-1", "reason": "noise cleanup", "archived_by": "agent"}
@@ -10559,7 +10559,7 @@ def test_default_procedure_archive_sets_archived_status_and_metadata(
                 }
             raise AssertionError(f"Unexpected query: {query}")
 
-    monkeypatch.setattr("plexus.cli.shared.client_utils.create_client", lambda: FakeClient())
+    monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: FakeClient())
 
     result = execute._default_procedure_archive(
         {"id": "proc-1", "reason": "noise cleanup", "archivedBy": "agent"}
@@ -10598,22 +10598,22 @@ def test_default_feedback_finder_chains_through_resolvers_and_service(
     fake_client = SimpleNamespace(name="client")
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: fake_client
+        "primus.cli.shared.client_utils.create_client", lambda: fake_client
     )
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda client, identifier: "acct-default",
     )
     monkeypatch.setattr(
-        "plexus.cli.shared.memoized_resolvers.memoized_resolve_scorecard_identifier",
+        "primus.cli.shared.memoized_resolvers.memoized_resolve_scorecard_identifier",
         lambda client, name: f"sc:{name}",
     )
     monkeypatch.setattr(
-        "plexus.cli.shared.memoized_resolvers.memoized_resolve_score_identifier",
+        "primus.cli.shared.memoized_resolvers.memoized_resolve_score_identifier",
         lambda client, scorecard_id, score_name: f"sn:{scorecard_id}:{score_name}",
     )
     monkeypatch.setattr(
-        "plexus.cli.feedback.feedback_service.FeedbackService",
+        "primus.cli.feedback.feedback_service.FeedbackService",
         FakeFeedbackService,
     )
 
@@ -10666,24 +10666,24 @@ def test_default_feedback_alignment_uses_explicit_runtime_account(
     )
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: fake_client
+        "primus.cli.shared.client_utils.create_client", lambda: fake_client
     )
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda *_args, **_kwargs: (_ for _ in ()).throw(
             AssertionError("default account resolver should not run")
         ),
     )
     monkeypatch.setattr(
-        "plexus.cli.shared.memoized_resolvers.memoized_resolve_scorecard_identifier",
+        "primus.cli.shared.memoized_resolvers.memoized_resolve_scorecard_identifier",
         lambda client, name: f"sc:{name}",
     )
     monkeypatch.setattr(
-        "plexus.cli.shared.memoized_resolvers.memoized_resolve_score_identifier",
+        "primus.cli.shared.memoized_resolvers.memoized_resolve_score_identifier",
         lambda client, scorecard_id, score_name: f"sn:{scorecard_id}:{score_name}",
     )
     monkeypatch.setattr(
-        "plexus.cli.feedback.feedback_service.FeedbackService",
+        "primus.cli.feedback.feedback_service.FeedbackService",
         FakeFeedbackService,
     )
 
@@ -10713,10 +10713,10 @@ def test_default_feedback_alignment_requires_account_context_without_null_key(
     )
 
     monkeypatch.setattr(
-        "plexus.cli.shared.client_utils.create_client", lambda: fake_client
+        "primus.cli.shared.client_utils.create_client", lambda: fake_client
     )
     monkeypatch.setattr(
-        "plexus.cli.report.utils.resolve_account_id_for_command",
+        "primus.cli.report.utils.resolve_account_id_for_command",
         lambda *_args, **_kwargs: (_ for _ in ()).throw(
             AssertionError("must not resolve default account with a null key")
         ),
@@ -10766,11 +10766,11 @@ async def test_execute_tactus_runs_feedback_find_through_direct_finder() -> None
 
     assert result["ok"] is True
     assert result["value"] == canned
-    assert result["api_calls"] == ["plexus.feedback.find"]
+    assert result["api_calls"] == ["primus.feedback.find"]
     assert seen_args == {"scorecard_name": "x", "score_name": "y", "days": 30}
     assert len(store.records) == 1
     record = store.records[0]
-    assert record["api_calls"] == ["plexus.feedback.find"]
+    assert record["api_calls"] == ["primus.feedback.find"]
     assert record["ok"] is True
 
 
@@ -10795,7 +10795,7 @@ async def test_execute_tactus_injects_runtime_account_into_feedback_handler() ->
     assert seen_args["account_id"] == "acct-console"
 
 
-def test_plexus_facade_injects_runtime_account_into_scorecard_search() -> None:
+def test_primus_facade_injects_runtime_account_into_scorecard_search() -> None:
     class FakeMCP:
         async def call_tool(self, name, arguments):
             raise AssertionError(
@@ -10873,7 +10873,7 @@ async def test_execute_tactus_runs_evaluation_info_through_direct_function() -> 
 
     store = _RecordingTraceStore()
     result = await execute._execute_tactus_tool(
-        'return plexus.evaluation.info{ evaluation_id = "eval-1", include_score_results = true }',
+        'return primus.evaluation.info{ evaluation_id = "eval-1", include_score_results = true }',
         mcp,
         trace_store=store,
         evaluation_info=fake_evaluation_info,
@@ -10881,19 +10881,19 @@ async def test_execute_tactus_runs_evaluation_info_through_direct_function() -> 
 
     assert result["ok"] is True
     assert result["value"] == canned
-    assert result["api_calls"] == ["plexus.evaluation.info"]
+    assert result["api_calls"] == ["primus.evaluation.info"]
     assert seen_args == {
         "evaluation_id": "eval-1",
         "include_score_results": True,
     }
     assert len(store.records) == 1
     record = store.records[0]
-    assert record["api_calls"] == ["plexus.evaluation.info"]
+    assert record["api_calls"] == ["primus.evaluation.info"]
     assert record["ok"] is True
 
 
 def test_feedback_alignment_batch_accepts_scorecard_id(monkeypatch) -> None:
-    from plexus.cli.shared import client_utils, memoized_resolvers
+    from primus.cli.shared import client_utils, memoized_resolvers
 
     class FakeClient:
         def execute(self, query, _variables=None):
@@ -11015,7 +11015,7 @@ def test_feedback_alignment_batch_preserves_frozen_per_score_watermark() -> None
 
 
 def test_feedback_alignment_batch_accepts_bounded_scorecard_list(monkeypatch) -> None:
-    from plexus.cli.shared import client_utils, memoized_resolvers
+    from primus.cli.shared import client_utils, memoized_resolvers
 
     class FakeClient:
         def execute(self, query, _variables=None):
@@ -11060,7 +11060,7 @@ def test_feedback_alignment_batch_accepts_bounded_scorecard_list(monkeypatch) ->
 
 
 def test_feedback_alignment_batch_preserves_opaque_list_identifier(monkeypatch) -> None:
-    from plexus.cli.shared import client_utils, memoized_resolvers
+    from primus.cli.shared import client_utils, memoized_resolvers
 
     opaque_id = "  opaque_UUID:with/slashes+punctuation  "
     resolved: list[str] = []
@@ -11094,7 +11094,7 @@ def test_feedback_alignment_batch_preserves_opaque_list_identifier(monkeypatch) 
 
 
 def test_feedback_alignment_batch_selects_bounded_portfolio_in_one_call(monkeypatch) -> None:
-    from plexus.cli.shared import client_utils, memoized_resolvers
+    from primus.cli.shared import client_utils, memoized_resolvers
 
     inventory_args = []
     created_clients = []
@@ -11144,8 +11144,8 @@ def test_feedback_alignment_batch_selects_bounded_portfolio_in_one_call(monkeypa
 
 
 def test_feedback_alignment_batch_prefetches_portfolio_window_once(monkeypatch) -> None:
-    from plexus.cli.feedback.feedback_service import FeedbackService
-    from plexus.cli.shared import client_utils, memoized_resolvers
+    from primus.cli.feedback.feedback_service import FeedbackService
+    from primus.cli.shared import client_utils, memoized_resolvers
 
     executed_queries = []
 
@@ -11235,7 +11235,7 @@ def test_feedback_alignment_batch_derives_percent_accuracy_from_reviewed_counts(
     monkeypatch,
 ) -> None:
     """Portfolio results have one percent accuracy contract, regardless of source units."""
-    from plexus.cli.feedback.feedback_service import FeedbackService
+    from primus.cli.feedback.feedback_service import FeedbackService
 
     monkeypatch.setattr(
         FeedbackService,
@@ -11283,8 +11283,8 @@ def test_feedback_alignment_batch_derives_percent_accuracy_from_reviewed_counts(
 
 
 def test_feedback_alignment_batch_bounds_concurrent_score_reads(monkeypatch) -> None:
-    from plexus.cli.feedback.feedback_service import FeedbackService
-    from plexus.cli.shared import client_utils, memoized_resolvers
+    from primus.cli.feedback.feedback_service import FeedbackService
+    from primus.cli.shared import client_utils, memoized_resolvers
 
     score_count = 7
 
@@ -11347,7 +11347,7 @@ def test_feedback_alignment_batch_bounds_concurrent_score_reads(monkeypatch) -> 
 def test_feedback_alignment_batch_accepts_complete_target_set_with_bounded_workers(
     monkeypatch,
 ) -> None:
-    from plexus.cli.shared import client_utils, memoized_resolvers
+    from primus.cli.shared import client_utils, memoized_resolvers
 
     identifiers = [f"opaque-scorecard-{index}" for index in range(7)]
     display_names = {
@@ -11420,7 +11420,7 @@ def test_feedback_alignment_batch_accepts_complete_target_set_with_bounded_worke
 def test_feedback_alignment_batch_reports_incomplete_coverage_without_losing_results(
     monkeypatch,
 ) -> None:
-    from plexus.cli.shared import client_utils, memoized_resolvers
+    from primus.cli.shared import client_utils, memoized_resolvers
 
     identifiers = ["scorecard-one", "scorecard-missing", "scorecard-three"]
 
@@ -11473,7 +11473,7 @@ def test_default_feedback_batch_never_counts_a_failed_scorecard_as_completed_liv
     than an injected alignment result.  A failed first scorecard must not
     allow the five-scorecard checkpoint to say that five analyses completed.
     """
-    from plexus.cli.shared import client_utils, memoized_resolvers
+    from primus.cli.shared import client_utils, memoized_resolvers
 
     identifiers = [f"card-{index}" for index in range(1, 8)]
     progress: list[dict] = []

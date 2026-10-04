@@ -9,9 +9,9 @@ from pathlib import Path
 import re
 from types import SimpleNamespace
 
-from plexus.cli.procedure.tactus_adapters.storage import PlexusStorageAdapter
-from plexus.dashboard.api.models.procedure import Procedure
-from plexus.storage.graphql_artifact_store import GraphQLArtifactStore
+from primus.cli.procedure.tactus_adapters.storage import PlexusStorageAdapter
+from primus.dashboard.api.models.procedure import Procedure
+from primus.storage.graphql_artifact_store import GraphQLArtifactStore
 
 
 def _procedure_authority() -> set[str]:

@@ -5,7 +5,7 @@ import tomllib
 
 
 def test_cli_framework_is_a_declared_core_runtime_dependency():
-    """A clean base installation must be able to start the Plexus CLI."""
+    """A clean base installation must be able to start the Primus CLI."""
     project_root = Path(__file__).resolve().parents[2]
     pyproject = tomllib.loads((project_root / "pyproject.toml").read_text())
 
@@ -18,9 +18,9 @@ def test_login_help_does_not_import_the_legacy_command_graph():
     """Authentication must start without loading unrelated scoring commands."""
     code = """
 import sys
-sys.modules['plexus.cli.shared.CommandLineInterface'] = None
-sys.argv = ['plexus', 'login', '--help']
-from plexus.cli.entrypoint import main
+sys.modules['primus.cli.shared.CommandLineInterface'] = None
+sys.argv = ['primus', 'login', '--help']
+from primus.cli.entrypoint import main
 main()
 """
 
@@ -38,7 +38,7 @@ def test_installed_cli_uses_the_lightweight_entrypoint():
     project_root = Path(__file__).resolve().parents[2]
     pyproject = tomllib.loads((project_root / "pyproject.toml").read_text())
 
-    assert pyproject["tool"]["poetry"]["scripts"]["plexus"] == "plexus.cli.entrypoint:main"
+    assert pyproject["tool"]["poetry"]["scripts"]["primus"] == "primus.cli.entrypoint:main"
 
 
 def test_worker_extra_declares_legacy_cli_import_dependencies():
@@ -56,4 +56,4 @@ def test_worker_extra_declares_legacy_cli_import_dependencies():
         "pyarrow",
         "seaborn",
     } <= worker
-    assert 'ARG PLEXUS_EXTRAS="scoring,worker,evaluation,infra"' in worker_dockerfile
+    assert 'ARG PRIMUS_EXTRAS="scoring,worker,evaluation,infra"' in worker_dockerfile

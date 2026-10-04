@@ -16,7 +16,7 @@ Kanbus is the instrument of record. Nothing exists until it is named there.
 Client confidentiality boundary is absolute:
 - Never store client information in Kanbus.
 - Prohibited in Kanbus titles, descriptions, comments, and attachments: client names, client scorecard names, client score names, client evaluation names, client optimization procedure names, and client-specific problems/incidents/data.
-- Kanbus is only for Plexus platform/repo work. If work involves client scorecards/scores/evaluations/optimizations, keep client specifics out of Kanbus and use sanitized, internal-only wording.
+- Kanbus is only for Primus platform/repo work. If work involves client scorecards/scores/evaluations/optimizations, keep client specifics out of Kanbus and use sanitized, internal-only wording.
 
 Work begins in declaration, not in code.
 Code without declaration is disorder.
@@ -28,7 +28,7 @@ Every change must be:
 - Proven.
 - Recorded.
 
-If a Plexus-internal engineering change is not recorded, it did not happen.
+If a Primus-internal engineering change is not recorded, it did not happen.
 
 Use Markdown in issue descriptions and comments whenever it helps make the intent clearer.
 When relationships, flows, or state transitions are easier to grasp visually, add a Mermaid diagram.
@@ -121,7 +121,7 @@ When asked to add or change behavior, follow this sequence. It is not optional.
 Capture role, capability, benefit.
 Use: As a <role>, I want <capability>, so that <benefit>.
 Confirm what is not included.
-2. Create the epic and stories in Kanbus for Plexus-internal behavior changes.
+2. Create the epic and stories in Kanbus for Primus-internal behavior changes.
 Record intent and Definition of Done.
 3. Write executable specifications before any production code.
 4. Run the specifications and confirm they fail.

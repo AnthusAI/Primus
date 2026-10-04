@@ -14,11 +14,11 @@ os.environ.setdefault('NLTK_DATA', '/usr/local/share/nltk_data:/tmp/nltk_data')
 os.environ['AWS_ACCESS_KEY_ID'] = 'test-access-key'
 os.environ['AWS_SECRET_ACCESS_KEY'] = 'test-secret-key'
 os.environ['AWS_DEFAULT_REGION'] = 'us-west-2'
-os.environ['PLEXUS_API_KEY'] = 'test-key'
-os.environ['PLEXUS_API_URL'] = 'https://test.example.com/graphql'
-os.environ['PLEXUS_ACCOUNT_KEY'] = 'test-account'
-os.environ['PLEXUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL'] = 'https://test-queue'
-os.environ['PLEXUS_RESPONSE_WORKER_QUEUE_URL'] = 'https://test-response-queue'
+os.environ['PRIMUS_API_KEY'] = 'test-key'
+os.environ['PRIMUS_API_URL'] = 'https://test.example.com/graphql'
+os.environ['PRIMUS_ACCOUNT_KEY'] = 'test-account'
+os.environ['PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL'] = 'https://test-queue'
+os.environ['PRIMUS_RESPONSE_WORKER_QUEUE_URL'] = 'https://test-response-queue'
 
 
 class SmokeTest:
@@ -83,36 +83,36 @@ def test_imports(self):
 
 @suite.test("Verify pinned LangChain versions")
 def test_langchain_versions(self):
-    """Verify LangChain packages satisfy Plexus package requirements"""
+    """Verify LangChain packages satisfy Primus package requirements"""
     from importlib.metadata import distribution
     from packaging.requirements import Requirement
     from packaging.version import Version
     import langchain
     import langchain_core
 
-    requirements = distribution("plexus").requires or []
+    requirements = distribution("primus").requires or []
     for package_name, actual in (
         ("langchain", langchain.__version__),
         ("langchain-core", langchain_core.__version__),
     ):
         match = next((req for req in requirements if req.lower().startswith(f"{package_name.lower()} ")), None)
-        assert match, f"Could not find {package_name} requirement in installed plexus metadata"
+        assert match, f"Could not find {package_name} requirement in installed primus metadata"
         spec = Requirement(match).specifier
         assert Version(actual) in spec, \
-            f"{package_name} {actual} does not satisfy plexus requirement {spec}"
+            f"{package_name} {actual} does not satisfy primus requirement {spec}"
         print(f"    - {package_name}: {actual} satisfies {spec}")
 
 
-@suite.test("Import Plexus modules")
-def test_plexus_imports(self):
-    """Test that Plexus modules can be imported"""
-    from plexus.dashboard.api.client import PlexusDashboardClient
-    from plexus.dashboard.api.models.scoring_job import ScoringJob
-    from plexus.dashboard.api.models.account import Account
-    from plexus.dashboard.api.models.scorecard import Scorecard
-    from plexus.dashboard.api.models.score import Score
-    from plexus.utils.scoring import create_scorecard_instance_for_single_score
-    print(f"    - All Plexus models import successfully")
+@suite.test("Import Primus modules")
+def test_primus_imports(self):
+    """Test that Primus modules can be imported"""
+    from primus.dashboard.api.client import PrimusDashboardClient
+    from primus.dashboard.api.models.scoring_job import ScoringJob
+    from primus.dashboard.api.models.account import Account
+    from primus.dashboard.api.models.scorecard import Scorecard
+    from primus.dashboard.api.models.score import Score
+    from primus.utils.scoring import create_scorecard_instance_for_single_score
+    print(f"    - All Primus models import successfully")
 
 
 @suite.test("Import handler module")
@@ -129,7 +129,7 @@ def test_processor_init(self):
     """Test that LambdaJobProcessor can be initialized"""
     import handler
     processor = handler.LambdaJobProcessor()
-    assert processor.client is not None, "PlexusDashboardClient not initialized"
+    assert processor.client is not None, "PrimusDashboardClient not initialized"
     assert processor.sqs_client is not None, "SQS client not initialized"
     assert processor.request_queue_url is not None, "Request queue URL not set"
     assert processor.response_queue_url is not None, "Response queue URL not set"
@@ -163,20 +163,20 @@ def test_writable_dirs(self):
 
 @suite.test("Verify tactus version")
 def test_tactus_version(self):
-    """Verify installed tactus version satisfies Plexus package requirement"""
+    """Verify installed tactus version satisfies Primus package requirement"""
     from importlib.metadata import distribution, version as pkg_version
     from packaging.requirements import Requirement
     from packaging.version import Version
 
-    requirements = distribution("plexus").requires or []
+    requirements = distribution("primus").requires or []
     match = next((req for req in requirements if req.lower().startswith("tactus ")), None)
-    assert match, "Could not find tactus requirement in installed plexus metadata"
+    assert match, "Could not find tactus requirement in installed primus metadata"
     spec = Requirement(match).specifier
 
     actual_version = pkg_version("tactus")
     assert Version(actual_version) in spec, \
-        f"tactus {actual_version} does not satisfy plexus requirement {spec}"
-    print(f"    - tactus version satisfies plexus requirement: {actual_version} in {spec}")
+        f"tactus {actual_version} does not satisfy primus requirement {spec}"
+    print(f"    - tactus version satisfies primus requirement: {actual_version} in {spec}")
 
 
 @suite.test("Instantiate TactusRuntime and MemoryStorage")
@@ -201,9 +201,9 @@ async def test_tactus_runtime_instantiation(self):
 @suite.test("Import TactusScore and scoring utilities")
 def test_tactus_score_import(self):
     """Verify TactusScore and the full scoring import chain are available"""
-    from plexus.scores.TactusScore import TactusScore
-    from plexus.utils.scoring import create_scorecard_instance_for_single_score
-    from plexus.Scorecard import Scorecard
+    from primus.scores.TactusScore import TactusScore
+    from primus.utils.scoring import create_scorecard_instance_for_single_score
+    from primus.Scorecard import Scorecard
 
     assert TactusScore is not None, "TactusScore not importable"
     assert create_scorecard_instance_for_single_score is not None, \

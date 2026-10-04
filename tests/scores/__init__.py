@@ -1,1 +1,1 @@
-"""Tests for Plexus score implementations."""
+"""Tests for Primus score implementations."""

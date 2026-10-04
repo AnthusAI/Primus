@@ -1,7 +1,7 @@
 ---
 id: reports.reports-catalog
 title: Reports Catalog
-summary: "User-facing Plexus reports, aliases, routing guidance, and report-run discovery rules for Console agents."
+summary: "User-facing Primus reports, aliases, routing guidance, and report-run discovery rules for Console agents."
 namespace: reports
 status: canonical
 disclosure: overview
@@ -22,18 +22,18 @@ report does, or asks to run a report.
 
 1. If the user asks about reports generally, load this catalog first.
 2. If the user asks for a specific report, load the matching per-report topic
-   before constructing the `plexus.report.run` call.
+   before constructing the `primus.report.run` call.
 3. Resolve scorecard and score shorthand before running anything. Use
-   `plexus.scorecards.search` and `plexus.score.search` instead of guessing.
-4. Persisted reports must use `plexus.report.run`. Do not use
-   `plexus.feedback.alignment` for a report; that is inline analysis.
+   `primus.scorecards.search` and `primus.score.search` instead of guessing.
+4. Persisted reports must use `primus.report.run`. Do not use
+   `primus.feedback.alignment` for a report; that is inline analysis.
 5. Use `async = true` with a child budget for Console report runs.
 6. Return durable IDs: `handle_id`, `task_id`, `report_id` when present.
 
 Account-specific configured reports are separate from the code-defined reports
 below. If the user asks for a named report configuration, first inspect
-`report_configs{}` / `plexus.report.configurations_list{}`. Run a configured
-report with `plexus.report.run{ configuration_id = "...", parameters = {...} }`.
+`report_configs{}` / `primus.report.configurations_list{}`. Run a configured
+report with `primus.report.run{ configuration_id = "...", parameters = {...} }`.
 
 ## User-Facing Report Inventory
 
@@ -76,7 +76,7 @@ as the default answer to "what reports can you run?"
 ## Durable Async Pattern
 
 ```tactus
-local h = plexus.report.run({
+local h = primus.report.run({
   block_class = "FeedbackAlignment",
   block_config = {
     scorecard = "<resolved-scorecard-id>",

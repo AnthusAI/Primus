@@ -1,4 +1,4 @@
-name: "Plexus CodeQL Config"
+name: "Primus CodeQL Config"
 
 # Restrict CodeQL to first-party source and avoid vendored/generated artifacts.
 paths-ignore:

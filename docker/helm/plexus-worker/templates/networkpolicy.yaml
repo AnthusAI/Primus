@@ -2,14 +2,14 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ include "plexus-worker.fullname" . }}
+  name: {{ include "primus-worker.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "plexus-worker.labels" . | nindent 4 }}
+    {{- include "primus-worker.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
-      {{- include "plexus-worker.selectorLabels" . | nindent 6 }}
+      {{- include "primus-worker.selectorLabels" . | nindent 6 }}
   policyTypes:
   - Egress
   - Ingress
@@ -41,7 +41,7 @@ spec:
     - protocol: TCP
       port: 53
 
-  # Allow HTTPS to external APIs (Plexus API, AWS APIs, etc.)
+  # Allow HTTPS to external APIs (Primus API, AWS APIs, etc.)
   - to:
     - namespaceSelector: {}
     ports:

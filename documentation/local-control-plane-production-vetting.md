@@ -1,6 +1,6 @@
 # Local Control Plane Production Vetting
 
-This document tracks production-readiness evidence for the local Plexus control-plane MVP. It is intentionally separate from the demo runbook: the demo proves the path works, while this register records what still needs to be made production-grade.
+This document tracks production-readiness evidence for the local Primus control-plane MVP. It is intentionally separate from the demo runbook: the demo proves the path works, while this register records what still needs to be made production-grade.
 
 Run the evidence harness after the local proof stack:
 
@@ -15,7 +15,7 @@ The vetting harness writes `tmp/local-control-plane-proof/production-vetting.jso
 
 | Area | Current evidence | Production gap | Severity | Next required work | Kanbus issue |
 | --- | --- | --- | --- | --- | --- |
-| Auth and tenancy | Local GraphQL now exposes explicit security modes. `trusted_open` is intentionally fully open and requires external access control; `api_key` preserves the shared-secret compatibility boundary. | Neither local mode provides principal-derived account isolation inside Plexus. Public or multi-tenant deployments still need OIDC/service-token auth plus resolver account scoping. | High | Use `trusted_open` only behind a documented external perimeter; add OIDC/service-token auth and account scoping for public or multi-tenant deployments. | `plx-b80481` |
+| Auth and tenancy | Local GraphQL now exposes explicit security modes. `trusted_open` is intentionally fully open and requires external access control; `api_key` preserves the shared-secret compatibility boundary. | Neither local mode provides principal-derived account isolation inside Primus. Public or multi-tenant deployments still need OIDC/service-token auth plus resolver account scoping. | High | Use `trusted_open` only behind a documented external perimeter; add OIDC/service-token auth and account scoping for public or multi-tenant deployments. | `plx-b80481` |
 | Migrations and readiness | `/readyz` verifies database reachability and schema contract load at startup. | No applied schema contract version is recorded, and readiness does not fail when DB schema is behind the service manifest. | High | Add committed migrations, schema contract version tracking, and readiness downgrade/upgrade gates. | `plx-037698` |
 | Storage and vector boundaries | Local proof verifies MinIO report artifacts, Qdrant `VectorTopicMemory`, and no hosted GraphQL upstream forwarding. | Broader ordinary attachment paths still need audit and non-report smoke coverage. | Medium | Complete object-storage surface audit and add a non-report attachment smoke. | `plx-b8701d` |
 | Realtime | Dashboard local mode can function with no-op/polling-compatible subscriptions in the current smoke. | The local facade does not serve real `graphql-transport-ws` subscriptions. | Medium | Decide polling versus websocket subscriptions backed by PostgreSQL outbox/LISTEN-NOTIFY. | `plx-8d7ae8` |
@@ -30,7 +30,7 @@ The MVP is credible as an architectural proof: the dashboard, CLI, prediction, f
 
 | Mode | Behavior | Acceptable use | Not acceptable for |
 | --- | --- | --- | --- |
-| `trusted_open` | No Plexus authentication or account authorization. Any caller that can reach the GraphQL port can access local records. Requires `PLEXUS_BACKEND_MODE=local` and `PLEXUS_PROXY_UPSTREAM_DISABLED=true`. | Single-tenant local/K8s deployments protected by cluster networking, ingress policy, VPN, firewall, or another external perimeter. | Public endpoints, shared environments without network isolation, or multi-tenant deployments. |
-| `api_key` | Requires `x-api-key` matching `PLEXUS_PROXY_API_KEY`. This is a shared-secret access boundary only. | Compatibility with existing local dashboard, CLI, worker, and smoke paths. | Claims of user identity, per-account authorization, or multi-tenant isolation. |
+| `trusted_open` | No Primus authentication or account authorization. Any caller that can reach the GraphQL port can access local records. Requires `PRIMUS_BACKEND_MODE=local` and `PRIMUS_PROXY_UPSTREAM_DISABLED=true`. | Single-tenant local/K8s deployments protected by cluster networking, ingress policy, VPN, firewall, or another external perimeter. | Public endpoints, shared environments without network isolation, or multi-tenant deployments. |
+| `api_key` | Requires `x-api-key` matching `PRIMUS_PROXY_API_KEY`. This is a shared-secret access boundary only. | Compatibility with existing local dashboard, CLI, worker, and smoke paths. | Claims of user identity, per-account authorization, or multi-tenant isolation. |
 
-If `PLEXUS_PROXY_AUTH_MODE` is unset, the proxy infers `api_key` when `PLEXUS_PROXY_API_KEY` is set and `trusted_open` otherwise. Production-like deployments should set `PLEXUS_PROXY_AUTH_MODE` explicitly.
+If `PRIMUS_PROXY_AUTH_MODE` is unset, the proxy infers `api_key` when `PRIMUS_PROXY_API_KEY` is set and `trusted_open` otherwise. Production-like deployments should set `PRIMUS_PROXY_AUTH_MODE` explicitly.

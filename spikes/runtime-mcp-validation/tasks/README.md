@@ -4,8 +4,8 @@ These task definitions support Kanbus task `plx-7041b9`, under the gating spike
 epic `plx-f978d2`.
 
 The spike measures whether frontier models can use one `execute_tactus` MCP tool
-to write Plexus-flavored Tactus code against a stubbed `plexus` module. The task
-set intentionally covers ordinary reads, single predictions, multi-step Plexus
+to write Primus-flavored Tactus code against a stubbed `primus` module. The task
+set intentionally covers ordinary reads, single predictions, multi-step Primus
 workflows, long-running operations, budget discipline, error handling, HITL, docs
 discovery, datasets, reports, and procedure introspection.
 
@@ -18,7 +18,7 @@ Each YAML file contains:
 - `prompt`: user request sent to the model.
 - `expected_outcome`: structured success criteria for the harness.
 - `coverage_tags`: categories covered by the task.
-- `required_apis`: `plexus.*` functions expected or likely to be useful.
+- `required_apis`: `primus.*` functions expected or likely to be useful.
 - `forbidden_apis`: functions that should not be called for budget/safety reasons.
 - `max_attempts_for_first_try_pass`: always `1` for first-try scoring.
 - `fixture_notes`: guidance for the stub fixture author.
