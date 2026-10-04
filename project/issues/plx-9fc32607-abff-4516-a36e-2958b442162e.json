@@ -15,17 +15,21 @@
       "id": "ae3dd39f-7dfa-4836-8ec7-66f9343bbcf7",
       "author": "ryan.porter",
       "text": "Dogfood evidence showed a selected semantic scope larger than one but only the first target was attempted because an ordinary incomplete result triggered a batch-wide break. The remaining exact targets were reported as awaiting diagnosis and could not become launch candidates. Beginning with outside-in batch-independence and replay specifications.",
-      "created_at": "2026-07-31T17:40:13.492083Z"
+      "created_at": "2026-07-31T17:40:13.492083Z",
+      "comment_type": "default"
     },
     {
       "id": "60466e4d-8bd3-424d-a390-101e7f201b55",
       "author": "ryan.porter",
       "text": "Added a failing batch-order specification proving an ordinary inconclusive first target previously prevented a complete second target from being diagnosed or launched. Implemented target-local continuation while preserving batch stops for budget exhaustion, unknown provider outcomes, and authority-publication failures. Focused safety tests: 31 passed; combined portfolio/report/resume suite: 293 passed.",
-      "created_at": "2026-07-31T17:42:26.843215Z"
+      "created_at": "2026-07-31T17:42:26.843215Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-31T17:40:07.583168Z",
   "updated_at": "2026-07-31T17:42:26.843215Z",
   "closed_at": null,
+  "right_now_summary": "The fix now diagnoses targets independently while preserving safety stops for critical failures.",
+  "right_now_updated_at": "2026-09-08T17:15:23.673203Z",
   "custom": {}
 }

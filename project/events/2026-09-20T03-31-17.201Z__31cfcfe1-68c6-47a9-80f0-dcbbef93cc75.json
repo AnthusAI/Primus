@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "event_id": "31cfcfe1-68c6-47a9-80f0-dcbbef93cc75",
+  "issue_id": "plx-2d5e4e55-e21c-4609-a332-59377ba433ef",
+  "event_type": "issue_created",
+  "occurred_at": "2026-09-20T03:31:17.201Z",
+  "actor_id": "home",
+  "payload": {
+    "assignee": null,
+    "description": "Write specs first (mocked client), then JevScore, JevScorecard with in-flight-sharing LRU cache, registration, optional typesafe-sdk dependency.",
+    "issue_type": "task",
+    "labels": [],
+    "parent": "plx-372297d2-5733-4025-90de-0b448290e3df",
+    "priority": 2,
+    "status": "open",
+    "title": "Implement JevScore and JevScorecard with specs"
+  }
+}

@@ -15,17 +15,21 @@
       "id": "49b9c55c-f075-4351-b300-a323af8c2104",
       "author": "ryan.porter",
       "text": "Implementation started. Scope is limited to reversing the four temporary .bak renames from commit 7f3bf775d; release authentication and workflow redesign are explicitly deferred. The workflow-enabled specification failed first because ci.yaml was disabled.",
-      "created_at": "2026-07-28T20:16:12.770779Z"
+      "created_at": "2026-07-28T20:16:12.770779Z",
+      "comment_type": "default"
     },
     {
       "id": "39a23cc6-9155-4512-a621-b77a0bbea919",
       "author": "ryan.porter",
       "text": "Restored the four standard workflow filenames as exact 100 percent renames reversing the temporary disable commit; no trigger, credential, or workflow-body redesign was included. Validation: workflow contract tests parse all four enabled YAML files and confirm no backup filenames remain; focused suite passes 8 of 8 and diff check passes.",
-      "created_at": "2026-07-28T20:21:20.848435Z"
+      "created_at": "2026-07-28T20:21:20.848435Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-28T20:15:59.732603Z",
   "updated_at": "2026-07-28T20:21:20.848435Z",
   "closed_at": null,
+  "right_now_summary": "The four standard workflows are restored with their usual triggers, and all validation checks pass.",
+  "right_now_updated_at": "2026-09-08T17:06:55.467538Z",
   "custom": {}
 }

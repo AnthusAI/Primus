@@ -15,11 +15,14 @@
       "id": "57d9cb5b-5e2c-4dc5-bee2-c4ef4f12c398",
       "author": "ryan.porter",
       "text": "Implemented the specified priority-row visualization. Each visible score now has one feedback-composition bar on a portfolio-wide valid-feedback scale; green shows agreements, red shows reviewed disagreements, and the same line retains exact agreement, disagreement, total, and rate values. Color is reinforced by labels and accessible meter text. Focused Jest: 2 passed. Full dashboard TypeScript checks passed. Verified against a live local Report: the largest feedback total renders at 100 percent, lower-volume rows scale down, and segment widths reconcile to the displayed rate. No ranking or feedback policy changed.",
-      "created_at": "2026-07-30T22:02:22.423394Z"
+      "created_at": "2026-07-30T22:02:22.423394Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-30T21:58:59.511771Z",
   "updated_at": "2026-07-30T22:02:22.423394Z",
   "closed_at": null,
+  "right_now_summary": "Priority rows now show agreement and disagreement in one scaled bar with clear counts, rates, and accessible labels.",
+  "right_now_updated_at": "2026-09-08T17:43:52.791300Z",
   "custom": {}
 }

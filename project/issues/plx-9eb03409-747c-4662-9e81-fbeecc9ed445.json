@@ -15,17 +15,21 @@
       "id": "7fbefd62-5a0e-447a-8dee-a47b0aee16ec",
       "author": "derek.norrbom",
       "text": "Progress: replaced the constants-only Hugging Face fixture test with behavior coverage. The test now stubs the datasets module and verifies load_rows passes an explicit text-only Features schema when loading the default call-center dataset. Added rationale comments in both Hugging Face seeders explaining that the explicit schema avoids audio codec requirements because only transcript text is needed. Validation passed: focused pytest, py_compile, git diff --check, and rcql --scan-files for the changed seeder/test files returned Total: 0.",
-      "created_at": "2026-06-10T21:01:52.979427Z"
+      "created_at": "2026-06-10T21:01:52.979427Z",
+      "comment_type": "default"
     },
     {
       "id": "22b71485-f661-4cf3-96bd-1c94516a7161",
       "author": "derek.norrbom",
       "text": "Verified and closed. The constants-only test is replaced with behavior coverage: it stubs the datasets module and asserts load_rows passes an explicit text-only Features schema (text/domain/gender/accent as strings) for the default dataset with correct split slicing. Rationale comments added in both seeders explaining the explicit schema avoids audio codec requirements since only transcript text is needed. Test green.",
-      "created_at": "2026-06-10T21:15:06.678153Z"
+      "created_at": "2026-06-10T21:15:06.678153Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-10T20:39:20.838973Z",
   "updated_at": "2026-06-10T21:15:06.689094Z",
   "closed_at": "2026-06-10T21:15:06.689094Z",
+  "right_now_summary": "The test now verifies the explicit schema, and both seeders explain why it is needed.",
+  "right_now_updated_at": "2026-09-09T13:25:20.547973Z",
   "custom": {}
 }

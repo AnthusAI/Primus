@@ -15,11 +15,14 @@
       "id": "98c8561b-f077-47b0-97d3-15a758a5c2a6",
       "author": "ryan.porter",
       "text": "Implemented the zero-resource stable artifact-link foundation. Living Report revision metadata now contains a verifiable manifest reference; the dashboard selects an exact revision and logical artifact, requests the existing GraphQL task-attachment read ticket on demand, verifies size and SHA-256, previews safe text formats, offers download, and shows a newer-revision notice without changing the selected evidence. Account reporting.dashboardBaseUrl generates absolute durable links. Focused validation: 34 Python/MCP tests, 28 dashboard tests, and dashboard typecheck pass. No Amplify resource files changed.",
-      "created_at": "2026-07-30T16:13:42.457086Z"
+      "created_at": "2026-07-30T16:13:42.457086Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-30T16:02:31.188839Z",
   "updated_at": "2026-07-30T16:13:42.457086Z",
   "closed_at": null,
+  "right_now_summary": "The stable artifact-link foundation is implemented and validated without adding infrastructure.",
+  "right_now_updated_at": "2026-09-08T17:45:14.009783Z",
   "custom": {}
 }

@@ -15,11 +15,14 @@
       "id": "de81a61e-3f4f-42fa-9ff8-f08184176859",
       "author": "ryan.porter",
       "text": "Acceptance update: a read-only living-report run confirmed that pre-policy evidence rank remains stable after cooldown and structural gates, while candidate rank and policy disposition remain separate. The deferred row stayed visible in the stakeholder projection and retained its original rank. Focused optimization tests, dashboard tests, dashboard typechecks, and MCP runtime coverage passed. No optimizer launch or production mutation occurred.",
-      "created_at": "2026-07-30T19:43:58.484430Z"
+      "created_at": "2026-07-30T19:43:58.484430Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-30T19:19:12.544090Z",
   "updated_at": "2026-07-30T19:43:58.484430Z",
   "closed_at": null,
+  "right_now_summary": "Read-only checks confirm evidence ranks stay stable, deferred work remains visible, and no production changes occurred.",
+  "right_now_updated_at": "2026-09-08T17:08:27.122787Z",
   "custom": {}
 }

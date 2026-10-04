@@ -15,11 +15,14 @@
       "id": "89f51476-b982-485d-bcbb-20acc0fb5c7e",
       "author": "derek",
       "text": "Updated documentation/agent/evaluation-feedback/optimizer-procedures.md - replaced JSON yaml_path example with correct Lua plexus.procedure.optimize() and optimize_batch() examples.",
-      "created_at": "2026-06-09T21:23:59.456665340Z"
+      "created_at": "2026-06-09T21:23:59.456665340Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-09T21:01:03.177660093Z",
   "updated_at": "2026-06-09T21:23:59.456665340Z",
   "closed_at": "2026-06-09T21:23:59.448252299Z",
+  "right_now_summary": "The guide now shows correct Lua examples for plexus.procedure.optimize() and optimize_batch().",
+  "right_now_updated_at": "2026-09-09T13:32:15.876551Z",
   "custom": {}
 }

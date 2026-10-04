@@ -15,17 +15,21 @@
       "id": "d593116c-caa8-43b9-9513-ea9753496f24",
       "author": "ryan.porter",
       "text": "Outside-in proof is now deterministic: the workbook test asserts that both embedded core timestamps equal the supplied generated-at value. The failure showed openpyxl overwriting the modified timestamp with the serialization clock. The serializer now writes through ExcelWriter, preserving the frozen timestamps before canonical ZIP normalization. The focused test and ten repeated generations produce one checksum.",
-      "created_at": "2026-07-29T19:57:44.048364Z"
+      "created_at": "2026-07-29T19:57:44.048364Z",
+      "comment_type": "default"
     },
     {
       "id": "fd790b8f-98ad-41e6-adab-c5770207f6e4",
       "author": "ryan.porter",
       "text": "Final cross-runtime validation passed. The deterministic workbook contract passes on Python 3.11 and 3.12; separate processes produced identical bytes, and both full 4,088-test suites are green.",
-      "created_at": "2026-07-29T20:06:54.728944Z"
+      "created_at": "2026-07-29T20:06:54.728944Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-29T19:55:44.494552Z",
   "updated_at": "2026-07-29T20:06:54.728944Z",
   "closed_at": null,
+  "right_now_summary": "Workbook serialization now preserves supplied timestamps and produces identical bytes and checksums across runtimes.",
+  "right_now_updated_at": "2026-09-08T17:14:10.110828Z",
   "custom": {}
 }

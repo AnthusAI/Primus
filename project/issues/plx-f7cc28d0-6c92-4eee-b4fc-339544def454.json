@@ -14,5 +14,7 @@
   "created_at": "2026-06-04T18:33:59.907412Z",
   "updated_at": "2026-06-04T18:45:51.711314Z",
   "closed_at": null,
+  "right_now_summary": "The team is adding local Amplify compatibility shims to the dashboard.",
+  "right_now_updated_at": "2026-09-08T17:48:58.643251Z",
   "custom": {}
 }

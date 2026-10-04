@@ -15,32 +15,38 @@
       "id": "7a83cf75-d1e8-426c-847f-88df96be94c0",
       "author": "ryan.porter",
       "text": "Dogfood reproduction showed one combined ranking/assessment revision only after a long account-wide assessment, leaving the living Report at the start milestone with no useful progress. Next: specify ranking-first publication, verify the old runner fails that behavior, and implement distinct durable ranking and assessment milestones.",
-      "created_at": "2026-07-29T21:53:32.586376Z"
+      "created_at": "2026-07-29T21:53:32.586376Z",
+      "comment_type": "default"
     },
     {
       "id": "7d6a30b7-901f-4cca-816b-e72080d5a504",
       "author": "ryan.porter",
       "text": "Outside-in lifecycle coverage exposed that durable report revisions did not advance TaskStages or the Task currentStageId. Implemented milestone-driven stage transitions after durable publication, terminal stage completion, active-stage failure handling, pending-approval publication before HITL suspension, and explicit optimization launch/dispatch publications. Focused report and portfolio suite: 39 passed.",
-      "created_at": "2026-07-29T22:04:31.926862Z"
+      "created_at": "2026-07-29T22:04:31.926862Z",
+      "comment_type": "default"
     },
     {
       "id": "fe43c23a-f621-4ba3-bdff-f1f3cbe836a0",
       "author": "ryan.porter",
       "text": "Runtime composition gate passed: 316 tests. The lifecycle failure contract now also requires the active TaskStage to carry the publication error, while the Task remains the canonical terminal failure signal.",
-      "created_at": "2026-07-29T22:09:38.802719Z"
+      "created_at": "2026-07-29T22:09:38.802719Z",
+      "comment_type": "default"
     },
     {
       "id": "4c8d7e9e-a7c4-42b5-a23a-be9a4d8723e8",
       "author": "ryan.porter",
       "text": "Production dogfood exposed a presentation gap after the lifecycle fix: revision 1 and the workbook are durable, but the Report cover still shows only status, revision number, and milestone. The cover must directly project safe current activity, next checkpoint, counts, and limitations; the generic programmatic ReportConfiguration description is also visible and not stakeholder-ready.",
-      "created_at": "2026-07-30T14:01:52.090123Z"
+      "created_at": "2026-07-30T14:01:52.090123Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-29T21:53:07.290709Z",
   "updated_at": "2026-07-30T14:01:52.090123Z",
   "closed_at": null,
+  "right_now_summary": "The lifecycle works, but the Report cover still lacks clear activity, next steps, counts, and limits.",
+  "right_now_updated_at": "2026-09-08T17:05:50.781496Z",
   "custom": {
-    "source": "shared",
-    "project_label": "plx"
+    "project_label": "plx",
+    "source": "shared"
   }
 }

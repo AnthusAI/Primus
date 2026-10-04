@@ -15,17 +15,21 @@
       "id": "4dfcea58-b15c-48a5-a3d3-627643425368",
       "author": "ryan.porter",
       "text": "Outside-in proof complete: the new replay specification first showed an approval for frozen evidence A authorizing recomputed evidence B. The runner now accepts accumulated responses only when the saved request exactly matches the current action key, resource refs, target set, evidence preconditions, and response schema. Changed evidence remains pending and dispatch stays empty. Focused regression is green.",
-      "created_at": "2026-07-29T19:54:57.269918Z"
+      "created_at": "2026-07-29T19:54:57.269918Z",
+      "comment_type": "default"
     },
     {
       "id": "cca9f7fc-2cf1-4a36-a68f-17ee3cfa2c77",
       "author": "ryan.porter",
       "text": "Final post-fix validation passed on Python 3.11 and 3.12: 356 focused tests and 4,088 full-suite tests on each runtime, plus lint, dispatch regression, lock, version, and diff checks.",
-      "created_at": "2026-07-29T20:06:54.286033Z"
+      "created_at": "2026-07-29T20:06:54.286033Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-29T19:50:11.551725Z",
   "updated_at": "2026-07-29T20:06:54.286033Z",
   "closed_at": null,
+  "right_now_summary": "The fix is validated: changed evidence is rejected, and only identical frozen approvals can dispatch.",
+  "right_now_updated_at": "2026-09-08T17:47:39.428685Z",
   "custom": {}
 }

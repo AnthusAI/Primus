@@ -15,11 +15,14 @@
       "id": "070e92a7-8970-4d3f-b20f-e71b93e0016c",
       "author": "derek",
       "text": "Feature: Scorecard-wide Feedback Alignment\n  Scenario: Get alignment for all scores in one call\n    Given a scorecard \"Moore Holdings - Cancellations AI\" with 26 scores\n    When I call plexus.feedback.alignment with scorecard only and all_scores=true\n    Then I receive an array of score alignment metrics in a single response\n    And each score metric includes name, accuracy, AC1, total_items, confusion_matrix\n    And the response completes in under 5 seconds\n    And I can optionally filter by accuracy_threshold to get only low-performing scores",
-      "created_at": "2026-06-09T21:00:42.286930167Z"
+      "created_at": "2026-06-09T21:00:42.286930167Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-09T20:59:38.665404339Z",
   "updated_at": "2026-06-09T21:24:04.448528572Z",
   "closed_at": "2026-06-09T21:24:04.448528572Z",
+  "right_now_summary": "The feature now returns alignment metrics for all scorecard scores in one call.",
+  "right_now_updated_at": "2026-09-09T13:32:31.959688Z",
   "custom": {}
 }

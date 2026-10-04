@@ -15,11 +15,14 @@
       "id": "90cdb289-de13-4fb2-8b74-5927a50fb49f",
       "author": "ryan.porter",
       "text": "Implemented clean local proof harness in scripts/prove-local-control-plane.sh. It resets only the smoke compose stack and volumes, starts PostgreSQL and local GraphQL with upstream disabled, seeds deterministic demo data, runs strict CLI smoke, runs exact prediction smoke, asserts no upstream proxy requests, and runs browser smoke when the dashboard is reachable. Latest run passed end to end from a clean smoke database.",
-      "created_at": "2026-06-05T00:50:34.894020Z"
+      "created_at": "2026-06-05T00:50:34.894020Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-05T00:45:26.926540Z",
   "updated_at": "2026-06-05T00:50:35.617355Z",
   "closed_at": "2026-06-05T00:50:35.617355Z",
+  "right_now_summary": "The clean local proof harness now passes end to end with deterministic data and no upstream calls.",
+  "right_now_updated_at": "2026-09-09T13:28:30.651977Z",
   "custom": {}
 }

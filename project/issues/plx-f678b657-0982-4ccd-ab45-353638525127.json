@@ -15,23 +15,28 @@
       "id": "10bc1fa9-c8c4-4dd5-9e90-47062fd824d8",
       "author": "ryan.porter",
       "text": "Investigation complete. The portfolio loop invokes the generic score-information path for every exact target, which re-resolves an already-opaque scorecard, reloads its full score list, lists score versions, and then loads the champion configuration. Planned outside-in behavior: a single portfolio invocation uses a request-scoped exact-ID configuration reader; it reuses one authenticated client, reads only the requested score and champion configuration, validates scorecard ownership/version ownership, and fails the individual target closed on malformed or unavailable data. Standalone assessment keeps the existing generic fallback. Executable specifications will be added and run red before implementation. No client-specific data is recorded.",
-      "created_at": "2026-07-31T11:36:43.225304Z"
+      "created_at": "2026-07-31T11:36:43.225304Z",
+      "comment_type": "default"
     },
     {
       "id": "e35a38ac-16d4-4178-978f-56fd6df1541c",
       "author": "ryan.porter",
       "text": "Implemented the narrow portfolio-only exact-ID configuration path after running the new direct-read specification red. One portfolio invocation now holds a non-serializable request-scoped authenticated client; each assessment reads only the target score and its champion configuration, validates scorecard and version ownership, and returns incomplete coverage for a malformed or unavailable target. It does not alter ranking evidence, fingerprints, persistence, or public standalone assessment fallback. Added executable coverage for two exact targets using two direct reads and one client, standalone fallback preservation, ownership mismatch fail-closed behavior, and context injection only on portfolio assessment. Focused validation passed: MCP runtime 266 tests; portfolio runner 129 tests; scoped diff check passed. No commit created.",
-      "created_at": "2026-07-31T12:02:59.836949Z"
+      "created_at": "2026-07-31T12:02:59.836949Z",
+      "comment_type": "default"
     },
     {
       "id": "2a3aab62-6a61-48a7-a734-13d209644770",
       "author": "ryan.porter",
       "text": "Implemented request-scoped exact-ID assessment reads with active-account ownership validation, frozen-champion consistency checks, malformed champion relationship fail-closed handling, and preserved frozen evidence on target-local failures. Incomplete assessments now remain visible in portfolio reporting but are excluded from semantic diagnosis. Validation: runtime contracts 269 passed; portfolio runner 130 passed; scoped diff check clean.",
-      "created_at": "2026-07-31T12:54:23.710650Z"
+      "created_at": "2026-07-31T12:54:23.710650Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-31T06:10:45.401400Z",
   "updated_at": "2026-07-31T12:54:23.710650Z",
   "closed_at": null,
+  "right_now_summary": "Portfolio assessment now reuses one client and exact-ID reads, with validation and safe handling of bad targets.",
+  "right_now_updated_at": "2026-09-08T17:11:01.669965Z",
   "custom": {}
 }

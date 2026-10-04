@@ -14,5 +14,7 @@
   "created_at": "2026-08-07T05:14:59.606968Z",
   "updated_at": "2026-08-07T05:14:59.606968Z",
   "closed_at": null,
+  "right_now_summary": "Developers can opt into full command-service execution in isolated sandboxes using shared non-production resources.",
+  "right_now_updated_at": "2026-09-09T13:36:06.168402Z",
   "custom": {}
 }

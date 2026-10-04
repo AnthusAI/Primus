@@ -15,11 +15,14 @@
       "id": "2ec5359b-5452-4f17-90b9-92a1d5dec816",
       "author": "ryan.porter",
       "text": "Updated documentation/local-control-plane-mvp.md with champion-path prediction smoke section and reran validation after Docker/local-mode reset. Verified local stack + seed + smoke-local-predict + smoke-local-cli all pass against http://localhost:18080/graphql in local backend mode.",
-      "created_at": "2026-06-04T19:56:45.008748Z"
+      "created_at": "2026-06-04T19:56:45.008748Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-04T19:43:00.218862Z",
   "updated_at": "2026-06-04T19:56:48.282161Z",
   "closed_at": "2026-06-04T19:56:48.282161Z",
+  "right_now_summary": "The champion-path MVP runbook and smoke tests are updated and passing in local mode.",
+  "right_now_updated_at": "2026-09-09T13:29:08.362776Z",
   "custom": {}
 }

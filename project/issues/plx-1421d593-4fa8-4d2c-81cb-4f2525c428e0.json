@@ -15,17 +15,21 @@
       "id": "dd6acc2c-5658-4868-85b3-57f60fa564e9",
       "author": "derek.norrbom",
       "text": "Progress: confirmed PlexusDashboardClient.execute returns unwrapped GraphQL data via gql session.execute, matching existing model call sites. Removed the dual-shape createScoreResult fallback from process_scoring_job_sync and kept the unit test on the unwrapped contract. Validation passed: focused scoring-job pytest, py_compile, git diff --check, and rcql --scan-files for scoring_job.py returned Total: 0.",
-      "created_at": "2026-06-10T20:57:50.151784Z"
+      "created_at": "2026-06-10T20:57:50.151784Z",
+      "comment_type": "default"
     },
     {
       "id": "c5cc652e-1e7e-47b8-8727-474e52cbc11a",
       "author": "derek.norrbom",
       "text": "Verified and closed. PlexusDashboardClient.execute confirmed to return unwrapped GraphQL data (gql session.execute), the dual-shape fallback is removed from process_scoring_job_sync, and the unit test asserts the unwrapped contract. Code now handles exactly one response shape.",
-      "created_at": "2026-06-10T21:14:54.550819Z"
+      "created_at": "2026-06-10T21:14:54.550819Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-10T20:38:51.255399Z",
   "updated_at": "2026-06-10T21:14:54.560587Z",
   "closed_at": "2026-06-10T21:14:54.560587Z",
+  "right_now_summary": "The client contract is confirmed, and the scoring job now handles only unwrapped responses.",
+  "right_now_updated_at": "2026-09-09T13:24:46.392656Z",
   "custom": {}
 }

@@ -15,17 +15,21 @@
       "id": "a22967db-7b11-46cd-8b15-c959e1e4571f",
       "author": "ryan.porter",
       "text": "Observed acceptance gap: a newly opened living report can render before its Task link hydrates. If the linking Report update is missed, the current refresh hook does not subscribe or poll because taskId is absent; ProcedureTask and cover metrics then appear only after navigation or reload. Add a scenario requiring selected reports to reconcile while Task authority is still hydrating.",
-      "created_at": "2026-07-30T19:09:09.107529Z"
+      "created_at": "2026-07-30T19:09:09.107529Z",
+      "comment_type": "default"
     },
     {
       "id": "8ce3fb38-1f59-4635-9563-4ff898790d3b",
       "author": "ryan.porter",
       "text": "Acceptance evidence: with a newly created selected Report left mounted, the dashboard updated without navigation or reload from revision 1 with 0 inspected / 0 in scope / 0 portfolio scores to revision 2 with 56 scorecards inspected / 1 in scope / 30 portfolio scores and 10 of 30 assessments. The Report card subtitle also hydrated live. Focused hook tests and dashboard frontend/backend typechecks pass.",
-      "created_at": "2026-07-30T19:18:51.982239Z"
+      "created_at": "2026-07-30T19:18:51.982239Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-30T18:42:20.029516Z",
   "updated_at": "2026-07-30T19:18:51.982239Z",
   "closed_at": null,
+  "right_now_summary": "The live report now shows assessment and diagnosis progress as the analysis runs.",
+  "right_now_updated_at": "2026-09-08T17:46:10.283674Z",
   "custom": {}
 }

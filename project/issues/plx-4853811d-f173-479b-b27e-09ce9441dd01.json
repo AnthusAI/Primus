@@ -15,11 +15,14 @@
       "id": "25f1a77b-2960-4cd1-a138-57f226b42a8a",
       "author": "derek.norrbom",
       "text": "Added dashboard/scripts/start-sandbox-with-command-worker.sh, mirroring start-sandbox-with-console-worker.sh: sets the new flag, unsets AWS_BRANCH/AMPLIFY_ENV/PLEXUS_API_URL, refuses production config secret, runs npx ampx sandbox. Executable, bash -n clean.",
-      "created_at": "2026-08-10T19:15:40.489541Z"
+      "created_at": "2026-08-10T19:15:40.489541Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-08-10T18:45:25.138783Z",
   "updated_at": "2026-08-10T19:15:40.499895Z",
   "closed_at": "2026-08-10T19:15:40.499895Z",
+  "right_now_summary": "The launcher script was added, made executable, and passed a shell syntax check.",
+  "right_now_updated_at": "2026-09-09T13:38:23.089740Z",
   "custom": {}
 }

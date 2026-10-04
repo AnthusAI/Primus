@@ -14,8 +14,10 @@
   "created_at": "2026-07-31T17:03:59.975310Z",
   "updated_at": "2026-07-31T17:04:20.612524Z",
   "closed_at": null,
+  "right_now_summary": "Plexus is refining AWS credential precedence to protect supported providers and report expired authorization clearly.",
+  "right_now_updated_at": "2026-09-08T16:27:16.420614Z",
   "custom": {
-    "source": "shared",
-    "project_label": "plx"
+    "project_label": "plx",
+    "source": "shared"
   }
 }

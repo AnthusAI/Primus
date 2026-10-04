@@ -15,11 +15,14 @@
       "id": "4410cdad-7fd7-46d5-81e2-a4385f2c20b0",
       "author": "ec2-user",
       "text": "Implemented root CloudWatch compatibility for host applications using stdlib logging, preserved queued watchtower delivery, and verified targeted CloudWatch logging tests pass.",
-      "created_at": "2026-06-24T00:24:28.425674290Z"
+      "created_at": "2026-06-24T00:24:28.425674290Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-24T00:12:05.133516300Z",
   "updated_at": "2026-06-24T00:24:58.073925159Z",
   "closed_at": "2026-06-24T00:24:58.073925159Z",
+  "right_now_summary": "Root logging now supports opt-in redacted CloudWatch shipping while preserving the safer default.",
+  "right_now_updated_at": "2026-09-09T13:30:58.107331Z",
   "custom": {}
 }

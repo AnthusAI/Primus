@@ -14,5 +14,7 @@
   "created_at": "2026-06-06T18:02:42.311059Z",
   "updated_at": "2026-06-06T18:10:30.156359Z",
   "closed_at": "2026-06-06T18:10:30.156359Z",
+  "right_now_summary": "The team needs a runbook for local and Kubernetes worker orchestration, testing, and troubleshooting.",
+  "right_now_updated_at": "2026-09-09T13:27:46.041351Z",
   "custom": {}
 }

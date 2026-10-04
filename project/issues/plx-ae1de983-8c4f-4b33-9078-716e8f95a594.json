@@ -14,5 +14,7 @@
   "created_at": "2026-06-15T20:51:05.145769Z",
   "updated_at": "2026-06-15T21:01:59.109019Z",
   "closed_at": "2026-06-15T21:01:59.109019Z",
+  "right_now_summary": "The team is switching values-local.yaml to local backend mode with trusted_open authentication.",
+  "right_now_updated_at": "2026-09-09T13:24:20.615066Z",
   "custom": {}
 }

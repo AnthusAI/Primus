@@ -15,23 +15,28 @@
       "id": "8c942288-c9b6-4935-b232-76480e85d75a",
       "author": "ryan.porter",
       "text": "Additional compatibility scenario found by the live strict suite:\n\nScenario: Resume optimization from the demo feedback baseline\nGiven a run-scoped feedback evaluation selected from the retained deterministic seed anchor\nWhen the Kubernetes demo passes that completed evaluation to the optimizer as its recent baseline\nThen the evaluation records explicit feedback_start_at and feedback_end_at bounds, the positive lookback days, and the requested maximum item count\nAnd the optimizer resumes the exact frozen cohort without selecting a new one",
-      "created_at": "2026-07-28T18:55:10.651588Z"
+      "created_at": "2026-07-28T18:55:10.651588Z",
+      "comment_type": "default"
     },
     {
       "id": "97b985b4-5725-47ca-bcae-6b3f197a8666",
       "author": "ryan.porter",
       "text": "Additional observable scenario:\n\nScenario: Ticket authorization is visible without leaking artifact details\nGiven a local Kubernetes client requests an authorized artifact transfer ticket\nWhen the private GraphQL proxy issues the ticket\nThen kubectl logs exposes a correlation identifier, request count, and resource types through the proxy application logger\nAnd the log omits signed URLs, object keys, filenames, checksums, resource IDs, and credentials",
-      "created_at": "2026-07-28T20:15:25.434219Z"
+      "created_at": "2026-07-28T20:15:25.434219Z",
+      "comment_type": "default"
     },
     {
       "id": "a2bcaf0f-db96-4aee-9543-6a62e79a5b18",
       "author": "ryan.porter",
       "text": "Additional observable scenario:\n\nScenario: Every worker entry point uses explicit local authentication\nGiven the local Helm release configures workers for GraphQL API-key authentication\nWhen the main worker deployment and scheduled procedure-recovery workload start\nThen both receive PLEXUS_GRAPHQL_AUTH_MODE=api_key and the Secret-backed API key\nAnd neither attempts Cognito, IAM, or another authentication fallback",
-      "created_at": "2026-07-28T20:26:46.529333Z"
+      "created_at": "2026-07-28T20:26:46.529333Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-28T17:57:47.425636Z",
   "updated_at": "2026-07-28T20:26:46.529333Z",
   "closed_at": null,
+  "right_now_summary": "The team is validating credential-free artifact transfers, optimizer recovery, logging, and worker authentication in",
+  "right_now_updated_at": "2026-09-08T16:25:05.765918Z",
   "custom": {}
 }

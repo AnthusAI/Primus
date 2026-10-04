@@ -15,11 +15,14 @@
       "id": "e83f056c-4695-4374-a1c3-d2909f80c608",
       "author": "ryan.porter",
       "text": "Implemented the minimal local-dispatch boundary fix after the failing observable spec: WAITING_FOR_TIME is mapped as durable suspension, resume_once scheduled tasks are eligible after the due-time claimant transitions dispatchStatus to PENDING, and a successful child process exit reloads and preserves the runner-authored waiting Task rather than writing completion. Focused command-dispatch tests pass within the 114-test runtime gate.",
-      "created_at": "2026-07-31T15:15:56.486239Z"
+      "created_at": "2026-07-31T15:15:56.486239Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-31T15:11:12.420508Z",
   "updated_at": "2026-07-31T15:15:56.486239Z",
   "closed_at": null,
+  "right_now_summary": "The local dispatcher now preserves scheduled suspension and durably replays retries without marking procedures complete.",
+  "right_now_updated_at": "2026-09-08T17:12:23.582307Z",
   "custom": {}
 }

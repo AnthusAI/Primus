@@ -14,5 +14,7 @@
   "created_at": "2026-07-30T22:42:41.437056Z",
   "updated_at": "2026-07-30T22:42:41.437056Z",
   "closed_at": null,
+  "right_now_summary": "The portfolio run waits for child optimizers to finish before reviewing or promoting results.",
+  "right_now_updated_at": "2026-09-09T13:32:56.703071Z",
   "custom": {}
 }

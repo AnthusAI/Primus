@@ -14,5 +14,7 @@
   "created_at": "2026-06-05T19:55:39.340184Z",
   "updated_at": "2026-06-05T20:03:07.673754Z",
   "closed_at": "2026-06-05T20:03:07.673754Z",
+  "right_now_summary": "The team is testing local realtime behavior and dashboard use without websocket subscriptions.",
+  "right_now_updated_at": "2026-09-09T13:28:57.257032Z",
   "custom": {}
 }

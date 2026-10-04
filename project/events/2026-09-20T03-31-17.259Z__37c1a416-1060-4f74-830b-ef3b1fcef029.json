@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "event_id": "37c1a416-1060-4f74-830b-ef3b1fcef029",
+  "issue_id": "plx-0533baa0-38d3-4146-9f01-9db09a16928d",
+  "event_type": "issue_created",
+  "occurred_at": "2026-09-20T03:31:17.259Z",
+  "actor_id": "home",
+  "payload": {
+    "assignee": null,
+    "description": "Smoke ~50 items then test split; confirm request count equals item count and accuracy matches research.",
+    "issue_type": "task",
+    "labels": [],
+    "parent": "plx-372297d2-5733-4025-90de-0b448290e3df",
+    "priority": 2,
+    "status": "open",
+    "title": "Verify Jev scorecard live on sentiment dataset"
+  }
+}

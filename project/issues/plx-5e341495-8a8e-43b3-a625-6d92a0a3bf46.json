@@ -15,11 +15,14 @@
       "id": "423f7715-62ee-4813-a07d-081b2f9dea9b",
       "author": "ec2-user",
       "text": "Closing summary: Behavior implemented and covered by focused logging tests. Follow-up static-key audit remains open as a separate chore.",
-      "created_at": "2026-06-23T22:35:21.270589037Z"
+      "created_at": "2026-06-23T22:35:21.270589037Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-23T22:29:13.701035249Z",
   "updated_at": "2026-06-23T22:35:21.276707023Z",
   "closed_at": "2026-06-23T22:35:21.276707023Z",
+  "right_now_summary": "Plexus now uses IAM roles and redacts sensitive data before sending logs to CloudWatch.",
+  "right_now_updated_at": "2026-09-09T13:31:03.785710Z",
   "custom": {}
 }

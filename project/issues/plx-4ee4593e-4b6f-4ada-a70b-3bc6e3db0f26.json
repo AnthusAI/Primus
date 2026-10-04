@@ -15,11 +15,14 @@
       "id": "25189278-639e-48c0-ba74-72983184e8c5",
       "author": "ryan.porter",
       "text": "Implemented strict local index-root proof for canonical CLI item/task flows. scripts/smoke-local-cli.sh now runs real items list and tasks last commands without fallback, and asserts /debug/upstream-requests is empty. Backend tests cover local item/task legacy index aliases with a failing upstream client so accidental forwarding fails the test. Clean proof harness verification passed from a reset smoke database.",
-      "created_at": "2026-06-05T00:50:32.645170Z"
+      "created_at": "2026-06-05T00:50:32.645170Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-04T21:49:53.745395Z",
   "updated_at": "2026-06-05T00:50:33.390499Z",
   "closed_at": "2026-06-05T00:50:33.390499Z",
+  "right_now_summary": "Local index roots now serve item/task list and last commands without upstream fallback, with tests confirming it.",
+  "right_now_updated_at": "2026-09-09T13:28:25.607447Z",
   "custom": {}
 }

@@ -15,17 +15,21 @@
       "id": "123b447a-6f7a-4e5d-929e-60b3cc26b68c",
       "author": "ryan.porter",
       "text": "Implementation wave started after explicit Product Owner authorization while the bounded dogfood run continues independently. Disjoint ownership: one coding agent owns procedure/runner execution-mode semantics; one owns Report/workbook/dashboard projection against the fixed execution_decisions contract. Both must begin with failing outside-in specifications, preserve the running process, add no resources, and return uncommitted completion reports. Independent review follows integration.\n",
-      "created_at": "2026-07-31T04:51:14.824450Z"
+      "created_at": "2026-07-31T04:51:14.824450Z",
+      "comment_type": "default"
     },
     {
       "id": "8f8f3325-4d5d-44a1-aec9-0ff0c4b96308",
       "author": "ryan.porter",
       "text": "Implementation and independent review complete; issue remains open until the change lands. The periodic procedure now defaults to frozen automatic execution while direct runner omission remains fail-safe approval-required. Automatic policy selects only independently complete targets, reuses existing freshness/limit validation and durable dispatch, skips blocking optimizer approval, preserves advisory actions, and never promotes automatically. Durable execution decisions include per-target launch status and aggregate counts derived together from exact owned child evidence; unknown or incomplete launch states remain unlaunched. The same Report, workbook, exports, and dashboard show automatic mode, selected/launched/rejected counts and reasons, plus explicit named-detail coverage without exposing opaque IDs. Two independent review rounds resolved false launch accounting, missing per-target launch status, aggregate/detail mismatch disclosure, and whitespace-only authority identifiers. Final focused evidence: 206 combined portfolio/Report/YAML/lifecycle tests, 16 authority edge tests, 20 dashboard tests, and dashboard typechecks pass; diff check is clean and no Amplify resource file changed. No commit, push, deploy, or production optimizer occurred.\n",
-      "created_at": "2026-07-31T09:52:57.507457Z"
+      "created_at": "2026-07-31T09:52:57.507457Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-31T04:46:30.642684Z",
   "updated_at": "2026-07-31T09:52:57.507457Z",
   "closed_at": null,
+  "right_now_summary": "Implementation and independent review are complete; the change awaits landing, with no deployment or production",
+  "right_now_updated_at": "2026-09-08T17:10:53.678897Z",
   "custom": {}
 }

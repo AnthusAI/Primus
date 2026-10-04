@@ -1,0 +1,38 @@
+{
+  "id": "plx-90afe42a-bfbb-4cb9-8902-0d8f531517fc",
+  "title": "Jev decision head: elements, features, serving",
+  "description": "As a Plexus user, I want a JevScore to declare elements (sub-questions answered in the same single Jev request) and a decision model that turns element answers plus Jev's holistic answer into the final value and a confidence, so that scores can be fine-tuned from human feedback. Phase 1 covers the schema, feature extraction, question namespacing, and hand-authorable linear serving. Not included: fitting, calibration, optimizer integration. Definition of Done: specs pass with a mocked client; without elements or decision, behavior is unchanged.",
+  "type": "task",
+  "status": "open",
+  "priority": 2,
+  "assignee": null,
+  "creator": null,
+  "parent": "plx-372297d2-5733-4025-90de-0b448290e3df",
+  "labels": [],
+  "dependencies": [],
+  "comments": [
+    {
+      "id": "35d32379-4958-475c-983c-ba96d10f2071",
+      "author": "home",
+      "text": "Phase 1 implemented: elements and decision blocks on JevScore, plexus/decision_head (features, linear models, registry, decide/validate), namespaced question registration with conflict detection, direct JevScorecard instances no longer share a registry. 59 specs pass with a mocked client; live run of 40 items sent 40 requests and the hand-authored head reproduced Jev's choice. Left open until committed.",
+      "created_at": "2026-09-20T14:02:48.314245Z",
+      "comment_type": "default"
+    },
+    {
+      "id": "b5398a83-fbaf-4858-b1a5-de6fef94fca3",
+      "author": "home",
+      "text": "Added plexus/decision_head evaluate.py and fit.py with specs, and the experiment scripts under scripts/. Results and caveats are in the wiki at lab-notes/jev-decision-head/. Still uncommitted.",
+      "created_at": "2026-09-20T14:20:51.935593Z",
+      "comment_type": "default"
+    }
+  ],
+  "created_at": "2026-09-20T13:57:35.780600Z",
+  "updated_at": "2026-09-20T14:20:51.935609Z",
+  "closed_at": null,
+  "right_now_summary": null,
+  "right_now_updated_at": null,
+  "custom": {
+    "project_label": "plx",
+    "source": "shared"
+  }
+}

@@ -14,5 +14,7 @@
   "created_at": "2026-08-10T18:45:25.183578Z",
   "updated_at": "2026-08-10T18:45:25.183578Z",
   "closed_at": null,
+  "right_now_summary": "A manual end-to-end sandbox check of the command worker is being run.",
+  "right_now_updated_at": "2026-09-09T13:38:13.103875Z",
   "custom": {}
 }

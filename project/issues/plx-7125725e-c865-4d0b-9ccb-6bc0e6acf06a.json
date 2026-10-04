@@ -14,5 +14,7 @@
   "created_at": "2026-06-10T23:10:06.620349Z",
   "updated_at": "2026-06-10T23:10:06.620349Z",
   "closed_at": null,
+  "right_now_summary": "Cloud validation is waiting for a subscription decision and amd64 image builds.",
+  "right_now_updated_at": "2026-09-09T13:25:05.532340Z",
   "custom": {}
 }

@@ -14,5 +14,7 @@
   "created_at": "2026-08-06T18:52:30.154329Z",
   "updated_at": "2026-08-06T18:52:32.615801Z",
   "closed_at": null,
+  "right_now_summary": "The team is investigating and documenting safer template and configuration execution boundaries.",
+  "right_now_updated_at": "2026-09-09T13:23:57.645052Z",
   "custom": {}
 }

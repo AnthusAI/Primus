@@ -14,5 +14,7 @@
   "created_at": "2026-06-05T19:04:34.107247Z",
   "updated_at": "2026-06-05T19:47:31.291308Z",
   "closed_at": "2026-06-05T19:47:31.291308Z",
+  "right_now_summary": "The team is documenting Qdrant setup, smoke tests, acceptance criteria, and scope boundaries.",
+  "right_now_updated_at": "2026-09-09T13:27:24.296988Z",
   "custom": {}
 }

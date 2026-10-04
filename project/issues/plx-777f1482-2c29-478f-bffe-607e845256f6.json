@@ -15,11 +15,14 @@
       "id": "ddd9c45f-7744-4cc7-a3d4-7319f5e2ab07",
       "author": "ryan.porter",
       "text": "Implemented local proxy CORS support for browser-mode dashboard calls: added CORSMiddleware in proxy/app.py and configurable PLEXUS_PROXY_CORS_ALLOW_ORIGINS in proxy/config.py. Added regression test test_graphql_endpoint_supports_local_cors_preflight in services/private-graphql-proxy/tests/test_app_routing.py. Verified with OPTIONS preflight from Origin http://localhost:3000 returning 200 and access-control-allow-origin header, plus dockerized test run of test_app_routing passing.",
-      "created_at": "2026-06-04T22:12:54.223197Z"
+      "created_at": "2026-06-04T22:12:54.223197Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-04T22:10:00.833745Z",
   "updated_at": "2026-06-04T22:12:56.805644Z",
   "closed_at": "2026-06-04T22:12:56.805644Z",
+  "right_now_summary": "The local proxy now supports dashboard CORS, and its preflight test passes.",
+  "right_now_updated_at": "2026-09-09T13:28:47.320897Z",
   "custom": {}
 }

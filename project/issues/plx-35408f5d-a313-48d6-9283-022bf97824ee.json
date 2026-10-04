@@ -15,11 +15,14 @@
       "id": "80e94da9-14a8-41e3-80b4-cdb72f5c6c51",
       "author": "ryan.porter",
       "text": "Reproduced the defect with a rendered eight-sheet workbook: the Overview title and labels were clipped at default column widths. Added an outside-in regression test, observed the expected failure, and implemented bounded Overview sizing with wrapped values. Regenerated and imported the workbook, reconciled every sheet, found no formula errors, and visually confirmed the Overview is fully readable. Focused living-report and ChatMessage suites now pass (312 tests). The bug remains open until the change lands.",
-      "created_at": "2026-07-29T18:18:12.159350Z"
+      "created_at": "2026-07-29T18:18:12.159350Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-29T18:14:44.097366Z",
   "updated_at": "2026-07-29T18:18:12.159350Z",
   "closed_at": null,
+  "right_now_summary": "The overview sizing fix is implemented and verified, but it has not yet landed.",
+  "right_now_updated_at": "2026-09-08T16:28:23.372513Z",
   "custom": {}
 }

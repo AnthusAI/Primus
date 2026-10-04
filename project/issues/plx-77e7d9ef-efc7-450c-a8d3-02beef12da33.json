@@ -14,5 +14,7 @@
   "created_at": "2026-07-29T19:00:32.511192Z",
   "updated_at": "2026-07-29T19:00:41.637491Z",
   "closed_at": null,
+  "right_now_summary": "The issue defines safer queue visibility, retained logs, and queue data for async score processors.",
+  "right_now_updated_at": "2026-09-08T17:12:22.888737Z",
   "custom": {}
 }

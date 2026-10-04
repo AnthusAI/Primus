@@ -15,11 +15,14 @@
       "id": "70f548cd-01bf-41dc-92e2-f825ed9b3675",
       "author": "ryan.porter",
       "text": "Added scripts/smoke-local-feedback-evaluation.sh with strict assertions: fixture cardinality, evaluate feedback execution, persisted Evaluation and ScoreResult linkage checks, proof artifact output, and no-upstream assertion. Verified script passes against clean local stack.",
-      "created_at": "2026-06-05T16:04:22.056279Z"
+      "created_at": "2026-06-05T16:04:22.056279Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-05T15:32:59.373151Z",
   "updated_at": "2026-06-05T16:04:24.916752Z",
   "closed_at": "2026-06-05T16:04:24.916752Z",
+  "right_now_summary": "The smoke workflow now passes with strict checks for evaluation, proof IDs, and persisted local GraphQL links.",
+  "right_now_updated_at": "2026-09-09T13:26:03.401762Z",
   "custom": {}
 }

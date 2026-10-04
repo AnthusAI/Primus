@@ -15,14 +15,17 @@
       "id": "6006da98-b614-4c6c-8558-518c87cbeb1e",
       "author": "ryan.porter",
       "text": "Implemented the required-evidence preflight and stakeholder-safe incomplete-state projection. When the prerequisite is unavailable, the runner stops before semantic calls or optimizer dispatch, records a high-severity issue and recovery action, and the workbook validator explicitly permits the new prerequisite status fields. Validation: focused prerequisite scenario passed; portfolio 136 passed; runtime contract 280 passed; living Report 88 passed; dispatcher/runner 51 passed. No production mutation or new run was performed.",
-      "created_at": "2026-07-31T16:54:29.718334Z"
+      "created_at": "2026-07-31T16:54:29.718334Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-31T16:41:27.637142Z",
   "updated_at": "2026-07-31T16:54:29.718334Z",
   "closed_at": null,
+  "right_now_summary": "The runner now checks evidence storage first and stops safely before model calls or optimizer changes when it fails.",
+  "right_now_updated_at": "2026-09-08T17:14:18.103157Z",
   "custom": {
-    "source": "shared",
-    "project_label": "plx"
+    "project_label": "plx",
+    "source": "shared"
   }
 }

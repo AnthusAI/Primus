@@ -15,17 +15,21 @@
       "id": "c6936a19-f81c-4c15-83b4-8d72f46aabbc",
       "author": "ryan.porter",
       "text": "Production dogfood created a valid pending clarification with correct Report and Score links, but the inbox rendered only a generic title and request type. The stored control envelope omitted title, summary, kind, and human-readable resource labels even though exact identifiers were preserved. Next: specify the producer and persistence envelope, then verify the dashboard rendering.",
-      "created_at": "2026-07-30T15:22:25.330718Z"
+      "created_at": "2026-07-30T15:22:25.330718Z",
+      "comment_type": "default"
     },
     {
       "id": "d9a79bbd-eafe-4774-99dd-723a7d6934ff",
       "author": "ryan.porter",
       "text": "Repair complete in the integration worktree. Portfolio diagnosis now preserves trusted scorecard/score display names; finding actions carry a score-specific title, concise question, named resource reference, and exact opaque identifiers. ChatMessage control envelopes now persist kind/title/message. Focused Python tests and all 10 Action Inbox tests pass. The pre-fix action remains generic by design; a fresh action is required for live visual confirmation.",
-      "created_at": "2026-07-30T15:38:19.589342Z"
+      "created_at": "2026-07-30T15:38:19.589342Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-30T15:22:16.774821Z",
   "updated_at": "2026-07-30T15:38:19.589342Z",
   "closed_at": null,
+  "right_now_summary": "Portfolio actions now show score names, clear questions, and exact links in the inbox.",
+  "right_now_updated_at": "2026-09-08T17:44:49.723474Z",
   "custom": {}
 }

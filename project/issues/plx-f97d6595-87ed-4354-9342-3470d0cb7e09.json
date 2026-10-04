@@ -15,23 +15,28 @@
       "id": "50733c3a-bde0-4d21-8c15-4f35e6f60b31",
       "author": "ryan.porter",
       "text": "Production dogfooding reproduced the defect: the Task referenced living-report revisions during execution, but terminal output persistence left attachedFiles containing only the compact output artifact. Writing a stale-object regression test before changing merge behavior.",
-      "created_at": "2026-07-31T14:31:03.304722Z"
+      "created_at": "2026-07-31T14:31:03.304722Z",
+      "comment_type": "default"
     },
     {
       "id": "99ba2c33-eb03-4b3c-94a4-efc7125aee6b",
       "author": "ryan.porter",
       "text": "Implemented an uncommitted minimal fix: terminal procedure output reloads the authoritative Task attachment list immediately before adding output.json, validates it fail-closed, and uses that list for the append. Added an outside-in stale-task regression. Focused suites passed: 31 tests across experiment-runner, task-output storage, and Task model tests.",
-      "created_at": "2026-07-31T14:34:02.646750Z"
+      "created_at": "2026-07-31T14:34:02.646750Z",
+      "comment_type": "default"
     },
     {
       "id": "11145903-786d-4f0b-8296-f177ba757cab",
       "author": "ryan.porter",
       "text": "Revalidated terminal attachment preservation alongside scheduled continuation and portfolio execution. The combined portfolio/report/runtime gate is green: 421 portfolio/report/optimizer/rubric tests and 114 runner/executor/resume/dispatcher/config tests passed. The authoritative Task reload remains the single attachment-merge path.",
-      "created_at": "2026-07-31T15:15:56.749937Z"
+      "created_at": "2026-07-31T15:15:56.749937Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-31T14:30:53.286125Z",
   "updated_at": "2026-07-31T15:15:56.749937Z",
   "closed_at": null,
+  "right_now_summary": "Terminal output now preserves existing report attachments and appends its artifact once using the authoritative Task",
+  "right_now_updated_at": "2026-09-08T17:45:55.826902Z",
   "custom": {}
 }

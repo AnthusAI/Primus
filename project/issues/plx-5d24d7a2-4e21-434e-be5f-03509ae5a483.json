@@ -15,11 +15,14 @@
       "id": "3cd250eb-33c4-41fc-8822-14909f52d005",
       "author": "ryan.porter",
       "text": "Verified the local integration branch and structured-HITL dependency branch remain unpushed. Confirmed the expected cloud identity and that Plexus still pins the current released Tactus version, which does not contain the required structured HITL contract. Preparing a durable deployment runbook covering Tactus-first release order, temporary local source testing, release pinning, clean validation without source overrides, sandbox acceptance, deployment gates, and rollback.",
-      "created_at": "2026-07-29T20:49:39.660294Z"
+      "created_at": "2026-07-29T20:49:39.660294Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-29T20:42:58.265373Z",
   "updated_at": "2026-07-29T20:49:39.660294Z",
   "closed_at": null,
+  "right_now_summary": "A durable runbook is being prepared to release Tactus first, update Plexus, validate both, and deploy safely.",
+  "right_now_updated_at": "2026-09-08T17:09:36.133970Z",
   "custom": {}
 }

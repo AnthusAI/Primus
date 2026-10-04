@@ -14,5 +14,7 @@
   "created_at": "2026-07-28T19:18:38.035031Z",
   "updated_at": "2026-07-28T19:18:45.392148Z",
   "closed_at": null,
+  "right_now_summary": "The optimizer must return the accepted version ID so automation can safely promote the same result.",
+  "right_now_updated_at": "2026-09-08T17:07:53.258996Z",
   "custom": {}
 }

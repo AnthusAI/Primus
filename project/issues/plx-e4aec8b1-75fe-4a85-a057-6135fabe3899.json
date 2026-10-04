@@ -15,17 +15,21 @@
       "id": "1aa0f2e6-3597-4683-824c-791df48424de",
       "author": "ryan.porter",
       "text": "Verification also found one remaining DSPy ToolCall compatibility monkeypatch in the procedure executor. It must be removed and covered by the owned Tactus object-shape support before this integration task is complete.",
-      "created_at": "2026-07-23T20:11:07.489539Z"
+      "created_at": "2026-07-23T20:11:07.489539Z",
+      "comment_type": "default"
     },
     {
       "id": "61db88ee-754f-49b3-963f-e0ea41113002",
       "author": "ryan.porter",
       "text": "Integrated the local Tactus branch through supported APIs only: removed the remaining Tactus/DSPy method and ToolCall monkeypatches, prewarmed the configured Console model, disabled redundant per-turn steering reads through supported Agent configuration, and replaced misleading model timing with lifecycle phases. Corrected the built-in procedure registry/config version to 1.6.32. Focused Plexus verification passes: 346 tests. Sandbox browser benchmark: 7.596s fresh, 7.268s mean across ten warm turns, down from 15.155s; provider first chunk normally 1.65-2.1s and no request-time LM initialization. Awaiting the reviewed Tactus patch release before locking Plexus to the released artifact and running the full Python CI matrix.",
-      "created_at": "2026-07-23T20:34:01.873075Z"
+      "created_at": "2026-07-23T20:34:01.873075Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-23T18:45:38.775982Z",
   "updated_at": "2026-07-23T20:34:01.873075Z",
   "closed_at": null,
+  "right_now_summary": "The integration is verified locally and in the sandbox, pending the reviewed Tactus release and full CI run.",
+  "right_now_updated_at": "2026-09-08T16:26:18.148666Z",
   "custom": {}
 }

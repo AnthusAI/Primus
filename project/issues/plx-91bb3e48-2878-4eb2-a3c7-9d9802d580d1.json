@@ -14,5 +14,7 @@
   "created_at": "2026-06-15T20:51:01.740257Z",
   "updated_at": "2026-06-15T21:01:47.727991Z",
   "closed_at": "2026-06-15T21:01:47.727991Z",
+  "right_now_summary": "The chart needs backendMode and authMode added to its ConfigMap and values.",
+  "right_now_updated_at": "2026-09-09T13:24:15.191241Z",
   "custom": {}
 }

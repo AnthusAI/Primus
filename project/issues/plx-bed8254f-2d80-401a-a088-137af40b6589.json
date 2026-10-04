@@ -15,11 +15,14 @@
       "id": "d10bd307-1926-4af5-aa5a-7cd5d22cb19c",
       "author": "ryan.porter",
       "text": "Outside-in implementation complete for local acceptance. A diagnosis maximum now schedules the highest-ranked subset instead of aborting all semantic work. Evidence and stakeholder presentation distinguish policy-selected, scheduled, completed, failed, policy-skipped, and cap-deferred counts. A zero cap invokes no model work and reports every selected diagnosis as deferred; partial coverage finalizes as incomplete. Validation: 57 focused Python tests, 5 focused dashboard tests, frontend/backend typechecks, and diff check passed. Live production-backed rerun is next; no optimizer or score mutation will be authorized.",
-      "created_at": "2026-07-30T20:38:41.349906Z"
+      "created_at": "2026-07-30T20:38:41.349906Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-30T20:33:19.202610Z",
   "updated_at": "2026-07-30T20:38:41.349906Z",
   "closed_at": null,
+  "right_now_summary": "Bounded diagnosis now runs the top-ranked subset and reports deferred work honestly.",
+  "right_now_updated_at": "2026-09-08T17:44:14.727292Z",
   "custom": {}
 }

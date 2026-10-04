@@ -15,11 +15,14 @@
       "id": "60c45b2f-9b22-4d2d-9e2e-5d14f9e1b10d",
       "author": "derek.norrbom",
       "text": "**Context:** K8s MVP scoring path (scoring_api.py, scoring_job.py, TactusScore.py) already uses stdlib logging (logging.getLogger) — no CloudWatch dependency was ever wired in. However, best practice requires: (1) explicit PLEXUS_DISABLE_CLOUDWATCH_LOGS=1 in Helm values as defensive guard against transitive imports, (2) explicit logging.basicConfig in scoring_api lifespan for structured output, (3) verification that kubectl logs captures scoring worker output. This is a hardening chore, not a migration — CloudWatch code remains for AWS production path.",
-      "created_at": "2026-06-16T17:31:25.690073Z"
+      "created_at": "2026-06-16T17:31:25.690073Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-16T17:31:18.379671Z",
   "updated_at": "2026-06-16T17:31:28.258758Z",
   "closed_at": null,
+  "right_now_summary": "The team is hardening Kubernetes logging and checking that worker output appears through kubectl logs.",
+  "right_now_updated_at": "2026-09-08T16:28:37.540100Z",
   "custom": {}
 }

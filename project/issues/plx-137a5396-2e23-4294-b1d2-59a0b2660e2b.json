@@ -15,17 +15,21 @@
       "id": "0a743877-ab19-40df-8440-bacc3270e2c8",
       "author": "derek",
       "text": "Implementation complete for _default_procedure_status_batch function in execute.py (inserted after _default_procedure_optimize_batch).\n\nKey implementation details:\n- Accepts procedure_ids array (required)\n- Uses ProcedureService.get_procedure_info() for each ID\n- Error handling: failed lookups included in results with error message\n- Returns structured dict with total count and procedures array\n\nWiring complete:\n- Added to RUNTIME_METHOD_SPECS as ('procedure', 'optimize_batch') and ('procedure', 'status_batch')\n- optimize_batch routed in _call_procedure_run method\n- status_batch added to default_procedure_readers dict\n- Handler method _procedure_optimize_batch added to RuntimeEnv.__init__\n\nStatus: Code complete, ready for testing",
-      "created_at": "2026-06-09T21:07:55.514420016Z"
+      "created_at": "2026-06-09T21:07:55.514420016Z",
+      "comment_type": "default"
     },
     {
       "id": "7a9cc990-1f24-490b-b690-86f763a58165",
       "author": "derek",
       "text": "Implemented _default_procedure_status_batch in execute.py. Fixed async issue by delegating to _default_procedure_info. Tested and working.",
-      "created_at": "2026-06-09T21:23:59.405656156Z"
+      "created_at": "2026-06-09T21:23:59.405656156Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-09T21:01:02.095848911Z",
   "updated_at": "2026-06-09T21:23:59.405656156Z",
   "closed_at": "2026-06-09T21:23:59.397084032Z",
+  "right_now_summary": "The batch procedure status function is implemented, connected in execute.py, and tested successfully.",
+  "right_now_updated_at": "2026-09-09T13:31:31.304940Z",
   "custom": {}
 }

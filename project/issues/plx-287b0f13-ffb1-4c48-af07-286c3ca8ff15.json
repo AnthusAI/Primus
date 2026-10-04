@@ -15,11 +15,14 @@
       "id": "a6984940-8669-44e6-b84f-4ef13dd5f281",
       "author": "derek.norrbom",
       "text": "Landed in develop through PR #534 and extended through PRs #535, #537, and #538. Portable claim, progress, fenced completion, and provider-neutral lifecycle behavior are merged.",
-      "created_at": "2026-08-04T22:52:26.076450Z"
+      "created_at": "2026-08-04T22:52:26.076450Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-08-04T19:45:08.913537Z",
   "updated_at": "2026-08-04T22:52:26.113064Z",
   "closed_at": "2026-08-04T22:52:26.113064Z",
+  "right_now_summary": "The portable worker lifecycle now supports claims, progress, and fenced completion without provider-specific storage.",
+  "right_now_updated_at": "2026-09-09T13:36:11.446048Z",
   "custom": {}
 }

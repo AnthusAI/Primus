@@ -15,11 +15,14 @@
       "id": "3a23771e-41ba-4d36-80cc-223e15384497",
       "author": "ryan.porter",
       "text": "Starting new MVP slice: local worker orchestration proof package. Focus is runnable documentation plus strict smoke evidence for task dispatch and local console/chat worker execution without hosted GraphQL forwarding. AWS mode remains unchanged.",
-      "created_at": "2026-06-06T18:02:36.826300Z"
+      "created_at": "2026-06-06T18:02:36.826300Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-04T18:00:17.155886Z",
   "updated_at": "2026-06-06T18:02:36.826300Z",
   "closed_at": null,
+  "right_now_summary": "The team is building a local worker MVP with runnable docs and smoke tests for dispatch and console/chat execution.",
+  "right_now_updated_at": "2026-09-09T13:30:07.057890Z",
   "custom": {}
 }

@@ -14,5 +14,7 @@
   "created_at": "2026-08-04T22:55:54.396838Z",
   "updated_at": "2026-08-04T22:56:18.273157Z",
   "closed_at": null,
+  "right_now_summary": "The reusable stack now provisions encrypted command storage, queues, and dead-letter alarms without runtime resource",
+  "right_now_updated_at": "2026-09-08T16:27:35.310749Z",
   "custom": {}
 }

@@ -14,5 +14,7 @@
   "created_at": "2026-07-30T19:05:24.854684Z",
   "updated_at": "2026-07-30T19:07:13.317574Z",
   "closed_at": null,
+  "right_now_summary": "The report separates incomplete diagnoses, preserves remediation guidance, and prevents optimization readiness.",
+  "right_now_updated_at": "2026-09-08T17:15:39.124451Z",
   "custom": {}
 }

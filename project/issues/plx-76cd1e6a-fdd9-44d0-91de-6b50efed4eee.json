@@ -15,17 +15,21 @@
       "id": "4516f1e2-b85e-41ff-a1c0-36ad47ffdc6e",
       "author": "ryan.porter",
       "text": "Reproduced clean-install lockfile failure and repaired dashboard/package-lock.json. npm ci --dry-run now validates; fix is included in the foundation PR and awaits landing.",
-      "created_at": "2026-07-28T13:35:07.676591Z"
+      "created_at": "2026-07-28T13:35:07.676591Z",
+      "comment_type": "default"
     },
     {
       "id": "eaa172f9-bd1e-4a55-8713-0a302a40ff99",
       "author": "ryan.porter",
       "text": "Lockfile repair is in draft PR #506 (commit dabf04a2c); keep this P1 open until the PR lands and clean-install validation is available on develop.",
-      "created_at": "2026-07-28T13:35:37.311086Z"
+      "created_at": "2026-07-28T13:35:37.311086Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-28T13:29:16.903182Z",
   "updated_at": "2026-07-28T13:35:37.311086Z",
   "closed_at": null,
+  "right_now_summary": "The lockfile fix is in draft PR #506 and awaits landing before clean-install validation on develop.",
+  "right_now_updated_at": "2026-09-08T17:12:07.511271Z",
   "custom": {}
 }

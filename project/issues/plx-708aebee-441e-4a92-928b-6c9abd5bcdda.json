@@ -15,17 +15,21 @@
       "id": "d07a7f07-03ab-4259-a232-5893b43bb76e",
       "author": "ryan.porter",
       "text": "Implementation started. Decision: add a narrow Console extra for Celery, FastMCP, and IAM request signing; keep the broad infrastructure extra out of the latency-sensitive image; retain the Lambda runtime interface client as an image-specific dependency. Focused specifications failed first because the extra and declared install path were absent.",
-      "created_at": "2026-07-28T20:16:11.856073Z"
+      "created_at": "2026-07-28T20:16:11.856073Z",
+      "comment_type": "default"
     },
     {
       "id": "f08e1575-8f0e-4040-b7aa-b15fd87fb89b",
       "author": "ryan.porter",
       "text": "Implemented the narrow Console package extra and updated the worker image to install the scoring and Console extras together. Removed redundant ad hoc dependency installs while keeping the Lambda runtime interface client image-specific. Validation: focused contract tests pass 8 of 8, poetry lock validation passes, diff check passes, and a clean Docker image build completed with all required imports verified.",
-      "created_at": "2026-07-28T20:21:20.533201Z"
+      "created_at": "2026-07-28T20:21:20.533201Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-28T20:15:35.648720Z",
   "updated_at": "2026-07-28T20:21:20.533201Z",
   "closed_at": null,
+  "right_now_summary": "The Console worker now uses dedicated scoring and Console extras with verified runtime imports.",
+  "right_now_updated_at": "2026-09-08T16:26:06.048164Z",
   "custom": {}
 }

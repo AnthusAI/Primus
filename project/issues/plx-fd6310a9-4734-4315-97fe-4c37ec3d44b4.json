@@ -15,11 +15,14 @@
       "id": "62e81806-486c-47d7-a7c2-c370ea1d8b72",
       "author": "derek.norrbom",
       "text": "Added SandboxCommandWorkerStack (dashboard/amplify/command-service/sandbox-resource.ts): borrows staging foundation VPC via SSM (/plexus/staging/command-service/...), builds worker image inline via CDK Docker asset (no ECR digest/foundation dependency), uses shorter lease/heartbeat/visibility defaults (5min/1min/10min vs prod 1h/5min/12h), refuses plexus/production/config, no activity-gate policy. 8 tests in sandbox-resource.test.ts, all green.",
-      "created_at": "2026-08-10T19:15:40.440461Z"
+      "created_at": "2026-08-10T19:15:40.440461Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-08-10T18:45:25.089716Z",
   "updated_at": "2026-08-10T19:15:40.455173Z",
   "closed_at": "2026-08-10T19:15:40.455173Z",
+  "right_now_summary": "A sandbox worker stack reuses staging VPC and ECR while building its worker image with CDK.",
+  "right_now_updated_at": "2026-09-09T13:38:42.975886Z",
   "custom": {}
 }

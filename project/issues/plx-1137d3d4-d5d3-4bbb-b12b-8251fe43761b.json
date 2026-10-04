@@ -15,11 +15,14 @@
       "id": "4b2c1e1e-e678-4153-88f2-f1516eadcbd8",
       "author": "ryan.porter",
       "text": "Dogfood reproduced the defect against a fresh production-backed Report: the specialized status block and immutable presentation descriptor were present, but the cover rendered only prose because it omitted the normal report-block code fence. Added the cover reference plus a dashboard ReportTask integration specification. Validation is green: 46 focused Python tests, 11 dashboard tests, and TypeScript compilation. No schema or infrastructure resources changed. The bounded test run completed in 4m44s with zero model cost and no operational mutations.",
-      "created_at": "2026-07-30T16:37:04.776140Z"
+      "created_at": "2026-07-30T16:37:04.776140Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-30T16:33:04.039531Z",
   "updated_at": "2026-07-30T16:37:04.776140Z",
   "closed_at": null,
+  "right_now_summary": "The Report cover now renders the aggregate presentation and shows a clear unavailable state when evidence is missing.",
+  "right_now_updated_at": "2026-09-08T16:26:30.433416Z",
   "custom": {}
 }

@@ -15,11 +15,14 @@
       "id": "466cf964-3999-4cb2-937f-f1c97ec847aa",
       "author": "ryan.porter",
       "text": "Root cause confirmed: the exhaustive shared feedback-window aggregation retained label-pair counts but discarded each score's latest feedback updatedAt. The fix preserves one compact per-score watermark from the same paginated GraphQL read, threads it through batch ranking and assessment, and fails assessment closed when absent. No per-score ranking reads were introduced. Validation: 5 focused provenance contracts, 282 runtime contracts, and 817 optimization/procedure tests pass.",
-      "created_at": "2026-08-03T16:57:09.683604Z"
+      "created_at": "2026-08-03T16:57:09.683604Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-08-03T16:50:55.459752Z",
   "updated_at": "2026-08-03T16:57:09.683604Z",
   "closed_at": null,
+  "right_now_summary": "The fix preserves feedback watermarks through assessment and rejects launches when the live evidence has changed.",
+  "right_now_updated_at": "2026-09-08T17:11:09.337097Z",
   "custom": {}
 }

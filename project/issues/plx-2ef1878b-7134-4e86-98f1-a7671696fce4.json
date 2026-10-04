@@ -15,23 +15,28 @@
       "id": "f36c9800-cf01-4775-9d05-c6a35b19e294",
       "author": "ryan.porter",
       "text": "Started outside-in implementation. First executable specification will cover a distinct aggregate artifact-publication phase after assessment; it must disclose safe completed/total artifact-kind counts, elapsed time, next durable milestone, and fail closed without implying later analysis.",
-      "created_at": "2026-07-31T13:53:11.186838Z"
+      "created_at": "2026-07-31T13:53:11.186838Z",
+      "comment_type": "default"
     },
     {
       "id": "37bee634-5599-4b15-befc-31c17c3083f5",
       "author": "ryan.porter",
       "text": "Implemented with outside-in specs. Assessment publication now emits compact `publication` progress before/after artifact generation and upload, with aggregate completed/total counts only for safe artifact categories, elapsed time, and the next durable milestone. Failed publication records the active safe category and marks the milestone incomplete without claiming diagnosis started. Dashboard whitelists and renders only the safe categories; no schema/resources or workbook revisions per substep. Focused Plexus specs: 2 passed. Focused dashboard spec: passed. Dashboard typecheck: passed. A broader current-suite assertion failure is owned by the concurrent ranking-progress change (new Ranking / Inventory text versus stale assertion), so it was not altered here.",
-      "created_at": "2026-07-31T13:58:17.979871Z"
+      "created_at": "2026-07-31T13:58:17.979871Z",
+      "comment_type": "default"
     },
     {
       "id": "c65ebffb-50c3-4407-94ef-baf04bb0f475",
       "author": "ryan.porter",
       "text": "Production dogfooding exposed that the published aggregate counts are not actually incremental. A ranking milestone planned 1,262 artifacts (including 1,105 score briefs), but the callback only changes the active artifact kind; completed counts remain at 2 until every child artifact finishes. The Report therefore cannot show real throughput or ETA during the longest publication phase. This violates the completed-versus-total scenario and needs a red production-scale specification before repair.",
-      "created_at": "2026-07-31T15:27:44.654093Z"
+      "created_at": "2026-07-31T15:27:44.654093Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-31T13:52:37.317115Z",
   "updated_at": "2026-07-31T15:27:44.654093Z",
   "closed_at": null,
+  "right_now_summary": "Production testing found that artifact counts do not update during long publication runs, so progress and timing remain",
+  "right_now_updated_at": "2026-09-08T16:27:59.855684Z",
   "custom": {}
 }

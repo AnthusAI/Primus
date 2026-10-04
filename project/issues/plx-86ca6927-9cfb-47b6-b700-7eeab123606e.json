@@ -1,0 +1,20 @@
+{
+  "id": "plx-86ca6927-9cfb-47b6-b700-7eeab123606e",
+  "title": "One Jev request serves all scores for an item",
+  "description": "Feature: Jev whole-scorecard prediction\n\n  Scenario: Whole-scorecard prediction sends one request\n    Given a Jev scorecard with two scores\n    When the scorecard predicts an item\n    Then exactly one Jev request is sent and both scores have results\n\n  Scenario: Individual score predictions share the cached result\n    Given a Jev scorecard with two scores\n    When Score.predict() is called for each score on the same item in sequence or concurrently\n    Then only one Jev request is sent and each call returns its own score result\n\n  Scenario: A different item triggers a new request\n    Given a cached result for one item\n    When a different item is predicted\n    Then a new Jev request is sent",
+  "type": "story",
+  "status": "open",
+  "priority": 2,
+  "assignee": null,
+  "creator": null,
+  "parent": "plx-372297d2-5733-4025-90de-0b448290e3df",
+  "labels": [],
+  "dependencies": [],
+  "comments": [],
+  "created_at": "2026-09-20T03:31:17.138331Z",
+  "updated_at": "2026-09-20T03:31:17.138358Z",
+  "closed_at": null,
+  "right_now_summary": null,
+  "right_now_updated_at": null,
+  "custom": {}
+}

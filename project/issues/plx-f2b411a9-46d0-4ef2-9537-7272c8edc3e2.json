@@ -15,11 +15,14 @@
       "id": "6b7bb264-7b0a-49a5-9592-db1df41b6779",
       "author": "ryan.porter",
       "text": "Specified and implemented the existing-settings extension. Added an optional reporting.dashboardBaseUrl validated as an HTTPS origin, preserved unrelated account settings during saves, and added the account-settings form control. The focused 17-test contract and dashboard TypeScript check pass. No Amplify schema or resource changes were made for this story. Next: integrate the configured origin into immutable report-artifact route generation and add the revision manifest descriptors under separate behavior specifications.",
-      "created_at": "2026-07-30T15:51:30.782428Z"
+      "created_at": "2026-07-30T15:51:30.782428Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-30T15:49:26.499764Z",
   "updated_at": "2026-07-30T15:51:30.782428Z",
   "closed_at": null,
+  "right_now_summary": "The settings extension is implemented; report-artifact links and revision manifests are next.",
+  "right_now_updated_at": "2026-09-08T17:45:41.522315Z",
   "custom": {}
 }

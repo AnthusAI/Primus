@@ -14,5 +14,7 @@
   "created_at": "2026-07-31T15:47:03.962200Z",
   "updated_at": "2026-07-31T15:47:04.434578Z",
   "closed_at": null,
+  "right_now_summary": "Recovery must use the exact stored metadata to resume once without dispatching duplicate execution.",
+  "right_now_updated_at": "2026-09-08T17:45:35.374708Z",
   "custom": {}
 }

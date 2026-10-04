@@ -14,5 +14,7 @@
   "created_at": "2026-06-05T19:04:28.459654Z",
   "updated_at": "2026-06-05T19:47:31.291544Z",
   "closed_at": "2026-06-05T19:47:31.291544Z",
+  "right_now_summary": "Local smoke compose and startup scripts are adding Qdrant with deterministic defaults and vector-store settings.",
+  "right_now_updated_at": "2026-09-09T13:27:13.033012Z",
   "custom": {}
 }

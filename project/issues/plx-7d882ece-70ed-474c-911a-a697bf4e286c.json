@@ -15,11 +15,14 @@
       "id": "66823385-4d69-41fb-a9fb-ca19572b40a3",
       "author": "ryan.porter",
       "text": "Release integration resumed after the required Tactus package was published. Tactus 0.52.0 is available from PyPI. Next steps: fast-forward Plexus develop from main, merge refreshed develop into the living-report integration branch, upgrade the dependency and lock, resolve integration conflicts, and run the disabled-hosted-CI workflow locally before release review.",
-      "created_at": "2026-08-03T16:38:49.052397Z"
+      "created_at": "2026-08-03T16:38:49.052397Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-30T22:44:50.487464Z",
   "updated_at": "2026-08-03T16:38:49.052397Z",
   "closed_at": null,
+  "right_now_summary": "Integration resumed after Tactus 0.52.0 shipped; the branch is being updated and tested locally.",
+  "right_now_updated_at": "2026-09-08T17:13:06.262692Z",
   "custom": {}
 }

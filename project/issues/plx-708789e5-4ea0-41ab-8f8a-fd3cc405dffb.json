@@ -15,11 +15,14 @@
       "id": "0fe40269-5663-44cb-b095-3cc50c172555",
       "author": "ryan.porter",
       "text": "Found local dashboard issue where account records loaded without primary-key fields from the local Amplify shim. This prevented `selectedAccount.id` from being populated, so the scorecards page never issued scorecard queries. The local shim should always include manifest primary-key fields in generated selection sets. Browser verification now shows local scorecards and score counts rendering.",
-      "created_at": "2026-06-04T22:51:39.216972Z"
+      "created_at": "2026-06-04T22:51:39.216972Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-04T22:51:22.273750Z",
   "updated_at": "2026-06-04T22:51:39.216972Z",
   "closed_at": null,
+  "right_now_summary": "The local dashboard now loads account IDs and renders scorecards with score counts.",
+  "right_now_updated_at": "2026-09-08T17:11:44.697874Z",
   "custom": {}
 }

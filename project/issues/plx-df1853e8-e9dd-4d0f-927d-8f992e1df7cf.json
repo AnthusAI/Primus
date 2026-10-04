@@ -15,11 +15,14 @@
       "id": "db4c9594-f914-43aa-aa88-49de79faf146",
       "author": "ryan.porter",
       "text": "Added failing outside-in coverage for successful and incomplete terminal revisions. The runner now decides and records terminal_status before publishing the final immutable revision, includes it in raw evidence, and emits terminal-specific current activity and next steps. Focused portfolio, living-report, and runtime suites pass: 310 tests.",
-      "created_at": "2026-07-30T17:53:50.886627Z"
+      "created_at": "2026-07-30T17:53:50.886627Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-30T17:51:29.394743Z",
   "updated_at": "2026-07-30T17:53:50.886627Z",
   "closed_at": null,
+  "right_now_summary": "The runner now records terminal status before publishing the final Report revision, with focused tests passing.",
+  "right_now_updated_at": "2026-09-08T17:45:08.577002Z",
   "custom": {}
 }

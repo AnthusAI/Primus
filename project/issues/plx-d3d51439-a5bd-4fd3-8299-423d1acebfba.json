@@ -15,29 +15,35 @@
       "id": "c8cd1bf8-8af8-4218-a41f-5d46b9fff7f6",
       "author": "ryan.porter",
       "text": "Implementation started: adding an orchestration service that composes existing optimization decision packets with the durable run report, structured approval batches, freshness rechecks, and terminal review. Outside-in tests will cover report-first lifecycle, incomplete coverage stop, exact five-target approvals, stale launch rejection, fatal publication stop, and no automatic promotion.",
-      "created_at": "2026-07-29T17:03:12.274166Z"
+      "created_at": "2026-07-29T17:03:12.274166Z",
+      "comment_type": "default"
     },
     {
       "id": "3dc29737-bb7e-486f-9d40-8b4156b650bd",
       "author": "ryan.porter",
       "text": "Implemented the portfolio orchestration slice in the integration worktree: report-first lifecycle, complete-coverage stop, exact structured approvals in batches of five, freshness-preserving optimizer dispatch, terminal review without automatic promotion, and a Tactus procedure/runtime entrypoint. Focused runtime and orchestration specs are green; living-report artifact/stage hardening remains coordinated with its owning workstream.",
-      "created_at": "2026-07-29T17:18:59.615333Z"
+      "created_at": "2026-07-29T17:18:59.615333Z",
+      "comment_type": "default"
     },
     {
       "id": "baf49644-aac8-478f-a774-53206901d80b",
       "author": "ryan.porter",
       "text": "Progress: default portfolio runtime validation now covers the zero-resource ChatMessage authority path. The next specification will reproduce missing authority as a fail-closed result, then verify advisory action create, deduplication, and response resolution occur only during portfolio run or replay without score or collection mutations.",
-      "created_at": "2026-07-29T18:05:52.783393Z"
+      "created_at": "2026-07-29T18:05:52.783393Z",
+      "comment_type": "default"
     },
     {
       "id": "86aa0620-c306-4f37-a278-c59c894fe0cd",
       "author": "ryan.porter",
       "text": "Validation update: the reproduced default-runtime failure was caused by absent ChatMessage action authority in an injected report-only test and a misplaced runtime import. The contract now explicitly injects authority for success, covers the fail-closed missing-authority path, and verifies replay reuses and resolves the same advisory ChatMessage without operational mutations. Focused runtime, portfolio, HITL, chat, and procedure-config tests are green.",
-      "created_at": "2026-07-29T18:10:48.967600Z"
+      "created_at": "2026-07-29T18:10:48.967600Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-29T16:47:57.004854Z",
   "updated_at": "2026-07-29T18:10:48.967600Z",
   "closed_at": null,
+  "right_now_summary": "The orchestration workflow is implemented and validated, with report-first approvals and safe replay checks passing.",
+  "right_now_updated_at": "2026-09-08T17:48:13.883529Z",
   "custom": {}
 }

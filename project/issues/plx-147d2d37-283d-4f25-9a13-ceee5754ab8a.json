@@ -15,11 +15,14 @@
       "id": "8e510b04-f874-4d5c-9a23-72810bc5fb3f",
       "author": "ryan.porter",
       "text": "Production acceptance reproduced the failure with a real ticket. The ticket URL carried the checksum in its query, X-Amz-SignedHeaders contained only content-length and host, and requiredHeaders redundantly included x-amz-checksum-sha256. S3 returned AccessDenied because that header was present but unsigned. No optimizer or report run proceeded past procedure-code publication.",
-      "created_at": "2026-07-29T21:11:43.781183Z"
+      "created_at": "2026-07-29T21:11:43.781183Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-29T21:11:39.403666Z",
   "updated_at": "2026-07-29T21:11:43.781183Z",
   "closed_at": null,
+  "right_now_summary": "The client must omit only redundant query-bound checksum headers so artifact uploads can proceed safely.",
+  "right_now_updated_at": "2026-09-08T16:26:49.286407Z",
   "custom": {}
 }

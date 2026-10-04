@@ -14,8 +14,10 @@
   "created_at": "2026-07-31T17:53:01.347639Z",
   "updated_at": "2026-07-31T17:54:29.740163Z",
   "closed_at": null,
+  "right_now_summary": "The team is designing incremental Report publication to reuse verified artifacts and regenerate only changed or unsafe",
+  "right_now_updated_at": "2026-09-08T17:43:35.804713Z",
   "custom": {
-    "source": "shared",
-    "project_label": "plx"
+    "project_label": "plx",
+    "source": "shared"
   }
 }

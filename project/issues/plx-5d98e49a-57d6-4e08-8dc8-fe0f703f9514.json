@@ -15,11 +15,14 @@
       "id": "9f9fae06-9d72-43cf-8152-523f3278d3c5",
       "author": "derek.norrbom",
       "text": "The deployment model has changed: Plexus packages the isolated score-processor Dockerfile and handler as a package resource; each downstream integration release builds, smoke-tests, scans, publishes, and deploys its own digest from one immutable Plexus revision. Do not revive an independent Plexus artifact pipeline or mutable image pointer. The epic/story scope should be reconciled to package-resource distribution and pinned downstream builds.",
-      "created_at": "2026-08-11T18:03:11.750094Z"
+      "created_at": "2026-08-11T18:03:11.750094Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-15T16:30:05.711426Z",
   "updated_at": "2026-08-11T18:03:32.428101Z",
   "closed_at": null,
+  "right_now_summary": "The deployment model now uses a packaged Dockerfile and handler with pinned downstream builds.",
+  "right_now_updated_at": "2026-09-09T13:30:51.579347Z",
   "custom": {}
 }

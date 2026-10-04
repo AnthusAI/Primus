@@ -15,11 +15,14 @@
       "id": "1148b7a1-c050-45f4-be7f-219553d909f9",
       "author": "derek.norrbom",
       "text": "Wired AMPLIFY_ENABLE_SANDBOX_COMMAND_WORKER flag in backend.ts, mirroring the enableSandboxConsoleWorker/enableSandboxTaskDispatcher pattern. Mutually exclusive with AMPLIFY_ENABLE_SANDBOX_TASK_DISPATCHER (throws if both set, since the command worker already includes its own dispatcher). File-content assertion test added to resource.test.ts. Full tsc --noEmit clean.",
-      "created_at": "2026-08-10T19:15:40.467874Z"
+      "created_at": "2026-08-10T19:15:40.467874Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-08-10T18:45:25.116940Z",
   "updated_at": "2026-08-10T19:15:40.479433Z",
   "closed_at": "2026-08-10T19:15:40.479433Z",
+  "right_now_summary": "The sandbox command worker flag is wired, tested, and type-checked.",
+  "right_now_updated_at": "2026-09-09T13:38:17.808964Z",
   "custom": {}
 }

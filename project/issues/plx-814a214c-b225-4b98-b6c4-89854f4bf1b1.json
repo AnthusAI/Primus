@@ -15,11 +15,14 @@
       "id": "b471a595-6f60-46c9-888a-caa9e35f6b85",
       "author": "ryan.porter",
       "text": "Reproduced the production ticket-contract mismatch with a failing focused test, then changed Markdown and CSV task attachments to the accepted text/markdown and text/csv media types while retaining deterministic UTF-8 content. The ticket-path tests pass.",
-      "created_at": "2026-07-30T16:13:42.457084Z"
+      "created_at": "2026-07-30T16:13:42.457084Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-30T16:03:03.486530Z",
   "updated_at": "2026-07-30T16:13:42.457084Z",
   "closed_at": null,
+  "right_now_summary": "Markdown and CSV attachments now use accepted media types with deterministic UTF-8 encoding.",
+  "right_now_updated_at": "2026-09-08T17:13:20.109149Z",
   "custom": {}
 }

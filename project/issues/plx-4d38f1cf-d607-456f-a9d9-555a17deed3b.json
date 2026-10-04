@@ -15,11 +15,14 @@
       "id": "ec34b9ca-eec8-4e7a-be58-6d3f10412fde",
       "author": "ryan.porter",
       "text": "Production-backed dogfood evidence showed required rubric-memory reads failing after a model-backed contradiction check had already run, while the stakeholder result collapsed the cause to an unexplained incomplete diagnosis. Current source now includes a fail-closed storage-authority preflight and typed stakeholder projection; focused validation passed as part of the 294-test portfolio/runtime suite. Live acceptance remains pending refreshed worker authorization and a new run loaded from current source.",
-      "created_at": "2026-07-31T17:54:29.942861Z"
+      "created_at": "2026-07-31T17:54:29.942861Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-31T17:50:45.580830Z",
   "updated_at": "2026-07-31T17:54:29.942861Z",
   "closed_at": null,
+  "right_now_summary": "The fix passed focused tests, but live acceptance awaits refreshed worker authorization and a new run.",
+  "right_now_updated_at": "2026-09-08T17:08:33.775050Z",
   "custom": {}
 }

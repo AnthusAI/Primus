@@ -15,17 +15,21 @@
       "id": "2cc3745a-4208-4e7e-abfc-d05745f121da",
       "author": "derek.norrbom",
       "text": "Progress: implemented visible and fail-closed inbound auth behavior for the scoring API. Startup now logs whether inbound auth is enabled, disabled, or required without a key. SCORING_API_AUTH_REQUIRED=true now makes POST /v1/score fail closed with 503 when SCORING_API_KEY is missing. Added wrong-key, fail-closed, and auth-disabled logging coverage. Helm now renders SCORING_API_AUTH_REQUIRED for scoring-api workers and sets it true when scoringApi.auth.enabled=true, while still wiring the separate SCORING_API_KEY secret. Validation passed: focused pytest suite, py_compile, helm lint/render with auth enabled, git diff --check, and rcql --scan-files for plexus/workers/scoring_api.py returned Total: 0.",
-      "created_at": "2026-06-10T20:55:41.996180Z"
+      "created_at": "2026-06-10T20:55:41.996180Z",
+      "comment_type": "default"
     },
     {
       "id": "a4299e45-613d-44e8-8548-c84d2ef466c7",
       "author": "derek.norrbom",
       "text": "Verified and closed. Startup lifespan hook logs enabled/disabled/required-without-key states; SCORING_API_AUTH_REQUIRED=true makes POST /v1/score fail closed with 503 when no key is configured (health probes intentionally stay up for Kubernetes liveness/readiness, which satisfies the refuses-to-serve scenario without crash-looping the pod). Wrong-key 401 test covers the compare_digest branch; fail-closed and disabled-warning tests present. Helm renders SCORING_API_AUTH_REQUIRED from scoringApi.auth.required or auth.enabled and wires the separate inbound key secret. All Gherkin scenarios covered by passing tests.",
-      "created_at": "2026-06-10T21:14:46.195984Z"
+      "created_at": "2026-06-10T21:14:46.195984Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-10T20:38:30.471983Z",
   "updated_at": "2026-06-10T21:14:46.205819Z",
   "closed_at": "2026-06-10T21:14:46.205819Z",
+  "right_now_summary": "Inbound auth now warns when disabled, rejects missing or wrong keys, and supports a required-auth setting.",
+  "right_now_updated_at": "2026-09-09T13:25:43.281372Z",
   "custom": {}
 }

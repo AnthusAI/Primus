@@ -14,8 +14,10 @@
   "created_at": "2026-07-31T17:55:27.773689Z",
   "updated_at": "2026-07-31T17:55:32.968846Z",
   "closed_at": null,
+  "right_now_summary": "Each Report must record the Plexus and Tactus versions and any immutable build revision used to create it.",
+  "right_now_updated_at": "2026-09-08T17:08:53.395632Z",
   "custom": {
-    "source": "shared",
-    "project_label": "plx"
+    "project_label": "plx",
+    "source": "shared"
   }
 }

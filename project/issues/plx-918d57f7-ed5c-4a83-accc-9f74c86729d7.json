@@ -15,11 +15,14 @@
       "id": "7d5a3eca-b17b-474f-82bf-a1412274e3da",
       "author": "ryan.porter",
       "text": "Worker orchestration MVP slice implemented in feature/local-control-plane-mvp. Added strict local worker smokes (task dispatcher + chat worker), one-command worker proof harness, dedicated runbook, and MVP runbook link. Verification passed: bash scripts/smoke-local-task-dispatch.sh, bash scripts/smoke-local-chat-worker.sh, bash scripts/prove-local-worker-orchestration.sh. Proof artifacts now written to tmp/local-control-plane-proof/{task-dispatch.json,chat-worker.json,worker-orchestration.json}. Also hardened CLI startup so optional data command dependency failures do not block non-data command execution in local dispatch flows.",
-      "created_at": "2026-06-06T18:10:25.927299Z"
+      "created_at": "2026-06-06T18:10:25.927299Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-06T18:02:36.788396Z",
   "updated_at": "2026-06-06T18:10:36.087712Z",
   "closed_at": "2026-06-06T18:10:36.087712Z",
+  "right_now_summary": "The MVP is implemented, documented, and verified with passing local worker smoke tests.",
+  "right_now_updated_at": "2026-09-09T13:27:51.381774Z",
   "custom": {}
 }

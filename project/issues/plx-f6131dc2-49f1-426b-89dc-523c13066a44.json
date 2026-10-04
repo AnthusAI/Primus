@@ -15,17 +15,21 @@
       "id": "d99433e6-5858-4261-9be4-b695b68b63ff",
       "author": "derek.norrbom",
       "text": "Progress: previous audit-hardening work committed first as 531862228 so this story lands in its own commit. Spec-first implementation done: new failing test (subprocess import of plexus.cli.data.operations with xgboost/imblearn blocked) confirmed red, then made the training imports lazy inside compute_shap_feature_importances (matching the existing lazy shap import there); dropped the unused RandomOverSampler/RandomUnderSampler imports. Added the 'scoring' extra to pyproject (pandas, nltk, seaborn, pydot, graphviz, scikit-learn, contractions). Dockerfile now installs '.[scoring,infra]' via a PLEXUS_EXTRAS build arg and the CPU-Torch preinstall workaround is removed entirely (supersedes the Torch pin from plx-7da300 by eliminating Torch from this image). Validation so far: 22 focused tests pass (CLI imports incl. new spec + workers), poetry check passes with pre-existing deprecation warnings, and in the clean verification venv with xgboost/imbalanced-learn uninstalled: plexus --help loads, scoring API imports, and the scoring,infra extras resolve. Docker image build in progress to compare size against the 4.89GB current local image.",
-      "created_at": "2026-06-10T21:40:07.714873Z"
+      "created_at": "2026-06-10T21:40:07.714873Z",
+      "comment_type": "default"
     },
     {
       "id": "f28faec4-8209-40e3-914b-8fb6248c25a1",
       "author": "derek.norrbom",
       "text": "Completed and verified. Docker build results: 3.52GB vs 4.89GB for the previous all-extras image (1.37GB smaller) and the build completed in 1m50s with no Torch download and no CPU-wheel workaround. Container-level smoke tests pass: the full scoring import chain (scoring_api, plexus.scores registry, LangGraphScore) loads inside the image, plexus --help works, and pip list confirms zero torch/transformers/xgboost/numba packages. All Gherkin scenarios verified: scoring worker and predict CLI run from scoring+infra extras only, and the CLI loads with training packages absent (xgboost/imblearn now lazy in the plexus data training path). Full validation: 22 focused tests plus 8 Helm/seeder tests pass, poetry check passes with pre-existing warnings, py_compile and git diff --check clean. Remaining end-to-end confirmation happens naturally on the next kind/Envoy POC setup run, which rebuilds from this Dockerfile.",
-      "created_at": "2026-06-10T21:42:36.351774Z"
+      "created_at": "2026-06-10T21:42:36.351774Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-10T21:36:03.836272Z",
   "updated_at": "2026-06-10T21:42:36.365380Z",
   "closed_at": "2026-06-10T21:42:36.365380Z",
+  "right_now_summary": "The scoring image now builds smaller without training packages, and all tests and container checks pass.",
+  "right_now_updated_at": "2026-09-09T13:25:53.852143Z",
   "custom": {}
 }

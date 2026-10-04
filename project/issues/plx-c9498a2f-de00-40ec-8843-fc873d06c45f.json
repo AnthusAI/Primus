@@ -15,26 +15,31 @@
       "id": "acb50706-61d2-4e7a-b702-cf9b7e0079f7",
       "author": "ryan.porter",
       "text": "Outside-in progress increment: a 30-score publication regression first showed only 0 then 30 completed score briefs. The callback now records successful uploads and publishes compact progress every 25 artifacts plus category completion, while enforcing exact category totals before the atomic manifest commit. Focused publication tests pass, and the complete run-report suite passes: 83 tests. Retry reuse and unchanged-artifact reuse remain open.",
-      "created_at": "2026-07-31T16:07:32.741811Z"
+      "created_at": "2026-07-31T16:07:32.741811Z",
+      "comment_type": "default"
     },
     {
       "id": "9d12d8c3-68a1-4b63-806b-b3b278e0d41a",
       "author": "ryan.porter",
       "text": "Implemented the next publication-efficiency increment. A new milestone now loads the last committed manifest, verifies checksum-identical score, scorecard, and stakeholder-presentation artifacts, and reuses them instead of uploading duplicates. Changed dependencies republish, and corrupt reuse candidates are replaced. The full living-Report suite passes with 88 tests. Interrupted same-revision orphan recovery remains the next increment.",
-      "created_at": "2026-07-31T16:26:50.432686Z"
+      "created_at": "2026-07-31T16:26:50.432686Z",
+      "comment_type": "default"
     },
     {
       "id": "063258f4-d4c2-4780-aada-bd413d1b9468",
       "author": "ryan.porter",
       "text": "Added durable same-revision recovery. Publication freezes its generated time, checkpoints partial score-artifact descriptors every 25 resolutions through the existing Task-attachment route, and reuses checksum-verified artifacts after a worker/process restart. It preserves the existing invariant that individual score artifacts are not added directly to Task.attachedFiles. A manifest-interruption replay now uploads evidence, workbook, and four child artifacts only once. Combined validation: 132 tests passed.",
-      "created_at": "2026-07-31T16:32:10.333471Z"
+      "created_at": "2026-07-31T16:32:10.333471Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-31T16:04:27.961131Z",
   "updated_at": "2026-07-31T16:32:10.333471Z",
   "closed_at": null,
+  "right_now_summary": "Incremental publication now reports progress, reuses verified artifacts, and resumes safely after interruption.",
+  "right_now_updated_at": "2026-09-08T17:44:27.813012Z",
   "custom": {
-    "source": "shared",
-    "project_label": "plx"
+    "project_label": "plx",
+    "source": "shared"
   }
 }

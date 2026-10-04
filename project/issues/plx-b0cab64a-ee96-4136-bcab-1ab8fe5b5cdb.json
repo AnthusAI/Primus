@@ -14,5 +14,7 @@
   "created_at": "2026-06-24T18:46:03.843397843Z",
   "updated_at": "2026-06-24T18:46:07.784404085Z",
   "closed_at": null,
+  "right_now_summary": "Timestamp enrichment is being added to read Deepgram transcripts from Item attachments and preserve evidence timing.",
+  "right_now_updated_at": "2026-09-08T17:47:04.459222Z",
   "custom": {}
 }

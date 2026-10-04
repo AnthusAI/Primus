@@ -15,23 +15,28 @@
       "id": "f4e9c4f8-cbbf-46d0-9df7-d465c0ea4aee",
       "author": "ryan.porter",
       "text": "Implementation started. The ranked-list visualization will use list-wide relative bars for reviewed-disagreement opportunity and valid-feedback volume, preserve exact values and disagreement percentage, and leave ranking and policy calculations unchanged.",
-      "created_at": "2026-07-30T20:49:57.999586Z"
+      "created_at": "2026-07-30T20:49:57.999586Z",
+      "comment_type": "default"
     },
     {
       "id": "517e33b3-b5c1-403b-b859-13df259b83a5",
       "author": "ryan.porter",
       "text": "Implemented three aligned visual signals in each ranked priority row: reviewed-disagreement opportunity relative to the visible maximum, valid-feedback volume relative to the visible maximum, and disagreement rate on a fixed zero-to-one-hundred-percent scale. Exact values remain visible; missing evidence renders as zero or unavailable. Focused report/chart tests pass (5 tests), dashboard web typecheck passes, and the live local Report was visually verified in split and full-width layouts.",
-      "created_at": "2026-07-30T20:53:46.456253Z"
+      "created_at": "2026-07-30T20:53:46.456253Z",
+      "comment_type": "default"
     },
     {
       "id": "015565be-ba2b-4ba9-b685-8af97d4cca5c",
       "author": "ryan.porter",
       "text": "Committed the validated ranked-priority signal visualization as 620ca7882. The story remains in progress until the change lands through the integration path.",
-      "created_at": "2026-07-30T20:54:26.472320Z"
+      "created_at": "2026-07-30T20:54:26.472320Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-30T20:49:52.319905Z",
   "updated_at": "2026-07-30T20:54:26.472320Z",
   "closed_at": null,
+  "right_now_summary": "The ranked-priority signal visualization is implemented and committed, awaiting integration.",
+  "right_now_updated_at": "2026-09-08T17:09:42.805141Z",
   "custom": {}
 }

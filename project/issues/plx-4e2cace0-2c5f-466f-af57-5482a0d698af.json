@@ -15,11 +15,14 @@
       "id": "68b33e38-c809-454e-a771-1a33560b973e",
       "author": "ryan.porter",
       "text": "Completed. Added documentation/local-control-plane-mvp.md with bootstrap, stack, seed, and smoke command sequence for operator handoff.",
-      "created_at": "2026-06-04T21:49:39.430685Z"
+      "created_at": "2026-06-04T21:49:39.430685Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-04T19:10:54.599587Z",
   "updated_at": "2026-06-04T21:49:44.383828Z",
   "closed_at": "2026-06-04T21:49:44.383828Z",
+  "right_now_summary": "The handoff runbook now documents bootstrap, stack, seed, and smoke-test steps.",
+  "right_now_updated_at": "2026-09-09T13:28:19.413803Z",
   "custom": {}
 }

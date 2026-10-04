@@ -14,5 +14,7 @@
   "created_at": "2026-06-05T19:04:28.459704Z",
   "updated_at": "2026-06-05T19:47:31.261310Z",
   "closed_at": "2026-06-05T19:47:31.261310Z",
+  "right_now_summary": "A Qdrant topic memory adapter is being built with health, rebuild, persistence, metadata, list, and query support.",
+  "right_now_updated_at": "2026-09-09T13:27:30.230686Z",
   "custom": {}
 }

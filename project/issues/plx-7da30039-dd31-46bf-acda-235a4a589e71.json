@@ -15,17 +15,21 @@
       "id": "a46f9d4c-8ad4-4ac5-8cb5-25cca647bf4e",
       "author": "derek.norrbom",
       "text": "Progress: pinned reproducibility-sensitive versions. setup_envoy_gateway_poc.sh now installs Envoy Gateway chart version 1.8.1 by default via ENVOY_GATEWAY_CHART_VERSION, and docker/Dockerfile now pins CPU Torch to 2.12.0 via TORCH_VERSION while preserving override args. Added README guidance for intentionally overriding the Envoy chart version. Validation passed: bash -n for the setup script, helm lint/template for the stack, git diff --check, and rg confirmation of the pinned values.",
-      "created_at": "2026-06-10T21:01:03.040408Z"
+      "created_at": "2026-06-10T21:01:03.040408Z",
+      "comment_type": "default"
     },
     {
       "id": "8e0fc069-0503-4edd-b652-24dc3bf1a5bd",
       "author": "derek.norrbom",
       "text": "Verified and closed. Envoy Gateway chart pinned to 1.8.1 by default via ENVOY_GATEWAY_CHART_VERSION (overridable), and Dockerfile pins CPU Torch via TORCH_VERSION=2.12.0 alongside the CPU index URL, both confirmed in the working tree. bash -n and helm lint pass.",
-      "created_at": "2026-06-10T21:14:54.570068Z"
+      "created_at": "2026-06-10T21:14:54.570068Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-10T20:38:51.266691Z",
   "updated_at": "2026-06-10T21:14:54.579726Z",
   "closed_at": "2026-06-10T21:14:54.579726Z",
+  "right_now_summary": "Envoy Gateway and CPU Torch versions are pinned, with overrides documented and validation checks passing.",
+  "right_now_updated_at": "2026-09-09T13:25:10.529061Z",
   "custom": {}
 }

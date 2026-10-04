@@ -15,29 +15,35 @@
       "id": "2705b8d5-17b8-4e03-b9f6-41c4fc71d69e",
       "author": "ryan.porter",
       "text": "Kickoff: credential-free sandbox login succeeds, but scorecard discovery fails before GraphQL because its module-level client factory still invokes the legacy API-key constructor. Evaluation uses the same stale pattern. Adding a focused behavior test before routing these entrypoints through the centralized explicit-auth factory.",
-      "created_at": "2026-07-28T19:21:27.396725Z"
+      "created_at": "2026-07-28T19:21:27.396725Z",
+      "comment_type": "default"
     },
     {
       "id": "c4739eef-bd8f-46d5-a245-735af13c2c4a",
       "author": "ryan.porter",
       "text": "Milestone: four behavior specifications first failed against the stale module factories, and the endpoint-discovery specification failed when no API URL environment variable was present. The implementation now delegates evaluation, scorecard, score, and dataset entrypoints to the centralized auth factory and discovers the sandbox GraphQL URL from Amplify outputs. The focused regression suite is green (89 tests), and live Cognito scorecard discovery succeeds with AWS and API-key credentials absent.",
-      "created_at": "2026-07-28T19:27:47.021200Z"
+      "created_at": "2026-07-28T19:27:47.021200Z",
+      "comment_type": "default"
     },
     {
       "id": "506114d6-bfbe-459e-a4cc-7f81bf143f1b",
       "author": "ryan.porter",
       "text": "Sandbox evidence: with AWS profile/session variables, API keys, and model keys absent, the Cognito session listed scorecards and loaded one explicit score version through the evaluation configuration path. The loaded configuration retained its exact score and version identifiers. Model execution was intentionally not attempted because no model-provider credential is available in this validation environment.",
-      "created_at": "2026-07-28T19:31:47.165327Z"
+      "created_at": "2026-07-28T19:31:47.165327Z",
+      "comment_type": "default"
     },
     {
       "id": "2110cbc1-a88b-47a4-ae0b-87a517679136",
       "author": "ryan.porter",
       "text": "Commit d6f60e219. Live Cognito discovery and evaluation-configuration loading also passed with AWS, API-key, and model-provider variables absent; complete model execution was not claimed because no model-provider credential was available. Publication handoff: fix is pushed to draft PR #513 at head d6f60e219. The final combined PR #513 + PR #495 candidate passed 470 cross-PR tests, 4,026 Python tests on both 3.11 and 3.12, dashboard typecheck and 680 unit tests, Storybook build, and 700 Chromium tests. Cognito and IAM-role sandbox canaries passed without direct S3 or stored AWS credentials. Keep this bug in progress until the fix lands in develop.",
-      "created_at": "2026-07-28T19:38:09.637989Z"
+      "created_at": "2026-07-28T19:38:09.637989Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-28T19:21:22.041384Z",
   "updated_at": "2026-07-28T19:38:09.637989Z",
   "closed_at": null,
+  "right_now_summary": "The fix is in draft PR #513 after passing tests and sandbox checks, awaiting merge to develop.",
+  "right_now_updated_at": "2026-09-08T17:47:11.061771Z",
   "custom": {}
 }

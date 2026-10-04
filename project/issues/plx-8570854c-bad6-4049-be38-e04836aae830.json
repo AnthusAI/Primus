@@ -15,23 +15,28 @@
       "id": "3fc942e9-01f9-47c9-813a-d25e373b3bdb",
       "author": "ryan.porter",
       "text": "Program structure created in an isolated clean worktree from origin/develop. Existing top-level epics plx-7a8b2c and plx-673324 were repurposed and reparented to preserve their histories; plx-dfef94 moved to the observability epic. Several additional sanitized optimizer issues visible in other active worktrees are not present in the clean origin/develop baseline yet. They will not be duplicated or copied manually. After their owning branches land, reparent them by capability: opportunity discovery; cohort reproducibility; candidate safety; unattended execution; observability; batch orchestration; or supported runtime integration. No implementation agent should edit another session branch.",
-      "created_at": "2026-07-27T20:54:38.999143Z"
+      "created_at": "2026-07-27T20:54:38.999143Z",
+      "comment_type": "default"
     },
     {
       "id": "2cf0b133-bcbe-45c2-8e1e-eede03098c68",
       "author": "ryan.porter",
       "text": "Validation complete in the clean coordination worktree: Kanbus hierarchy validation passed; exactly seven epics are parented to this initiative; dependency targets resolve; and the sanitized initiative and epic content passed a client-reference scan. The clean origin/develop baseline contains only one currently movable generic diagnostics task, which was reparented to observability. Pending issue histories in other active worktrees remain untouched until their owning changes land.",
-      "created_at": "2026-07-27T20:55:45.535232Z"
+      "created_at": "2026-07-27T20:55:45.535232Z",
+      "comment_type": "default"
     },
     {
       "id": "d2020768-f611-467e-bb4f-f4887b78a14d",
       "author": "ryan.porter",
       "text": "Wave 1 integration is complete and locally validated. Delivered exact cohort replay, leader-relative synthesis safety, final-evidence decision artifacts, terminal-state evaluation waiting without arbitrary deadlines, and a compatible optimizer runtime dependency graph. Python 3.11 and 3.12 full suites each passed with 3,875 tests; dashboard typecheck, unit coverage, Storybook build, Chromium, and static Storybook tests passed. The remaining initiative epics stay open for later waves.",
-      "created_at": "2026-07-27T22:25:52.611653Z"
+      "created_at": "2026-07-27T22:25:52.611653Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-27T20:52:26.342039Z",
   "updated_at": "2026-07-27T22:25:52.611653Z",
   "closed_at": null,
+  "right_now_summary": "Wave 1 is integrated and validated, while later waves address the remaining toolchain work.",
+  "right_now_updated_at": "2026-09-09T13:35:13.323291Z",
   "custom": {}
 }

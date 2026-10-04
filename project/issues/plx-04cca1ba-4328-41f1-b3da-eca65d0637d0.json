@@ -15,11 +15,14 @@
       "id": "b5155c45-e4f2-43cd-b951-3bfa428e2899",
       "author": "derek",
       "text": "Updated documentation/agent/mcp/handles-and-budgets.md with common budget error examples and fixes.",
-      "created_at": "2026-06-09T21:23:59.473423399Z"
+      "created_at": "2026-06-09T21:23:59.473423399Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-09T21:01:03.184326204Z",
   "updated_at": "2026-06-09T21:23:59.473423399Z",
   "closed_at": "2026-06-09T21:23:59.464968176Z",
+  "right_now_summary": "The documentation now includes common budget error examples and fixes.",
+  "right_now_updated_at": "2026-09-09T13:31:25.351934Z",
   "custom": {}
 }

@@ -15,11 +15,14 @@
       "id": "4731d279-fe3c-4ddb-ad98-79aaea7bb93b",
       "author": "ryan.porter",
       "text": "Implemented deterministic public-safe prediction fixture in services/private-graphql-proxy/scripts/seed_local_demo.py: nira-demo-scorecard, nira-demo-score, nira-demo-score-version (champion), nira-demo-item-1, and matching External ID identifier. ScoreVersion config now includes executable class: TactusScore YAML/Lua logic for deterministic Yes/No output. Verified seed path by running docker compose local mode + seed script and asserting fixture/champion fields via GraphQL.",
-      "created_at": "2026-06-04T19:56:27.641191Z"
+      "created_at": "2026-06-04T19:56:27.641191Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-04T19:42:52.804290Z",
   "updated_at": "2026-06-04T19:56:38.295370Z",
   "closed_at": "2026-06-04T19:56:38.295370Z",
+  "right_now_summary": "A deterministic local fixture now lets CLI prediction run end to end without external model dependencies.",
+  "right_now_updated_at": "2026-09-09T13:28:52.018965Z",
   "custom": {}
 }

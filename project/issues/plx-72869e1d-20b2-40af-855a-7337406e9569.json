@@ -14,5 +14,7 @@
   "created_at": "2026-06-05T19:04:28.459761Z",
   "updated_at": "2026-06-05T19:47:31.291351Z",
   "closed_at": "2026-06-05T19:47:31.291351Z",
+  "right_now_summary": "The team is adding tests for Qdrant selection and local VectorTopicMemory persistence.",
+  "right_now_updated_at": "2026-09-09T13:27:17.787504Z",
   "custom": {}
 }

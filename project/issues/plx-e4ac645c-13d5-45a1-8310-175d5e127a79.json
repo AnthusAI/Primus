@@ -15,17 +15,21 @@
       "id": "b47afd94-49bb-4331-8bb7-b600d532295f",
       "author": "ryan.porter",
       "text": "Outside-in proof complete: the new six-target specification first showed both batches remaining pending after the first decision. The procedure now persists evidence-bound responses across checkpoints, requests only the next unresolved batch of at most five, and dispatches nothing until every batch is resolved. Focused regression is green.",
-      "created_at": "2026-07-29T19:54:57.523521Z"
+      "created_at": "2026-07-29T19:54:57.523521Z",
+      "comment_type": "default"
     },
     {
       "id": "e1c24c6c-f094-4b2d-b4e0-6644431df7b0",
       "author": "ryan.porter",
       "text": "Final post-fix validation passed on Python 3.11 and 3.12: 356 focused tests and 4,088 full-suite tests on each runtime, plus lint, dispatch regression, lock, version, and diff checks.",
-      "created_at": "2026-07-29T20:06:54.512610Z"
+      "created_at": "2026-07-29T20:06:54.512610Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-29T19:50:11.827027Z",
   "updated_at": "2026-07-29T20:06:54.512610Z",
   "closed_at": null,
+  "right_now_summary": "The fix now reviews every target batch, preserves prior decisions, and dispatches only after all are resolved.",
+  "right_now_updated_at": "2026-09-08T17:48:46.558028Z",
   "custom": {}
 }

@@ -14,5 +14,7 @@
   "created_at": "2026-06-10T23:10:06.608107Z",
   "updated_at": "2026-06-10T23:10:06.608107Z",
   "closed_at": null,
+  "right_now_summary": "The chart is adding configurable HTTPS, TLS certificate references, and hostname routing while preserving local HTTP",
+  "right_now_updated_at": "2026-09-09T13:24:37.082578Z",
   "custom": {}
 }

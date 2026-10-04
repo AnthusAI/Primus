@@ -14,5 +14,7 @@
   "created_at": "2026-07-23T18:45:38.259977Z",
   "updated_at": "2026-07-23T18:45:39.032794Z",
   "closed_at": null,
+  "right_now_summary": "The team is reducing Console response latency and improving first-token timing.",
+  "right_now_updated_at": "2026-09-08T16:26:25.436094Z",
   "custom": {}
 }

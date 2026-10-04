@@ -15,11 +15,14 @@
       "id": "b19e0c9e-9f57-4dd9-9b88-dace8586fe2c",
       "author": "derek.norrbom",
       "text": "Completed the ownership comparison and documented the decision. Evidence considered: the AWS TaskDispatcher conditionally claims PENDING tasks, but current task dispatch does not provide renewable leases, fencing tokens, immutable request identity, or portable authoritative lifecycle semantics. The record compares dashboard-authoritative state, dedicated lifecycle plus projection, and separate logical schemas in one database. Validation: git diff --check.",
-      "created_at": "2026-08-05T22:34:51.241852Z"
+      "created_at": "2026-08-05T22:34:51.241852Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-08-05T22:33:53.563721Z",
   "updated_at": "2026-08-05T22:34:51.241852Z",
   "closed_at": null,
+  "right_now_summary": "The team compared lifecycle ownership options, documented a recommendation and rejection criteria, and checked the",
+  "right_now_updated_at": "2026-09-08T17:14:44.593231Z",
   "custom": {}
 }

@@ -15,26 +15,31 @@
       "id": "574eae7e-f62c-4be8-8bcf-db459e701986",
       "author": "ryan.porter",
       "text": "Live production-backed evidence showed multiple completed account-level portfolio procedures with zero score-linked optimizer children and zero evaluations. The current interface makes those records look like optimizations. Work begins with outside-in dashboard specifications for explicit survey labeling and a surveyed-to-improved execution funnel.",
-      "created_at": "2026-07-31T17:15:17.036677Z"
+      "created_at": "2026-07-31T17:15:17.036677Z",
+      "comment_type": "default"
     },
     {
       "id": "b8e0a408-2296-4dbb-8140-8bdc8326c27e",
       "author": "ryan.porter",
       "text": "Implemented the first clarity increment. Portfolio parent Procedures and linked Report subtitles now identify the work as an optimization opportunity survey. The Report adds a seven-stage visual funnel: surveyed, assessed, diagnosed, selected, launched, evaluated, and validated improvement. Zero-launch runs explicitly state that no score optimizer launched and that survey completion is not score improvement. The funnel uses container-responsive columns so it remains readable in the narrow split Report view. Validation: 224 portfolio/report Python tests passed; 59 focused dashboard behavior tests passed; 21 related Report/Procedure dashboard tests passed; full dashboard typecheck passed. Live local rendering against production-backed read-only data confirmed the new labels, exact historical counts, zero-launch explanation, responsive funnel, and consistent Report-list subtitles. No schema, resource, production mutation, optimizer launch, or champion change was introduced.",
-      "created_at": "2026-07-31T17:20:49.610471Z"
+      "created_at": "2026-07-31T17:20:49.610471Z",
+      "comment_type": "default"
     },
     {
       "id": "b9090c20-1eb9-4ce3-b1b5-677492651513",
       "author": "ryan.porter",
       "text": "Added failing and passing specifications so automatic-mode report narration describes policy selection and zero-launch exclusions without implying human approval. Approval-required narration remains unchanged. Focused stakeholder-overview suite: 5 passed.",
-      "created_at": "2026-07-31T17:27:34.438224Z"
+      "created_at": "2026-07-31T17:27:34.438224Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-31T17:15:12.241845Z",
   "updated_at": "2026-07-31T17:27:34.438224Z",
   "closed_at": null,
+  "right_now_summary": "The dashboard now clearly separates portfolio surveys from score optimization results.",
+  "right_now_updated_at": "2026-09-08T17:46:15.660897Z",
   "custom": {
-    "source": "shared",
-    "project_label": "plx"
+    "project_label": "plx",
+    "source": "shared"
   }
 }

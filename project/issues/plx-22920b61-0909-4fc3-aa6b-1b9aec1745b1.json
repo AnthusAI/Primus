@@ -14,5 +14,7 @@
   "created_at": "2026-06-05T19:04:28.459755Z",
   "updated_at": "2026-06-05T19:47:31.297994Z",
   "closed_at": "2026-06-05T19:47:31.297994Z",
+  "right_now_summary": "The team is adding provider selection and config wiring for S3 Vectors and local Qdrant.",
+  "right_now_updated_at": "2026-09-09T13:27:06.829827Z",
   "custom": {}
 }

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "event_id": "ada8d9d6-5a68-474b-b338-091859e9a273",
+  "issue_id": "plx-90afe42a-bfbb-4cb9-8902-0d8f531517fc",
+  "event_type": "issue_created",
+  "occurred_at": "2026-09-20T13:57:35.780Z",
+  "actor_id": "home",
+  "payload": {
+    "assignee": null,
+    "description": "As a Plexus user, I want a JevScore to declare elements (sub-questions answered in the same single Jev request) and a decision model that turns element answers plus Jev's holistic answer into the final value and a confidence, so that scores can be fine-tuned from human feedback. Phase 1 covers the schema, feature extraction, question namespacing, and hand-authorable linear serving. Not included: fitting, calibration, optimizer integration. Definition of Done: specs pass with a mocked client; without elements or decision, behavior is unchanged.",
+    "issue_type": "task",
+    "labels": [],
+    "parent": "plx-372297d2-5733-4025-90de-0b448290e3df",
+    "priority": 2,
+    "status": "open",
+    "title": "Jev decision head: elements, features, serving"
+  }
+}

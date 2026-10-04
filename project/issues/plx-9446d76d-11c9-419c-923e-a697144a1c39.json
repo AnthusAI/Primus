@@ -15,17 +15,21 @@
       "id": "340dd511-2775-4068-b331-5f01520c5470",
       "author": "ryan.porter",
       "text": "Live acceptance published a complete final presentation revision, then rejected the caller's canonical complete status before closing the Report Task. The dashboard therefore showed complete report content under a running lifecycle header. Reproducing with an outside-in runtime test before changing production code.",
-      "created_at": "2026-07-30T16:47:58.790688Z"
+      "created_at": "2026-07-30T16:47:58.790688Z",
+      "comment_type": "default"
     },
     {
       "id": "b9ec0685-2ec1-4925-83cc-a768d8a62aba",
       "author": "ryan.porter",
       "text": "Added an outside-in regression case for the canonical complete status and confirmed it failed against the live-path behavior. The smallest fix admits complete alongside the existing lifecycle spellings. Focused report and portfolio suites pass (47 tests), and the previously stranded synthetic Report Task now closes as COMPLETED with matching complete cover content in the dashboard. Keep open until the change lands.",
-      "created_at": "2026-07-30T16:49:37.147417Z"
+      "created_at": "2026-07-30T16:49:37.147417Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-30T16:47:53.030324Z",
   "updated_at": "2026-07-30T16:49:37.147417Z",
   "closed_at": null,
+  "right_now_summary": "The fix is tested and ready to land, with report content and lifecycle now matching.",
+  "right_now_updated_at": "2026-09-08T17:15:14.339324Z",
   "custom": {}
 }

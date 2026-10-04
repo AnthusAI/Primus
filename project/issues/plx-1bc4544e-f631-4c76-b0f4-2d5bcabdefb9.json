@@ -15,11 +15,14 @@
       "id": "dcb71ff7-ba6b-433f-8ef1-9f72ebe14091",
       "author": "derek",
       "text": "Created documentation/agent/evaluation-feedback/batch-operations-cookbook.md with 6 workflow patterns.",
-      "created_at": "2026-06-09T21:23:59.490207036Z"
+      "created_at": "2026-06-09T21:23:59.490207036Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-09T21:01:03.190759967Z",
   "updated_at": "2026-06-09T21:23:59.490207036Z",
   "closed_at": "2026-06-09T21:23:59.481840996Z",
+  "right_now_summary": "Derek created a cookbook with six batch-operation workflow patterns.",
+  "right_now_updated_at": "2026-09-09T13:31:43.742277Z",
   "custom": {}
 }

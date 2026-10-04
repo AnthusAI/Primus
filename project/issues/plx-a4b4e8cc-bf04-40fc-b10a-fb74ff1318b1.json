@@ -15,11 +15,14 @@
       "id": "c201acbe-b5d9-417f-89c5-cb8fc430b00f",
       "author": "ryan.porter",
       "text": "Implemented scripts/smoke-local-predict.sh with strict local assertions: readyz, deterministic fixture/champion validation, predict invocation through plexus.cli.prediction.predictions, score_result_id extraction, and persisted ScoreResult linkage verification via GraphQL (item/account/scorecard/score/version/type/status). Verified pass: smoke summary pass=4 fail=0.",
-      "created_at": "2026-06-04T19:56:45.009062Z"
+      "created_at": "2026-06-04T19:56:45.009062Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-04T19:42:56.538392Z",
   "updated_at": "2026-06-04T19:56:48.282292Z",
   "closed_at": "2026-06-04T19:56:48.282292Z",
+  "right_now_summary": "A strict local prediction smoke test now passes and verifies persisted ScoreResult links through GraphQL.",
+  "right_now_updated_at": "2026-09-09T13:29:02.386966Z",
   "custom": {}
 }

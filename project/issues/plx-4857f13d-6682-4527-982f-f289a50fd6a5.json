@@ -15,11 +15,14 @@
       "id": "ab97904c-1261-497e-ade0-8e33bc1edd0f",
       "author": "ryan.porter",
       "text": "Live acceptance reproduced the defect on the combined integration branch. A valid deterministic portfolio procedure passed Plexus-side validation, created and reused one Procedure Task, then failed before executing its code with: Configuration error: At least one agent must be defined. Procedure and Task reached FAILED; no optimization or evaluation work began. Next: add an outside-in runtime specification, fix the upstream Tactus compatibility boundary, and rerun the same zero-match acceptance.",
-      "created_at": "2026-07-30T17:13:13.229891Z"
+      "created_at": "2026-07-30T17:13:13.229891Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-30T17:13:07.194503Z",
   "updated_at": "2026-07-30T17:13:13.229891Z",
   "closed_at": null,
+  "right_now_summary": "A deterministic tool-only procedure still fails before execution because Plexus requires an agent.",
+  "right_now_updated_at": "2026-09-08T17:08:14.264741Z",
   "custom": {}
 }

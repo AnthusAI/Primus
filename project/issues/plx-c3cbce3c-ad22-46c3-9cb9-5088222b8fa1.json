@@ -15,11 +15,14 @@
       "id": "65c5e00f-4f57-4c37-83de-138c8558b04d",
       "author": "ryan.porter",
       "text": "The registered host boundary already preserves sequential Lua tables. The reproduced value was a string because the procedure CLI did not parse JSON arrays in --set. The caller-side fix and regressions are tracked by plx-497e08; no host-boundary change is needed.",
-      "created_at": "2026-07-29T19:14:35.802821Z"
+      "created_at": "2026-07-29T19:14:35.802821Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-29T19:08:13.370090Z",
   "updated_at": "2026-07-29T19:14:35.983072Z",
   "closed_at": "2026-07-29T19:14:35.983072Z",
+  "right_now_summary": "The issue comes from CLI array parsing, while the host boundary already preserves Lua arrays correctly.",
+  "right_now_updated_at": "2026-09-09T13:33:25.333414Z",
   "custom": {}
 }

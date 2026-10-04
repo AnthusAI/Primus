@@ -15,11 +15,14 @@
       "id": "5108adf8-b03f-4096-bbca-0365172da6f5",
       "author": "derek.norrbom",
       "text": "## Validation correction\n\nThe previously merged Dockerfile was checked from a clean develop snapshot. Its image build fails because the build invokes plexus-command-worker --help, while the entrypoint immediately requires runtime environment bindings. The existing test only inspects Dockerfile strings and did not build the image. PR #554 was closed without deployment. Terra should correct the artifact and add a real build/startup smoke test before publication work resumes.",
-      "created_at": "2026-08-06T02:16:25.407803Z"
+      "created_at": "2026-08-06T02:16:25.407803Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-08-06T01:19:26.174634Z",
   "updated_at": "2026-08-06T02:16:36.248534Z",
   "closed_at": null,
+  "right_now_summary": "The image build fails at --help because runtime bindings are missing; fix it and add a real smoke test before",
+  "right_now_updated_at": "2026-09-09T13:35:54.292608Z",
   "custom": {}
 }

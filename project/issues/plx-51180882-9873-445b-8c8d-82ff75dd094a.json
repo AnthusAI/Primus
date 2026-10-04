@@ -1,0 +1,20 @@
+{
+  "id": "plx-51180882-9873-445b-8c8d-82ff75dd094a",
+  "title": "Lab notes: Jev decision head experiment 1",
+  "description": "As a Plexus maintainer, I want the results of layering a supervised decision model over Jev element answers recorded in the wiki, so that we can turn them into an article about layering an ML model on Jev using Plexus as the example. Recorded at wiki page lab-notes/jev-decision-head/index.md with an experiment page and a design and open-questions page. Not included: experiments on real feedback data, the confidence-gated model, and article figures. Definition of Done: the wiki pages exist, pass kbs wiki lint, and state numbers, controls, caveats and reproduction steps; the experiment scripts (scripts/jev_head_experiment.py, jev_head_fit.py, jev_head_curve.py) are committed.",
+  "type": "task",
+  "status": "open",
+  "priority": 2,
+  "assignee": null,
+  "creator": null,
+  "parent": "plx-372297d2-5733-4025-90de-0b448290e3df",
+  "labels": [],
+  "dependencies": [],
+  "comments": [],
+  "created_at": "2026-09-20T14:20:51.884061Z",
+  "updated_at": "2026-09-20T14:20:51.884091Z",
+  "closed_at": null,
+  "right_now_summary": null,
+  "right_now_updated_at": null,
+  "custom": {}
+}

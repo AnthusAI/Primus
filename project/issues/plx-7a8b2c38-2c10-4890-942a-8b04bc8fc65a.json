@@ -15,23 +15,28 @@
       "id": "a8bb0755-6275-453e-8416-1f51330b93a3",
       "author": "ryan.porter",
       "text": "Starting isolated implementation for frozen recent-feedback cohort replay. Scope: retain ordered reviewed-item membership after baseline selection; require candidate and synthesis feedback evaluations to reuse it; expose provenance; fail closed when replay cannot be performed. Existing child issue is maintained in a separate active worktree, so no duplicate is being created here.",
-      "created_at": "2026-07-27T21:13:01.227895Z"
+      "created_at": "2026-07-27T21:13:01.227895Z",
+      "comment_type": "default"
     },
     {
       "id": "ea40788f-58d8-4864-b3db-42f00066026a",
       "author": "ryan.porter",
       "text": "Implemented and verified stricter frozen recent-feedback cohort replay in the isolated worktree. Candidate, strategy, and synthesis comparisons now fail if returned cohort membership is reordered, in addition to existing missing-provenance and membership checks. Focused specifications passed (4 tests); only existing deprecation warnings were emitted.",
-      "created_at": "2026-07-27T21:14:37.427420Z"
+      "created_at": "2026-07-27T21:14:37.427420Z",
+      "comment_type": "default"
     },
     {
       "id": "5179464e-96d3-4b38-871e-0e38cf3fde8b",
       "author": "ryan.porter",
       "text": "Wave 1 integration landed exact ordered recent-feedback replay and regression dataset identity checks. Candidate, strategy, and synthesis comparisons fail closed when frozen cohort provenance differs. Combined focused and full supported-runtime CI passed.",
-      "created_at": "2026-07-27T22:25:44.802877Z"
+      "created_at": "2026-07-27T22:25:44.802877Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-16T20:56:06.201654Z",
   "updated_at": "2026-07-27T22:25:44.802877Z",
   "closed_at": null,
+  "right_now_summary": "Frozen cohort replay and provenance checks now enforce identical ordered cohorts across evaluations, with CI passing.",
+  "right_now_updated_at": "2026-09-08T17:12:58.289383Z",
   "custom": {}
 }

@@ -15,23 +15,28 @@
       "id": "af927ca6-1657-4b74-91b5-cfb093b9b022",
       "author": "ryan.porter",
       "text": "Read-only dogfood evidence: one local portfolio run durably deferred a report-publication retry, exited, and remained overdue because no exact-procedure continuation owner was alive. Published progress stopped partway through a large artifact set; the precise interruption class and operation were not retained. Work begins with targeted-resume and safe-telemetry specifications; no general pending-task scan will be introduced.",
-      "created_at": "2026-07-31T17:27:34.640722Z"
+      "created_at": "2026-07-31T17:27:34.640722Z",
+      "comment_type": "default"
     },
     {
       "id": "c6e0a9d7-922b-4993-b4ee-58696f154651",
       "author": "ryan.porter",
       "text": "Implemented the direct-local continuation owner and safe publication failure telemetry outside-in. The same local command now waits for its due retry, conditionally rearms only its exact Procedure/Task, and replays the indexed checkpoint. Full focused portfolio/report/resume/dispatch validation: 288 passed. No account-wide pending-task dispatcher is used.",
-      "created_at": "2026-07-31T17:32:34.092341Z"
+      "created_at": "2026-07-31T17:32:34.092341Z",
+      "comment_type": "default"
     },
     {
       "id": "4e469c61-e79f-439e-abca-3654cc9af536",
       "author": "ryan.porter",
       "text": "Added durable draft-verification reuse: a checksum-valid partial-publication manifest now carries forward its already verified artifact descriptors across process replay, avoiding one GraphQL ticket and HTTPS read per recovered score artifact. The corruption check for committed legacy artifacts remains intact. Combined focused suite: 293 passed.",
-      "created_at": "2026-07-31T17:42:27.016764Z"
+      "created_at": "2026-07-31T17:42:27.016764Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-31T17:27:27.042856Z",
   "updated_at": "2026-07-31T17:42:27.016764Z",
   "closed_at": null,
+  "right_now_summary": "The local command now resumes its exact deferred run, reuses verified artifacts, and records safe failure details.",
+  "right_now_updated_at": "2026-09-08T17:44:44.980519Z",
   "custom": {}
 }

@@ -15,17 +15,21 @@
       "id": "42814e65-93c8-40fb-8d14-30ebc4b54f73",
       "author": "ryan.porter",
       "text": "Integration validation reproduced two observable inconsistencies in the Console workflow summary. Next: add outside-in component specifications, confirm both fail, then implement the smallest rendering/dataflow correction.",
-      "created_at": "2026-07-29T14:44:45.162587Z"
+      "created_at": "2026-07-29T14:44:45.162587Z",
+      "comment_type": "default"
     },
     {
       "id": "c22f265a-1413-46d9-a1c7-3b8ee04ec8a9",
       "author": "ryan.porter",
       "text": "Outside-in proof complete: the two new dashboard specifications failed against the integrated PR head while 62 neighboring tests passed. The minimal fix now makes all 64 focused tests pass: failed evaluations receive a failed heading, and message summaries receive session-level evaluation evidence before showing missing-validation guidance.",
-      "created_at": "2026-07-29T14:48:09.719897Z"
+      "created_at": "2026-07-29T14:48:09.719897Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-29T14:44:40.954203Z",
   "updated_at": "2026-07-29T14:48:09.719897Z",
   "closed_at": null,
+  "right_now_summary": "The summary now shows failed evaluations correctly and finds validation evidence across chat messages.",
+  "right_now_updated_at": "2026-09-08T17:46:52.472980Z",
   "custom": {}
 }

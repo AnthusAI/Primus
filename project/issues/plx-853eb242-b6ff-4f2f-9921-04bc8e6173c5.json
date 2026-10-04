@@ -15,11 +15,14 @@
       "id": "400e447d-fdcb-497f-899b-91440cf434e5",
       "author": "ryan.porter",
       "text": "Production dogfood confirmed selector behavior was correct but presentation was ambiguous: a one-scorecard run displayed all 56 enumerated account scorecards as 'inspected' beside one ranked score. The stakeholder overview and aggregate component now separate account inventory inspected from scorecards in scope, while retaining scoped ranked/assessment/diagnosis counts. Focused validation is green: 46 Python tests, 11 dashboard tests, and TypeScript compilation. No change to exhaustive inventory or opaque-ID behavior.",
-      "created_at": "2026-07-30T16:43:47.569898Z"
+      "created_at": "2026-07-30T16:43:47.569898Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-30T16:38:58.230223Z",
   "updated_at": "2026-07-30T16:43:47.569898Z",
   "closed_at": null,
+  "right_now_summary": "The report now separates account inventory from the selected scorecards and their coverage counts.",
+  "right_now_updated_at": "2026-09-08T17:14:02.149680Z",
   "custom": {}
 }

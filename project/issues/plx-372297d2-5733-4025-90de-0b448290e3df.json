@@ -1,0 +1,20 @@
+{
+  "id": "plx-372297d2-5733-4025-90de-0b448290e3df",
+  "title": "Jev whole-scorecard prediction scorecard",
+  "description": "As a Plexus user, I want a scorecard type backed by the Jev (System One) model that answers every score on the scorecard in one request, so that scoring an item costs one call and individual Score.predict() calls reuse the cached whole-scorecard result. Not included: calibration of Jev probabilities. Definition of Done: JevScorecard and JevScore implemented with specs, verified live on the public sentiment dataset.",
+  "type": "epic",
+  "status": "open",
+  "priority": 2,
+  "assignee": null,
+  "creator": null,
+  "parent": null,
+  "labels": [],
+  "dependencies": [],
+  "comments": [],
+  "created_at": "2026-09-20T03:31:09.817349Z",
+  "updated_at": "2026-09-20T03:31:09.817388Z",
+  "closed_at": null,
+  "right_now_summary": null,
+  "right_now_updated_at": null,
+  "custom": {}
+}

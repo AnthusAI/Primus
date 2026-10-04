@@ -15,11 +15,14 @@
       "id": "0e955f8a-350d-417d-a52b-644095b1e7be",
       "author": "ryan",
       "text": "Preparing a scoped fix so explicit AWS_PROFILE/AWS_DEFAULT_PROFILE selection is not overridden by static AWS keys loaded from Plexus config. Validation target: ConfigLoader unit coverage for preserving profile-based credentials.",
-      "created_at": "2026-07-15T15:06:31.377019Z"
+      "created_at": "2026-07-15T15:06:31.377019Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-23T22:34:27.981921716Z",
   "updated_at": "2026-07-15T15:06:31.377019Z",
   "closed_at": null,
+  "right_now_summary": "A scoped fix is being prepared to preserve AWS profiles over static keys, with ConfigLoader tests planned.",
+  "right_now_updated_at": "2026-09-09T13:31:09.072346Z",
   "custom": {}
 }

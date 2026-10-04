@@ -14,8 +14,10 @@
   "created_at": "2026-07-31T18:09:20.261192Z",
   "updated_at": "2026-07-31T18:09:23.126239Z",
   "closed_at": null,
+  "right_now_summary": "Implement bounded score-brief selection while preserving all portfolio rows, publication totals, and existing",
+  "right_now_updated_at": "2026-09-08T17:12:51.554964Z",
   "custom": {
-    "source": "shared",
-    "project_label": "plx"
+    "project_label": "plx",
+    "source": "shared"
   }
 }

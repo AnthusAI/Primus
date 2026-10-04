@@ -15,11 +15,14 @@
       "id": "488a237a-bf3e-43c6-80b3-b74e34466836",
       "author": "derek.norrbom",
       "text": "Executable specification now asserts the stable Bookworm base, no apt installation in the scoring-only Dockerfile, and no Graphviz membership in the scoring runtime extra. The specification failed against the prior image definition and passes after remediation.",
-      "created_at": "2026-07-29T19:34:11.115473Z"
+      "created_at": "2026-07-29T19:34:11.115473Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-29T19:31:30.009712Z",
   "updated_at": "2026-07-29T19:34:11.115473Z",
   "closed_at": null,
+  "right_now_summary": "The scoring runtime now uses a lean Bookworm base without unnecessary packages or high-severity vulnerabilities.",
+  "right_now_updated_at": "2026-09-08T17:09:19.011652Z",
   "custom": {}
 }

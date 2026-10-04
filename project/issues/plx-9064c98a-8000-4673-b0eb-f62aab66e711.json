@@ -15,12 +15,15 @@
       "id": "0554ef63-d029-43c0-9e4f-fc5481cd6160",
       "author": "derek.norrbom",
       "text": "The reusable construct avoids the broad managed-policy assumptions in the legacy Lambda score processor stack. It grants only inferred baseline access: request queue consume, response queue send, runtime secret read, ECR image pull, Lambda logging, and explicitly supplied optional permissions. Validation asserts AmazonDynamoDBFullAccess, AmazonS3FullAccess, AmazonSQSFullAccess, and CloudWatchFullAccess are absent from the reusable construct template.",
-      "created_at": "2026-07-15T18:25:23.327402Z"
+      "created_at": "2026-07-15T18:25:23.327402Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-15T16:30:15.239572Z",
   "updated_at": "2026-07-15T18:25:23.337525Z",
   "closed_at": "2026-07-15T18:25:23.337525Z",
+  "right_now_summary": "The reusable construct now uses least-privilege grants and rejects broad managed policies.",
+  "right_now_updated_at": "2026-09-09T13:30:34.078453Z",
   "custom": {
     "project_label": "plx",
     "source": "shared"

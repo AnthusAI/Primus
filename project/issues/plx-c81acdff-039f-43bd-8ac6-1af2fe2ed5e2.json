@@ -15,17 +15,21 @@
       "id": "e6d9d766-9cdd-4c17-afe4-f5086e4d0c72",
       "author": "derek.norrbom",
       "text": "Implementation started on feature/command-worker-recovery. Scope is limited to provider-neutral automatic heartbeats, delivery-lease extension, rotated fencing tokens, cooperative ownership-loss propagation, and deterministic behavior specifications. Cancellation, draining, provider adapters, dashboard integration, and infrastructure remain separate tasks.",
-      "created_at": "2026-08-04T20:14:23.880758Z"
+      "created_at": "2026-08-04T20:14:23.880758Z",
+      "comment_type": "default"
     },
     {
       "id": "06729bae-9f16-425b-afc0-fdba2372007e",
       "author": "derek.norrbom",
       "text": "## Completion and direct review\n\nImplemented provider-neutral automatic heartbeats and interruption recovery behavior:\n- lifecycle ownership renews before broker delivery extension;\n- renewal can rotate fencing tokens used by later progress and completion;\n- heartbeat activity settles before terminal mutation;\n- lifecycle rejection, delivery-extension failure, callback errors, or unsettled shutdown cause release without completion, failure, or acknowledgement;\n- executors can observe ownership loss cooperatively;\n- the standard scheduler uses a bounded daemon-thread shutdown;\n- tests use deterministic manual scheduling and clocks.\n\nDirect review required synchronization of ownership-loss publication and ensured process-level exceptions are not swallowed.\n\nValidation:\n- python -m behave tests/command_worker/features → 10 scenarios and 52 steps passed\n- python -m pytest -q tests/command_worker → 44 passed\n- python -m pytest -q plexus/cli/shared/command_dispatch_test.py plexus/cli/shared/command_tasks_test.py → 17 passed\n- ruff check plexus/command_worker tests/command_worker → passed\n- ruff format --check plexus/command_worker tests/command_worker → passed\n- provider-boundary check → no forbidden imports\n\nProvider adapters, durable attempt history, cancellation, deployment draining, subprocess isolation, and dashboard integration remain follow-up work.",
-      "created_at": "2026-08-04T20:23:28.439643Z"
+      "created_at": "2026-08-04T20:23:28.439643Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-08-04T20:13:12.672995Z",
   "updated_at": "2026-08-04T20:23:32.620409Z",
   "closed_at": "2026-08-04T20:23:32.620409Z",
+  "right_now_summary": "Command heartbeats and lease-loss recovery are implemented and validated; direct review remains.",
+  "right_now_updated_at": "2026-09-09T13:38:54.031356Z",
   "custom": {}
 }

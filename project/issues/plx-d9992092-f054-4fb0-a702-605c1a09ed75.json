@@ -14,5 +14,7 @@
   "created_at": "2026-06-05T18:31:59.474467Z",
   "updated_at": "2026-06-05T18:31:59.474467Z",
   "closed_at": null,
+  "right_now_summary": "The team is inventorying S3 and Amplify Storage surfaces for the local control-plane MVP.",
+  "right_now_updated_at": "2026-09-09T13:26:51.319534Z",
   "custom": {}
 }

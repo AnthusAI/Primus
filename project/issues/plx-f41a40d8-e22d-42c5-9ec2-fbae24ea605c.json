@@ -14,5 +14,7 @@
   "created_at": "2026-08-04T19:45:27.747573Z",
   "updated_at": "2026-08-04T19:45:27.747573Z",
   "closed_at": null,
+  "right_now_summary": "The AWS worker setup is being defined for explicit deployment without runtime resource creation or static keys.",
+  "right_now_updated_at": "2026-09-09T13:39:10.236316Z",
   "custom": {}
 }

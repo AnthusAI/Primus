@@ -15,11 +15,14 @@
       "id": "607a908b-11fd-4a9c-80b9-ee54fac5f899",
       "author": "ryan.porter",
       "text": "Recorded the integration follow-up with behavior-first coverage. The runtime persistence error and CLI help now use canonical artifact-persistence language; focused optimization suites pass (475 tests). The issue remains in progress until the follow-up lands.",
-      "created_at": "2026-07-29T14:26:02.468842Z"
+      "created_at": "2026-07-29T14:26:02.468842Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-07-29T14:23:58.326264Z",
   "updated_at": "2026-07-29T14:26:02.468842Z",
   "closed_at": null,
+  "right_now_summary": "Canonical artifact-persistence wording now covers runtime errors and CLI help; a follow-up remains pending.",
+  "right_now_updated_at": "2026-09-08T17:11:53.409051Z",
   "custom": {}
 }

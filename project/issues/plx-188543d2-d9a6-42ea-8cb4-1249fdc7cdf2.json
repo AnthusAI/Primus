@@ -15,11 +15,14 @@
       "id": "904f4adf-e34b-419d-8757-d9f307ae3cc6",
       "author": "ryan.porter",
       "text": "Completed. Verified local stack bring-up and seed path in local backend mode: docker compose postgres+proxy up, seed script run against local GraphQL endpoint, and /readyz + seeded records checks passing.",
-      "created_at": "2026-06-04T21:49:39.430404Z"
+      "created_at": "2026-06-04T21:49:39.430404Z",
+      "comment_type": "default"
     }
   ],
   "created_at": "2026-06-04T19:10:54.545821Z",
   "updated_at": "2026-06-04T21:49:44.377121Z",
   "closed_at": "2026-06-04T21:49:44.377121Z",
+  "right_now_summary": "The local stack and demo seed path were verified, including readiness and seeded record checks.",
+  "right_now_updated_at": "2026-09-09T13:28:01.683135Z",
   "custom": {}
 }

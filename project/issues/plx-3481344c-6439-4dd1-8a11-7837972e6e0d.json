@@ -14,5 +14,7 @@
   "created_at": "2026-06-10T23:10:06.595812Z",
   "updated_at": "2026-06-10T23:10:06.595812Z",
   "closed_at": null,
+  "right_now_summary": "The team is documenting platform prerequisites and Helm responsibilities for deploying the scoring stack.",
+  "right_now_updated_at": "2026-09-09T13:24:52.160967Z",
   "custom": {}
 }
