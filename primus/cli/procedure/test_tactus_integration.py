@@ -2,7 +2,7 @@
 Integration test for Tactus runtime with Primus adapters.
 
 This test verifies that the new TactusRuntime works correctly with
-the Primus adapters (PlexusStorageAdapter, PlexusHITLAdapter, PlexusChatAdapter).
+the Primus adapters (PrimusStorageAdapter, PrimusHITLAdapter, PrimusChatAdapter).
 """
 
 import pytest
@@ -164,7 +164,7 @@ async def test_tactus_with_primus_adapters(mock_primus_client, simple_lua_config
 @pytest.mark.xfail(reason="Tactus 0.28.0 API changes - needs update by Tactus team", strict=False)
 @pytest.mark.asyncio
 async def test_tactus_state_persistence(mock_primus_client):
-    """Test that state changes are persisted via PlexusStorageAdapter."""
+    """Test that state changes are persisted via PrimusStorageAdapter."""
 
     lua_config = """
 procedure("main", {
@@ -212,7 +212,7 @@ end)
 @pytest.mark.xfail(reason="Tactus 0.28.0 API changes - needs update by Tactus team", strict=False)
 @pytest.mark.asyncio
 async def test_tactus_checkpoint_persistence(mock_primus_client):
-    """Test that checkpoints are persisted via PlexusStorageAdapter."""
+    """Test that checkpoints are persisted via PrimusStorageAdapter."""
 
     lua_config = """
 procedure("main", {

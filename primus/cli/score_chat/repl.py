@@ -34,7 +34,7 @@ from primus.cli.shared.identifier_resolution import resolve_scorecard_identifier
 import logging
 import time
 
-from primus.cli.shared.primus_tool import PlexusTool
+from primus.cli.shared.primus_tool import PrimusTool
 from primus.attribution.actor_context import apply_actor_attribution
 
 class StreamingCallbackHandler(BaseCallbackHandler):
@@ -367,8 +367,8 @@ class ScoreChatREPL:
         self.current_scorecard = None
         self.current_score = None
         
-        # Initialize the PlexusTool for score management
-        self.primus_tool = PlexusTool()
+        # Initialize the PrimusTool for score management
+        self.primus_tool = PrimusTool()
         
         # Temporarily disable logging for the chat session
         self.original_handlers = logging.getLogger().handlers[:]

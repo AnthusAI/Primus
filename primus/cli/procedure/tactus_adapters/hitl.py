@@ -86,7 +86,7 @@ def _has_conditional_failure(result: Any) -> bool:
     return False
 
 
-class PlexusHITLAdapter:
+class PrimusHITLAdapter:
     """Tactus HITLHandler implementation backed by Primus ChatMessage records."""
 
     def __init__(
@@ -100,7 +100,7 @@ class PlexusHITLAdapter:
         self.procedure_id = procedure_id
         self.chat_recorder = chat_recorder
         self.storage_adapter = storage_adapter
-        logger.info("PlexusHITLAdapter initialized for procedure %s", procedure_id)
+        logger.info("PrimusHITLAdapter initialized for procedure %s", procedure_id)
 
     def _build_request_id(self, procedure_id: str, execution_context: Any = None) -> str:
         run_token = "run"
@@ -537,7 +537,7 @@ class PlexusHITLAdapter:
         if not isinstance(control, Mapping):
             return None
         control = dict(control)
-        request_metadata = PlexusHITLAdapter._structured_metadata(request)
+        request_metadata = PrimusHITLAdapter._structured_metadata(request)
         if request_metadata is None:
             return None
         if control.get("procedure_id") != procedure_id:
@@ -610,7 +610,7 @@ class PlexusHITLAdapter:
             return None
         if _canonical_json(content.get("value")) != _canonical_json(value):
             return None
-        if not PlexusHITLAdapter._response_matches_schema(value, control.get("response_schema")):
+        if not PrimusHITLAdapter._response_matches_schema(value, control.get("response_schema")):
             return None
         responded_at = _parse_iso8601(
             response_control.get("responded_at") or child.get("createdAt")

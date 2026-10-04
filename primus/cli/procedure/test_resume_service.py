@@ -135,7 +135,7 @@ def test_pending_external_child_checkpoint_loader_accepts_only_exact_replay_posi
             return metadata
 
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.storage.PlexusStorageAdapter", _Storage,
+        "primus.cli.procedure.tactus_adapters.storage.PrimusStorageAdapter", _Storage,
     )
     assert _load_pending_external_child_request(
         object(), "parent-procedure", expected_run_id="run-1",
@@ -178,7 +178,7 @@ def test_pending_time_checkpoint_loader_uses_actual_tactus_checkpoint_shape(monk
             return metadata
 
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.storage.PlexusStorageAdapter", _Storage,
+        "primus.cli.procedure.tactus_adapters.storage.PrimusStorageAdapter", _Storage,
     )
 
     assert _load_pending_time_wait_request(

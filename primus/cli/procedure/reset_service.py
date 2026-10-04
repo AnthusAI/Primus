@@ -138,9 +138,9 @@ def reset_checkpoints_only(client, procedure_id: str) -> Dict[str, Any]:
     Returns:
         Dict with cleared_count and remaining_count
     """
-    from primus.cli.procedure.tactus_adapters.storage import PlexusStorageAdapter
+    from primus.cli.procedure.tactus_adapters.storage import PrimusStorageAdapter
 
-    storage = PlexusStorageAdapter(client, procedure_id)
+    storage = PrimusStorageAdapter(client, procedure_id)
     metadata = storage.load_procedure_metadata(procedure_id)
     initial_count = len(metadata.execution_log)
 
@@ -181,11 +181,11 @@ def clone_state_for_branch(
         Dict with source_procedure_id, target_procedure_id,
         truncated_to_cycle, iterations_copied.
     """
-    from primus.cli.procedure.tactus_adapters.storage import PlexusStorageAdapter
+    from primus.cli.procedure.tactus_adapters.storage import PrimusStorageAdapter
     from tactus.protocols.models import ProcedureMetadata
 
-    source_storage = PlexusStorageAdapter(client, source_procedure_id)
-    target_storage = PlexusStorageAdapter(client, target_procedure_id)
+    source_storage = PrimusStorageAdapter(client, source_procedure_id)
+    target_storage = PrimusStorageAdapter(client, target_procedure_id)
 
     # Load source state
     source_metadata = source_storage.load_procedure_metadata(source_procedure_id)

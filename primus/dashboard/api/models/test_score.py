@@ -13,8 +13,8 @@ import tempfile
 import json
 from unittest.mock import Mock, patch, mock_open
 from pathlib import Path
-from plexus.dashboard.api.models.score import Score
-from plexus.dashboard.api.models.scorecard import Scorecard
+from primus.dashboard.api.models.score import Score
+from primus.dashboard.api.models.scorecard import Scorecard
 
 
 class MockAPIClient:

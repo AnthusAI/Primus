@@ -2,12 +2,12 @@ from __future__ import annotations
 import os
 import logging
 from typing import TYPE_CHECKING, List, Optional, Dict, Any
-from plexus.dashboard.api.models.base import BaseModel
-from plexus.dashboard.api.models.account import Account
+from primus.dashboard.api.models.base import BaseModel
+from primus.dashboard.api.models.account import Account
 
 if TYPE_CHECKING:
-    from plexus.dashboard.api.client import PlexusDashboardClient
-    from plexus.dashboard.api.models.data_set import DataSet
+    from primus.dashboard.api.client import PrimusDashboardClient
+    from primus.dashboard.api.models.data_set import DataSet
 
 class DataSource(BaseModel):
     _model_name = "DataSource"
@@ -28,7 +28,7 @@ class DataSource(BaseModel):
         scoreId: Optional[str] = None,
         scorecardId: Optional[str] = None,
         dataSets: Optional[List[DataSet]] = None,
-        client: Optional[PlexusDashboardClient] = None
+        client: Optional[PrimusDashboardClient] = None
     ):
         super().__init__(id, client)
         self.name = name
@@ -64,7 +64,7 @@ class DataSource(BaseModel):
         """
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any], client: PlexusDashboardClient) -> DataSource:
+    def from_dict(cls, data: Dict[str, Any], client: PrimusDashboardClient) -> DataSource:
         """Create a DataSource instance from a dictionary."""
         return cls(
             id=data['id'],
@@ -84,7 +84,7 @@ class DataSource(BaseModel):
         )
 
     @classmethod
-    async def get(cls, client: PlexusDashboardClient, id: str) -> Optional[DataSource]:
+    async def get(cls, client: PrimusDashboardClient, id: str) -> Optional[DataSource]:
         """Fetch a DataSource by its ID."""
         try:
             return cls.get_by_id(id, client)
@@ -92,7 +92,7 @@ class DataSource(BaseModel):
             return None
 
     @classmethod
-    async def list(cls, client: PlexusDashboardClient, filter: Optional[Dict] = None) -> List[DataSource]:
+    async def list(cls, client: PrimusDashboardClient, filter: Optional[Dict] = None) -> List[DataSource]:
         """List DataSources with optional filtering and pagination."""
         query = f"""
             query ListDataSources($filter: ModelDataSourceFilterInput, $limit: Int, $nextToken: String) {{
@@ -130,7 +130,7 @@ class DataSource(BaseModel):
         return [cls.from_dict(item, client) for item in all_items]
 
     @classmethod
-    async def list_by_key(cls, client: PlexusDashboardClient, key: str) -> List[DataSource]:
+    async def list_by_key(cls, client: PrimusDashboardClient, key: str) -> List[DataSource]:
         """Fetch DataSources by key using GSI with pagination."""
         logging.debug(f"list_by_key called with key: {key}")
 
@@ -190,7 +190,7 @@ class DataSource(BaseModel):
         return [cls.from_dict(item, client) for item in all_items]
 
     @classmethod
-    async def list_by_name(cls, client: PlexusDashboardClient, name: str) -> List[DataSource]:
+    async def list_by_name(cls, client: PrimusDashboardClient, name: str) -> List[DataSource]:
         """Fetch DataSources by name using GSI with pagination."""
         logging.debug(f"list_by_name called with name: {name}")
 
@@ -250,7 +250,7 @@ class DataSource(BaseModel):
         return [cls.from_dict(item, client) for item in all_items]
 
     @classmethod
-    async def get_by_name(cls, name: str, client: PlexusDashboardClient) -> Optional[DataSource]:
+    async def get_by_name(cls, name: str, client: PrimusDashboardClient) -> Optional[DataSource]:
         """Fetch a DataSource by its name."""
         items = await cls.list(client, filter={"name": {"eq": name}})
         return items[0] if items else None 

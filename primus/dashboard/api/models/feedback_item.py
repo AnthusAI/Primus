@@ -4,15 +4,15 @@ from datetime import datetime, timezone
 from typing import List, Optional, Dict, Any, TYPE_CHECKING, Tuple
 from dataclasses import dataclass, field
 
-from plexus.dashboard.api.models.base import BaseModel
-from plexus.dashboard.api.models.feedback_change_detail import FeedbackChangeDetail
+from primus.dashboard.api.models.base import BaseModel
+from primus.dashboard.api.models.feedback_change_detail import FeedbackChangeDetail
 
 if TYPE_CHECKING:
-    from plexus.dashboard.api.client import PlexusDashboardClient
-    from plexus.dashboard.api.models.account import Account
-    from plexus.dashboard.api.models.scorecard import Scorecard
-    from plexus.dashboard.api.models.score import Score
-    from plexus.dashboard.api.models.item import Item
+    from primus.dashboard.api.client import PrimusDashboardClient
+    from primus.dashboard.api.models.account import Account
+    from primus.dashboard.api.models.scorecard import Scorecard
+    from primus.dashboard.api.models.score import Score
+    from primus.dashboard.api.models.item import Item
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ class FeedbackItem(BaseModel):
     item: Optional['Item'] = field(default=None, repr=False)  # Add the item relationship
     scoreResults: Optional[Any] = field(default=None, repr=False)  # Add scoreResults relationship (can be dict or list)
 
-    _client: Optional['PlexusDashboardClient'] = field(default=None, repr=False)
+    _client: Optional['PrimusDashboardClient'] = field(default=None, repr=False)
     _raw_data: Optional[Dict[str, Any]] = field(default=None, repr=False)
 
     GRAPHQL_BASE_FIELDS = [
@@ -65,7 +65,7 @@ class FeedbackItem(BaseModel):
     }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any], client: Optional['PlexusDashboardClient'] = None) -> 'FeedbackItem':
+    def from_dict(cls, data: Dict[str, Any], client: Optional['PrimusDashboardClient'] = None) -> 'FeedbackItem':
         """
         Create a FeedbackItem instance from a dictionary.
         
@@ -120,7 +120,7 @@ class FeedbackItem(BaseModel):
         # Handle nested relationships if present in the data
         if 'item' in data and data['item']:
             # Import here to avoid circular imports
-            from plexus.dashboard.api.models.item import Item
+            from primus.dashboard.api.models.item import Item
             instance.item = Item.from_dict(data['item'], client=client)
         
         # Handle scoreResults relationship if present (keep as raw dict/list for flexibility)
@@ -152,7 +152,7 @@ class FeedbackItem(BaseModel):
         return f"{{ {' '.join(query_parts)} }}"
 
     @classmethod
-    def get(cls, id: str, client: 'PlexusDashboardClient', fields: Optional[List[str]] = None, relationship_fields: Optional[Dict[str, List[str]]] = None) -> Optional['FeedbackItem']:
+    def get(cls, id: str, client: 'PrimusDashboardClient', fields: Optional[List[str]] = None, relationship_fields: Optional[Dict[str, List[str]]] = None) -> Optional['FeedbackItem']:
         """Retrieve a specific FeedbackItem by its ID."""
         query_name = "getFeedbackItem"
         query_body = cls._build_query(fields, relationship_fields)
@@ -179,7 +179,7 @@ class FeedbackItem(BaseModel):
     @classmethod
     def list(
         cls, 
-        client: 'PlexusDashboardClient', 
+        client: 'PrimusDashboardClient', 
         account_id: Optional[str] = None, 
         scorecard_id: Optional[str] = None,
         score_id: Optional[str] = None,
@@ -341,7 +341,7 @@ class FeedbackItem(BaseModel):
         return items, new_next_token
 
     @classmethod
-    def create(cls, client: 'PlexusDashboardClient', data: Dict[str, Any]) -> Optional['FeedbackItem']:
+    def create(cls, client: 'PrimusDashboardClient', data: Dict[str, Any]) -> Optional['FeedbackItem']:
         """Create a new FeedbackItem."""
         mutation_name = "createFeedbackItem"
         input_variable_name = "input"
@@ -407,7 +407,7 @@ class FeedbackItem(BaseModel):
     # Update/Delete methods would follow a similar pattern if needed 
     
     @classmethod
-    def count_by_account_id(cls, account_id: str, client: 'PlexusDashboardClient') -> int:
+    def count_by_account_id(cls, account_id: str, client: 'PrimusDashboardClient') -> int:
         """
         Count the number of FeedbackItem records for a specific account.
         
@@ -442,7 +442,7 @@ class FeedbackItem(BaseModel):
         return total_count
     
     @classmethod
-    def delete_all_by_account_id(cls, account_id: str, client: 'PlexusDashboardClient', 
+    def delete_all_by_account_id(cls, account_id: str, client: 'PrimusDashboardClient', 
                                progress=None, task_id=None) -> int:
         """
         Delete all FeedbackItem records for a specific account.
@@ -595,7 +595,7 @@ class FeedbackItem(BaseModel):
         return deleted_count
 
     @classmethod
-    def get_by_composite_key(cls, client: 'PlexusDashboardClient', account_id: str, scorecard_id: str, 
+    def get_by_composite_key(cls, client: 'PrimusDashboardClient', account_id: str, scorecard_id: str, 
                             score_id: str, cache_key: str) -> Optional['FeedbackItem']:
         """
         Efficiently retrieve a FeedbackItem using the combination of account, scorecard, score, and cache key.
@@ -730,7 +730,7 @@ class FeedbackItem(BaseModel):
     @classmethod
     def upsert_by_cache_key(
         cls,
-        client: 'PlexusDashboardClient',
+        client: 'PrimusDashboardClient',
         account_id: str,
         scorecard_id: str,
         score_id: str,
@@ -752,7 +752,7 @@ class FeedbackItem(BaseModel):
         Uses the byCacheKey GSI for efficient lookup to prevent duplicates.
         
         Args:
-            client: The PlexusDashboardClient instance
+            client: The PrimusDashboardClient instance
             account_id: Account ID
             scorecard_id: Scorecard ID  
             score_id: Score ID
@@ -841,7 +841,7 @@ class FeedbackItem(BaseModel):
     @classmethod
     def _lookup_feedback_item_by_cache_key(
         cls,
-        client: 'PlexusDashboardClient',
+        client: 'PrimusDashboardClient',
         cache_key: str,
         debug: bool = False
     ) -> Optional['FeedbackItem']:
@@ -849,7 +849,7 @@ class FeedbackItem(BaseModel):
         Look up a FeedbackItem by cache key using the byCacheKey GSI.
         
         Args:
-            client: The PlexusDashboardClient instance
+            client: The PrimusDashboardClient instance
             cache_key: Cache key to search for
             debug: Enable debug logging
             
@@ -916,7 +916,7 @@ class FeedbackItem(BaseModel):
     @classmethod
     def _create_feedback_item(
         cls,
-        client: 'PlexusDashboardClient',
+        client: 'PrimusDashboardClient',
         feedback_data: Dict[str, Any],
         debug: bool = False
     ) -> Optional['FeedbackItem']:
@@ -924,7 +924,7 @@ class FeedbackItem(BaseModel):
         Create a new FeedbackItem.
         
         Args:
-            client: The PlexusDashboardClient instance
+            client: The PrimusDashboardClient instance
             feedback_data: Data for creating the item
             debug: Enable debug logging
             
@@ -951,7 +951,7 @@ class FeedbackItem(BaseModel):
     @classmethod
     def _update_feedback_item(
         cls,
-        client: 'PlexusDashboardClient',
+        client: 'PrimusDashboardClient',
         feedback_item_id: str,
         feedback_data: Dict[str, Any],
         debug: bool = False
@@ -960,7 +960,7 @@ class FeedbackItem(BaseModel):
         Update an existing FeedbackItem.
         
         Args:
-            client: The PlexusDashboardClient instance
+            client: The PrimusDashboardClient instance
             feedback_item_id: ID of the FeedbackItem to update
             feedback_data: Data for updating the item
             debug: Enable debug logging
@@ -1058,7 +1058,7 @@ class FeedbackItem(BaseModel):
     @classmethod
     def invalidate(
         cls,
-        client: 'PlexusDashboardClient',
+        client: 'PrimusDashboardClient',
         feedback_item_id: str,
         debug: bool = False,
     ) -> Optional['FeedbackItem']:
@@ -1073,7 +1073,7 @@ class FeedbackItem(BaseModel):
     @classmethod
     def reinstate(
         cls,
-        client: 'PlexusDashboardClient',
+        client: 'PrimusDashboardClient',
         feedback_item_id: str,
         debug: bool = False,
     ) -> Optional['FeedbackItem']:
@@ -1088,7 +1088,7 @@ class FeedbackItem(BaseModel):
     @classmethod
     def set_invalidity(
         cls,
-        client: 'PlexusDashboardClient',
+        client: 'PrimusDashboardClient',
         feedback_item_id: str,
         is_invalid: bool,
         debug: bool = False,

@@ -614,15 +614,15 @@ async def test_execute_tactus_initializes_embedded_mcp_transport(monkeypatch):
     # Patch runtime and adapters to keep this test focused on MCP bridge setup.
     monkeypatch.setattr("tactus.core.TactusRuntime", _FakeRuntime)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -661,15 +661,15 @@ async def test_execute_tactus_forwards_procedure_task_context_to_primus_runtime_
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeCapturingPythonModules)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -716,9 +716,9 @@ async def test_execute_tactus_wires_the_supported_external_child_resolver_for_a_
     monkeypatch.setenv("OPENAI_API_KEY", "test-key")
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeCapturingChildWaitResolver)
     for target in (
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         "primus.cli.procedure.chat_recorder.ProcedureChatRecorder",
     ):
         monkeypatch.setattr(target, lambda *_args, **_kwargs: SimpleNamespace())
@@ -743,9 +743,9 @@ async def test_execute_tactus_fails_explicitly_when_a_portfolio_wait_requires_an
     monkeypatch.setenv("OPENAI_API_KEY", "test-key")
     monkeypatch.setattr("tactus.core.TactusRuntime", _LegacyRuntimeWithoutChildWaitResolver)
     for target in (
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         "primus.cli.procedure.chat_recorder.ProcedureChatRecorder",
     ):
         monkeypatch.setattr(target, lambda *_args, **_kwargs: SimpleNamespace())
@@ -771,15 +771,15 @@ async def test_console_tactus_bridges_mcp_tools_into_toolset_registry(monkeypatc
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _FakeRuntime)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -820,15 +820,15 @@ async def test_execute_tactus_hydrates_context_from_params_values(monkeypatch):
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _FakeRuntime)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -893,15 +893,15 @@ async def test_execute_tactus_injects_array_params_as_parseable_lua_and_preserve
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeExecutesInjectedParams)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -935,15 +935,15 @@ async def test_execute_tactus_supports_legacy_runtime_without_trace_sink(monkeyp
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _LegacyRuntimeNoTraceSink)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -977,15 +977,15 @@ async def test_execute_tactus_passes_chat_recorder_when_supported(monkeypatch):
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithChatRecorder)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -1025,15 +1025,15 @@ async def test_execute_tactus_injects_console_trigger_message_into_runtime_conte
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithChatRecorder)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -1082,15 +1082,15 @@ async def test_execute_tactus_injects_console_session_history_into_runtime_conte
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithChatRecorder)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -1131,15 +1131,15 @@ async def test_execute_tactus_applies_agent_model_overrides_from_context(monkeyp
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithSourceCapture)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -1200,15 +1200,15 @@ async def test_execute_tactus_skips_chat_recorder_console_lookups_when_context_p
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithChatRecorder)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -1260,15 +1260,15 @@ async def test_execute_tactus_sets_chat_recorder_account_id_from_runtime_context
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithChatRecorder)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -1318,15 +1318,15 @@ async def test_execute_tactus_synthesizes_assistant_message_for_legacy_chat_runt
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeLegacyChatNoTrace)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -1373,15 +1373,15 @@ async def test_execute_tactus_records_result_response_when_trace_has_no_assistan
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithTraceNoMessages)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: _TraceSinkWithoutAssistantMessages(),
     )
     monkeypatch.setattr(
@@ -1428,15 +1428,15 @@ async def test_execute_tactus_does_not_duplicate_response_when_trace_already_has
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithTraceNoMessages)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: _TraceSinkWithAssistantMessages(),
     )
     monkeypatch.setattr(
@@ -1483,15 +1483,15 @@ async def test_execute_tactus_does_not_record_result_response_when_trace_has_dif
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithTraceNoMessages)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: _TraceSinkWithDifferentAssistantMessage(),
     )
     monkeypatch.setattr(
@@ -1564,15 +1564,15 @@ async def test_execute_tactus_injects_deterministic_score_edit_audit_block(monke
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithTraceNoMessages)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: _TraceSinkWithAssistant(),
     )
     monkeypatch.setattr(
@@ -1724,15 +1724,15 @@ async def test_execute_tactus_injects_deterministic_score_edit_audit_from_trace_
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithTraceNoMessages)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: _TraceSinkWithScoreEditAudit(),
     )
     monkeypatch.setattr(
@@ -1806,11 +1806,11 @@ async def test_execute_tactus_streams_via_log_handler_without_trace_sink_constru
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeStreamingWithoutTraceParam)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -1869,11 +1869,11 @@ async def test_execute_tactus_streams_many_chunks_without_loss(monkeypatch):
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeStreamingManyChunksWithoutTraceParam)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -1925,15 +1925,15 @@ async def test_execute_tactus_persists_inference_costs_from_cost_events(monkeypa
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithCostEvents)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: storage,
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -1991,15 +1991,15 @@ async def test_execute_tactus_fails_when_child_budget_cost_is_exceeded(monkeypat
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithCostEvents)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: _StorageWithState(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -2044,15 +2044,15 @@ async def test_execute_tactus_applies_child_depth_budget_to_runtime_source(monke
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeCapturesSource)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -2098,15 +2098,15 @@ async def test_execute_tactus_maps_documented_outputs_to_runtime_output(monkeypa
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeCapturesSource)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -2143,15 +2143,15 @@ async def test_execute_tactus_completes_stages_only_on_success(monkeypatch):
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _FakeRuntime)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -2199,15 +2199,15 @@ async def test_execute_tactus_marks_stages_failed_when_runtime_returns_failure(m
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithFailureResult)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -2265,15 +2265,15 @@ async def test_execute_tactus_preserves_persisted_human_wait_without_failing_sta
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithFailureResult)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: _WaitingStorage(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -2346,15 +2346,15 @@ async def test_execute_tactus_preserves_native_time_wait_without_failing_stages(
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithTimeWait)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -2407,15 +2407,15 @@ async def test_execute_tactus_preserves_native_child_wait_without_failing_stages
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithChildWait)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -2457,15 +2457,15 @@ async def test_execute_tactus_marks_stages_failed_when_runtime_returns_wrapped_f
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeWithWrappedFailureResult)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -2513,15 +2513,15 @@ async def test_execute_tactus_marks_stages_failed_when_runtime_raises(monkeypatc
 
     monkeypatch.setattr("tactus.core.TactusRuntime", _RuntimeThatRaises)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
@@ -2568,15 +2568,15 @@ async def test_execute_tactus_stops_before_runtime_when_task_cancelled(monkeypat
 
     monkeypatch.setattr("tactus.core.TactusRuntime", RuntimeShouldNotExecute)
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusStorageAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusHITLAdapter",
+        "primus.cli.procedure.tactus_adapters.PrimusHITLAdapter",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.PlexusTraceSink",
+        "primus.cli.procedure.tactus_adapters.PrimusTraceSink",
         lambda *_a, **_k: SimpleNamespace(),
     )
     monkeypatch.setattr(

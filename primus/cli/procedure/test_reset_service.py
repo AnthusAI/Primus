@@ -25,7 +25,7 @@ class _FakeStorageAdapter:
 
 def test_clone_state_for_branch_clears_costs_and_runtime_mailbox_state(monkeypatch):
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.storage.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.storage.PrimusStorageAdapter",
         _FakeStorageAdapter,
     )
 
@@ -111,7 +111,7 @@ def test_reset_checkpoints_only_counts_execution_log_and_preserves_state(monkeyp
             statuses.append((procedure_id, status, waiting_on_message_id))
 
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.storage.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.storage.PrimusStorageAdapter",
         _Storage,
     )
 

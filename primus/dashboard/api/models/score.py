@@ -16,8 +16,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from .base import BaseModel
 from .scorecard import Scorecard
-from plexus.cli.shared import get_score_guidelines_path
-from plexus.attribution.actor_context import apply_actor_attribution
+from primus.cli.shared import get_score_guidelines_path
+from primus.attribution.actor_context import apply_actor_attribution
 
 if TYPE_CHECKING:
     from ..client import _BaseAPIClient
@@ -587,7 +587,7 @@ class Score(BaseModel):
             scorecard_name = scorecard.name
             
         # Use the existing get_score_yaml_path function for consistency
-        from plexus.cli.shared import get_score_yaml_path
+        from primus.cli.shared import get_score_yaml_path
         return get_score_yaml_path(scorecard_name, self.name)
 
     def get_local_guidelines_path(self, scorecard_name: Optional[str] = None) -> Path:

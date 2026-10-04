@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from unittest.mock import Mock, patch
 
-from plexus.dashboard.api.models.feedback_item import FeedbackItem
+from primus.dashboard.api.models.feedback_item import FeedbackItem
 
 
 def test_feedback_item_invalidate_delegates_to_update_mutation():

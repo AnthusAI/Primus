@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from .base import BaseModel
 from ..client import LONG_RUNNING_WRITE_RETRY_POLICY_NAME
-from plexus.attribution.actor_context import apply_actor_attribution
+from primus.attribution.actor_context import apply_actor_attribution
 
 if TYPE_CHECKING:
     from ..client import _BaseAPIClient

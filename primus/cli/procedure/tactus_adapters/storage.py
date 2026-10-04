@@ -358,7 +358,7 @@ def download_procedure_attachment(
         raise ProcedureArtifactStorageError(f"Unable to load verified {filename}") from exc
 
 
-class PlexusStorageAdapter:
+class PrimusStorageAdapter:
     """
     Implements Tactus StorageBackend protocol using Primus GraphQL.
 
@@ -379,7 +379,7 @@ class PlexusStorageAdapter:
         self._is_builtin = is_builtin_procedure_id(procedure_id)
         self.artifact_store = artifact_store or GraphQLArtifactStore(client)
         self._metadata_cache: Optional[ProcedureMetadata] = None
-        logger.info(f"PlexusStorageAdapter initialized for procedure {procedure_id}")
+        logger.info(f"PrimusStorageAdapter initialized for procedure {procedure_id}")
 
     def _fetch_raw_procedure_metadata(self, procedure_id: str) -> Dict[str, Any]:
         """Fetch the current raw Procedure.metadata envelope for merge-safe writes."""

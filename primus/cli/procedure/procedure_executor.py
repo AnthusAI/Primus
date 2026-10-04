@@ -832,7 +832,7 @@ class _PlexusTraceLogBridge:
 
     - Exposes supports_streaming=True so Tactus enables agent chunk streaming.
     - Captures CostEvent entries for execution summary accounting.
-    - Forwards all non-cost events to PlexusTraceSink on a background worker.
+    - Forwards all non-cost events to PrimusTraceSink on a background worker.
     """
 
     supports_streaming = True
@@ -1160,7 +1160,7 @@ async def _execute_tactus(
 
     try:
         from tactus.core import TactusRuntime
-        from .tactus_adapters import PlexusStorageAdapter, PlexusHITLAdapter, PlexusTraceSink
+        from .tactus_adapters import PrimusStorageAdapter, PrimusHITLAdapter, PrimusTraceSink
         from .chat_recorder import ProcedureChatRecorder
         
         def _extract_legacy_input_from_params(source_config: Dict[str, Any]) -> Dict[str, Any]:
@@ -1617,7 +1617,7 @@ async def _execute_tactus(
             _api_key = os.getenv('OPENAI_API_KEY')
 
         # Create Primus adapters
-        storage = PlexusStorageAdapter(client, procedure_id)
+        storage = PrimusStorageAdapter(client, procedure_id)
         chat_recorder = ProcedureChatRecorder(client, procedure_id)
         child_budget = (
             context.get("_primus_child_budget")
@@ -1648,8 +1648,8 @@ async def _execute_tactus(
         # Allow callers to inject a custom HITL adapter (e.g. TerminalHITLAdapter for CLI)
         hitl = options.pop("hitl_adapter", None)
         if hitl is None:
-            hitl = PlexusHITLAdapter(client, procedure_id, chat_recorder, storage)
-        trace_sink = PlexusTraceSink(chat_recorder)
+            hitl = PrimusHITLAdapter(client, procedure_id, chat_recorder, storage)
+        trace_sink = PrimusTraceSink(chat_recorder)
 
         def _on_incremental_cost_event(event: Any) -> None:
             # Persist each inference cost event as it arrives so dashboards can

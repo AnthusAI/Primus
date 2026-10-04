@@ -167,7 +167,7 @@ def test_build_continuation_context_recovers_baseline_params_and_state_ids(monke
             return self.values.get(key)
 
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.storage.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.storage.PrimusStorageAdapter",
         FakeStorage,
     )
 
@@ -242,7 +242,7 @@ def test_build_continuation_context_uses_names_when_ids_missing(monkeypatch):
             return self.values.get(key)
 
     monkeypatch.setattr(
-        "primus.cli.procedure.tactus_adapters.storage.PlexusStorageAdapter",
+        "primus.cli.procedure.tactus_adapters.storage.PrimusStorageAdapter",
         FakeStorage,
     )
 

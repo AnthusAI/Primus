@@ -18,7 +18,7 @@ from primus.dashboard.api.client import PrimusDashboardClient
 from primus.cli.shared.file_editor import FileEditor
 from primus.cli.shared import get_score_yaml_path
 from primus.cli.shared.identifier_resolution import resolve_scorecard_identifier, resolve_score_identifier
-from primus.cli.shared.primus_tool import PlexusTool
+from primus.cli.shared.primus_tool import PrimusTool
 from primus.attribution.actor_context import apply_actor_attribution
 
 
@@ -47,8 +47,8 @@ class ScoreChatService:
         self.current_score = None
         self.message_callback = message_callback or (lambda x: None)
         
-        # Initialize the PlexusTool for score management
-        self.primus_tool = PlexusTool()
+        # Initialize the PrimusTool for score management
+        self.primus_tool = PrimusTool()
         
         # Use provided callback handler or create a simple default one
         self.callback_handler = callback_handler

@@ -36,7 +36,7 @@ def _invoke_primus_cli() -> None:
     cli(standalone_mode=False)
 
 
-class PlexusCliExecutor:
+class PrimusCliExecutor:
     """Run a typed CLI request and publish its progress through ``ExecutionContext``.
 
     The transport contract deliberately accepts an argv array rather than a shell
@@ -221,6 +221,6 @@ class PlexusCliExecutor:
         return encoded[:_MAX_RESULT_OUTPUT_BYTES].decode("utf-8", errors="ignore")
 
 
-def create_executor() -> PlexusCliExecutor:
+def create_executor() -> PrimusCliExecutor:
     """Runtime plugin factory for the portable command-worker entrypoint."""
-    return PlexusCliExecutor()
+    return PrimusCliExecutor()

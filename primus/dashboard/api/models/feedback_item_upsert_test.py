@@ -1,8 +1,8 @@
 from unittest.mock import Mock, patch
-from plexus.dashboard.api.models.feedback_item import FeedbackItem
+from primus.dashboard.api.models.feedback_item import FeedbackItem
 
 # Import for Mock usage in tests
-from plexus.dashboard.api.client import PlexusDashboardClient
+from primus.dashboard.api.client import PrimusDashboardClient
 
 
 class TestFeedbackItemUpsertByCacheKey:
@@ -10,7 +10,7 @@ class TestFeedbackItemUpsertByCacheKey:
 
     def setup_method(self):
         """Set up test fixtures before each test method."""
-        self.mock_client = Mock(spec=PlexusDashboardClient)
+        self.mock_client = Mock(spec=PrimusDashboardClient)
         self.test_account_id = "test-account-123"
         self.test_scorecard_id = "test-scorecard-456"
         self.test_score_id = "test-score-789"
@@ -212,7 +212,7 @@ class TestFeedbackItemLookupByCacheKey:
 
     def setup_method(self):
         """Set up test fixtures before each test method."""
-        self.mock_client = Mock(spec=PlexusDashboardClient)
+        self.mock_client = Mock(spec=PrimusDashboardClient)
         self.test_cache_key = "test-score-789:12345"
 
     def test_lookup_returns_feedback_item_when_found(self):
@@ -281,7 +281,7 @@ class TestFeedbackItemUpdateFeedbackItem:
 
     def setup_method(self):
         """Set up test fixtures before each test method."""
-        self.mock_client = Mock(spec=PlexusDashboardClient)
+        self.mock_client = Mock(spec=PrimusDashboardClient)
         self.test_feedback_item_id = "test-feedback-item-123"
         self.test_feedback_data = {
             "accountId": "test-account",
@@ -355,7 +355,7 @@ class TestFeedbackItemCreateFeedbackItem:
 
     def setup_method(self):
         """Set up test fixtures before each test method."""
-        self.mock_client = Mock(spec=PlexusDashboardClient)
+        self.mock_client = Mock(spec=PrimusDashboardClient)
         self.test_feedback_data = {
             "accountId": "test-account",
             "scoreId": "test-score-789",
@@ -430,7 +430,7 @@ class TestFeedbackItemUpsertIntegration:
 
     def setup_method(self):
         """Set up test fixtures before each integration test."""
-        self.mock_client = Mock(spec=PlexusDashboardClient)
+        self.mock_client = Mock(spec=PrimusDashboardClient)
         self.test_account_id = "integration-account-123"
         self.test_scorecard_id = "integration-scorecard-456"
         self.test_score_id = "integration-score-789"

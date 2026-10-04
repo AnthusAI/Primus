@@ -8,7 +8,7 @@ from typing import Optional, Dict, Any, List, TYPE_CHECKING
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from .base import BaseModel
-from plexus.attribution.actor_context import apply_actor_attribution
+from primus.attribution.actor_context import apply_actor_attribution
 
 if TYPE_CHECKING:
     from ..client import _BaseAPIClient

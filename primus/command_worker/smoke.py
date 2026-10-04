@@ -8,7 +8,7 @@ from click.testing import CliRunner
 
 from primus.cli.shared.CommandLineInterface import cli
 
-from .executors.primus_cli import PlexusCliExecutor
+from .executors.primus_cli import PrimusCliExecutor
 from .models import CommandEnvelope
 
 
@@ -58,7 +58,7 @@ def main() -> None:
         created_at=datetime(2026, 8, 6, tzinfo=timezone.utc),
         payload={"argv": ["procedure", "run", "--help"]},
     )
-    result = PlexusCliExecutor(
+    result = PrimusCliExecutor(
         invoke_cli=lambda: _invoke_registered_action(("procedure", "run", "--help"))
     ).execute(
         envelope, _SmokeContext()

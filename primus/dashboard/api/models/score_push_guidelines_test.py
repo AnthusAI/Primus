@@ -1,5 +1,5 @@
-from plexus.cli.shared import get_score_guidelines_path, get_score_yaml_path
-from plexus.dashboard.api.models.score import Score
+from primus.cli.shared import get_score_guidelines_path, get_score_yaml_path
+from primus.dashboard.api.models.score import Score
 
 
 class RecordingClient:

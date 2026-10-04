@@ -44,7 +44,7 @@ from datetime import datetime, timezone
 from .base import BaseModel
 
 if TYPE_CHECKING:
-    from ..client import PlexusDashboardClient
+    from ..client import PrimusDashboardClient
 
 @dataclass
 class Identifier(BaseModel):
@@ -67,7 +67,7 @@ class Identifier(BaseModel):
         updatedAt: datetime,
         url: Optional[str] = None,
         position: Optional[int] = None,
-        client: Optional['PlexusDashboardClient'] = None
+        client: Optional['PrimusDashboardClient'] = None
     ):
         # Note: No id parameter since Identifier uses composite primary key
         super().__init__(f"{itemId}#{name}", client)  # Use composite key as id for base class
@@ -96,7 +96,7 @@ class Identifier(BaseModel):
     @classmethod
     def create(
         cls, 
-        client: 'PlexusDashboardClient', 
+        client: 'PrimusDashboardClient', 
         itemId: str,
         name: str,
         value: str,
@@ -133,7 +133,7 @@ class Identifier(BaseModel):
         return cls.from_dict(result['createIdentifier'], client)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any], client: 'PlexusDashboardClient') -> 'Identifier':
+    def from_dict(cls, data: Dict[str, Any], client: 'PrimusDashboardClient') -> 'Identifier':
         """Create an Identifier instance from API response data."""
         for date_field in ['createdAt', 'updatedAt']:
             if data.get(date_field):
@@ -166,7 +166,7 @@ class Identifier(BaseModel):
         cls, 
         value: str, 
         account_id: str, 
-        client: 'PlexusDashboardClient'
+        client: 'PrimusDashboardClient'
     ) -> Optional['Identifier']:
         """
         Find an identifier by exact value within an account.
@@ -208,7 +208,7 @@ class Identifier(BaseModel):
         name: str,
         value: str, 
         account_id: str,
-        client: 'PlexusDashboardClient'
+        client: 'PrimusDashboardClient'
     ) -> Optional['Identifier']:
         """
         Find an identifier by name and exact value within an account.
@@ -250,7 +250,7 @@ class Identifier(BaseModel):
     def list_by_item_id(
         cls, 
         item_id: str, 
-        client: 'PlexusDashboardClient'
+        client: 'PrimusDashboardClient'
     ) -> List['Identifier']:
         """
         Get all identifiers for a specific item.
@@ -279,7 +279,7 @@ class Identifier(BaseModel):
         cls,
         values: List[str],
         account_id: str,
-        client: 'PlexusDashboardClient'
+        client: 'PrimusDashboardClient'
     ) -> Dict[str, 'Identifier']:
         """
         Batch exact-match lookup for multiple identifier values.
@@ -330,7 +330,7 @@ class Identifier(BaseModel):
     @classmethod
     def batch_create_for_item(
         cls,
-        client: 'PlexusDashboardClient',
+        client: 'PrimusDashboardClient',
         item_id: str,
         account_id: str,
         identifiers_data: List[Dict[str, Any]]

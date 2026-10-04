@@ -2,7 +2,7 @@
 """Run a saved report through the current command-worker image locally.
 
 This is a pre-deploy smoke, not an ECS replacement.  It executes the same
-``PlexusCliExecutor`` and immutable argv contract as the worker, while using
+``PrimusCliExecutor`` and immutable argv contract as the worker, while using
 the selected staging control plane.  The report configuration is supplied by
 ID so the script never embeds account-specific configuration or data.
 
@@ -116,7 +116,7 @@ import json
 import sys
 from datetime import datetime
 from types import SimpleNamespace
-from primus.command_worker.executors.primus_cli import PlexusCliExecutor
+from primus.command_worker.executors.primus_cli import PrimusCliExecutor
 from primus.command_worker.models import CommandEnvelope
 
 payload = json.loads(sys.stdin.read())
@@ -131,7 +131,7 @@ context = SimpleNamespace(
     report_progress=lambda *args, **kwargs: None,
 )
 try:
-    print(json.dumps({\"status\": \"ok\", \"result\": PlexusCliExecutor().execute(envelope, context)}))
+    print(json.dumps({\"status\": \"ok\", \"result\": PrimusCliExecutor().execute(envelope, context)}))
 except Exception as exc:
     print(json.dumps({\"status\": \"error\", \"error_type\": type(exc).__name__, \"error\": str(exc)}))
     raise SystemExit(1)

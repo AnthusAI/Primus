@@ -3,11 +3,11 @@ from datetime import datetime
 from typing import List, Optional, Dict, Any, TYPE_CHECKING, Literal
 from dataclasses import dataclass, field
 
-from plexus.dashboard.api.models.base import BaseModel
+from primus.dashboard.api.models.base import BaseModel
 
 if TYPE_CHECKING:
-    from plexus.dashboard.api.client import PlexusDashboardClient
-    from plexus.dashboard.api.models.feedback_item import FeedbackItem
+    from primus.dashboard.api.client import PrimusDashboardClient
+    from primus.dashboard.api.models.feedback_item import FeedbackItem
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ class FeedbackChangeDetail(BaseModel):
     # Relationships - lazy loaded
     feedbackItem: Optional['FeedbackItem'] = field(default=None, repr=False)
 
-    _client: Optional['PlexusDashboardClient'] = field(default=None, repr=False)
+    _client: Optional['PrimusDashboardClient'] = field(default=None, repr=False)
     _raw_data: Optional[Dict[str, Any]] = field(default=None, repr=False)
 
     GRAPHQL_BASE_FIELDS = [
@@ -47,7 +47,7 @@ class FeedbackChangeDetail(BaseModel):
     ]
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any], client: Optional['PlexusDashboardClient'] = None) -> 'FeedbackChangeDetail':
+    def from_dict(cls, data: Dict[str, Any], client: Optional['PrimusDashboardClient'] = None) -> 'FeedbackChangeDetail':
         """
         Create a FeedbackChangeDetail instance from a dictionary.
         
@@ -104,7 +104,7 @@ class FeedbackChangeDetail(BaseModel):
         return query
 
     @classmethod
-    def get(cls, id: str, client: 'PlexusDashboardClient', fields: Optional[List[str]] = None) -> Optional['FeedbackChangeDetail']:
+    def get(cls, id: str, client: 'PrimusDashboardClient', fields: Optional[List[str]] = None) -> Optional['FeedbackChangeDetail']:
         """Retrieve a specific FeedbackChangeDetail by its ID."""
         query_name = "getFeedbackChangeDetail"
         query_body = cls._build_query(fields)
@@ -131,7 +131,7 @@ class FeedbackChangeDetail(BaseModel):
     @classmethod
     def list(
         cls, 
-        client: 'PlexusDashboardClient', 
+        client: 'PrimusDashboardClient', 
         feedback_item_id: Optional[str] = None, 
         limit: int = 100, 
         next_token: Optional[str] = None,
@@ -194,7 +194,7 @@ class FeedbackChangeDetail(BaseModel):
         return items, new_next_token
 
     @classmethod
-    def create(cls, client: 'PlexusDashboardClient', data: Dict[str, Any]) -> Optional['FeedbackChangeDetail']:
+    def create(cls, client: 'PrimusDashboardClient', data: Dict[str, Any]) -> Optional['FeedbackChangeDetail']:
         """Create a new FeedbackChangeDetail."""
         mutation_name = "createFeedbackChangeDetail"
         input_variable_name = "input"
@@ -230,7 +230,7 @@ class FeedbackChangeDetail(BaseModel):
     # Update/Delete methods would follow a similar pattern if needed 
     
     @classmethod
-    def count_by_account_id(cls, account_id: str, client: 'PlexusDashboardClient') -> int:
+    def count_by_account_id(cls, account_id: str, client: 'PrimusDashboardClient') -> int:
         """
         Count the number of FeedbackChangeDetail records associated with a specific account.
         
@@ -289,7 +289,7 @@ class FeedbackChangeDetail(BaseModel):
             return 0
     
     @classmethod
-    def delete_all_by_account_id(cls, account_id: str, client: 'PlexusDashboardClient', 
+    def delete_all_by_account_id(cls, account_id: str, client: 'PrimusDashboardClient', 
                                progress=None, task_id=None) -> int:
         """
         Delete all FeedbackChangeDetail records associated with a specific account.
@@ -307,7 +307,7 @@ class FeedbackChangeDetail(BaseModel):
         Returns:
             int: The number of records deleted.
         """
-        from plexus.dashboard.api.models.feedback_item import FeedbackItem
+        from primus.dashboard.api.models.feedback_item import FeedbackItem
         import time
         # Only import if we need to create our own progress bar
         if progress is None:

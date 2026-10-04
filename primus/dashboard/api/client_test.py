@@ -8,7 +8,7 @@ from gql.transport.exceptions import TransportQueryError
 from .client import (
     GraphQLRetryPolicy,
     LONG_RUNNING_WRITE_RETRY_POLICY_NAME,
-    PlexusDashboardClient,
+    PrimusDashboardClient,
 )
 
 
@@ -44,7 +44,7 @@ def mock_score_result():
 @pytest.fixture
 def mock_client():
     """Create a mock client for testing batch scoring jobs"""
-    client = PlexusDashboardClient(api_url="http://test", api_key="test-key")
+    client = PrimusDashboardClient(api_url="http://test", api_key="test-key")
     
     # Mock the execute method
     with patch.object(client, 'execute') as mock_execute:
@@ -55,11 +55,11 @@ def test_client_requires_api_credentials():
     # Clear any environment variables that might interfere
     with patch.dict('os.environ', {}, clear=True):
         with pytest.raises(ValueError, match="Missing required API URL or API key"):
-            PlexusDashboardClient()
+            PrimusDashboardClient()
 
 def test_client_accepts_manual_credentials():
     """Test that client accepts manually provided credentials"""
-    client = PlexusDashboardClient(
+    client = PrimusDashboardClient(
         api_url='https://test.api',
         api_key='test-key'
     )
@@ -68,13 +68,13 @@ def test_client_accepts_manual_credentials():
 
 def test_client_uses_environment_variables(mock_env):
     """Test that client uses environment variables"""
-    client = PlexusDashboardClient()
+    client = PrimusDashboardClient()
     assert client.api_url == 'https://test.api'
     assert client.api_key == 'test-key'
 
 def test_client_configures_transport_correctly(mock_env, mock_transport):
     """Test that transport is configured with correct headers"""
-    PlexusDashboardClient()
+    PrimusDashboardClient()
     
     mock_transport.assert_called_once()
     transport_kwargs = mock_transport.call_args[1]
@@ -97,7 +97,7 @@ def test_client_uses_fresh_cognito_bearer_tokens_per_prepared_request_and_fails_
         RuntimeError('Run `plexus login` to authenticate.'),
     ]))
 
-    PlexusDashboardClient(token_provider=token_provider)
+    PrimusDashboardClient(token_provider=token_provider)
 
     transport_kwargs = mock_transport.call_args[1]
     assert 'Authorization' not in transport_kwargs['headers']
@@ -120,7 +120,7 @@ def test_client_accepts_explicit_cognito_auth_mode_without_global_environment(mo
     monkeypatch.delenv('PLEXUS_GRAPHQL_AUTH_MODE', raising=False)
     token_provider = Mock(get_access_token=Mock(return_value='access-token'))
 
-    PlexusDashboardClient(auth_mode='cognito', token_provider=token_provider)
+    PrimusDashboardClient(auth_mode='cognito', token_provider=token_provider)
 
     assert 'Authorization' not in mock_transport.call_args.kwargs['headers']
     assert mock_transport.call_args.kwargs['auth'] is not None
@@ -132,7 +132,7 @@ def test_client_does_not_fall_back_to_api_key_when_cognito_session_is_unavailabl
     monkeypatch.setenv('PLEXUS_GRAPHQL_AUTH_MODE', 'cognito')
     token_provider = Mock(get_access_token=Mock(side_effect=RuntimeError('Run `plexus login` to authenticate.')))
 
-    client = PlexusDashboardClient(token_provider=token_provider)
+    client = PrimusDashboardClient(token_provider=token_provider)
 
     with pytest.raises(ValueError, match='plexus login'):
         client.client.transport.auth(Request('POST', 'https://test.api').prepare())
@@ -150,7 +150,7 @@ def test_client_keeps_explicit_iam_workload_auth(mock_transport, monkeypatch):
     monkeypatch.setitem(sys.modules, 'boto3', SimpleNamespace(Session=boto_session))
     monkeypatch.setitem(sys.modules, 'requests_aws4auth', SimpleNamespace(AWS4Auth=aws_auth))
 
-    PlexusDashboardClient()
+    PrimusDashboardClient()
 
     boto_session.assert_called_once_with()
     aws_auth.assert_called_once_with(
@@ -173,7 +173,7 @@ def test_client_iam_workload_auth_fails_closed_without_role_credentials(mock_tra
     monkeypatch.setitem(sys.modules, 'requests_aws4auth', SimpleNamespace(AWS4Auth=aws_auth))
 
     with pytest.raises(ValueError, match='AWS credentials not available'):
-        PlexusDashboardClient()
+        PrimusDashboardClient()
 
     boto_session.assert_called_once_with()
     aws_auth.assert_not_called()
@@ -181,7 +181,7 @@ def test_client_iam_workload_auth_fails_closed_without_role_credentials(mock_tra
 
 def test_execute_handles_query_error(mock_env, mock_gql_client):
     """Test that execute handles GraphQL query errors"""
-    client = PlexusDashboardClient()
+    client = PrimusDashboardClient()
     
     # Create TransportQueryError with proper errors attribute
     error = TransportQueryError("GraphQL query failed")
@@ -197,7 +197,7 @@ def test_execute_handles_query_error(mock_env, mock_gql_client):
 
 def test_execute_returns_query_result(mock_env, mock_gql_client):
     """Test that execute returns query results"""
-    client = PlexusDashboardClient()
+    client = PrimusDashboardClient()
     
     expected_result = {'data': {'test': 'value'}}
     mock_gql_client.return_value.execute.return_value = expected_result
@@ -212,7 +212,7 @@ def test_execute_returns_query_result(mock_env, mock_gql_client):
 
 
 def test_execute_retries_retryable_query_error_then_succeeds(mock_env, mock_gql_client):
-    client = PlexusDashboardClient()
+    client = PrimusDashboardClient()
 
     expected_result = {'data': {'test': 'value'}}
     mock_session = Mock()
@@ -235,7 +235,7 @@ def test_execute_retries_retryable_query_error_then_succeeds(mock_env, mock_gql_
 
 
 def test_execute_retries_transient_dns_failure_then_succeeds(mock_env, mock_gql_client):
-    client = PlexusDashboardClient()
+    client = PrimusDashboardClient()
 
     expected_result = {'data': {'test': 'value'}}
     mock_session = Mock()
@@ -255,7 +255,7 @@ def test_execute_retries_transient_dns_failure_then_succeeds(mock_env, mock_gql_
 
 
 def test_execute_does_not_retry_non_retryable_query_error(mock_env, mock_gql_client):
-    client = PlexusDashboardClient()
+    client = PrimusDashboardClient()
 
     mock_session = Mock()
     mock_session.execute.side_effect = _make_transport_query_error("Validation failed")
@@ -270,7 +270,7 @@ def test_execute_does_not_retry_non_retryable_query_error(mock_env, mock_gql_cli
 
 
 def test_execute_uses_long_running_policy_until_exhausted(mock_env, mock_gql_client):
-    client = PlexusDashboardClient()
+    client = PrimusDashboardClient()
 
     mock_session = Mock()
     mock_session.execute.side_effect = _make_transport_query_error(
@@ -297,7 +297,7 @@ def test_execute_uses_long_running_policy_until_exhausted(mock_env, mock_gql_cli
 
 def test_background_logging_flushes_on_batch_size(mock_score_result):
     """Test that logs are flushed when batch size is reached"""
-    client = PlexusDashboardClient(api_url="http://test", api_key="test")
+    client = PrimusDashboardClient(api_url="http://test", api_key="test")
     
     # Log enough items to trigger a batch flush
     for i in range(10):
@@ -316,7 +316,7 @@ def test_background_logging_flushes_on_batch_size(mock_score_result):
 
 def test_background_logging_flushes_on_shutdown(mock_score_result):
     """Test that remaining logs are flushed when client is destroyed"""
-    client = PlexusDashboardClient(api_url="http://test", api_key="test")
+    client = PrimusDashboardClient(api_url="http://test", api_key="test")
     
     # Log a few items (less than batch size)
     for i in range(5):
@@ -335,7 +335,7 @@ def test_background_logging_flushes_on_shutdown(mock_score_result):
 
 def test_background_logging_handles_errors_gracefully(mock_score_result):
     """Test that logging errors don't affect the main thread"""
-    client = PlexusDashboardClient(api_url="http://test", api_key="test")
+    client = PrimusDashboardClient(api_url="http://test", api_key="test")
     
     # Make batch_create raise an exception
     mock_score_result.batch_create.side_effect = Exception("Test error")
@@ -354,7 +354,7 @@ def test_background_logging_handles_errors_gracefully(mock_score_result):
 
 def test_immediate_logging_creates_score_result(mock_score_result):
     """Test that immediate logging creates a score result without batching"""
-    client = PlexusDashboardClient(api_url="http://test", api_key="test")
+    client = PrimusDashboardClient(api_url="http://test", api_key="test")
     
     # Log a score for immediate processing
     client.log_score(
@@ -377,7 +377,7 @@ def test_immediate_logging_creates_score_result(mock_score_result):
 
 def test_score_logging_with_different_configs(mock_score_result):
     """Test score logging with different configurations"""
-    client = PlexusDashboardClient(api_url="http://test", api_key="test")
+    client = PrimusDashboardClient(api_url="http://test", api_key="test")
     
     # Test immediate logging
     client.log_score(0.95, "item-1", immediate=True,
@@ -662,7 +662,7 @@ def test_batch_scoring_job_handles_none_values(mock_client):
 
 def test_flush_prevents_duplicate_cleanup():
     """Test that flush() can be called multiple times safely and prevents resource leaks"""
-    client = PlexusDashboardClient(api_url="http://test", api_key="test")
+    client = PrimusDashboardClient(api_url="http://test", api_key="test")
     
     # Verify thread is initially running
     assert client._log_thread.is_alive()
@@ -688,7 +688,7 @@ def test_flush_prevents_duplicate_cleanup():
 def test_flush_handles_initialization_failure():
     """Test that flush() handles cases where initialization failed"""
     # Simulate failed initialization by creating an object without proper setup
-    client = object.__new__(PlexusDashboardClient)
+    client = object.__new__(PrimusDashboardClient)
     
     # flush() should handle missing attributes gracefully
     client.flush()  # Should not raise AttributeError
@@ -700,7 +700,7 @@ def test_flush_handles_initialization_failure():
 
 def test_resource_leak_bug_reproduction():
     """Test that demonstrates the original resource leak bug (would fail with old logic)"""
-    client = PlexusDashboardClient(api_url="http://test", api_key="test")
+    client = PrimusDashboardClient(api_url="http://test", api_key="test")
     
     # Log some items
     for i in range(3):

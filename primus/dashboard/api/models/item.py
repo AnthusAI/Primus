@@ -6,7 +6,7 @@ from .base import BaseModel
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..client import _BaseAPIClient
-    from plexus.core.ScoreInput import ScoreInput
+    from primus.core.ScoreInput import ScoreInput
 import json
 import logging
 
@@ -330,7 +330,7 @@ class Item(BaseModel):
             score_input = item.to_score_input(item_config)
         """
         # Import from lightweight module to avoid psycopg dependencies
-        from plexus.core.ScoreInput import ScoreInput
+        from primus.core.ScoreInput import ScoreInput
 
         # Start with item.text as default
         text = self.text or ""
@@ -347,7 +347,7 @@ class Item(BaseModel):
 
         # If item_config specifies an input source, use it
         if item_config and 'class' in item_config:
-            from plexus.input_sources.InputSourceFactory import InputSourceFactory
+            from primus.input_sources.InputSourceFactory import InputSourceFactory
 
             input_source_class = item_config['class']
             input_source_options = item_config.get('options', {})
@@ -364,7 +364,7 @@ class Item(BaseModel):
         # Apply processors if configured
         processors_config = item_config.get('processors', []) if item_config else []
         if processors_config:
-            from plexus.processors.ProcessorFactory import ProcessorFactory
+            from primus.processors.ProcessorFactory import ProcessorFactory
 
             for processor_config in processors_config:
                 processor_class = processor_config.get('class')
@@ -444,7 +444,7 @@ class Item(BaseModel):
         by using the Identifier table's GSI for efficient lookups.
         
         Args:
-            client: PlexusDashboardClient instance
+            client: PrimusDashboardClient instance
             account_id: The Plexus account ID
             identifiers: Dict containing identifier values like {'formId': '12345', 'reportId': '67890'}
             external_id: Optional external ID for the item
@@ -675,7 +675,7 @@ class Item(BaseModel):
         3. Prevent cross-contamination by validating the relationship
         
         Args:
-            client: PlexusDashboardClient instance
+            client: PrimusDashboardClient instance
             account_id: The account ID
             identifiers: Dict containing identifier values
             debug: Enable debug logging
@@ -799,7 +799,7 @@ class Item(BaseModel):
         Look up an Item by its externalId within an account (fallback method).
         
         Args:
-            client: PlexusDashboardClient instance
+            client: PrimusDashboardClient instance
             account_id: The account ID
             external_id: The external ID to search for
             debug: Enable debug logging
@@ -862,7 +862,7 @@ class Item(BaseModel):
         Looks up identifiers by NAME for the Item, then checks if the value needs updating.
         
         Args:
-            client: PlexusDashboardClient instance
+            client: PrimusDashboardClient instance
             account_id: The account ID  
             item_id: The Item's ID
             identifiers: Dict containing all desired identifier values
@@ -932,7 +932,7 @@ class Item(BaseModel):
         Create separate Identifier records for an Item.
         
         Args:
-            client: PlexusDashboardClient instance
+            client: PrimusDashboardClient instance
             item_id: The Item's ID
             account_id: The account ID
             identifiers: Dict containing identifier values

@@ -8,7 +8,7 @@ import pytest
 from tactus.core.exceptions import ProcedureWaitingForHuman
 from tactus.protocols.models import HITLRequest
 
-from primus.cli.procedure.tactus_adapters.hitl import PlexusHITLAdapter
+from primus.cli.procedure.tactus_adapters.hitl import PrimusHITLAdapter
 from primus.dashboard.api.client import LONG_RUNNING_WRITE_RETRY_POLICY_NAME
 
 
@@ -107,7 +107,7 @@ def test_structured_hitl_uses_existing_pending_message_with_authority_envelope()
     client.execute.return_value = {"createChatMessage": {"id": "pending-msg-1"}}
     storage = Mock()
     storage.load_procedure_metadata.return_value = SimpleNamespace(waiting_on_message_id=None)
-    adapter = PlexusHITLAdapter(
+    adapter = PrimusHITLAdapter(
         client=client,
         procedure_id="procedure-1",
         chat_recorder=Mock(session_id="session-1", account_id="account-1"),
@@ -143,7 +143,7 @@ def test_structured_hitl_first_valid_same_account_response_claims_pending_parent
         },
         {"updateChatMessage": {"id": "pending-msg-1", "responseStatus": "COMPLETED", "responseOwner": "response-winner"}},
     ]
-    adapter = PlexusHITLAdapter(
+    adapter = PrimusHITLAdapter(
         client=client,
         procedure_id="procedure-1",
         chat_recorder=Mock(session_id="session-1", account_id="account-1"),
@@ -189,7 +189,7 @@ def test_structured_hitl_claims_oldest_valid_response_not_latest():
             }
         },
     ]
-    adapter = PlexusHITLAdapter(
+    adapter = PrimusHITLAdapter(
         client=client,
         procedure_id="procedure-1",
         chat_recorder=Mock(session_id="session-1", account_id="account-1"),
@@ -223,7 +223,7 @@ def test_structured_hitl_conditional_loser_uses_recorded_winner():
             "listChatMessageByParentMessageId": {"items": [recorded_winner, losing_candidate]},
         },
     ]
-    adapter = PlexusHITLAdapter(
+    adapter = PrimusHITLAdapter(
         client=client,
         procedure_id="procedure-1",
         chat_recorder=Mock(session_id="session-1", account_id="account-1"),
@@ -254,7 +254,7 @@ def test_structured_hitl_expired_or_stale_request_fails_closed(
         "getChatMessage": _pending_message(control),
         "listChatMessageByParentMessageId": {"items": [child]},
     }
-    adapter = PlexusHITLAdapter(
+    adapter = PrimusHITLAdapter(
         client=client,
         procedure_id="procedure-1",
         chat_recorder=Mock(session_id="session-1", account_id="account-1"),
@@ -282,7 +282,7 @@ def test_structured_hitl_skips_schema_invalid_child_and_claims_next_valid_child(
         },
         {"updateChatMessage": {"id": "pending-msg-1", "responseStatus": "COMPLETED", "responseOwner": "response-valid"}},
     ]
-    adapter = PlexusHITLAdapter(
+    adapter = PrimusHITLAdapter(
         client=client,
         procedure_id="procedure-1",
         chat_recorder=Mock(session_id="session-1", account_id="account-1"),
@@ -304,7 +304,7 @@ def test_structured_hitl_cross_account_child_fails_closed_without_claiming():
         "getChatMessage": _pending_message(control),
         "listChatMessageByParentMessageId": {"items": [child]},
     }
-    adapter = PlexusHITLAdapter(
+    adapter = PrimusHITLAdapter(
         client=client,
         procedure_id="procedure-1",
         chat_recorder=Mock(session_id="session-1", account_id="account-1"),
@@ -334,7 +334,7 @@ def test_request_interaction_creates_pending_message_and_sets_waiting_status():
     storage = Mock()
     storage.load_procedure_metadata.return_value = SimpleNamespace(waiting_on_message_id=None)
 
-    adapter = PlexusHITLAdapter(
+    adapter = PrimusHITLAdapter(
         client=client,
         procedure_id="procedure-1",
         chat_recorder=chat_recorder,
@@ -405,7 +405,7 @@ def test_request_interaction_returns_response_from_existing_pending_message():
     storage = Mock()
     storage.load_procedure_metadata.return_value = SimpleNamespace(waiting_on_message_id="pending-msg-1")
 
-    adapter = PlexusHITLAdapter(
+    adapter = PrimusHITLAdapter(
         client=client,
         procedure_id="procedure-1",
         chat_recorder=chat_recorder,
@@ -438,7 +438,7 @@ def test_check_pending_response_ignores_non_canonical_response_payload():
             ]
         }
     }
-    adapter = PlexusHITLAdapter(client=client, procedure_id="procedure-1")
+    adapter = PrimusHITLAdapter(client=client, procedure_id="procedure-1")
 
     response = adapter.check_pending_response("procedure-1", "pending-msg-1")
     assert response is None
@@ -454,7 +454,7 @@ def test_request_interaction_reuses_existing_unresolved_pending_message():
 
     storage = Mock()
     storage.load_procedure_metadata.return_value = SimpleNamespace(waiting_on_message_id="pending-msg-1")
-    adapter = PlexusHITLAdapter(
+    adapter = PrimusHITLAdapter(
         client=client,
         procedure_id="procedure-1",
         chat_recorder=Mock(session_id="session-1"),
@@ -477,7 +477,7 @@ def test_cancel_pending_request_uses_long_running_retry_policy():
 
     storage = Mock()
     storage.load_procedure_metadata.return_value = SimpleNamespace(waiting_on_message_id="pending-msg-1")
-    adapter = PlexusHITLAdapter(
+    adapter = PrimusHITLAdapter(
         client=client,
         procedure_id="procedure-1",
         chat_recorder=Mock(session_id="session-1"),

@@ -40,7 +40,7 @@ from .client import PlexusAPIClient
 from .models.account import Account
 from .models.scorecard import Scorecard
 from .models.score import Score
-from plexus.utils.dict_utils import truncate_dict_strings_inner
+from primus.utils.dict_utils import truncate_dict_strings_inner
 import logging
 
 @dataclass

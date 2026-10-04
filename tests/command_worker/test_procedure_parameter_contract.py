@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from click.testing import CliRunner
 
 from primus.cli.procedure import procedures
-from primus.command_worker.executors import PlexusCliExecutor
+from primus.command_worker.executors import PrimusCliExecutor
 from primus.command_worker.models import CommandEnvelope
 
 
@@ -55,12 +55,12 @@ def test_worker_argv_preserves_scalar_array_and_nested_procedure_parameters(monk
     ]
 
     def invoke_cli() -> None:
-        # PlexusCliExecutor supplies the root command; invoke this Click leaf
+        # PrimusCliExecutor supplies the root command; invoke this Click leaf
         # with the arguments the root command dispatches to ``procedure run``.
         result = CliRunner().invoke(procedures.run, sys.argv[3:])
         assert result.exit_code == 0, result.output
 
-    PlexusCliExecutor(invoke_cli).execute(
+    PrimusCliExecutor(invoke_cli).execute(
         envelope({"argv": argv, "task_id": "command-1"}), Context()
     )
 

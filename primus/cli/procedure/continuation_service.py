@@ -104,8 +104,8 @@ def _load_procedure(client, procedure_id: str) -> Dict[str, Any]:
 
 def _count_completed_cycles(client, procedure_id: str) -> int:
     """Return the number of completed optimizer cycles stored in State."""
-    from primus.cli.procedure.tactus_adapters.storage import PlexusStorageAdapter
-    storage = PlexusStorageAdapter(client, procedure_id)
+    from primus.cli.procedure.tactus_adapters.storage import PrimusStorageAdapter
+    storage = PrimusStorageAdapter(client, procedure_id)
     iterations = storage.state_get(procedure_id, 'iterations') or []
     return len(iterations) if isinstance(iterations, (list, tuple)) else 0
 
@@ -180,7 +180,7 @@ def build_continuation_context(
       3) recent baseline evaluation parameters
       4) preserved optimizer State / procedure identifiers
     """
-    from primus.cli.procedure.tactus_adapters.storage import PlexusStorageAdapter
+    from primus.cli.procedure.tactus_adapters.storage import PrimusStorageAdapter
     from primus.cli.shared.experiment_runner import (
         _extract_run_parameters_from_procedure_yaml,
         _find_existing_task_for_procedure,
@@ -199,7 +199,7 @@ def build_continuation_context(
             if isinstance(run_parameters, dict):
                 context.update(run_parameters)
 
-    storage = PlexusStorageAdapter(client, procedure_id)
+    storage = PrimusStorageAdapter(client, procedure_id)
     recent_baseline_id = storage.state_get(procedure_id, "recent_baseline_id")
     if recent_baseline_id:
         evaluation_result = client.execute(

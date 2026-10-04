@@ -3,18 +3,18 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from primus.cli.procedure.tactus_adapters.trace import PlexusTraceSink
+from primus.cli.procedure.tactus_adapters.trace import PrimusTraceSink
 
 
 def test_trace_sink_stream_update_defaults_are_responsive():
-    assert PlexusTraceSink.STREAM_UPDATE_MAX_INTERVAL_SECONDS <= 0.25
-    assert PlexusTraceSink.STREAM_UPDATE_MIN_CHARS_DELTA <= 16
-    assert PlexusTraceSink.STREAM_UPDATE_MAX_INTERVAL_SECONDS > 0
-    assert PlexusTraceSink.STREAM_UPDATE_MIN_CHARS_DELTA > 0
+    assert PrimusTraceSink.STREAM_UPDATE_MAX_INTERVAL_SECONDS <= 0.25
+    assert PrimusTraceSink.STREAM_UPDATE_MIN_CHARS_DELTA <= 16
+    assert PrimusTraceSink.STREAM_UPDATE_MAX_INTERVAL_SECONDS > 0
+    assert PrimusTraceSink.STREAM_UPDATE_MIN_CHARS_DELTA > 0
 
 
 def test_trace_sink_persists_nested_report_task_id_in_tool_metadata():
-    sink = PlexusTraceSink(AsyncMock())
+    sink = PrimusTraceSink(AsyncMock())
     patch = sink._tool_metadata_patch({"value": {"task_id": "task-1", "report_id": "report-1"}})
     assert patch["console_report_task"] == {"task_id": "task-1", "report_id": "report-1"}
 
@@ -25,7 +25,7 @@ async def test_trace_sink_records_tool_call_with_structured_payloads():
     recorder.start_session.return_value = "sess-1"
     recorder.record_message.return_value = "msg-1"
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session({"scorecard_id": "sc-1"})
 
     event = SimpleNamespace(
@@ -58,7 +58,7 @@ async def test_trace_sink_records_modern_tool_call_event_shape():
     recorder.start_session.return_value = "sess-1"
     recorder.record_message.return_value = "msg-2"
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
 
     event = {
@@ -89,7 +89,7 @@ async def test_trace_sink_captures_console_score_edit_audit_events_from_execute_
     recorder.start_session.return_value = "sess-1"
     recorder.record_message.return_value = "msg-3"
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
 
     event = {
@@ -158,7 +158,7 @@ async def test_trace_sink_captures_compact_score_edit_audit_event():
     recorder.start_session.return_value = "sess-1"
     recorder.record_message.return_value = "msg-4"
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
 
     event = {
@@ -205,7 +205,7 @@ async def test_trace_sink_captures_nested_value_score_edit_audit_event():
     recorder.start_session.return_value = "sess-1"
     recorder.record_message.return_value = "msg-5"
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
 
     event = {
@@ -252,7 +252,7 @@ async def test_trace_sink_ends_session_with_status():
     recorder = AsyncMock()
     recorder.start_session.return_value = "sess-1"
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
     await sink.end_session(status="FAILED")
 
@@ -264,7 +264,7 @@ async def test_trace_sink_drops_placeholder_assistant_completion_message():
     recorder = AsyncMock()
     recorder.start_session.return_value = "sess-1"
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
 
     message_id = await sink.record(
@@ -285,7 +285,7 @@ async def test_trace_sink_drops_blank_internal_message_events():
     recorder = AsyncMock()
     recorder.start_session.return_value = "sess-1"
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
 
     message_id = await sink.record(
@@ -308,7 +308,7 @@ async def test_trace_sink_stream_chunk_upserts_single_assistant_message():
     recorder.record_message.return_value = "msg-stream-1"
     recorder.update_message.return_value = True
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
 
     first_message_id = await sink.record(
@@ -350,7 +350,7 @@ async def test_trace_sink_does_not_repersist_identical_punctuation_terminated_ch
     recorder.record_message.return_value = "msg-stream-1"
     recorder.update_message.return_value = True
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
 
     await sink.record(
@@ -382,7 +382,7 @@ async def test_trace_sink_stream_completion_finalizes_message_and_tracks_text():
     recorder.record_message.return_value = "msg-stream-1"
     recorder.update_message.return_value = True
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
     await sink.record(
         {
@@ -415,7 +415,7 @@ async def test_trace_sink_drops_duplicate_post_stream_assistant_message():
     recorder.record_message.return_value = "msg-stream-1"
     recorder.update_message.return_value = True
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
     await sink.record(
         {
@@ -459,7 +459,7 @@ async def test_trace_sink_stream_metadata_contains_latency_markers():
         },
     }
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     sink.mark_runtime_execute_started("2026-03-28T01:00:01+00:00")
     await sink.start_session()
 
@@ -503,7 +503,7 @@ async def test_trace_sink_skips_dispatch_metadata_lookup_when_disabled():
     recorder.update_message.return_value = True
     recorder.get_latest_console_chat_metadata.side_effect = RuntimeError("should not be called")
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session({"disable_console_dispatch_metadata_lookup": True})
 
     await sink.record(
@@ -536,7 +536,7 @@ async def test_trace_sink_skips_dispatch_metadata_lookup_for_builtin_console_pro
     recorder.update_message.return_value = True
     recorder.get_latest_console_chat_metadata.side_effect = RuntimeError("should not be called")
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
 
     await sink.record(
@@ -567,7 +567,7 @@ async def test_trace_sink_cost_events_attach_to_streamed_assistant_message():
     recorder.record_message.return_value = "msg-stream-1"
     recorder.update_message.return_value = True
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
     await sink.record({"event_type": "agent_turn", "agent_name": "assistant", "stage": "started"})
     await sink.record(
@@ -612,7 +612,7 @@ async def test_trace_sink_tool_call_message_includes_tool_cost_metadata():
     recorder.start_session.return_value = "sess-1"
     recorder.record_message.return_value = "msg-tool-1"
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
 
     event = {
@@ -668,7 +668,7 @@ async def test_trace_sink_does_not_attach_zero_cost_placeholder_to_assistant_mes
     recorder.record_message.return_value = "msg-assistant-1"
     recorder.update_message.return_value = True
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
 
     await sink.record({"event_type": "agent_turn", "agent_name": "code_editor", "stage": "started"})
@@ -692,7 +692,7 @@ async def test_trace_sink_late_cost_event_updates_recent_assistant_message():
     recorder.record_message.return_value = "msg-assistant-1"
     recorder.update_message.return_value = True
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
 
     await sink.record({"event_type": "agent_turn", "agent_name": "code_editor", "stage": "started"})
@@ -738,7 +738,7 @@ async def test_trace_sink_updates_started_tool_call_from_explicit_tool_response(
     recorder.record_message.return_value = "msg-tool-1"
     recorder.update_message.return_value = True
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
 
     started_id = await sink.record(
@@ -771,7 +771,7 @@ async def test_trace_sink_records_assistant_alert_for_failed_tool_result():
     recorder.record_message.side_effect = ["msg-tool-1", "msg-alert-1"]
     recorder.update_message.return_value = True
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
 
     await sink.record(
@@ -806,7 +806,7 @@ async def test_trace_sink_does_not_flag_successful_string_tool_output_as_failure
     recorder.record_message.return_value = "msg-tool-1"
     recorder.update_message.return_value = True
 
-    sink = PlexusTraceSink(recorder)
+    sink = PrimusTraceSink(recorder)
     await sink.start_session()
 
     await sink.record(

@@ -4,7 +4,7 @@ Tests for ReportBlock model — focusing on the get_by_id classmethod.
 
 import pytest
 from unittest.mock import Mock
-from plexus.dashboard.api.models.report_block import ReportBlock
+from primus.dashboard.api.models.report_block import ReportBlock
 
 
 @pytest.fixture

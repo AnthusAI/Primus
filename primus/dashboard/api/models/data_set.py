@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional, List, Dict, Any
-from plexus.dashboard.api.models.base import BaseModel
+from primus.dashboard.api.models.base import BaseModel
 
 if TYPE_CHECKING:
-    from plexus.dashboard.api.models.data_source import DataSource
+    from primus.dashboard.api.models.data_source import DataSource
 
 class DataSet(BaseModel):
     _model_name = "DataSet"

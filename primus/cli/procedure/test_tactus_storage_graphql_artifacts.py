@@ -24,7 +24,7 @@ import pytest
 from tactus.protocols.models import CheckpointEntry, ProcedureMetadata
 
 from primus.cli.procedure.tactus_adapters.storage import (
-    PlexusStorageAdapter,
+    PrimusStorageAdapter,
     ProcedureArtifactStorageError,
     download_procedure_attachment,
     upload_procedure_attachment,
@@ -127,12 +127,12 @@ def test_start_checkpoint_stop_and_resume_use_graphql_artifacts_without_s3(monke
         "client",
         lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("S3 must not be used")),
     )
-    storage = PlexusStorageAdapter(client, "procedure-1", artifact_store=artifacts)
+    storage = PrimusStorageAdapter(client, "procedure-1", artifact_store=artifacts)
 
     storage.save_procedure_metadata("procedure-1", _metadata())
     storage.checkpoint_save("procedure-1", "paused", {"phase": "checkpoint"})
     storage.update_procedure_status("procedure-1", "STOPPED")
-    resumed = PlexusStorageAdapter(
+    resumed = PrimusStorageAdapter(
         client,
         "procedure-1",
         artifact_store=artifacts,
@@ -192,7 +192,7 @@ def test_resume_supports_legacy_named_checkpoint_object_format():
     }
     artifacts.objects["procedures/procedure-1/checkpoints.json"] = json.dumps(checkpoints).encode()
 
-    resumed = PlexusStorageAdapter(
+    resumed = PrimusStorageAdapter(
         client,
         "procedure-1",
         artifact_store=artifacts,
@@ -214,7 +214,7 @@ def test_resume_rejects_legacy_pointer_without_checksum_or_size():
     }
 
     with pytest.raises(ProcedureArtifactStorageError, match="integrity"):
-        PlexusStorageAdapter(
+        PrimusStorageAdapter(
             client,
             "procedure-1",
             artifact_store=_MemoryArtifactStore(),

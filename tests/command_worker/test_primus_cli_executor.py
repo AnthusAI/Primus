@@ -14,7 +14,7 @@ from langchain_community.cache import SQLiteCache
 from langchain_core.globals import get_llm_cache, set_llm_cache
 
 from primus.cli.shared.CommandProgress import CommandProgress
-from primus.command_worker.executors import PlexusCliExecutor
+from primus.command_worker.executors import PrimusCliExecutor
 from primus.command_worker.executors.primus_cli import create_executor
 from primus.command_worker.models import CommandEnvelope
 
@@ -58,7 +58,7 @@ def envelope(payload) -> CommandEnvelope:
 
 
 def test_runtime_plugin_factory_creates_the_cli_executor() -> None:
-    assert isinstance(create_executor(), PlexusCliExecutor)
+    assert isinstance(create_executor(), PrimusCliExecutor)
 
 
 def test_executor_invokes_cli_with_typed_argv_and_reports_progress(monkeypatch) -> None:
@@ -75,7 +75,7 @@ def test_executor_invokes_cli_with_typed_argv_and_reports_progress(monkeypatch) 
         CommandProgress.update(2, 4, "running")
 
     context = Context()
-    result = PlexusCliExecutor(invoke_cli).execute(
+    result = PrimusCliExecutor(invoke_cli).execute(
         envelope({"argv": ["evaluate", "run"], "task_id": "dashboard-task-1"}),
         context,
     )
@@ -107,7 +107,7 @@ def test_executor_restores_process_bindings_after_cli_failure(monkeypatch) -> No
         raise RuntimeError("command failed")
 
     with pytest.raises(RuntimeError, match="command failed"):
-        PlexusCliExecutor(invoke_cli).execute(
+        PrimusCliExecutor(invoke_cli).execute(
             envelope({"argv": ["evaluate"], "task_id": "dashboard-task-1"}),
             Context(),
         )
@@ -127,7 +127,7 @@ def test_executor_preserves_captured_output_when_click_aborts() -> None:
         RuntimeError,
         match="CLI command aborted: Report configuration could not be resolved",
     ):
-        PlexusCliExecutor(invoke_cli).execute(envelope({"argv": ["report"]}), Context())
+        PrimusCliExecutor(invoke_cli).execute(envelope({"argv": ["report"]}), Context())
 
 
 def test_executor_binds_each_envelope_account_without_sequential_leakage(
@@ -140,7 +140,7 @@ def test_executor_binds_each_envelope_account_without_sequential_leakage(
         observed.append(os.environ.get("PRIMUS_ACCOUNT_ID"))
         assert os.environ.get("PRIMUS_ACCOUNT_KEY") == "ambient-account"
 
-    executor = PlexusCliExecutor(invoke_cli)
+    executor = PrimusCliExecutor(invoke_cli)
     executor.execute(envelope({"argv": ["procedure"]}), Context())
     second = CommandEnvelope(
         schema_version=2,
@@ -189,7 +189,7 @@ def test_registered_report_cli_resolves_envelope_account_id(monkeypatch) -> None
         lambda **_kwargs: ("report-1", None, "task-1"),
     )
 
-    result = PlexusCliExecutor().execute(
+    result = PrimusCliExecutor().execute(
         envelope({"argv": ["report", "run", "--config", "report-config-1"]}),
         Context(),
     )
@@ -217,14 +217,14 @@ def test_registered_report_cli_resolves_envelope_account_id(monkeypatch) -> None
 )
 def test_executor_rejects_invalid_typed_command_payload(payload) -> None:
     with pytest.raises(ValueError):
-        PlexusCliExecutor().execute(envelope(payload), Context())
+        PrimusCliExecutor().execute(envelope(payload), Context())
 
 
 def test_executor_bounds_result_output() -> None:
     def invoke_cli() -> None:
         print("x" * 70_000)
 
-    result = PlexusCliExecutor(invoke_cli).execute(
+    result = PrimusCliExecutor(invoke_cli).execute(
         envelope({"argv": ["evaluate"]}), Context()
     )
 
@@ -237,7 +237,7 @@ def test_executor_disables_non_writable_langchain_sqlite_cache() -> None:
     set_llm_cache(SQLiteCache(database_path=str(db_file)))
     db_file.chmod(0o444)
     try:
-        PlexusCliExecutor._guard_langchain_cache_writability()
+        PrimusCliExecutor._guard_langchain_cache_writability()
         assert get_llm_cache() is None
     finally:
         set_llm_cache(None)
@@ -249,7 +249,7 @@ def test_executor_keeps_writable_langchain_sqlite_cache() -> None:
     db_file = Path(temp_dir) / "writable_cache.db"
     set_llm_cache(SQLiteCache(database_path=str(db_file)))
     try:
-        PlexusCliExecutor._guard_langchain_cache_writability()
+        PrimusCliExecutor._guard_langchain_cache_writability()
         assert isinstance(get_llm_cache(), SQLiteCache)
     finally:
         set_llm_cache(None)
@@ -271,7 +271,7 @@ def test_executor_runs_cli_from_writable_runtime_directory(monkeypatch, tmp_path
         SQLiteCache()
 
     try:
-        PlexusCliExecutor(invoke_cli).execute(envelope({"argv": ["evaluate"]}), Context())
+        PrimusCliExecutor(invoke_cli).execute(envelope({"argv": ["evaluate"]}), Context())
     finally:
         read_only_dir.chmod(0o755)
 
@@ -292,7 +292,7 @@ def test_executor_runtime_resolves_repository_procedure_yaml() -> None:
             "primus/procedures/feedback_alignment_optimizer.yaml"
         )
 
-    PlexusCliExecutor(invoke_cli).execute(
+    PrimusCliExecutor(invoke_cli).execute(
         envelope(
             {
                 "argv": [

@@ -5,10 +5,10 @@ from unittest.mock import Mock
 
 import pytest
 
-from plexus.dashboard.api.models.evaluation import Evaluation
-from plexus.dashboard.api.models.procedure import Procedure
-from plexus.dashboard.api.models.report import Report
-from plexus.dashboard.api.models.score import Score
+from primus.dashboard.api.models.evaluation import Evaluation
+from primus.dashboard.api.models.procedure import Procedure
+from primus.dashboard.api.models.report import Report
+from primus.dashboard.api.models.score import Score
 
 
 pytestmark = pytest.mark.unit

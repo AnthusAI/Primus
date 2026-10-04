@@ -175,7 +175,7 @@ _GRAPHQL_RETRY_POLICIES = {
     CHAT_STREAM_WRITE_RETRY_POLICY_NAME: CHAT_STREAM_WRITE_RETRY_POLICY,
 }
 
-from plexus.utils import truncate_dict_strings_inner
+from primus.utils import truncate_dict_strings_inner
 
 _RETRYABLE_QUERY_ERROR_TYPES = {
     "DynamoDB:ThrottlingException",
@@ -316,7 +316,7 @@ class _BaseAPIClient:
         elif self.auth_mode == "cognito":
             try:
                 if self._token_provider is None:
-                    from plexus.auth.cognito import CognitoAuthService
+                    from primus.auth.cognito import CognitoAuthService
                     self._token_provider = CognitoAuthService()
             except Exception as exc:
                 raise ValueError(
@@ -621,7 +621,7 @@ class _BaseAPIClient:
         Raises:
             ValueError: If the score cannot be loaded
         """
-        from plexus.scores.Score import Score
+        from primus.scores.Score import Score
         
         return Score.load(
             scorecard_identifier=scorecard_identifier,
@@ -1079,7 +1079,7 @@ class _BaseAPIClient:
         
         return full_url
 
-class PlexusDashboardClient(_BaseAPIClient):
+class PrimusDashboardClient(_BaseAPIClient):
     """
     Client for the Plexus Dashboard API.
     
@@ -1122,7 +1122,7 @@ class PlexusDashboardClient(_BaseAPIClient):
         return False  # Don't suppress exceptions
     
     @classmethod
-    def for_account(cls, account_key: str) -> 'PlexusDashboardClient':
+    def for_account(cls, account_key: str) -> 'PrimusDashboardClient':
         """Create a client initialized with account context"""
         return cls(context=ClientContext(account_key=account_key))
         
@@ -1132,7 +1132,7 @@ class PlexusDashboardClient(_BaseAPIClient):
         account_key: str,
         scorecard_key: str,
         score_name: Optional[str] = None
-    ) -> 'PlexusDashboardClient':
+    ) -> 'PrimusDashboardClient':
         """Create a client initialized with full scoring context"""
         return cls(context=ClientContext(
             account_key=account_key,

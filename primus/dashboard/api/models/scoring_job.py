@@ -5,7 +5,7 @@ from .base import BaseModel
 from .batch_job import BatchJob
 import json
 import logging
-from plexus.utils.dict_utils import truncate_dict_strings_inner
+from primus.utils.dict_utils import truncate_dict_strings_inner
 
 if TYPE_CHECKING:
     from ..client import _BaseAPIClient

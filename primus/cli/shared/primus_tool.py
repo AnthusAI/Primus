@@ -30,7 +30,7 @@ from primus.attribution.actor_context import apply_actor_attribution
 
 console = Console()
 
-class PlexusTool:
+class PrimusTool:
     """Tool for Claude to interact with Primus scores and scorecards."""
     
     def __init__(self):

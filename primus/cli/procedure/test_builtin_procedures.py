@@ -11,7 +11,7 @@ from primus.cli.procedure.builtin_procedures import (
     is_builtin_procedure_id,
 )
 from primus.cli.procedure.service import ProcedureService
-from primus.cli.procedure.tactus_adapters.storage import PlexusStorageAdapter
+from primus.cli.procedure.tactus_adapters.storage import PrimusStorageAdapter
 
 
 def _console_policy_source(parsed):
@@ -519,7 +519,7 @@ async def test_run_procedure_builtin_skips_mcp_server_when_disabled():
 
 def test_builtin_storage_adapter_uses_in_memory_metadata():
     client = Mock()
-    storage = PlexusStorageAdapter(client, CONSOLE_CHAT_BUILTIN_ID)
+    storage = PrimusStorageAdapter(client, CONSOLE_CHAT_BUILTIN_ID)
 
     metadata = storage.load_procedure_metadata(CONSOLE_CHAT_BUILTIN_ID)
     metadata.state["k"] = "v"

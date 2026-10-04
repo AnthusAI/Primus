@@ -37,17 +37,17 @@ from dataclasses import dataclass
 # Lazy import to avoid circular dependency
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from ..client import PlexusDashboardClient
+    from ..client import PrimusDashboardClient
 
 T = TypeVar('T', bound='BaseModel')
 
 class BaseModel:
-    def __init__(self, id: str, client: Optional['PlexusDashboardClient'] = None):
+    def __init__(self, id: str, client: Optional['PrimusDashboardClient'] = None):
         self.id = id
         self._client = client
     
     @classmethod
-    def get_by_id(cls: Type[T], id: str, client: 'PlexusDashboardClient') -> T:
+    def get_by_id(cls: Type[T], id: str, client: 'PrimusDashboardClient') -> T:
         query = f"""
         query Get{cls.__name__}($id: ID!) {{
             get{cls.__name__}(id: $id) {{
@@ -74,6 +74,6 @@ class BaseModel:
         raise NotImplementedError
     
     @classmethod
-    def from_dict(cls: Type[T], data: Dict[str, Any], client: 'PlexusDashboardClient') -> T:
+    def from_dict(cls: Type[T], data: Dict[str, Any], client: 'PrimusDashboardClient') -> T:
         """Create an instance from a dictionary of data"""
         raise NotImplementedError

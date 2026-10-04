@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 import json
 
 if TYPE_CHECKING:
-    from ..client import PlexusDashboardClient
+    from ..client import PrimusDashboardClient
 
 @pytest.fixture
 def mock_client():

@@ -2,7 +2,7 @@ import json
 
 from tactus.protocols.models import ProcedureMetadata
 
-from primus.cli.procedure.tactus_adapters.storage import PlexusStorageAdapter
+from primus.cli.procedure.tactus_adapters.storage import PrimusStorageAdapter
 from primus.dashboard.api.client import LONG_RUNNING_WRITE_RETRY_POLICY_NAME
 
 
@@ -75,7 +75,7 @@ def test_save_procedure_metadata_preserves_runtime_and_failure_fields(monkeypatc
         ),
     )
 
-    storage = PlexusStorageAdapter(fake_client, "proc-123", artifact_store=artifact_store)
+    storage = PrimusStorageAdapter(fake_client, "proc-123", artifact_store=artifact_store)
     metadata = ProcedureMetadata(
         procedure_id="proc-123",
         execution_log=[],
@@ -105,7 +105,7 @@ def test_save_procedure_metadata_preserves_runtime_and_failure_fields(monkeypatc
 
 def test_update_procedure_status_uses_long_running_write_policy():
     fake_client = _FakeClient()
-    storage = PlexusStorageAdapter(fake_client, "proc-123")
+    storage = PrimusStorageAdapter(fake_client, "proc-123")
 
     storage.update_procedure_status("proc-123", "RUNNING", waiting_on_message_id="msg-1")
 

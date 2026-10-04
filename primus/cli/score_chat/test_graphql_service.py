@@ -33,7 +33,7 @@ class TestGraphQLChatService:
              patch('primus.cli.score_chat.graphql_service.PrimusDashboardClient', return_value=mock_client), \
              patch('primus.cli.shared.client_utils.create_client', return_value=mock_client), \
              patch('primus.cli.shared.file_editor.FileEditor'), \
-             patch('primus.cli.score_chat.service.PlexusTool'), \
+             patch('primus.cli.score_chat.service.PrimusTool'), \
              patch('langchain_anthropic.ChatAnthropic'), \
              patch.dict('os.environ', {'ANTHROPIC_API_KEY': 'test-key'}):
             service = GraphQLChatService(
@@ -71,7 +71,7 @@ class TestGraphQLChatService:
              patch('primus.cli.score_chat.graphql_service.PrimusDashboardClient', return_value=mock_client), \
              patch('primus.cli.shared.client_utils.create_client', return_value=mock_client), \
              patch('primus.cli.shared.file_editor.FileEditor'), \
-             patch('primus.cli.score_chat.service.PlexusTool'), \
+             patch('primus.cli.score_chat.service.PrimusTool'), \
              patch('langchain_anthropic.ChatAnthropic'), \
              patch.dict('os.environ', {'ANTHROPIC_API_KEY': 'test-key'}):
             service = GraphQLChatService(experiment_id=experiment_id)
@@ -113,7 +113,7 @@ class TestGraphQLChatService:
              patch('primus.cli.score_chat.graphql_service.PrimusDashboardClient', return_value=mock_client), \
              patch('primus.cli.shared.client_utils.create_client', return_value=mock_client), \
              patch('primus.cli.shared.file_editor.FileEditor'), \
-             patch('primus.cli.score_chat.service.PlexusTool'), \
+             patch('primus.cli.score_chat.service.PrimusTool'), \
              patch('langchain_anthropic.ChatAnthropic'), \
              patch.dict('os.environ', {'ANTHROPIC_API_KEY': 'test-key'}):
             service = GraphQLChatService(session_id="session-123", experiment_id=experiment_id)
@@ -311,7 +311,7 @@ class TestFileEditorIntegration:
              patch('primus.cli.score_chat.graphql_service.PrimusDashboardClient'), \
              patch('primus.cli.shared.client_utils.create_client'), \
              patch('primus.cli.shared.file_editor.FileEditor'), \
-             patch('primus.cli.score_chat.service.PlexusTool'), \
+             patch('primus.cli.score_chat.service.PrimusTool'), \
              patch('langchain_anthropic.ChatAnthropic'), \
              patch.dict('os.environ', {'ANTHROPIC_API_KEY': 'test-key'}):
             service = GraphQLChatService()
@@ -328,7 +328,7 @@ class TestFileEditorIntegration:
              patch('primus.cli.score_chat.graphql_service.PrimusDashboardClient'), \
              patch('primus.cli.shared.client_utils.create_client'), \
              patch('primus.cli.shared.file_editor.FileEditor'), \
-             patch('primus.cli.score_chat.service.PlexusTool'), \
+             patch('primus.cli.score_chat.service.PrimusTool'), \
              patch('langchain_anthropic.ChatAnthropic'), \
              patch.dict('os.environ', {'ANTHROPIC_API_KEY': 'test-key'}):
             service = GraphQLChatService(scorecard="test", score="test")

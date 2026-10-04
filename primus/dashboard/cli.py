@@ -7,9 +7,9 @@ is organized by model (evaluation, account, etc.), with subcommands for operatio
 (create, update, etc.).
 
 Example command structure:
-    plexus-dashboard evaluation create  # Creates an Evaluation record
-    plexus-dashboard evaluation update  # Updates an Evaluation record
-    plexus-dashboard account list      # Lists Account records
+    primus-dashboard evaluation create  # Creates an Evaluation record
+    primus-dashboard evaluation update  # Updates an Evaluation record
+    primus-dashboard account list      # Lists Account records
 
 Each command's options correspond directly to the GraphQL model's fields,
 making it easy to set any attribute that exists in the schema.
@@ -20,12 +20,12 @@ import click
 import logging
 from dotenv import load_dotenv
 from typing import Optional
-from plexus.dashboard.api.client import PlexusDashboardClient
-from plexus.dashboard.api.models.account import Account
-from plexus.dashboard.api.models.evaluation import Evaluation
-from plexus.dashboard.api.models.scorecard import Scorecard
-from plexus.dashboard.api.models.score import Score
-from plexus.dashboard.api.models.score_result import ScoreResult
+from primus.dashboard.api.client import PrimusDashboardClient
+from primus.dashboard.api.models.account import Account
+from primus.dashboard.api.models.evaluation import Evaluation
+from primus.dashboard.api.models.scorecard import Scorecard
+from primus.dashboard.api.models.score import Score
+from primus.dashboard.api.models.score_result import ScoreResult
 import json
 import random
 import time
@@ -36,7 +36,7 @@ from sklearn.metrics import (
     confusion_matrix,
     accuracy_score
 )
-from plexus.dashboard.commands.simulate import (
+from primus.dashboard.commands.simulate import (
     generate_class_distribution,
     simulate_prediction,
     select_metrics_and_explanation,
@@ -49,7 +49,7 @@ import yaml
 import boto3
 from botocore.config import Config
 
-from plexus.CustomLogging import logging
+from primus.CustomLogging import logging
 
 # Add after other constants
 SCORE_TYPES = ['binary', 'multiclass']
@@ -69,9 +69,9 @@ def evaluation():
     """Manage evaluations"""
     pass
 
-def create_client() -> PlexusDashboardClient:
+def create_client() -> PrimusDashboardClient:
     """Create a client and log its configuration"""
-    client = PlexusDashboardClient()
+    client = PrimusDashboardClient()
     logging.info(f"Using API URL: {client.api_url}")
     return client
 
@@ -133,9 +133,9 @@ def create(
     """Create a new evaluation with specified attributes.
     
     Examples:
-        plexus-dashboard evaluation create --type accuracy
-        plexus-dashboard evaluation create --type accuracy --accuracy 95.5 --status COMPLETED
-        plexus-dashboard evaluation create --type consistency --scorecard-id abc123
+        primus-dashboard evaluation create --type accuracy
+        primus-dashboard evaluation create --type accuracy --accuracy 95.5 --status COMPLETED
+        primus-dashboard evaluation create --type consistency --scorecard-id abc123
     """
     client = create_client()
     
@@ -286,9 +286,9 @@ def update(
     The updatedAt timestamp is automatically set to the current time.
     
     Examples:
-        plexus-dashboard evaluation update abc123 --accuracy 97.8
-        plexus-dashboard evaluation update def456 --status COMPLETED
-        plexus-dashboard evaluation update ghi789 --type consistency --status FAILED
+        primus-dashboard evaluation update abc123 --accuracy 97.8
+        primus-dashboard evaluation update def456 --status COMPLETED
+        primus-dashboard evaluation update ghi789 --type consistency --status FAILED
     """
     client = create_client()
     
@@ -353,7 +353,7 @@ def score_result():
 @click.option('--metadata', type=str, help='JSON metadata (optional)')
 def create(value, item_id, account_id, scoring_job_id, scorecard_id, confidence, metadata):
     """Create a new score result"""
-    client = PlexusDashboardClient()
+    client = PrimusDashboardClient()
     
     kwargs = {}
     if confidence is not None:
@@ -388,11 +388,11 @@ def update(id: str, value: Optional[float], confidence: Optional[float], metadat
     """Update an existing score result
     
     Examples:
-        plexus-dashboard score-result update abc123 --value 0.98
-        plexus-dashboard score-result update def456 --confidence 0.95
-        plexus-dashboard score-result update ghi789 --metadata '{"source": "updated"}'
+        primus-dashboard score-result update abc123 --value 0.98
+        primus-dashboard score-result update def456 --confidence 0.95
+        primus-dashboard score-result update ghi789 --metadata '{"source": "updated"}'
     """
-    client = PlexusDashboardClient()
+    client = PrimusDashboardClient()
     
     try:
         # Get existing score result
@@ -586,7 +586,7 @@ def simulate(
     """
     try:
         # Initial client for setup
-        client = PlexusDashboardClient()
+        client = PrimusDashboardClient()
         
         # Look up or validate account
         if account_id:
@@ -694,7 +694,7 @@ def simulate(
         for i in range(num_items):
             try:
                 # Create new client for each iteration
-                iteration_client = PlexusDashboardClient()
+                iteration_client = PrimusDashboardClient()
                 
                 # Get next true value from pool
                 true_value = true_values_pool[i]
@@ -793,7 +793,7 @@ def simulate(
                 logging.info(f"Updating evaluation with data: {json.dumps(update_data, indent=2)}")
                 
                 # Create new client for update
-                update_client = PlexusDashboardClient()
+                update_client = PrimusDashboardClient()
                 # Use the client's updateEvaluation method directly
                 update_client.updateEvaluation(
                     id=evaluation.id,
@@ -812,7 +812,7 @@ def simulate(
                 logging.info(f"Generated {i + 1} of {num_items} results")
         
         # Final update
-        final_client = PlexusDashboardClient()
+        final_client = PrimusDashboardClient()
         final_client.updateEvaluation(
             id=evaluation.id,
             status="COMPLETED",
@@ -827,7 +827,7 @@ def simulate(
         if 'evaluation' in locals():
             try:
                 # Error update
-                error_client = PlexusDashboardClient()
+                error_client = PrimusDashboardClient()
                 error_client.updateEvaluation(
                     id=evaluation.id,
                     status="FAILED",
@@ -839,7 +839,7 @@ def simulate(
                 logging.error(f"Error updating evaluation status: {str(update_error)}")
         click.echo(f"Error: {str(e)}", err=True)
 
-def simulate_evaluation_progress(evaluation_id: str, client: PlexusDashboardClient):
+def simulate_evaluation_progress(evaluation_id: str, client: PrimusDashboardClient):
     """Simulate evaluation progress by updating metrics over time."""
     evaluation = client.get_evaluation(evaluation_id)
     
@@ -919,7 +919,7 @@ def simulate_evaluation_progress(evaluation_id: str, client: PlexusDashboardClie
 @click.option('--limit', type=int, default=1000, help='Maximum number of results to return')
 def list_results(id: str, limit: int):
     """List score results for an evaluation"""
-    client = PlexusDashboardClient()
+    client = PrimusDashboardClient()
     
     try:
         # Get evaluation with score results included
@@ -974,9 +974,9 @@ def create(evaluation_id: str, value: str):
     """Create a new result test record
     
     Example:
-        plexus-dashboard result-test create abc123 --value "test-value-1"
+        primus-dashboard result-test create abc123 --value "test-value-1"
     """
-    client = PlexusDashboardClient()
+    client = PrimusDashboardClient()
     
     try:
         # Execute the mutation directly since this is a test model
@@ -1016,7 +1016,7 @@ def create(evaluation_id: str, value: str):
 @cli.group()
 def scorecards():
     """Manage scorecards"""
-    click.echo("WARNING: The 'plexus-dashboard scorecard' commands are deprecated.", err=True)
+    click.echo("WARNING: The 'primus-dashboard scorecard' commands are deprecated.", err=True)
     click.echo("Please use the main 'plexus scorecards' commands instead.", err=True)
     pass
 
@@ -1028,10 +1028,10 @@ def list(account_key: Optional[str], name: Optional[str], key: Optional[str]):
     """List scorecards with optional filtering.
     
     Examples:
-        plexus-dashboard scorecards list
-        plexus-dashboard scorecards list --account-key my-account
-        plexus-dashboard scorecards list --name "QA Scorecard"
-        plexus-dashboard scorecards list --key qa-v1
+        primus-dashboard scorecards list
+        primus-dashboard scorecards list --account-key my-account
+        primus-dashboard scorecards list --name "QA Scorecard"
+        primus-dashboard scorecards list --key qa-v1
     """
     click.echo("WARNING: This command is deprecated. Please use 'plexus scorecards list-scorecards' instead.", err=True)
     # Forward to the main CLI command
@@ -1044,9 +1044,9 @@ def sync(account_key: str, directory: str):
     """Sync YAML scorecards to the API.
     
     Examples:
-        plexus-dashboard scorecards sync
-        plexus-dashboard scorecards sync --account-key my-account
-        plexus-dashboard scorecards sync --directory path/to/scorecards
+        primus-dashboard scorecards sync
+        primus-dashboard scorecards sync --account-key my-account
+        primus-dashboard scorecards sync --directory path/to/scorecards
     """
     click.echo("WARNING: This command is deprecated. Please use 'plexus scorecards sync' instead.", err=True)
     # Forward to the main CLI command
@@ -1059,8 +1059,8 @@ def find_duplicates(account_key: str, fix: bool):
     """Find duplicate scorecards and scores.
     
     Examples:
-        plexus-dashboard scorecards find-duplicates --account-key my-account
-        plexus-dashboard scorecards find-duplicates --account-key my-account --fix
+        primus-dashboard scorecards find-duplicates --account-key my-account
+        primus-dashboard scorecards find-duplicates --account-key my-account --fix
     """
     client = create_client()
     account = Account.get_by_key(account_key, client)
@@ -1158,9 +1158,9 @@ def list_scores(scorecard_id: Optional[str], scorecard_key: Optional[str], score
     """List all scores for a specific scorecard.
     
     Examples:
-        plexus-dashboard scorecards list-scores --scorecard-id 1234
-        plexus-dashboard scorecards list-scores --scorecard-key qa-v1
-        plexus-dashboard scorecards list-scores --scorecard-name "QA Scorecard"
+        primus-dashboard scorecards list-scores --scorecard-id 1234
+        primus-dashboard scorecards list-scores --scorecard-key qa-v1
+        primus-dashboard scorecards list-scores --scorecard-name "QA Scorecard"
     """
     client = create_client()
     

@@ -13,12 +13,12 @@ from sklearn.metrics import (
     balanced_accuracy_score,
     f1_score
 )
-from plexus.dashboard.api.client import PlexusDashboardClient
-from plexus.dashboard.api.models.account import Account
-from plexus.dashboard.api.models.evaluation import Evaluation
-from plexus.dashboard.api.models.score import Score
-from plexus.dashboard.api.models.scorecard import Scorecard
-from plexus.dashboard.api.models.score_result import ScoreResult
+from primus.dashboard.api.client import PrimusDashboardClient
+from primus.dashboard.api.models.account import Account
+from primus.dashboard.api.models.evaluation import Evaluation
+from primus.dashboard.api.models.score import Score
+from primus.dashboard.api.models.scorecard import Scorecard
+from primus.dashboard.api.models.score_result import ScoreResult
 import math
 
 logger = logging.getLogger(__name__)

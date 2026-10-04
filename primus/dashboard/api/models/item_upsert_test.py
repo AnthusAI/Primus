@@ -15,8 +15,8 @@ from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime, timezone
 
 # Import the modules we're testing
-from plexus.dashboard.api.models.item import Item
-from plexus.dashboard.api.models.identifier import Identifier
+from primus.dashboard.api.models.item import Item
+from primus.dashboard.api.models.identifier import Identifier
 
 
 class TestItemUpsertByIdentifiers:
@@ -251,7 +251,7 @@ class TestItemRelationshipValidation:
 
     def test_validate_item_relationship_matching_report_id(self):
         """Test that items with matching reportId pass validation."""
-        from plexus.dashboard.api.models.item import Item
+        from primus.dashboard.api.models.item import Item
         
         # Create mock item with existing identifiers
         mock_item = type('MockItem', (), {
@@ -271,7 +271,7 @@ class TestItemRelationshipValidation:
 
     def test_validate_item_relationship_mismatched_report_id(self):
         """Test that items with different reportId fail validation."""
-        from plexus.dashboard.api.models.item import Item
+        from primus.dashboard.api.models.item import Item
         
         # Create mock item with existing identifiers
         mock_item = type('MockItem', (), {
@@ -291,7 +291,7 @@ class TestItemRelationshipValidation:
 
     def test_validate_item_relationship_matching_session_id(self):
         """Test that items with matching sessionId pass validation."""
-        from plexus.dashboard.api.models.item import Item
+        from primus.dashboard.api.models.item import Item
         
         # Create mock item with sessionId
         mock_item = type('MockItem', (), {
@@ -309,7 +309,7 @@ class TestItemRelationshipValidation:
 
     def test_validate_item_relationship_dict_format_identifiers(self):
         """Test validation with modern dict format identifiers."""
-        from plexus.dashboard.api.models.item import Item
+        from primus.dashboard.api.models.item import Item
         
         # Mock item with dict format identifiers  
         mock_item = type('MockItem', (), {
@@ -327,7 +327,7 @@ class TestItemRelationshipValidation:
 
     def test_validate_item_relationship_no_critical_identifiers(self):
         """Test validation when no critical identifiers (reportId/sessionId) are present."""
-        from plexus.dashboard.api.models.item import Item
+        from primus.dashboard.api.models.item import Item
         
         mock_item = type('MockItem', (), {
             'id': 'test-item-123',
@@ -345,7 +345,7 @@ class TestItemRelationshipValidation:
 
     def test_validate_item_relationship_malformed_identifiers(self):
         """Test validation with malformed identifier data."""
-        from plexus.dashboard.api.models.item import Item
+        from primus.dashboard.api.models.item import Item
         
         mock_item = type('MockItem', (), {
             'id': 'test-item-123',
@@ -363,7 +363,7 @@ class TestItemRelationshipValidation:
 
     def test_hierarchical_identifier_lookup_form_id_priority(self):
         """Test that formId lookup takes priority in hierarchical search."""
-        from plexus.dashboard.api.models.item import Item
+        from primus.dashboard.api.models.item import Item
         from unittest.mock import MagicMock, patch
         
         mock_client = MagicMock()

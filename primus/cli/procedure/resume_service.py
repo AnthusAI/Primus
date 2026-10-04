@@ -104,9 +104,9 @@ def _load_pending_external_child_request(
 ) -> Dict[str, Any] | None:
     """Load the exact pending Tactus checkpoint at the replay boundary."""
     try:
-        from primus.cli.procedure.tactus_adapters.storage import PlexusStorageAdapter
+        from primus.cli.procedure.tactus_adapters.storage import PrimusStorageAdapter
 
-        metadata = PlexusStorageAdapter(client, procedure_id).load_procedure_metadata(
+        metadata = PrimusStorageAdapter(client, procedure_id).load_procedure_metadata(
             procedure_id
         )
         entry = _pending_checkpoint_entry(
@@ -131,9 +131,9 @@ def _load_pending_time_wait_request(
 ) -> Dict[str, Any] | None:
     """Load only the indexed native Tactus time-wait checkpoint."""
     try:
-        from primus.cli.procedure.tactus_adapters.storage import PlexusStorageAdapter
+        from primus.cli.procedure.tactus_adapters.storage import PrimusStorageAdapter
 
-        metadata = PlexusStorageAdapter(client, procedure_id).load_procedure_metadata(
+        metadata = PrimusStorageAdapter(client, procedure_id).load_procedure_metadata(
             procedure_id
         )
         entry = _pending_checkpoint_entry(

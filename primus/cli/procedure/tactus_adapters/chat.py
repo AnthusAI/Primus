@@ -13,7 +13,7 @@ from tactus.protocols.models import ChatMessage
 logger = logging.getLogger(__name__)
 
 
-class PlexusChatAdapter:
+class PrimusChatAdapter:
     """
     Implements Tactus ChatRecorder protocol by wrapping ProcedureChatRecorder.
 
@@ -30,7 +30,7 @@ class PlexusChatAdapter:
         """
         self.chat_recorder = chat_recorder
         self.session_id: Optional[str] = None
-        logger.info("PlexusChatAdapter initialized")
+        logger.info("PrimusChatAdapter initialized")
 
     async def start_session(
         self,
@@ -128,5 +128,5 @@ class PlexusChatAdapter:
         """
         # This would query GraphQL to get messages
         # For now, not implemented as it's not in the core Tactus flow
-        logger.warning("get_session_history not implemented in PlexusChatAdapter")
+        logger.warning("get_session_history not implemented in PrimusChatAdapter")
         return []

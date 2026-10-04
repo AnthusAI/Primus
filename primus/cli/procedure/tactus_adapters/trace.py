@@ -51,7 +51,7 @@ def _int_env(name: str, default: int) -> int:
     return default
 
 
-class PlexusTraceSink:
+class PrimusTraceSink:
     """Persist Tactus trace records into Primus ChatSession/ChatMessage models."""
 
     STREAM_UPDATE_MAX_INTERVAL_SECONDS = _float_env("PRIMUS_STREAM_UPDATE_MAX_INTERVAL_SECONDS", 0.25)
