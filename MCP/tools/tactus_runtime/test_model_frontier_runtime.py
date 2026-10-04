@@ -10,7 +10,7 @@ pytestmark = pytest.mark.unit
 
 
 def test_model_frontier_runtime_plans_variants():
-    module = execute.PlexusRuntimeModule()
+    module = execute.PrimusRuntimeModule()
 
     result = module.model_frontier.plan(
         {
@@ -42,7 +42,7 @@ def test_model_frontier_runtime_plans_variants():
 
 
 def test_model_frontier_runtime_finalizes_unpersisted_artifacts():
-    module = execute.PlexusRuntimeModule()
+    module = execute.PrimusRuntimeModule()
 
     result = module.model_frontier.finalize(
         {
@@ -92,7 +92,7 @@ def test_model_frontier_runtime_finalizes_persisted_report_attachments(monkeypat
         fake_add_file_to_report_block,
     )
 
-    module = execute.PlexusRuntimeModule()
+    module = execute.PrimusRuntimeModule()
     result = module.model_frontier.finalize(
         {
             "report_block_id": "rb-1",

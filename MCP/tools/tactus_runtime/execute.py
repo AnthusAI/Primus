@@ -836,7 +836,7 @@ def _method_spec(handler: str, *, planning_allowed: bool) -> RuntimeMethodSpec:
     return RuntimeMethodSpec(handler=handler, planning_allowed=planning_allowed)
 
 
-# Per-method handlers implemented directly on PlexusRuntimeModule (no MCP loopback).
+# Per-method handlers implemented directly on PrimusRuntimeModule (no MCP loopback).
 # Each (namespace, method) here MUST NOT also appear in MCP_TOOL_MAP — every
 # method has exactly one dispatcher and one planning-mode policy.
 RUNTIME_METHOD_SPECS: dict[tuple[str, str], RuntimeMethodSpec] = {
@@ -3609,7 +3609,7 @@ def _default_score_predict(args: dict[str, Any]) -> dict[str, Any]:
 
     from primus.cli.scorecard.scorecards import resolve_scorecard_identifier
     from primus.cli.shared.client_utils import create_client
-    from primus.dashboard.api.models.item import Item as PlexusItem
+    from primus.dashboard.api.models.item import Item as PrimusItem
     from primus.scores.Score import Score
 
     def _sanitize_dec(obj: Any) -> Any:
@@ -3801,7 +3801,7 @@ def _default_score_predict(args: dict[str, Any]) -> dict[str, Any]:
                     pass
 
             try:
-                item_obj = PlexusItem.from_dict(item_data, client)
+                item_obj = PrimusItem.from_dict(item_data, client)
             except Exception:
                 item_obj = None
 
@@ -9406,7 +9406,7 @@ class _PortfolioAssessmentContext:
         self.client: Any | None = None
 
 
-class PlexusRuntimeModule:
+class PrimusRuntimeModule:
     """Tactus host module exposing curated Primus runtime namespaces.
 
     All namespaces use native Python implementations (no MCP loopback).
@@ -12884,7 +12884,7 @@ def _run_tactus_sync(
                     "execute_tactus requires TactusRuntime.register_python_module; "
                     "update the installed tactus package to the version specified by pyproject.toml."
                 )
-            primus = PlexusRuntimeModule(
+            primus = PrimusRuntimeModule(
                 mcp,
                 trace_id=trace_id,
                 budget=gate,

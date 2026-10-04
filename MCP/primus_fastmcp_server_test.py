@@ -8,7 +8,7 @@ from unittest.mock import patch
 import pytest
 from primus_fastmcp_server import get_primus_url, get_report_url, get_item_url
 
-class TestPlexusFastmcpServer(unittest.TestCase):
+class TestPrimusFastmcpServer(unittest.TestCase):
     """Test cases for the Primus FastMCP server functions"""
     
     @patch.dict(os.environ, {"PRIMUS_APP_URL": "https://primus.anth.us"})

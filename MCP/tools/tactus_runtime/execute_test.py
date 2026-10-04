@@ -221,7 +221,7 @@ def test_wrap_tactus_snippet_injects_primus_helpers_and_capture() -> None:
 
 
 def test_helper_bindings_cover_advertised_runtime_api_surface() -> None:
-    facade = execute.PlexusRuntimeModule(FastMCP("test"))
+    facade = execute.PrimusRuntimeModule(FastMCP("test"))
     catalog = facade.api.list()
     helpers = {helper_name for helper_name, _, _ in execute.HELPER_BINDINGS}
 
@@ -256,7 +256,7 @@ def test_primus_facade_delegates_score_info_call_to_direct_handler() -> None:
         return {"id": args.get("id"), "name": "Compliance Tone"}
 
     fake_mcp = FakeMCP()
-    facade = execute.PlexusRuntimeModule(fake_mcp, score_info=fake_info)
+    facade = execute.PrimusRuntimeModule(fake_mcp, score_info=fake_info)
 
     value = facade.score.info({"id": "score_compliance_tone"})
 
@@ -423,7 +423,7 @@ def test_primus_facade_uses_direct_scorecards_handler_without_mcp_loopback() -> 
         return {"success": True, "query": args.get("query"), "count": 1, "matches": []}
 
     fake_mcp = FakeMCP()
-    facade = execute.PlexusRuntimeModule(
+    facade = execute.PrimusRuntimeModule(
         fake_mcp,
         scorecards_lister=fake_list,
         scorecards_infoer=fake_info,
@@ -464,7 +464,7 @@ def test_tactus_dataflow_preserves_opaque_id_between_collection_calls(monkeypatc
         info_args.append(args)
         return {"name": "Example Scorecard", "sections": {"items": []}}
 
-    runtime_module = execute.PlexusRuntimeModule
+    runtime_module = execute.PrimusRuntimeModule
 
     def module_factory(*args, **kwargs):
         return runtime_module(
@@ -474,7 +474,7 @@ def test_tactus_dataflow_preserves_opaque_id_between_collection_calls(monkeypatc
             scorecards_infoer=fake_info,
         )
 
-    monkeypatch.setattr(execute, "PlexusRuntimeModule", module_factory)
+    monkeypatch.setattr(execute, "PrimusRuntimeModule", module_factory)
     result = execute._run_tactus_sync(
         """
         local page = primus.scorecards.list({ return_metadata = true })
@@ -504,14 +504,14 @@ def test_complete_collection_program_returns_empty_coverage_without_batch_call(
         assert args == {"return_metadata": True}
         return {"items": [], "nextToken": None}
 
-    runtime_module = execute.PlexusRuntimeModule
+    runtime_module = execute.PrimusRuntimeModule
 
     def module_factory(*args, **kwargs):
         module = runtime_module(*args, **kwargs, scorecards_lister=fake_list)
         module._feedback_aligner_batch = lambda batch_args: batch_calls.append(batch_args)
         return module
 
-    monkeypatch.setattr(execute, "PlexusRuntimeModule", module_factory)
+    monkeypatch.setattr(execute, "PrimusRuntimeModule", module_factory)
     result = execute._run_tactus_sync(
         """
         local page = primus.scorecards.list({ return_metadata = true })
@@ -564,14 +564,14 @@ def test_complete_collection_program_retries_failed_page_then_stops_before_batch
         page_two_attempts += 1
         return None
 
-    runtime_module = execute.PlexusRuntimeModule
+    runtime_module = execute.PrimusRuntimeModule
 
     def module_factory(*args, **kwargs):
         module = runtime_module(*args, **kwargs, scorecards_lister=fake_list)
         module._feedback_aligner_batch = lambda batch_args: batch_calls.append(batch_args)
         return module
 
-    monkeypatch.setattr(execute, "PlexusRuntimeModule", module_factory)
+    monkeypatch.setattr(execute, "PrimusRuntimeModule", module_factory)
     result = execute._run_tactus_sync(
         """
         local token, pages, scorecard_ids = nil, 0, {}
@@ -1873,7 +1873,7 @@ def test_primus_facade_delegates_score_set_champion_to_direct_handler() -> None:
         champion_args.append(args)
         return {"success": True, "championVersionId": args["version_id"]}
 
-    facade = execute.PlexusRuntimeModule(
+    facade = execute.PrimusRuntimeModule(
         FastMCP("test"),
         score_set_champion=fake_set_champion,
     )
@@ -1938,7 +1938,7 @@ def test_primus_facade_uses_direct_procedure_handlers_without_mcp_loopback(
 
         return reader
 
-    facade = execute.PlexusRuntimeModule(
+    facade = execute.PrimusRuntimeModule(
         None,
         procedure_listers={
             "list": make_reader("list"),
@@ -1987,7 +1987,7 @@ def test_primus_facade_uses_direct_procedure_archive_handler_without_mcp_loopbac
             raise AssertionError("primus.procedure.archive must not call MCP tools")
 
     fake_mcp = FakeMCP()
-    module = execute.PlexusRuntimeModule(fake_mcp, procedure_archive=fake_archive)
+    module = execute.PrimusRuntimeModule(fake_mcp, procedure_archive=fake_archive)
 
     value = module.procedure.archive({"id": "proc-1", "reason": "noise cleanup"})
 
@@ -2038,7 +2038,7 @@ def test_primus_docs_get_reads_filesystem_directly(tmp_path) -> None:
             raise AssertionError("primus.docs.get must not call MCP tools")
 
     fake_mcp = FakeMCP()
-    facade = execute.PlexusRuntimeModule(fake_mcp, docs_dir=str(docs_dir))
+    facade = execute.PrimusRuntimeModule(fake_mcp, docs_dir=str(docs_dir))
 
     value = facade.docs.get({"key": "score-authoring.score-yaml-format"})
 
@@ -2831,14 +2831,14 @@ async def test_execute_tactus_retries_once_after_unterminated_string_for_instruc
 
 
 def test_primus_facade_rejects_unsupported_namespace_method() -> None:
-    facade = execute.PlexusRuntimeModule(FastMCP("test"))
+    facade = execute.PrimusRuntimeModule(FastMCP("test"))
 
     with pytest.raises(ValueError, match="Unsupported Primus runtime API"):
         facade._call("score", "no_such_method", {"id": "x"})
 
 
 def test_primus_api_list_advertises_known_namespaces() -> None:
-    facade = execute.PlexusRuntimeModule(FastMCP("test"))
+    facade = execute.PrimusRuntimeModule(FastMCP("test"))
 
     catalog = facade.api.list()
 
@@ -2857,7 +2857,7 @@ def test_primus_api_list_advertises_known_namespaces() -> None:
 
 
 def test_optimization_namespace_advertises_all_decision_methods_and_helpers() -> None:
-    module = execute.PlexusRuntimeModule(FastMCP("test-optimization-catalog"))
+    module = execute.PrimusRuntimeModule(FastMCP("test-optimization-catalog"))
 
     assert module.api.list()["primus.optimization"] == [
         "assess", "diagnose", "portfolio_run", "rank", "review", "run", "summary"
@@ -2877,7 +2877,7 @@ def test_optimization_namespace_advertises_all_decision_methods_and_helpers() ->
 def test_optimization_portfolio_run_is_execution_only_and_delegates_to_the_single_reported_orchestrator() -> None:
     calls: list[dict] = []
 
-    planning = execute.PlexusRuntimeModule(
+    planning = execute.PrimusRuntimeModule(
         FastMCP("test-portfolio-run-planning"),
         runtime_context={"tool_access_mode": "planning", "account_id": "acct-opaque"},
         optimization_portfolio_runner=lambda args: calls.append(args) or {"status": "WAITING_FOR_APPROVAL"},
@@ -2885,7 +2885,7 @@ def test_optimization_portfolio_run_is_execution_only_and_delegates_to_the_singl
     with pytest.raises(execute.PlanningModeToolNotAllowed):
         planning.optimization.portfolio_run({"run_key": "run-opaque"})
 
-    execution = execute.PlexusRuntimeModule(
+    execution = execute.PrimusRuntimeModule(
         FastMCP("test-portfolio-run-execution"),
         runtime_context={"account_id": "acct-opaque"},
         optimization_portfolio_runner=lambda args: calls.append(args) or {"status": "WAITING_FOR_APPROVAL"},
@@ -2903,7 +2903,7 @@ def test_optimization_read_methods_delegate_to_injected_handlers_in_planning_mod
             return {"packet_version": "optimization-decision-v1", "method": method}
         return invoke
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-optimization-planning"),
         runtime_context={"tool_access_mode": "planning", "account_id": "acct-opaque"},
         optimization_handlers={
@@ -2928,7 +2928,7 @@ def test_optimization_run_is_execution_only_and_never_promotes() -> None:
         dispatched.append(args)
         return {"packet_version": "optimization-decision-v1", "dispatches": []}
 
-    planning = execute.PlexusRuntimeModule(
+    planning = execute.PrimusRuntimeModule(
         FastMCP("test-optimization-run-planning"),
         runtime_context={"tool_access_mode": "planning"},
         optimization_handlers={"run": fake_run},
@@ -2938,7 +2938,7 @@ def test_optimization_run_is_execution_only_and_never_promotes() -> None:
     assert dispatched == []
     assert promoted is False
 
-    execution = execute.PlexusRuntimeModule(
+    execution = execute.PrimusRuntimeModule(
         FastMCP("test-optimization-run-execution"),
         optimization_handlers={"run": fake_run},
     )
@@ -3035,7 +3035,7 @@ def test_default_portfolio_runtime_constructs_the_graphql_optimizer_child_dispat
         CapturingRunner,
     )
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-real-optimizer-child-runtime"),
         trace_id="parent-procedure-opaque",
         runtime_context={"account_id": "account-opaque", "task_id": "parent-task-opaque"},
@@ -3170,7 +3170,7 @@ def test_default_optimization_portfolio_run_composes_existing_operations_into_on
         report_factory_requests.append(request)
         return report
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-default-optimization-portfolio-run"),
         trace_id="procedure-opaque",
         runtime_context={"account_id": "account-opaque", "task_id": "procedure-task-opaque"},
@@ -3249,7 +3249,7 @@ def test_default_portfolio_runtime_fails_closed_when_an_advisory_action_has_no_c
     assessment = _ready_optimization_target(
         "card-opaque", "score-opaque", "champion-1", "2026-01-01T00:00:00Z"
     )["assessment"]
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-missing-chat-message-authority"),
         trace_id="procedure-opaque",
         runtime_context={"account_id": "account-opaque"},
@@ -3350,7 +3350,7 @@ def test_default_portfolio_runtime_builds_chat_message_authority_from_the_authen
     assessment = _ready_optimization_target(
         "card-opaque", "score-opaque", "champion-1", "2026-01-01T00:00:00Z"
     )["assessment"]
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-default-chat-message-authority"),
         trace_id="procedure-opaque",
         runtime_context={"account_id": "account-opaque"},
@@ -3419,7 +3419,7 @@ def test_default_portfolio_runtime_proves_application_authority_before_any_stake
         lambda *_args: account_reads.append(True),
     )
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-portfolio-authority-preflight"),
         runtime_context={"account_id": "account-opaque"},
     )
@@ -3446,7 +3446,7 @@ def test_application_authority_preflight_does_not_broaden_to_read_only_optimizat
             raise cognito.MissingApplicationSession("Run `primus login`.")
 
     monkeypatch.setattr(cognito, "CognitoAuthService", UnavailableAuthority)
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-portfolio-preflight-scope"),
         optimization_handlers={"rank": lambda _args: {"ranked": []}},
     )
@@ -3511,7 +3511,7 @@ def test_default_portfolio_runtime_persists_and_resolves_nonblocking_findings_wi
     assessment = _ready_optimization_target(
         "card-opaque", "score-opaque", "champion-1", "2026-01-01T00:00:00Z"
     )["assessment"]
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-chat-message-actions"),
         trace_id="procedure-opaque",
         runtime_context={"account_id": "account-opaque"},
@@ -3564,7 +3564,7 @@ def test_default_portfolio_runtime_persists_and_resolves_nonblocking_findings_wi
 def test_default_optimization_run_validates_exact_targets_but_requires_report_authority() -> None:
     optimizer_calls: list[dict] = []
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-default-optimization-run"),
         score_info=lambda _args: _old_live_score_info("v-1"),
         feedback_latest_update=lambda _args: {"latest_feedback_updated_at": "2026-01-01T00:00:00Z"},
@@ -3594,7 +3594,7 @@ def test_default_optimization_run_validates_exact_targets_but_requires_report_au
 
 def test_standalone_optimization_run_requires_living_report_publication_authority_and_never_spawns() -> None:
     optimizer_calls: list[dict] = []
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-standalone-optimization-run-fails-closed"),
         score_info=lambda _args: _old_live_score_info("v-1"),
         feedback_latest_update=lambda _args: {
@@ -3626,7 +3626,7 @@ def test_standalone_optimization_run_requires_living_report_publication_authorit
 
 def test_default_optimization_run_rejects_launch_without_the_frozen_parent_run_key() -> None:
     optimizer_calls: list[dict] = []
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-optimizer-run-key-required"),
         score_info=lambda _args: _old_live_score_info("v-1"),
         feedback_latest_update=lambda _args: {
@@ -3655,7 +3655,7 @@ def test_default_optimization_run_rejects_launch_without_the_frozen_parent_run_k
 def test_default_optimization_run_rejects_recent_score_activity_before_launch() -> None:
     optimizer_calls: list[dict] = []
     recent_activity = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-optimization-run-recent-score-activity"),
         score_info=lambda _args: {
             "championVersionId": "v-1",
@@ -3690,7 +3690,7 @@ def test_private_portfolio_run_validator_preserves_each_exact_target_without_lau
         _ready_optimization_target("card", score_id, "champion", "watermark")
         for score_id in ("good", "broken")
     ]
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-run-dispatch-coverage"),
         score_info=lambda _args: _old_live_score_info("champion"),
         feedback_latest_update=lambda _args: {"latest_feedback_updated_at": "watermark"},
@@ -3750,7 +3750,7 @@ def test_default_optimization_rank_paginates_with_one_retry_and_one_frozen_align
             ],
         }
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-default-optimization-rank"),
         scorecards_lister=list_cards,
         feedback_aligner=lambda _args: {},
@@ -3820,7 +3820,7 @@ def test_default_optimization_rank_emits_aggregate_live_progress_without_identif
             ],
         }
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-rank-live-progress"), scorecards_lister=list_cards,
     )
     module._feedback_aligner_batch = alignment
@@ -3897,7 +3897,7 @@ def test_optimization_rank_never_reports_complete_feedback_progress_before_cover
 ) -> None:
     """The live report must not claim N/N feedback completion from untrusted data."""
     progress: list[dict] = []
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-rank-progress-coverage"),
         scorecards_lister=lambda _args: {
             "items": [
@@ -3937,7 +3937,7 @@ def test_optimization_persist_uses_one_exact_packet_handler(monkeypatch) -> None
         "_default_optimization_persist",
         default_persisted.append,
     )
-    default_module = execute.PlexusRuntimeModule(
+    default_module = execute.PrimusRuntimeModule(
         FastMCP("test-optimization-persistence-default"),
         optimization_handlers={"summary": lambda _args: packet},
     )
@@ -3945,7 +3945,7 @@ def test_optimization_persist_uses_one_exact_packet_handler(monkeypatch) -> None
     assert default_persisted == [packet]
 
     persisted: list[dict] = []
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-optimization-persistence-configured"),
         optimization_handlers={"summary": lambda _args: packet},
         optimization_persister=persisted.append,
@@ -3955,7 +3955,7 @@ def test_optimization_persist_uses_one_exact_packet_handler(monkeypatch) -> None
 
 
 def test_optimization_persistence_error_uses_canonical_artifact_language() -> None:
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-optimization-persistence-language"),
         optimization_handlers={"summary": lambda _args: {"ok": True}},
     )
@@ -4001,7 +4001,7 @@ def test_default_optimization_rank_uses_frozen_complete_window_and_inventory_met
             ],
         }]}
 
-    module = execute.PlexusRuntimeModule(FastMCP("test-frozen-rank"), scorecards_lister=list_cards)
+    module = execute.PrimusRuntimeModule(FastMCP("test-frozen-rank"), scorecards_lister=list_cards)
     module._feedback_aligner_batch = alignment
     result = module.optimization.rank({})
 
@@ -4031,7 +4031,7 @@ def test_default_optimization_rank_uses_frozen_complete_window_and_inventory_met
 
 
 def test_optimization_rank_never_labels_mismatched_analysis_coverage_exact() -> None:
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-rank-mismatched-analysis-coverage"),
         scorecards_lister=lambda _args: {
             "items": [{"id": "sc-1"}, {"id": "sc-2"}], "nextToken": None,
@@ -4067,7 +4067,7 @@ def test_default_optimization_run_rechecks_champion_and_feedback_watermark_befor
         feedback_calls.append(args)
         return {"latest_feedback_updated_at": "2026-07-01T00:00:00Z"}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-fresh-run"),
         score_info=score_info,
         feedback_latest_update=feedback_update,
@@ -4088,7 +4088,7 @@ def test_default_optimization_run_rechecks_champion_and_feedback_watermark_befor
 
 
 def test_default_optimization_assess_composes_score_guidelines_classes_and_rank_evidence() -> None:
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-runtime-assess"),
         score_info=lambda _args: {
             "championVersionId": "v-1", "code": "classifier", "guidelines": "# Guidelines",
@@ -4147,7 +4147,7 @@ def test_optimization_assessment_freezes_content_digests_without_exposing_conten
     }
 
     def assess(code: object, guidelines: object) -> dict:
-        return execute.PlexusRuntimeModule(
+        return execute.PrimusRuntimeModule(
             FastMCP("test-runtime-assessment-digests"),
             score_info=lambda _args: {
                 "championVersionId": "v-1",
@@ -4230,7 +4230,7 @@ def test_portfolio_assessment_reads_each_exact_score_configuration_directly_once
         "primus.cli.shared.client_utils.create_client",
         lambda: create_client_calls.append(object()) or client,
     )
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-portfolio-assessment-direct-config"),
         guidelines_validator=lambda _text: {"is_valid": True},
         terminal_class_resolver=lambda _code: {"classes": ["Yes", "No"]},
@@ -4287,7 +4287,7 @@ def test_portfolio_assessment_reads_each_exact_score_configuration_directly_once
 def test_standalone_optimization_assess_keeps_the_existing_score_information_adapter() -> None:
     """The portfolio fast path is private and cannot change public assess semantics."""
     score_info_calls: list[dict] = []
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-standalone-assessment-fallback"),
         score_info=lambda args: score_info_calls.append(dict(args)) or {
             "championVersionId": "version-1",
@@ -4345,7 +4345,7 @@ def test_portfolio_assessment_marks_only_a_mismatched_exact_target_incomplete(
     monkeypatch.setattr(
         "primus.cli.shared.client_utils.create_client", lambda: Client(),
     )
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-portfolio-assessment-target-mismatch"),
     )
 
@@ -4393,7 +4393,7 @@ def test_portfolio_assessment_rejects_a_scorecard_from_another_account(
             }
 
     monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: Client())
-    module = execute.PlexusRuntimeModule(FastMCP("test-portfolio-assessment-account"))
+    module = execute.PrimusRuntimeModule(FastMCP("test-portfolio-assessment-account"))
     result = module.optimization.assess({
         "account_id": "account-opaque",
         "scorecard_id": "scorecard-opaque",
@@ -4436,7 +4436,7 @@ def test_portfolio_assessment_rejects_a_champion_changed_since_frozen_ranking(
             }
 
     monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: Client())
-    module = execute.PlexusRuntimeModule(FastMCP("test-portfolio-assessment-stale-champion"))
+    module = execute.PrimusRuntimeModule(FastMCP("test-portfolio-assessment-stale-champion"))
     result = module.optimization.assess({
         "account_id": "account-opaque",
         "scorecard_id": "scorecard-opaque",
@@ -4480,7 +4480,7 @@ def test_portfolio_assessment_rejects_a_champion_relation_without_its_id(
             }
 
     monkeypatch.setattr("primus.cli.shared.client_utils.create_client", lambda: Client())
-    module = execute.PlexusRuntimeModule(FastMCP("test-portfolio-assessment-champion-relation"))
+    module = execute.PrimusRuntimeModule(FastMCP("test-portfolio-assessment-champion-relation"))
     result = module.optimization.assess({
         "account_id": "account-opaque",
         "scorecard_id": "scorecard-opaque",
@@ -4502,7 +4502,7 @@ def test_portfolio_assessment_rejects_a_champion_relation_without_its_id(
 
 def test_optimization_assess_exact_ids_compose_canonical_frozen_rank_evidence() -> None:
     alignment_calls: list[dict] = []
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-runtime-assess-id-only"),
             scorecards_lister=lambda _args: {
                 "items": [_rank_inventory_card("sc-1", "s-1", "v-1")],
@@ -4543,7 +4543,7 @@ def test_optimization_assess_exact_ids_compose_canonical_frozen_rank_evidence() 
 
 
 def test_optimization_assess_fails_closed_without_frozen_feedback_watermark() -> None:
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-runtime-assess-watermark-required"),
         score_info=lambda _args: {
             "championVersionId": "v-1",
@@ -4575,7 +4575,7 @@ def test_optimization_assess_fails_closed_without_frozen_feedback_watermark() ->
 
 def test_default_optimization_diagnose_marks_dependency_failure_incomplete_without_mutating() -> None:
     calls: list[str] = []
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-runtime-diagnose"),
         score_info=lambda _args: _old_live_score_info("v-1"),
         score_contradictions=lambda _args: (_ for _ in ()).throw(RuntimeError("semantic service unavailable")),
@@ -4611,7 +4611,7 @@ def test_default_optimization_diagnose_marks_dependency_failure_incomplete_witho
 )
 def test_optimization_diagnose_fail_closed_error_stops_all_later_semantic_calls(error_factory) -> None:
     later_calls = []
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-diagnose-fail-closed"),
         score_info=lambda _args: {"championVersionId": "v-1"},
         score_contradictions=lambda _args: (_ for _ in ()).throw(error_factory()),
@@ -4626,7 +4626,7 @@ def test_optimization_diagnose_fail_closed_error_stops_all_later_semantic_calls(
 
 
 def test_default_optimization_diagnose_preserves_ready_assessment_when_semantics_are_clear() -> None:
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-runtime-diagnose-ready"),
         score_info=lambda _args: {"championVersionId": "v-1"},
         score_contradictions=lambda _args: {"status": "consistent"},
@@ -4646,7 +4646,7 @@ def test_default_optimization_diagnose_preserves_ready_assessment_when_semantics
 
 
 def test_default_optimization_diagnose_preserves_the_exact_guideline_code_conflict_claim() -> None:
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-runtime-diagnose-conflict-claim"),
         score_info=lambda _args: {"championVersionId": "v-1"},
         score_contradictions=lambda _args: {
@@ -4674,7 +4674,7 @@ def test_optimization_diagnose_threads_rubric_evidence_and_version_into_sme_gate
         "machine_context": {"source": "memory"},
         "diagnostics": [],
     }
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-diagnose-sme-inputs"),
         score_info=lambda _args: {"championVersionId": "v-1"},
         score_contradictions=lambda _args: {"status": "consistent"},
@@ -4698,7 +4698,7 @@ def test_optimization_diagnose_threads_rubric_evidence_and_version_into_sme_gate
 
 
 def test_optimization_diagnose_surfaces_only_true_open_sme_questions() -> None:
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-diagnose-open-sme-question"),
         score_info=lambda _args: {"championVersionId": "v-1"},
         score_contradictions=lambda _args: {"status": "consistent"},
@@ -4735,7 +4735,7 @@ def test_optimization_diagnose_surfaces_only_true_open_sme_questions() -> None:
 
 def test_default_optimization_run_requires_explicit_resource_limits() -> None:
     dispatched: list[dict] = []
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-run-limits"),
         procedure_optimize=lambda args: dispatched.append(args) or {},
     )
@@ -4749,7 +4749,7 @@ def test_default_optimization_run_requires_explicit_resource_limits() -> None:
 
 def test_optimization_run_accepts_actual_assessment_packet_fingerprint_when_live_evidence_is_unchanged() -> None:
     dispatched: list[dict] = []
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-assessment-fingerprint-freshness"),
         score_info=lambda _args: _old_live_score_info("v-1"),
         feedback_latest_update=lambda _args: {"latest_feedback_updated_at": "2026-07-01T00:00:00Z"},
@@ -4779,7 +4779,7 @@ def test_optimization_run_accepts_actual_assessment_packet_fingerprint_when_live
 
 def test_optimization_run_accepts_equivalent_feedback_watermark_precision() -> None:
     """GraphQL timestamp formatting must not make unchanged evidence stale."""
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-equivalent-feedback-watermark-precision"),
         score_info=lambda _args: _old_live_score_info("v-1"),
         feedback_latest_update=lambda _args: {
@@ -4848,7 +4848,7 @@ def test_optimization_review_loads_indexed_procedure_evidence_conservatively() -
         "recent": evaluation("recent", "recent-baseline"),
         "historical": evaluation("historical", "historical-baseline"),
     }
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-procedure-review"),
         review_evidence_loader=lambda procedure_id: {
             "procedure_id": procedure_id, "summary": {"effective_status": "COMPLETED"},
@@ -4873,7 +4873,7 @@ def test_optimization_review_loads_indexed_procedure_evidence_conservatively() -
 
 
 def test_optimization_review_does_not_treat_winning_id_as_safety_proof() -> None:
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-procedure-review-unknown-safety"),
         review_evidence_loader=lambda procedure_id: {
             "procedure_id": procedure_id, "summary": {"effective_status": "COMPLETED"},
@@ -4889,7 +4889,7 @@ def test_optimization_review_does_not_treat_winning_id_as_safety_proof() -> None
 
 
 def test_optimization_review_missing_indexed_manifest_never_promotes() -> None:
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-procedure-review-missing"),
         review_evidence_loader=lambda _procedure_id: (_ for _ in ()).throw(RuntimeError("not indexed")),
     )
@@ -4899,7 +4899,7 @@ def test_optimization_review_missing_indexed_manifest_never_promotes() -> None:
 
 
 def test_optimization_review_ignores_caller_supplied_safety_booleans() -> None:
-    module = execute.PlexusRuntimeModule(FastMCP("test-review-requires-indexed-evidence"))
+    module = execute.PrimusRuntimeModule(FastMCP("test-review-requires-indexed-evidence"))
 
     result = module.optimization.review({
         "evidence": {
@@ -4919,7 +4919,7 @@ def test_optimization_review_ignores_caller_supplied_safety_booleans() -> None:
 
 
 def test_primus_api_list_stays_complete_in_planning_mode() -> None:
-    facade = execute.PlexusRuntimeModule(
+    facade = execute.PrimusRuntimeModule(
         FastMCP("test"),
         runtime_context={"tool_access_mode": "planning"},
     )
@@ -4935,7 +4935,7 @@ def test_primus_api_list_stays_complete_in_planning_mode() -> None:
 
 
 def test_guidelines_validate_returns_structured_validation_result() -> None:
-    module = execute.PlexusRuntimeModule(FastMCP("test"))
+    module = execute.PrimusRuntimeModule(FastMCP("test"))
 
     result = module.guidelines.validate(
         {
@@ -4956,7 +4956,7 @@ def test_guidelines_validate_returns_structured_validation_result() -> None:
 
 
 def test_guidelines_validate_accepts_content_alias_and_is_allowed_in_planning_mode() -> None:
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         runtime_context={"tool_access_mode": "planning"},
     )
@@ -4978,7 +4978,7 @@ def test_guidelines_validate_accepts_content_alias_and_is_allowed_in_planning_mo
 
 
 def test_guidelines_validate_requires_markdown_text() -> None:
-    module = execute.PlexusRuntimeModule(FastMCP("test"))
+    module = execute.PrimusRuntimeModule(FastMCP("test"))
 
     with pytest.raises(ValueError, match="requires guidelines markdown text"):
         module.guidelines.validate({"guidelines": None})
@@ -5011,7 +5011,7 @@ def test_planning_mode_allows_safe_analysis_and_procedure_inspection() -> None:
         seen["procedure_list"] = args
         return {"procedures": []}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         runtime_context={"tool_access_mode": "planning", "account_id": "acct-1"},
         score_predict=fake_score_predict,
@@ -5779,7 +5779,7 @@ def test_planning_mode_blocks_champion_promotion() -> None:
         called = True
         return {"success": True}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-planning-mode-blocks-set-champion"),
         score_set_champion=fake_set_champion,
         runtime_context={"tool_access_mode": "planning"},
@@ -5800,7 +5800,7 @@ def test_planning_mode_blocks_score_create() -> None:
         called = True
         return {"success": True, "id": "score-1"}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-planning-mode-blocks-score-create"),
         score_create=fake_score_create,
         runtime_context={"tool_access_mode": "planning"},
@@ -5820,7 +5820,7 @@ def test_score_delete_requires_confirmation_and_dispatches_when_confirmed() -> N
         calls.append(args)
         return {"success": True, "id": args["id"]}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-score-delete"),
         score_delete=fake_score_delete,
     )
@@ -5867,7 +5867,7 @@ def test_planning_mode_blocks_score_delete() -> None:
         called = True
         return {"success": True}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-planning-mode-blocks-score-delete"),
         score_delete=fake_score_delete,
         runtime_context={"tool_access_mode": "planning"},
@@ -5884,7 +5884,7 @@ def test_scorecards_update_and_delete_use_explicit_lifecycle_handlers() -> None:
     update_calls: list[dict] = []
     delete_calls: list[dict] = []
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-scorecard-lifecycle"),
         scorecards_updater=lambda args: update_calls.append(args) or {"success": True},
         scorecards_deleter=lambda args: delete_calls.append(args) or {"success": True},
@@ -5938,7 +5938,7 @@ def test_planning_mode_blocks_scorecards_create() -> None:
         called = True
         return {"success": True, "id": "scorecard-1"}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-planning-mode-blocks-scorecards-create"),
         scorecards_creator=fake_scorecards_create,
         runtime_context={"tool_access_mode": "planning"},
@@ -5959,7 +5959,7 @@ def test_planning_mode_blocks_procedure_archive() -> None:
         called = True
         return {"success": True}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-planning-mode-blocks-procedure-archive"),
         procedure_archive=fake_archive,
         runtime_context={"tool_access_mode": "planning"},
@@ -6210,7 +6210,7 @@ def test_primus_runtime_module_docs_get_rejects_unsafe_keys(tmp_path) -> None:
         body="ok",
     )
 
-    module = execute.PlexusRuntimeModule(FastMCP("test"), docs_dir=str(docs_dir))
+    module = execute.PrimusRuntimeModule(FastMCP("test"), docs_dir=str(docs_dir))
 
     with pytest.raises(ValueError, match="Invalid primus.docs key"):
         module._docs_read("../etc/passwd")
@@ -6251,7 +6251,7 @@ def test_primus_runtime_module_docs_list_excludes_readme_and_index(tmp_path) -> 
     )
     (docs_dir / "notes.txt").write_text("ignored")
 
-    module = execute.PlexusRuntimeModule(FastMCP("test"), docs_dir=str(docs_dir))
+    module = execute.PrimusRuntimeModule(FastMCP("test"), docs_dir=str(docs_dir))
 
     ids = [entry["id"] for entry in module._docs_list()]
     assert ids == ["ns.alpha", "ns.beta"]
@@ -6284,7 +6284,7 @@ def test_primus_runtime_module_docs_list_returns_namespaced_metadata(tmp_path) -
     )
     (docs_dir / "README.md").write_text("top readme")
 
-    module = execute.PlexusRuntimeModule(FastMCP("test"), docs_dir=str(docs_dir))
+    module = execute.PrimusRuntimeModule(FastMCP("test"), docs_dir=str(docs_dir))
 
     entries = module._docs_list()
     ids = [entry["id"] for entry in entries]
@@ -6315,7 +6315,7 @@ def test_primus_runtime_module_docs_list_supports_namespace_filter(tmp_path) -> 
         body="s",
     )
 
-    module = execute.PlexusRuntimeModule(FastMCP("test"), docs_dir=str(docs_dir))
+    module = execute.PrimusRuntimeModule(FastMCP("test"), docs_dir=str(docs_dir))
 
     mcp_entries = module._docs_list(namespace="mcp")
     assert [e["id"] for e in mcp_entries] == ["mcp.discovery"]
@@ -6332,7 +6332,7 @@ def test_primus_runtime_module_docs_read_returns_metadata_and_body(tmp_path) -> 
         body="nested-content",
     )
 
-    module = execute.PlexusRuntimeModule(FastMCP("test"), docs_dir=str(docs_dir))
+    module = execute.PrimusRuntimeModule(FastMCP("test"), docs_dir=str(docs_dir))
 
     metadata, body = module._docs_read("evaluation-feedback.feedback-alignment")
     assert body == "nested-content"
@@ -6351,7 +6351,7 @@ def test_primus_runtime_module_docs_read_unknown_id_raises(tmp_path) -> None:
         body="index",
     )
 
-    module = execute.PlexusRuntimeModule(FastMCP("test"), docs_dir=str(docs_dir))
+    module = execute.PrimusRuntimeModule(FastMCP("test"), docs_dir=str(docs_dir))
 
     with pytest.raises(FileNotFoundError):
         module._docs_read("procedures.no-such-doc")
@@ -6359,7 +6359,7 @@ def test_primus_runtime_module_docs_read_unknown_id_raises(tmp_path) -> None:
 
 def test_primus_docs_repository_layout_exposes_themed_keys() -> None:
     docs_dir = execute.PRIMUS_DOCS_DIR
-    module = execute.PlexusRuntimeModule(FastMCP("test"), docs_dir=docs_dir)
+    module = execute.PrimusRuntimeModule(FastMCP("test"), docs_dir=docs_dir)
 
     entries = module._docs_list()
     ids = {entry["id"] for entry in entries}
@@ -6645,7 +6645,7 @@ def test_primus_runtime_module_records_tool_call_against_budget(tmp_path) -> Non
     )
 
     gate = execute.BudgetGate()
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"), docs_dir=str(docs_dir), budget=gate
     )
 
@@ -6670,7 +6670,7 @@ def test_primus_runtime_module_blocks_call_when_budget_already_exceeded(
     )
 
     gate = execute.BudgetGate(execute.BudgetSpec(tool_calls=1))
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"), docs_dir=str(docs_dir), budget=gate
     )
 
@@ -6723,7 +6723,7 @@ def test_primus_runtime_module_requires_async_for_evaluation_run() -> None:
             )
 
     fake_mcp = FakeMCP()
-    module = execute.PlexusRuntimeModule(fake_mcp)
+    module = execute.PrimusRuntimeModule(fake_mcp)
 
     with pytest.raises(execute.RequiresHandleProtocol):
         module.evaluation.run({"scorecard_name": "x"})
@@ -6771,7 +6771,7 @@ def test_evaluation_run_async_creates_handle_and_records_budget() -> None:
         }
 
     gate = execute.BudgetGate()
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         trace_id="trace-1",
         budget=gate,
@@ -6825,7 +6825,7 @@ def test_evaluation_run_async_requires_explicit_child_budget() -> None:
         called = True
         return {"status": "dispatched"}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         evaluation_runner=fake_runner,
     )
@@ -6840,7 +6840,7 @@ def test_evaluation_run_async_requires_explicit_child_budget() -> None:
 
 
 def test_score_edit_blocking_requires_handle_protocol() -> None:
-    module = execute.PlexusRuntimeModule(FastMCP("test"))
+    module = execute.PrimusRuntimeModule(FastMCP("test"))
 
     with pytest.raises(execute.RequiresHandleProtocol):
         module.score.edit(
@@ -6871,7 +6871,7 @@ def test_score_edit_async_always_waits_and_records_budget(tmp_path, monkeypatch)
             "result_file": str(result_file),
         }
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         trace_id="trace-1",
         handle_store=handles,
@@ -6924,7 +6924,7 @@ def test_score_edit_async_waits_for_terminal_result_by_default(tmp_path, monkeyp
     def fake_runner(_args: dict) -> dict:
         return {"status": "dispatched", "result_file": str(result_file)}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         trace_id="trace-1",
         handle_store=handles,
@@ -6981,7 +6981,7 @@ def test_score_edit_chains_followup_from_session_latest(tmp_path, monkeypatch) -
         seen_args.append(dict(args))
         return {"status": "dispatched", "result_file": str(result_files[len(seen_args) - 1])}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         trace_id="trace-1",
         handle_store=handles,
@@ -7045,7 +7045,7 @@ def test_score_edit_cache_is_keyed_by_score(tmp_path, monkeypatch) -> None:
         seen_args.append(dict(args))
         return {"status": "dispatched", "result_file": str(result_files[len(seen_args) - 1])}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         trace_id="trace-1",
         handle_store=_MemoryHandleStore(),
@@ -7101,7 +7101,7 @@ def test_score_edit_explicit_version_and_champion_start_override_cache(
         seen_args.append(dict(args))
         return {"status": "dispatched", "result_file": str(result_files[len(seen_args) - 1])}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         trace_id="trace-1",
         handle_store=_MemoryHandleStore(),
@@ -7162,7 +7162,7 @@ def test_score_update_chains_parent_from_session_latest(monkeypatch) -> None:
         seen_args.append(dict(args))
         return {"success": True, "version_id": f"sv-{len(seen_args)}"}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         trace_id="trace-1",
         score_update=fake_update,
@@ -7227,7 +7227,7 @@ def test_console_origin_score_update_yaml_content_is_rejected() -> None:
         called = True
         return {"success": True}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-console-yaml-content-guard"),
         score_update=fake_update,
         runtime_context={"chat_session_id": "chat-1"},
@@ -7252,7 +7252,7 @@ def test_console_origin_score_update_guidelines_only_is_allowed(monkeypatch) -> 
         seen_args.update(args)
         return {"success": True, "version_id": "sv-guidelines"}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-console-guidelines-only-update"),
         score_update=fake_update,
         runtime_context={
@@ -7299,7 +7299,7 @@ def test_console_origin_score_update_guidelines_requires_guidelines_intent(monke
         called = True
         return {"success": True, "version_id": "sv-guidelines"}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-console-guidelines-intent-guard"),
         score_update=fake_update,
         runtime_context={
@@ -7324,7 +7324,7 @@ def test_console_origin_score_update_guidelines_requires_guidelines_intent(monke
 
 
 def test_console_origin_score_edit_is_blocked_for_guidelines_only_request() -> None:
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-console-guidelines-only-edit-guard"),
         runtime_context={
             "chat_session_id": "chat-1",
@@ -7352,7 +7352,7 @@ def test_console_origin_score_edit_is_blocked_for_written_rule_request() -> None
     words "guidelines" or "wording", but it clearly requests a written-rule-only
     revision and explicitly preserves scoring behavior.
     """
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-console-written-rule-edit-guard"),
         runtime_context={
             "chat_session_id": "chat-1",
@@ -7376,7 +7376,7 @@ def test_console_origin_score_edit_is_blocked_for_written_rule_request() -> None
 
 def test_console_origin_score_edit_is_blocked_for_vague_wording_preservation_request() -> None:
     """The browser acceptance phrasing must not fall through to code editing."""
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-console-vague-wording-edit-guard"),
         runtime_context={
             "chat_session_id": "chat-1",
@@ -7400,7 +7400,7 @@ def test_console_origin_score_edit_is_blocked_for_vague_wording_preservation_req
 
 def test_console_origin_score_edit_rejects_candidate_only_non_instruction() -> None:
     """A fresh session must not infer a code change from a bare affirmative."""
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-console-candidate-only-edit-guard"),
         runtime_context={
             "chat_session_id": "chat-1",
@@ -7440,7 +7440,7 @@ def test_console_origin_score_update_metadata_only_is_allowed() -> None:
         seen_args.update(args)
         return {"success": True, "metadata_updated": True}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-console-metadata-only-update"),
         score_update=fake_update,
         runtime_context={"chat_session_id": "chat-1"},
@@ -7465,7 +7465,7 @@ def test_non_console_score_update_code_is_allowed(monkeypatch) -> None:
         seen_args.update(args)
         return {"success": True, "version_id": "sv-code"}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-non-console-score-update-code"),
         score_update=fake_update,
     )
@@ -7520,7 +7520,7 @@ def test_console_origin_score_edit_routes_through_worker(tmp_path, monkeypatch) 
             "result_file": str(result_file),
         }
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-console-score-edit-routes"),
         score_edit_runner=fake_score_edit_runner,
         handle_store=_MemoryHandleStore(),
@@ -8125,7 +8125,7 @@ def test_evaluation_run_uses_cached_latest_score_version_after_edit(monkeypatch)
         evaluation_seen.update(args)
         return {"status": "dispatched", "evaluation_id": "eval-1"}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         trace_id="trace-1",
         score_update=fake_update,
@@ -8415,7 +8415,7 @@ def test_score_resolve_returns_unique_exact_score_match(monkeypatch) -> None:
         "primus.cli.shared.client_utils.create_client",
         lambda: FakeClient(),
     )
-    module = execute.PlexusRuntimeModule(FastMCP("test"))
+    module = execute.PrimusRuntimeModule(FastMCP("test"))
 
     result = module.score.resolve(
         {
@@ -8487,7 +8487,7 @@ def test_score_resolve_returns_ambiguous_score_candidates(monkeypatch) -> None:
         "primus.cli.shared.client_utils.create_client",
         lambda: FakeClient(),
     )
-    module = execute.PlexusRuntimeModule(FastMCP("test"))
+    module = execute.PrimusRuntimeModule(FastMCP("test"))
 
     result = module.score.resolve(
         {
@@ -8575,7 +8575,7 @@ def test_score_edit_preflight_gate_blocks_dispatch_on_ambiguous_targets(monkeypa
         ),
     )
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         trace_id="trace-1",
         handle_store=handles,
@@ -8640,7 +8640,7 @@ def test_evaluation_run_async_preserves_explicit_procedure_id() -> None:
             "dashboard_url": "https://example.test/evaluations/eval-1",
         }
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         trace_id="trace-1",
         evaluation_runner=fake_runner,
@@ -8670,7 +8670,7 @@ def test_evaluation_run_async_injects_trace_id_procedure_id_when_missing() -> No
             "dashboard_url": "https://example.test/evaluations/eval-2",
         }
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         trace_id="proc-trace-123",
         evaluation_runner=fake_runner,
@@ -8697,7 +8697,7 @@ def test_async_child_budget_overrun_blocks_dispatch() -> None:
         return {"status": "dispatched"}
 
     gate = execute.BudgetGate(execute.BudgetSpec(usd=0.005, wallclock_seconds=60, depth=3, tool_calls=10))
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         budget=gate,
         evaluation_runner=fake_runner,
@@ -8900,7 +8900,7 @@ def test_handle_peek_refreshes_evaluation_status() -> None:
     def fake_evaluation_info(args: dict) -> dict:
         return {"id": args["evaluation_id"], "status": "COMPLETED"}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         handle_store=handles,
         evaluation_info=fake_evaluation_info,
@@ -8931,7 +8931,7 @@ def test_handle_peek_captures_late_evaluation_id_file(tmp_path) -> None:
     def fake_evaluation_info(args: dict) -> dict:
         return {"id": args["evaluation_id"], "status": "COMPLETED"}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         handle_store=handles,
         evaluation_info=fake_evaluation_info,
@@ -8958,7 +8958,7 @@ def test_handle_peek_marks_no_id_exited_process_failed(monkeypatch) -> None:
 
     monkeypatch.setattr(execute.os, "waitpid", lambda pid, options: (pid, 256))
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         handle_store=handles,
     )
@@ -8995,7 +8995,7 @@ def test_handle_peek_marks_no_id_successful_process_failed_with_logs(
 
     monkeypatch.setattr(execute.os, "waitpid", lambda pid, options: (pid, 0))
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         handle_store=handles,
     )
@@ -9027,7 +9027,7 @@ def test_handle_peek_marks_running_evaluation_exited_process_failed(monkeypatch)
     def fake_evaluation_info(args: dict) -> dict:
         return {"id": args["evaluation_id"], "status": "RUNNING"}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         handle_store=handles,
         evaluation_info=fake_evaluation_info,
@@ -9063,7 +9063,7 @@ def test_handle_peek_marks_successfully_exited_nonterminal_evaluation_failed(mon
             "total_items": 10,
         }
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         handle_store=handles,
         evaluation_info=fake_evaluation_info,
@@ -9094,7 +9094,7 @@ def test_handle_peek_reaps_completed_evaluation_process(monkeypatch) -> None:
     def fake_evaluation_info(args: dict) -> dict:
         return {"id": args["evaluation_id"], "status": "COMPLETED"}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         handle_store=handles,
         evaluation_info=fake_evaluation_info,
@@ -9124,7 +9124,7 @@ def test_handle_peek_keeps_completed_evaluation_running_until_its_process_exits(
     def fake_evaluation_info(args: dict) -> dict:
         return {"id": args["evaluation_id"], "status": "COMPLETED"}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         handle_store=handles,
         evaluation_info=fake_evaluation_info,
@@ -9150,7 +9150,7 @@ def test_handle_cancel_terminates_process() -> None:
     def fake_kill(pid: int, sig: int) -> None:
         killed.append((pid, sig))
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         handle_store=handles,
     )
@@ -9198,7 +9198,7 @@ def test_handle_cancel_marks_dashboard_task_cancelled(monkeypatch) -> None:
     )
     monkeypatch.setattr("primus.dashboard.api.models.task.Task", FakeTaskModel)
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         handle_store=handles,
     )
@@ -9249,7 +9249,7 @@ def test_handle_cancel_marks_evaluation_cancelled(monkeypatch) -> None:
         FakeEvaluationModel,
     )
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         handle_store=handles,
     )
@@ -9337,7 +9337,7 @@ def test_report_run_async_creates_handle_and_records_budget() -> None:
             "task_id": "task-1",
         }
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         trace_id="trace-1",
         handle_store=handles,
@@ -9386,7 +9386,7 @@ def test_handle_status_can_resume_report_by_durable_task_id(monkeypatch) -> None
         lambda task_id, _client: FakeTask() if task_id == "task-1" else None,
     )
 
-    module = execute.PlexusRuntimeModule(FastMCP("test"))
+    module = execute.PrimusRuntimeModule(FastMCP("test"))
     status = module.handle.status({"task_id": "task-1"})
 
     assert status["id"] == "task-1"
@@ -9402,7 +9402,7 @@ def test_report_run_async_receives_runtime_account_context() -> None:
         seen_args.update(args)
         return {"status": "dispatched", "task_id": "task-1"}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         report_runner=fake_runner,
         runtime_context={"account_id": "acct-from-console"},
@@ -9432,7 +9432,7 @@ def test_score_champion_version_timeline_convenience_maps_report_block() -> None
             "task_id": "task-1",
         }
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         trace_id="trace-1",
         handle_store=handles,
@@ -9944,7 +9944,7 @@ def test_default_report_runner_rejects_unknown_block_class_for_local_dispatch(mo
 
 
 def test_report_run_blocking_requires_handle_protocol() -> None:
-    module = execute.PlexusRuntimeModule(FastMCP("test"))
+    module = execute.PrimusRuntimeModule(FastMCP("test"))
 
     with pytest.raises(execute.RequiresHandleProtocol):
         module.report.run({"block_class": "FeedbackContradictions"})
@@ -9965,7 +9965,7 @@ def test_procedure_run_async_creates_handle_and_records_budget() -> None:
             "message": "Procedure run initiated",
         }
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"),
         trace_id="trace-1",
         handle_store=handles,
@@ -10028,7 +10028,7 @@ def test_default_procedure_runner_launches_detached_local_subprocess(monkeypatch
 
 
 def test_procedure_run_blocking_requires_handle_protocol() -> None:
-    module = execute.PlexusRuntimeModule(FastMCP("test"))
+    module = execute.PrimusRuntimeModule(FastMCP("test"))
 
     with pytest.raises(execute.RequiresHandleProtocol):
         module.procedure.run({"procedure_id": "proc-1"})
@@ -10274,7 +10274,7 @@ def test_feedback_find_uses_injected_finder_and_skips_mcp_loopback() -> None:
             raise AssertionError("primus.feedback.find must not call MCP tools")
 
     fake_mcp = FakeMCP()
-    module = execute.PlexusRuntimeModule(fake_mcp, feedback_finder=fake_finder)
+    module = execute.PrimusRuntimeModule(fake_mcp, feedback_finder=fake_finder)
 
     value = module.feedback.find(
         {"scorecard_name": "x", "score_name": "y", "days": 14, "limit": 3}
@@ -10296,7 +10296,7 @@ def test_feedback_find_records_one_tool_call_against_budget() -> None:
         return {"context": {}, "feedback_items": []}
 
     gate = execute.BudgetGate()
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"), budget=gate, feedback_finder=fake_finder
     )
 
@@ -10308,14 +10308,14 @@ def test_feedback_find_records_one_tool_call_against_budget() -> None:
 
 
 def test_feedback_find_validates_required_args_through_default_finder() -> None:
-    module = execute.PlexusRuntimeModule(FastMCP("test"))
+    module = execute.PrimusRuntimeModule(FastMCP("test"))
 
     with pytest.raises(ValueError, match="scorecard_name and score_name"):
         module.feedback.find({"scorecard_name": "only-one"})
 
 
 def test_feedback_find_is_listed_in_primus_api_list() -> None:
-    module = execute.PlexusRuntimeModule(FastMCP("test"))
+    module = execute.PrimusRuntimeModule(FastMCP("test"))
 
     catalog = module.api.list()
 
@@ -10334,7 +10334,7 @@ def test_evaluation_archive_no_longer_in_mcp_tool_map() -> None:
 
 
 def test_evaluation_info_is_listed_in_primus_api_list() -> None:
-    module = execute.PlexusRuntimeModule(FastMCP("test"))
+    module = execute.PrimusRuntimeModule(FastMCP("test"))
 
     catalog = module.api.list()
 
@@ -10361,7 +10361,7 @@ def test_evaluation_info_uses_injected_function_and_skips_mcp_loopback() -> None
             raise AssertionError("primus.evaluation.info must not call MCP tools")
 
     fake_mcp = FakeMCP()
-    module = execute.PlexusRuntimeModule(fake_mcp, evaluation_info=fake_evaluation_info)
+    module = execute.PrimusRuntimeModule(fake_mcp, evaluation_info=fake_evaluation_info)
 
     value = module.evaluation.info(
         {"evaluation_id": "eval-1", "include_score_results": True}
@@ -10381,7 +10381,7 @@ def test_evaluation_info_records_one_tool_call_against_budget() -> None:
         return {"id": args["evaluation_id"]}
 
     gate = execute.BudgetGate()
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test"), budget=gate, evaluation_info=fake_evaluation_info
     )
 
@@ -10408,7 +10408,7 @@ def test_primus_facade_uses_direct_evaluation_archive_handler_without_mcp_loopba
             raise AssertionError("primus.evaluation.archive must not call MCP tools")
 
     fake_mcp = FakeMCP()
-    module = execute.PlexusRuntimeModule(fake_mcp, evaluation_archive=fake_archive)
+    module = execute.PrimusRuntimeModule(fake_mcp, evaluation_archive=fake_archive)
 
     value = module.evaluation.archive({"id": "eval-1", "reason": "duplicate run"})
 
@@ -10809,7 +10809,7 @@ def test_primus_facade_injects_runtime_account_into_scorecard_search() -> None:
         seen_args.update(args)
         return {"success": True, "matches": [], "account_id": args.get("account_id")}
 
-    facade = execute.PlexusRuntimeModule(
+    facade = execute.PrimusRuntimeModule(
         FakeMCP(),
         scorecards_searcher=fake_search,
         runtime_context={"account_id": "acct-console"},
@@ -11507,7 +11507,7 @@ def test_default_feedback_batch_never_counts_a_failed_scorecard_as_completed_liv
         lambda _client, identifier: None if identifier == identifiers[0] else identifier,
     )
     monkeypatch.setattr(execute, "_resolve_runtime_account_id", lambda *_args: "account-1")
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-default-batch-progress-coverage"),
         scorecards_lister=lambda _args: {
             "items": [

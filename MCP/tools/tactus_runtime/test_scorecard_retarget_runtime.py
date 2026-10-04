@@ -8,7 +8,7 @@ pytestmark = pytest.mark.unit
 
 
 def test_scorecard_retarget_runtime_plans_single_score():
-    module = execute.PlexusRuntimeModule()
+    module = execute.PrimusRuntimeModule()
 
     result = module.scorecard_retarget.plan_score(
         {
@@ -29,7 +29,7 @@ def test_scorecard_retarget_runtime_plans_single_score():
 
 
 def test_scorecard_retarget_is_listed_in_primus_api_list():
-    module = execute.PlexusRuntimeModule()
+    module = execute.PrimusRuntimeModule()
 
     catalog = module.api.list()
 
