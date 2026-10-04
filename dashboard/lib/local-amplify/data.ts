@@ -14,11 +14,11 @@ type SubscriptionObserver = { next?: (value: any) => void; error?: (error: unkno
 type SubscriptionDefinition = { action: SubscriptionAction; modelName: ModelName; root: string }
 
 const endpoint = () => (
-  process.env.NEXT_PUBLIC_PLEXUS_API_URL?.trim() || "http://localhost:18080/graphql"
+  process.env.NEXT_PUBLIC_PRIMUS_API_URL?.trim() || "http://localhost:18080/graphql"
 )
 
 const apiKey = () => (
-  process.env.NEXT_PUBLIC_PLEXUS_API_KEY?.trim() || "local-smoke-key"
+  process.env.NEXT_PUBLIC_PRIMUS_API_KEY?.trim() || "local-smoke-key"
 )
 
 export const GraphQLResult = undefined
@@ -226,7 +226,7 @@ function modelSubscription(modelName: ModelName, action: SubscriptionAction): Su
 }
 
 function pollingIntervalMilliseconds(): number {
-  const configured = process.env.NEXT_PUBLIC_PLEXUS_LOCAL_SUBSCRIPTION_POLL_MS?.trim()
+  const configured = process.env.NEXT_PUBLIC_PRIMUS_LOCAL_SUBSCRIPTION_POLL_MS?.trim()
   if (!configured) return 1000
   const interval = Number(configured)
   if (!Number.isFinite(interval) || interval <= 0) throw new Error("NEXT_PUBLIC_PLEXUS_LOCAL_SUBSCRIPTION_POLL_MS must be a positive number")

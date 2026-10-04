@@ -1,10 +1,10 @@
-# Plexus Dashboard
+# Primus Dashboard
 
-This is a Next.js/Shadcn dashboard built on Amplify Gen2 for Plexus, with a Python API client code and a CLI tool. This dashboard is part of the [Plexus AI Agent Incubator](../README.md), providing a visual interface for managing scorecards and monitoring classification performance.
+This is a Next.js/Shadcn dashboard built on Amplify Gen2 for Primus, with a Python API client code and a CLI tool. This dashboard is part of the [Primus AI Agent Incubator](../README.md), providing a visual interface for managing scorecards and monitoring classification performance.
 
 ## Overview
 
-The dashboard is the command center for Plexus operations. It allows users to:
+The dashboard is the command center for Primus operations. It allows users to:
 
 - Monitor real-time activity via the **Activity Dashboard**.
 - Manage **Scorecards** and **Scores**.
@@ -16,7 +16,7 @@ For information on how AI agents integrate with this system, please see the [Age
 
 ## Installation
 
-Install the Plexus client Python module in development mode:
+Install the Primus client Python module in development mode:
 ```bash
 pip install -e .
 ```
@@ -28,21 +28,21 @@ Set up your environment variables in a `.env` file:
 AWS_ACCESS_KEY_ID=...
 AWS_SECRET_ACCESS_KEY=...
 AWS_REGION_NAME=... 
-PLEXUS_API_URL=...
-PLEXUS_API_KEY=...
-PLEXUS_ACCOUNT_KEY=...
+PRIMUS_API_URL=...
+PRIMUS_API_KEY=...
+PRIMUS_ACCOUNT_KEY=...
 ```
 
 For local procedure runs from the dashboard UI:
 - `npm run dev` starts only the Next.js dev server
 - `npm run dev:chat` starts the local Console chat responder
 - `npm run dev:local` starts both the Next.js dev server and local Console chat responder
-- `npm run dev:dispatch` starts the local task dispatcher (`PLEXUS_DISPATCH_MODE=local`)
+- `npm run dev:dispatch` starts the local task dispatcher (`PRIMUS_DISPATCH_MODE=local`)
 
-`PLEXUS_ACCOUNT_KEY` is required for this local auto-dispatch flow.
-Console chat now targets the built-in procedure key `builtin:console/chat` backed by source-controlled Tactus code under `plexus/procedures/console/`.
+`PRIMUS_ACCOUNT_KEY` is required for this local auto-dispatch flow.
+Console chat now targets the built-in procedure key `builtin:console/chat` backed by source-controlled Tactus code under `primus/procedures/console/`.
 
-Set `NEXT_PUBLIC_CONSOLE_RESPONSE_TARGET` or `CONSOLE_RESPONSE_TARGET` to a local target such as `local:ryan` in `dashboard/.env.local`. The dashboard writes new Console `ChatMessage` rows with that target, and `plexus chat worker` claims only matching pending messages:
+Set `NEXT_PUBLIC_CONSOLE_RESPONSE_TARGET` or `CONSOLE_RESPONSE_TARGET` to a local target such as `local:ryan` in `dashboard/.env.local`. The dashboard writes new Console `ChatMessage` rows with that target, and `primus chat worker` claims only matching pending messages:
 
 ```bash
 cd dashboard
@@ -52,7 +52,7 @@ npm run dev:local
 To run the responder without the web server:
 
 ```bash
-CONSOLE_RESPONSE_TARGET=local:ryan python -m plexus.cli chat worker
+CONSOLE_RESPONSE_TARGET=local:ryan python -m primus.cli chat worker
 ```
 
 ## Usage
@@ -62,10 +62,10 @@ CONSOLE_RESPONSE_TARGET=local:ryan python -m plexus.cli chat worker
 The library provides a client that mirrors the GraphQL schema structure:
 
 ```python
-from plexus_dashboard.api.client import PlexusDashboardClient
+from primus_dashboard.api.client import PrimusDashboardClient
 
 # Initialize client with optional context
-client = PlexusDashboardClient(
+client = PrimusDashboardClient(
     context={
         'account_key': 'call-criteria',
         'scorecard_key': 'agent-performance'
@@ -117,10 +117,10 @@ account = client.Account.get_by_id("acc_123")
 
 ### Command Line Interface
 
-Use `plexus-dashboard` to interact with the API:
+Use `primus-dashboard` to interact with the API:
 ```bash
 # Create a score result
-plexus-dashboard score-result create \
+primus-dashboard score-result create \
   --value 0.95 \
   --item call_20240309_123 \
   --account-id acc-123 \
@@ -130,7 +130,7 @@ plexus-dashboard score-result create \
   --metadata '{"duration_seconds": 342, "topics": ["billing"]}'
 
 # Update a score result
-plexus-dashboard score-result update abc123 \
+primus-dashboard score-result update abc123 \
   --value 0.98 \
   --metadata '{"reviewed": true}'
 ```

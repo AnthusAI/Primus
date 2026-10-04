@@ -16,8 +16,8 @@ describe('loadConsoleWorkerEnv', () => {
     }));
 
     expect(loadConsoleWorkerEnv(outputsPath)).toEqual({
-      PLEXUS_API_URL: 'https://sandbox.example.test/graphql',
-      PLEXUS_API_KEY: 'sandbox-api-key',
+      PRIMUS_API_URL: 'https://sandbox.example.test/graphql',
+      PRIMUS_API_KEY: 'sandbox-api-key',
     });
   });
 

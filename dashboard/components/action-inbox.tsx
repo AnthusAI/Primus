@@ -19,8 +19,8 @@ export type ActionInboxStatus = "OPEN" | "RESOLVED" | "STALE" | "EXPIRED" | "CAN
 export type ActionUpdateMilestone = "STARTED" | "COMPLETED" | "FAILED" | "BLOCKED" | "APPROVAL_NEEDED" | "PROGRESS"
 export type ActionUpdateSeverity = "INFO" | "WARNING" | "ERROR"
 
-export interface PlexusResourceRef {
-  system: "plexus" | string
+export interface PrimusResourceRef {
+  system: "primus" | string
   kind: "report" | "report_block" | "procedure" | "task" | "scorecard" | "score" | "score_version" | "evaluation" | string
   id: string
   label?: string | null
@@ -66,7 +66,7 @@ export interface CanonicalActionControl extends Record<string, unknown> {
   expires_at?: string | null
   response_schema?: unknown
   ui_schema?: unknown
-  resource_refs?: PlexusResourceRef[]
+  resource_refs?: PrimusResourceRef[]
 }
 
 export interface ActionResponseCandidate {
@@ -87,7 +87,7 @@ export interface ActionInboxAction {
   control: CanonicalActionControl
   responseSchema?: unknown
   uiSchema?: unknown
-  resourceRefs: PlexusResourceRef[]
+  resourceRefs: PrimusResourceRef[]
   responseCandidates: ActionResponseCandidate[]
   acceptedResponseId?: string | null
   sourceMessage: ActionInboxMessage
@@ -101,7 +101,7 @@ export interface ActionUpdate {
   title: string
   summary?: string | null
   createdAt: string
-  resourceRefs: PlexusResourceRef[]
+  resourceRefs: PrimusResourceRef[]
 }
 
 export interface ActionInboxPage<T> {
@@ -302,9 +302,9 @@ function stringValue(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value.trim() : null
 }
 
-function resourceRefs(value: unknown): PlexusResourceRef[] {
+function resourceRefs(value: unknown): PrimusResourceRef[] {
   if (!Array.isArray(value)) return []
-  return value.filter((item): item is PlexusResourceRef => {
+  return value.filter((item): item is PrimusResourceRef => {
     const record = asRecord(item)
     return Boolean(record && typeof record.system === "string" && typeof record.kind === "string" && typeof record.id === "string")
   })
@@ -435,8 +435,8 @@ export function buildActionInboxViewModel(messages: ActionInboxMessage[], now = 
 }
 
 /** Returns a dashboard route only when the typed reference has enough context. */
-export function derivePlexusResourceHref(reference: PlexusResourceRef): string | null {
-  if (reference.system !== "plexus" || !reference.id) return null
+export function derivePrimusResourceHref(reference: PrimusResourceRef): string | null {
+  if (reference.system !== "primus" || !reference.id) return null
   const id = encodeURIComponent(reference.id)
   switch (reference.kind) {
     case "report":
@@ -464,10 +464,10 @@ export function derivePlexusResourceHref(reference: PlexusResourceRef): string |
   }
 }
 
-function ResourceLinks({ references = [] }: { references?: PlexusResourceRef[] }) {
+function ResourceLinks({ references = [] }: { references?: PrimusResourceRef[] }) {
   const links = references
-    .map((reference) => ({ reference, href: derivePlexusResourceHref(reference) }))
-    .filter((item): item is { reference: PlexusResourceRef; href: string } => Boolean(item.href))
+    .map((reference) => ({ reference, href: derivePrimusResourceHref(reference) }))
+    .filter((item): item is { reference: PrimusResourceRef; href: string } => Boolean(item.href))
   if (links.length === 0) return null
   return (
     <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs">

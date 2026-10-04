@@ -40,7 +40,7 @@ export const CTASection = () => {
                   Ready to get started?
                 </h2>
                 <p className="text-xl text-muted-foreground mb-8">
-                  Join the growing community of businesses building powerful AI workflows with Plexus.
+                  Join the growing community of businesses building powerful AI workflows with Primus.
                 </p>
                 <Button 
                   size="lg" 

@@ -27,8 +27,8 @@ import {
 } from "@/app/documentation/evaluation-metrics/examples-data"
 
 export const metadata: Metadata = {
-  title: "Understanding Class Imbalance in Evaluations - Plexus Documentation",
-  description: "How class imbalance can distort accuracy metrics and how Plexus provides clearer insights for imbalanced datasets."
+  title: "Understanding Class Imbalance in Evaluations - Primus Documentation",
+  description: "How class imbalance can distort accuracy metrics and how Primus provides clearer insights for imbalanced datasets."
 }
 
 const AccuracyGauge = ({ value, title, segments }: {
@@ -67,7 +67,7 @@ export default function ClassImbalanceProblemPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">The Challenge: Interpreting Accuracy with Imbalanced Data</h1>
       <p className="text-lg text-muted-foreground mb-2">
-        You might be here because an evaluation in Plexus highlighted a <strong>class imbalance</strong> in your dataset. This is a common situation where some categories (or classes) of data are far more frequent than others. For example, in a dataset of emails, "normal" emails might vastly outnumber "spam" emails. Or, in manufacturing, non-defective items might be much more common than defective ones.
+        You might be here because an evaluation in Primus highlighted a <strong>class imbalance</strong> in your dataset. This is a common situation where some categories (or classes) of data are far more frequent than others. For example, in a dataset of emails, "normal" emails might vastly outnumber "spam" emails. Or, in manufacturing, non-defective items might be much more common than defective ones.
       </p>
       <p className="text-lg text-muted-foreground mb-8">
         While having imbalanced data isn't an error in itself, it can make traditional accuracy scores highly misleading. Let's explore why class imbalance is a critical factor in understanding your classifier's true performance and how to interpret evaluation metrics correctly in these scenarios.
@@ -145,7 +145,7 @@ export default function ClassImbalanceProblemPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Solution: Clarity Through Contextual Gauges</h2>
           <p className="text-muted-foreground mb-4">
-            To cut through the confusion caused by class imbalance, it's essential to use evaluation tools that provide proper context. Plexus employs a two-pronged approach:
+            To cut through the confusion caused by class imbalance, it's essential to use evaluation tools that provide proper context. Primus employs a two-pronged approach:
           </p>
           <ol className="list-decimal pl-6 space-y-3 my-6 text-muted-foreground bg-card/50 p-4 rounded-md">
             <li>
@@ -191,7 +191,7 @@ export default function ClassImbalanceProblemPage() {
               </div>
             </div>
             <p className="text-sm text-muted-foreground mt-6 text-center">
-              This visualization demonstrates that the Plexus Accuracy Gauge helps you avoid being misled by a raw accuracy percentage. By adapting its scale, it correctly shows that a 65% accuracy can range from mediocre (in a balanced scenario) to very poor (in highly imbalanced scenarios where simply guessing the majority class would yield a higher score).
+              This visualization demonstrates that the Primus Accuracy Gauge helps you avoid being misled by a raw accuracy percentage. By adapting its scale, it correctly shows that a 65% accuracy can range from mediocre (in a balanced scenario) to very poor (in highly imbalanced scenarios where simply guessing the majority class would yield a higher score).
             </p>
           </div>
 
@@ -201,7 +201,7 @@ export default function ClassImbalanceProblemPage() {
 
           <div className="space-y-8">
             <EvaluationCard
-              title="The 'Always Safe' Email Filter - Plexus View"
+              title="The 'Always Safe' Email Filter - Primus View"
               subtitle="97/3 Imbalance. Strategy: Always predict 'Safe'. Raw Accuracy: 97%."
               classDistributionData={alwaysSafeEmailClassDistribution}
               isBalanced={false}
@@ -216,7 +216,7 @@ export default function ClassImbalanceProblemPage() {
             />
 
             <EvaluationCard
-              title="Stacked Deck (75% Red) - Plexus View"
+              title="Stacked Deck (75% Red) - Primus View"
               subtitle="75/25 Imbalance. Strategy: Always predict 'Red'. Raw Accuracy: 75%."
               classDistributionData={stackedDeckAlwaysRedClassDistribution}
               isBalanced={false}
@@ -271,7 +271,7 @@ export default function ClassImbalanceProblemPage() {
       <div className="mt-12 p-4 bg-primary/10 dark:bg-primary/20 rounded-lg border-l-4 border-primary">
         <h3 className="text-lg font-semibold mb-2">For a Comprehensive Overview</h3>
         <p className="text-muted-foreground mb-3">
-          This guide focuses on the "class imbalance" problem. For a broader understanding of how Plexus addresses various contextual factors in evaluation (including the number of classes and the full two-pronged solution strategy), please see our main guide:
+          This guide focuses on the "class imbalance" problem. For a broader understanding of how Primus addresses various contextual factors in evaluation (including the number of classes and the full two-pronged solution strategy), please see our main guide:
         </p>
         <Link href="/documentation/evaluation-metrics/gauges-with-context">
           <DocButton>Understanding Gauges with Context</DocButton>

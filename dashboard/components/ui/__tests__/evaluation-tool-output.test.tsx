@@ -49,7 +49,7 @@ describe('EvaluationToolOutput progressive rendering', () => {
               task: {
                 id: 'task-1',
                 status: 'RUNNING',
-                command: 'plexus_evaluation_run',
+                command: 'primus_evaluation_run',
                 stages: {
                   items: [
                     {

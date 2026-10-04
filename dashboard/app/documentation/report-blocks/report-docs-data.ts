@@ -52,7 +52,7 @@ export const reportDocs: ReportDoc[] = [
     answers: ["How aligned is this score with human feedback?", "Which labels are being confused?", "Which scores need attention first?"],
     useWhen: ["Starting score optimization.", "Comparing scorecard-level alignment across scores.", "Checking whether recent rubric or prompt changes improved feedback agreement."],
     avoidWhen: ["You need individual contradiction explanations; use FeedbackContradictions.", "You only need marketing-friendly acceptance numbers; use AcceptanceRate."],
-    cli: `plexus feedback report alignment \\
+    cli: `primus feedback report alignment \\
   --scorecard "Customer Service QA" \\
   --score "Medication Review: Dosage" \\
   --days 30 \\
@@ -101,7 +101,7 @@ days: 30`,
     answers: ["Which feedback items may be invalid under the current rubric?", "What policy themes explain the contradictions?", "Which examples should be reviewed before feedback curation?"],
     useWhen: ["After rubric changes.", "Before building feedback datasets.", "Before optimizing against feedback that may contain stale policy labels."],
     avoidWhen: ["You want aggregate alignment only; use FeedbackAlignment.", "You need a final invalidation action; this report proposes candidates but does not replace review."],
-    cli: `plexus feedback report contradictions \\
+    cli: `primus feedback report contradictions \\
   --scorecard "Customer Service QA" \\
   --score "Medication Review: Dosage" \\
   --days 90 \\
@@ -158,7 +158,7 @@ max_feedback_items: 400`,
     answers: ["What are reviewers correcting right now?", "Which recent examples should I inspect?", "Is new feedback arriving for this score?"],
     useWhen: ["Preparing for a score review.", "Spot-checking recent rubric changes.", "Finding examples to discuss with SMEs."],
     avoidWhen: ["You need agreement statistics; use FeedbackAlignment.", "You need contradiction voting; use FeedbackContradictions."],
-    cli: `plexus feedback report recent \\
+    cli: `primus feedback report recent \\
   --scorecard "Customer Service QA" \\
   --score "Medication Review: Dosage" \\
   --days 14 \\
@@ -211,7 +211,7 @@ max_feedback_items: 50`,
     answers: ["Is alignment improving over time?", "Did a release or rubric change move AC1?", "Which completed periods had no feedback?"],
     useWhen: ["Reviewing week-over-week score health.", "Checking post-release drift.", "Separating recent trend from long-window averages."],
     avoidWhen: ["You only need the latest aggregate; use FeedbackAlignment.", "You need feedback volume only; use FeedbackVolumeTimeline."],
-    cli: `plexus feedback report timeline \\
+    cli: `primus feedback report timeline \\
   --scorecard "Customer Service QA" \\
   --include-score "Resolution Accuracy" \\
   --exclude-score "Experimental Variant" \\
@@ -266,7 +266,7 @@ show_bucket_details: false`,
     answers: ["Is feedback volume stable?", "Were there enough recent examples to trust an alignment change?", "Which periods need more review coverage?"],
     useWhen: ["Interpreting timeline metrics.", "Checking whether low confidence comes from low volume.", "Monitoring reviewer throughput."],
     avoidWhen: ["You need agreement quality; use FeedbackAlignmentTimeline.", "You need item-level rows; use RecentFeedback."],
-    cli: `plexus feedback report volume \\
+    cli: `primus feedback report volume \\
   --scorecard "Customer Service QA" \\
   --score "Medication Review: Dosage" \\
   --bucket-type trailing_7d \\
@@ -310,24 +310,24 @@ bucket_count: 8`,
     answers: ["Which scores changed champion versions during this window?", "Did champion feedback and regression metrics improve?", "What changed between the prior champion and the latest champion?"],
     useWhen: ["Reviewing optimizer impact after score improvement work.", "Explaining production champion changes across a whole scorecard.", "Auditing manually promoted score versions."],
     avoidWhen: ["You need every optimizer candidate; use procedure optimizer views.", "You want scores with no champion change; unchanged scores are hidden unless explicitly requested.", "The score predates championHistory metadata and has no recorded transitions."],
-    cli: `plexus feedback report score-champion-version-timeline \\
+    cli: `primus feedback report score-champion-version-timeline \\
   --scorecard "Customer Service QA" \\
   --days 30
 
 # Limit to one score.
-plexus feedback report score-champion-version-timeline \\
+primus feedback report score-champion-version-timeline \\
   --scorecard "Customer Service QA" \\
   --score "Medication Review: Dosage" \\
   --days 30
 
 # Use an explicit date range instead of a trailing day window.
-plexus feedback report score-champion-version-timeline \\
+primus feedback report score-champion-version-timeline \\
   --scorecard "Customer Service QA" \\
   --start-date 2026-03-01 \\
   --end-date 2026-03-31
 
 # Add --include-unchanged to include initial champion entries with no previous champion.`,
-    tactus: `return plexus.report.score_champion_version_timeline{
+    tactus: `return primus.report.score_champion_version_timeline{
   scorecard = "Customer Service QA",
   days = 30,
   sync = true
@@ -446,7 +446,7 @@ include_unchanged: false`,
     answers: ["Are reviewers accepting more AI decisions over time?", "Did acceptance improve after a score release?", "Which periods had weak acceptance?"],
     useWhen: ["Reporting product progress.", "Monitoring high-level reviewer trust.", "Comparing before/after release windows."],
     avoidWhen: ["You need confusion matrix detail; use FeedbackAlignment.", "You need per-topic failure modes; use FeedbackContradictions."],
-    cli: `plexus feedback report acceptance-rate-timeline \\
+    cli: `primus feedback report acceptance-rate-timeline \\
   --scorecard "Customer Service QA" \\
   --score "Medication Review: Dosage" \\
   --bucket-type calendar_week \\
@@ -484,22 +484,22 @@ bucket_count: 6`,
     answers: ["What changed across this scorecard in the requested window?", "Which changes were champion-related (all, some, or none)?", "What stakeholder/SME questions should we ask next?"],
     useWhen: ["Preparing a weekly client update.", "Reviewing optimizer-driven changes across many scores.", "Explaining changes in stakeholder language before deep diff review."],
     avoidWhen: ["You only need champion transitions; use ScoreChampionVersionTimeline.", "You need item-level feedback rows; use RecentFeedback.", "No starred versions were created in the window; unchanged scores are intentionally omitted."],
-    cli: `plexus feedback report scorecard-history \\
+    cli: `primus feedback report scorecard-history \\
   --scorecard "Customer Service QA" \\
   --days 10
 
 # Single-score scope on the same scorecard.
-plexus feedback report scorecard-history \\
+primus feedback report scorecard-history \\
   --scorecard "Customer Service QA" \\
   --score "Medication Review: Dosage" \\
   --days 10
 
 # Explicit date range (instead of days).
-plexus feedback report scorecard-history \\
+primus feedback report scorecard-history \\
   --scorecard "Customer Service QA" \\
   --start-date 2026-03-01 \\
   --end-date 2026-03-31`,
-    tactus: `return plexus.report.scorecard_history{
+    tactus: `return primus.report.scorecard_history{
   scorecard = "Customer Service QA",
   days = 10,
   sync = true
@@ -666,7 +666,7 @@ end_date: "2026-03-31"`,
     answers: ["How often do reviewers accept AI decisions?", "Can we show a simple positive trust metric?", "Which recent items were fully accepted or corrected?"],
     useWhen: ["Stakeholder updates.", "High-level adoption reporting.", "Complementing technical alignment metrics."],
     avoidWhen: ["You need chance-corrected agreement; use FeedbackAlignment.", "You need class-level failure modes."],
-    cli: `plexus feedback report acceptance-rate \\
+    cli: `primus feedback report acceptance-rate \\
   --scorecard "Customer Service QA" \\
   --score "Medication Review: Dosage" \\
   --days 30 \\
@@ -715,7 +715,7 @@ max_items: 25`,
     answers: ["How many reviewed results were corrected?", "Which recent items required changes?", "How large is the feedback correction workload?"],
     useWhen: ["Operational workload reviews.", "Comparing correction pressure between scores.", "Finding recent corrected examples."],
     avoidWhen: ["You need a positive stakeholder metric; use AcceptanceRate.", "You need chance-corrected quality; use FeedbackAlignment."],
-    cli: `plexus feedback report correction-rate \\
+    cli: `primus feedback report correction-rate \\
   --scorecard "Customer Service QA" \\
   --score "Medication Review: Dosage" \\
   --days 30`,
@@ -748,7 +748,7 @@ max_items: 25`,
     answers: ["Which scores are expensive?", "What is average cost per item?", "Where should we optimize model or prompt cost?"],
     useWhen: ["Cost review.", "Model migration planning.", "Investigating unusually expensive scoring runs."],
     avoidWhen: ["You need accuracy or alignment quality.", "You need per-feedback curation."],
-    cli: `plexus report run --config "Cost Review" days=7`,
+    cli: `primus report run --config "Cost Review" days=7`,
     config: `class: CostAnalysis
 scorecard: "Customer Service QA"
 days: 7
@@ -775,7 +775,7 @@ group_by: score`,
     answers: ["What topics appear in this text corpus?", "Which examples represent each topic?", "What keywords describe each cluster?"],
     useWhen: ["Exploring unlabeled transcript text.", "Finding themes in free-form comments.", "Creating a first-pass taxonomy."],
     avoidWhen: ["You need feedback-vs-rubric contradictions.", "You need deterministic score metrics."],
-    cli: `plexus report run --config "Topic Analysis" source=customer-calls sample_size=1000`,
+    cli: `primus report run --config "Topic Analysis" source=customer-calls sample_size=1000`,
     config: `class: TopicAnalysis
 data:
   source: "customer-calls"
@@ -804,7 +804,7 @@ bertopic_analysis:
     answers: ["What reasons does the model give most often?", "Which reasoning patterns correlate with misses?", "Where are explanations repetitive or vague?"],
     useWhen: ["Auditing model reasoning.", "Preparing optimizer context.", "Finding repeated explanation themes."],
     avoidWhen: ["You need transcript topics instead of score explanations.", "You need direct feedback agreement metrics."],
-    cli: `plexus report run --config "Explanation Analysis" days=30`,
+    cli: `primus report run --config "Explanation Analysis" days=30`,
     config: `class: ExplanationAnalysis
 scorecard: "Customer Service QA"
 days: 30
@@ -829,7 +829,7 @@ min_topic_size: 5`,
     answers: ["Which topics are recurring?", "Which topics are new or trending?", "What has persisted in memory?"],
     useWhen: ["Maintaining topic memory for RCA or optimization.", "Looking for recurring issue clusters.", "Comparing short- and long-term themes."],
     avoidWhen: ["You only need a one-off topic model.", "You need simple aggregate metrics."],
-    cli: `plexus report run --config "Vector Topic Memory" days=90`,
+    cli: `primus report run --config "Vector Topic Memory" days=90`,
     config: `class: VectorTopicMemory
 scorecard: "Customer Service QA"
 days: 90
@@ -854,7 +854,7 @@ memory_scope: "scorecard"`,
     answers: ["What should the team work on next?", "Which score/topic combination needs attention?", "Which examples support the action item?"],
     useWhen: ["Preparing an optimization agenda.", "Reviewing stakeholder action lists.", "Triaging low-AC1 recurring topics."],
     avoidWhen: ["You need raw metrics only.", "You have not generated prerequisite alignment or topic-memory context."],
-    cli: `plexus report action-items --report <report-id>`,
+    cli: `primus report action-items --report <report-id>`,
     config: `class: ActionItems
 ac1_threshold: 0.70
 recency_days: 30`,
@@ -892,7 +892,7 @@ recency_days: 30`,
     answers: ["Which score is this report about?", "What is the score description?", "When was this score last updated?"],
     useWhen: ["Adding context to composite reports.", "Providing a lightweight header for score-specific report output."],
     avoidWhen: ["You need metrics or feedback analysis.", "The report already has enough score context."],
-    cli: `plexus report run --config "Score Overview"`,
+    cli: `primus report run --config "Score Overview"`,
     config: `class: ScoreInfo
 scorecard: "Customer Service QA"
 score: "Medication Review: Dosage"`,
@@ -913,13 +913,13 @@ score: "Medication Review: Dosage"`,
     answers: ["Does this score version implement its rubric?", "Should I investigate a code/rubric mismatch before evaluation?", "Is an item useful as spot-check context?"],
     useWhen: ["Before promotion.", "Before a feedback evaluation.", "When evaluation results suggest the prompt and rubric may disagree."],
     avoidWhen: ["You need feedback item curation; use FeedbackContradictions.", "You need a full evaluation; this is only a preflight check."],
-    cli: `plexus score contradictions \\
+    cli: `primus score contradictions \\
   --scorecard "Customer Service QA" \\
   --score "Medication Review: Dosage" \\
   --version abc123-version-uuid \\
   --format json`,
     config: `# This is not a ReportBlock. It is a score command.
-plexus score contradictions \\
+primus score contradictions \\
   --scorecard "Customer Service QA" \\
   --score "Medication Review: Dosage" \\
   --version abc123-version-uuid`,

@@ -7,15 +7,15 @@ export default function TasksPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Tasks</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Understand how Tasks work in Plexus and how our powerful task management system handles your operations efficiently and reliably.
+        Understand how Tasks work in Primus and how our powerful task management system handles your operations efficiently and reliably.
       </p>
 
       <div className="space-y-8">
         <section>
           <h2 className="text-2xl font-semibold mb-4">What are Tasks?</h2>
           <p className="text-muted-foreground mb-4">
-            Tasks are the backbone of Plexus, serving as the infrastructure that connects all of your organization's 
-            operations and team members. At their core, tasks represent commands that operate on Plexus's basic 
+            Tasks are the backbone of Primus, serving as the infrastructure that connects all of your organization's 
+            operations and team members. At their core, tasks represent commands that operate on Primus's basic 
             resources—Items, Sources, Scorecards, and Evaluations—and the task management system is how these 
             commands get distributed to worker computers for processing.
           </p>
@@ -28,15 +28,15 @@ export default function TasksPage() {
             <div>
               <h3 className="text-xl font-medium mb-2">Flexible Access for Different Users</h3>
               <p className="text-muted-foreground mb-4">
-                Plexus accommodates different types of users by providing multiple ways to work with tasks:
+                Primus accommodates different types of users by providing multiple ways to work with tasks:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                 <li>
-                  <strong>Command Line Users</strong>: Technical team members can use Plexus's command-line tools 
+                  <strong>Command Line Users</strong>: Technical team members can use Primus's command-line tools 
                   directly, working with YAML configurations and advanced features
                 </li>
                 <li>
-                  <strong>Worker Daemon Users</strong>: Organizations can run Plexus worker daemons that plug into 
+                  <strong>Worker Daemon Users</strong>: Organizations can run Primus worker daemons that plug into 
                   the task dispatch system, allowing tasks to be managed through the dashboard
                 </li>
                 <li>
@@ -94,7 +94,7 @@ export default function TasksPage() {
                   The operation is converted into a task with a unique identifier
                 </li>
                 <li>
-                  Plexus examines the task requirements (like whether it needs GPU access or specific data access)
+                  Primus examines the task requirements (like whether it needs GPU access or specific data access)
                 </li>
                 <li>
                   The task is routed to an appropriate worker computer that can handle those requirements
@@ -108,7 +108,7 @@ export default function TasksPage() {
             <div>
               <h3 className="text-xl font-medium mb-2">Worker Computers</h3>
               <p className="text-muted-foreground mb-4">
-                Worker computers are machines running the Plexus worker daemon. They can be:
+                Worker computers are machines running the Primus worker daemon. They can be:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                 <li>
@@ -123,7 +123,7 @@ export default function TasksPage() {
               </ul>
               <p className="text-muted-foreground mt-4">
                 Each worker advertises its capabilities (like having a GPU or access to certain data), 
-                allowing Plexus to route tasks to the most appropriate worker.
+                allowing Primus to route tasks to the most appropriate worker.
               </p>
             </div>
 
@@ -209,7 +209,7 @@ export default function TasksPage() {
           <h2 className="text-2xl font-semibold mb-4">Related Topics</h2>
           <div className="space-y-4">
             <p className="text-muted-foreground mb-4">
-              To learn more about how tasks work in Plexus, check out these related topics:
+              To learn more about how tasks work in Primus, check out these related topics:
             </p>
             <div className="flex gap-4">
               <Link href="/documentation/worker-nodes">

@@ -14,7 +14,7 @@ set -a
 set +a
 
 if ! command -v poetry >/dev/null 2>&1; then
-  echo "Missing poetry for dashboard dev env fallback (.plexus/config.yaml)." >&2
+  echo "Missing poetry for dashboard dev env fallback (.primus/config.yaml)." >&2
   exit 1
 fi
 
@@ -24,12 +24,12 @@ import os
 import shlex
 import sys
 
-from plexus.config.loader import ConfigLoader, load_config
+from primus.config.loader import ConfigLoader, load_config
 
 try:
     load_config()
 except Exception as exc:
-    print(f"Failed to load .plexus/config.yaml via load_config(): {exc}", file=sys.stderr)
+    print(f"Failed to load .primus/config.yaml via load_config(): {exc}", file=sys.stderr)
     raise
 
 env = os.environ
@@ -49,8 +49,8 @@ values = {
 }
 
 values.update({
-    "NEXT_PUBLIC_PLEXUS_ACCOUNT_KEY": pick("NEXT_PUBLIC_PLEXUS_ACCOUNT_KEY", "PLEXUS_ACCOUNT_KEY"),
-    "NEXT_PUBLIC_PLEXUS_API_REGION": pick("NEXT_PUBLIC_PLEXUS_API_REGION", "PLEXUS_API_REGION"),
+    "NEXT_PUBLIC_PLEXUS_ACCOUNT_KEY": pick("NEXT_PUBLIC_PLEXUS_ACCOUNT_KEY", "PRIMUS_ACCOUNT_KEY"),
+    "NEXT_PUBLIC_PLEXUS_API_REGION": pick("NEXT_PUBLIC_PLEXUS_API_REGION", "PRIMUS_API_REGION"),
     "NEXT_PUBLIC_CONSOLE_RESPONSE_TARGET": pick("NEXT_PUBLIC_CONSOLE_RESPONSE_TARGET", "CONSOLE_RESPONSE_TARGET"),
     "CONSOLE_RESPONSE_TARGET": pick("CONSOLE_RESPONSE_TARGET", "NEXT_PUBLIC_CONSOLE_RESPONSE_TARGET"),
 })
@@ -60,7 +60,7 @@ for key, value in values.items():
         print(f"export {key}={shlex.quote(value)}")
 PY
 )"; then
-  echo "Failed to hydrate dashboard dev env from .plexus/config.yaml via poetry run python." >&2
+  echo "Failed to hydrate dashboard dev env from .primus/config.yaml via poetry run python." >&2
   exit 1
 fi
 

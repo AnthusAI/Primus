@@ -1,13 +1,13 @@
-export type PlexusRecordType = 'scorecard' | 'score' | 'item' | 'evaluation' | 'report';
+export type PrimusRecordType = 'scorecard' | 'score' | 'item' | 'evaluation' | 'report';
 
-interface PlexusUrlOptions {
-  recordType: PlexusRecordType;
+interface PrimusUrlOptions {
+  recordType: PrimusRecordType;
   id: string;
   parentId?: string; // For nested resources like scores within scorecards
   versionId?: string; // For score versions
 }
 
-export function getDashboardUrl(options: PlexusUrlOptions): string {
+export function getDashboardUrl(options: PrimusUrlOptions): string {
   const { recordType, id, parentId, versionId } = options;
 
   switch (recordType) {

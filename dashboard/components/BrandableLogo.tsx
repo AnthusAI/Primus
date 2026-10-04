@@ -14,7 +14,7 @@ interface BrandableLogoProps {
 
 /**
  * Logo component that can be white-labeled via brand configuration.
- * Falls back to default Plexus logo if no custom logo is configured.
+ * Falls back to default Primus logo if no custom logo is configured.
  */
 export default function BrandableLogo({
   variant,

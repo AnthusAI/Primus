@@ -69,11 +69,11 @@ def test_runtime_imports_are_deferred_until_a_direct_message_needs_processing(mo
 def test_lambda_runtime_disables_redundant_custom_cloudwatch_shipping(monkeypatch):
     app = _load_app_module()
     monkeypatch.setenv("AWS_LAMBDA_FUNCTION_NAME", "console-responder")
-    monkeypatch.delenv("PLEXUS_DISABLE_CLOUDWATCH_LOGS", raising=False)
+    monkeypatch.delenv("PRIMUS_DISABLE_CLOUDWATCH_LOGS", raising=False)
 
     app._prepare_console_runtime_environment()
 
-    assert app.os.environ["PLEXUS_DISABLE_CLOUDWATCH_LOGS"] == "true"
+    assert app.os.environ["PRIMUS_DISABLE_CLOUDWATCH_LOGS"] == "true"
 
 
 def test_warm_interactive_runtime_prepares_reusable_console_state(monkeypatch):
@@ -112,7 +112,7 @@ def test_handler_processes_direct_message_without_waiting_for_a_stream_record(mo
     calls = []
 
     monkeypatch.setenv("CONSOLE_RESPONSE_TARGET", "cloud")
-    monkeypatch.delenv("PLEXUS_LAMBDA_REQUEST_ID", raising=False)
+    monkeypatch.delenv("PRIMUS_LAMBDA_REQUEST_ID", raising=False)
     monkeypatch.setattr(app, "_load_provider_credentials", lambda: None)
     monkeypatch.setattr(app, "_resolve_client", SimpleNamespace)
     monkeypatch.setattr(
@@ -132,7 +132,7 @@ def test_handler_processes_direct_message_without_waiting_for_a_stream_record(mo
     assert calls[0][0]["id"] == "msg-direct"
     assert calls[0][1]["expected_target"] == "cloud"
     assert isinstance(calls[0][1]["poll_context"]["direct_message_fetch_ms"], int)
-    assert "PLEXUS_LAMBDA_REQUEST_ID" not in app.os.environ
+    assert "PRIMUS_LAMBDA_REQUEST_ID" not in app.os.environ
 
 
 def test_handler_skips_local_target_when_cloud_worker_does_not_claim(monkeypatch):
@@ -239,11 +239,11 @@ def test_resolve_client_uses_iam_auth_without_api_key(monkeypatch):
         def __init__(self, *, api_url, context):
             created.append((api_url, context.account_key))
 
-    monkeypatch.setenv("PLEXUS_API_URL", "https://example.appsync-api.us-west-2.amazonaws.com/graphql")
-    monkeypatch.setenv("PLEXUS_GRAPHQL_AUTH_MODE", "iam")
-    monkeypatch.setenv("PLEXUS_ACCOUNT_KEY", "call-criteria")
-    monkeypatch.delenv("PLEXUS_API_KEY", raising=False)
-    monkeypatch.setattr(app, "PlexusDashboardClient", FakeClient)
+    monkeypatch.setenv("PRIMUS_API_URL", "https://example.appsync-api.us-west-2.amazonaws.com/graphql")
+    monkeypatch.setenv("PRIMUS_GRAPHQL_AUTH_MODE", "iam")
+    monkeypatch.setenv("PRIMUS_ACCOUNT_KEY", "call-criteria")
+    monkeypatch.delenv("PRIMUS_API_KEY", raising=False)
+    monkeypatch.setattr(app, "PrimusDashboardClient", FakeClient)
 
     app._resolve_client()
 
@@ -253,13 +253,13 @@ def test_resolve_client_uses_iam_auth_without_api_key(monkeypatch):
 def test_resolve_client_requires_iam_auth_mode(monkeypatch):
     app = _load_app_module()
 
-    monkeypatch.setenv("PLEXUS_API_URL", "https://example.appsync-api.us-west-2.amazonaws.com/graphql")
-    monkeypatch.delenv("PLEXUS_GRAPHQL_AUTH_MODE", raising=False)
+    monkeypatch.setenv("PRIMUS_API_URL", "https://example.appsync-api.us-west-2.amazonaws.com/graphql")
+    monkeypatch.delenv("PRIMUS_GRAPHQL_AUTH_MODE", raising=False)
 
     try:
         app._resolve_client()
     except RuntimeError as exc:
-        assert "PLEXUS_GRAPHQL_AUTH_MODE must be iam" in str(exc)
+        assert "PRIMUS_GRAPHQL_AUTH_MODE must be iam" in str(exc)
     else:
         raise AssertionError("expected RuntimeError")
 
@@ -270,7 +270,7 @@ def test_load_provider_credentials_sets_openai_and_optional_anthropic(monkeypatc
 
     class FakeSecretsManager:
         def get_secret_value(self, *, SecretId):
-            assert SecretId == "plexus/production/config"
+            assert SecretId == "primus/production/config"
             return {
                 "SecretString": json.dumps(
                     {
@@ -280,7 +280,7 @@ def test_load_provider_credentials_sets_openai_and_optional_anthropic(monkeypatc
                 )
             }
 
-    monkeypatch.setenv("PLEXUS_CONFIG_SECRET_NAME", "plexus/production/config")
+    monkeypatch.setenv("PRIMUS_CONFIG_SECRET_NAME", "primus/production/config")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.setattr(app.boto3, "client", lambda service_name: FakeSecretsManager())
@@ -299,7 +299,7 @@ def test_load_provider_credentials_allows_missing_anthropic(monkeypatch):
         def get_secret_value(self, *, SecretId):
             return {"SecretString": json.dumps({"openai-api-key": "test-openai-key"})}
 
-    monkeypatch.setenv("PLEXUS_CONFIG_SECRET_NAME", "plexus/production/config")
+    monkeypatch.setenv("PRIMUS_CONFIG_SECRET_NAME", "primus/production/config")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.setattr(app.boto3, "client", lambda service_name: FakeSecretsManager())

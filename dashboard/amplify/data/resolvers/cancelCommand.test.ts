@@ -9,7 +9,7 @@ const event = { arguments: { accountId: 'account-1', taskId: 'task-1' }, identit
 const reply = (data: unknown, errors?: unknown[]) => ({ ok: true, json: async () => ({ data, errors }) });
 
 describe('cancelCommand', () => {
-  beforeEach(() => { process.env.PLEXUS_API_URL = 'https://example.appsync-api.us-east-1.amazonaws.com/graphql'; process.env.AWS_REGION = 'us-east-1'; mockFetch.mockReset(); });
+  beforeEach(() => { process.env.PRIMUS_API_URL = 'https://example.appsync-api.us-east-1.amazonaws.com/graphql'; process.env.AWS_REGION = 'us-east-1'; mockFetch.mockReset(); });
   it.each(['ANNOUNCED', 'RUNNING'])('conditionally requests cancellation from %s', async (lifecycleStatus) => {
     mockFetch.mockResolvedValueOnce(reply({ getTask: { id: 'task-1', accountId: 'account-1', lifecycleStatus, dispatchStatus: 'READY' } })).mockResolvedValueOnce(reply({ updateTask: { id: 'task-1', dispatchStatus: 'READY' } }));
     await expect(handler(event)).resolves.toMatchObject({ taskId: 'task-1' });

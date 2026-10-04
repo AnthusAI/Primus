@@ -3,14 +3,14 @@ export default function MonitorTasksPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Monitor Tasks</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Learn how to track and manage tasks in your Plexus deployment.
+        Learn how to track and manage tasks in your Primus deployment.
       </p>
 
       <div className="space-y-8">
         <section>
           <h2 className="text-2xl font-semibold mb-4">Task Monitoring</h2>
           <p className="text-muted-foreground mb-4">
-            Tasks represent individual units of work in Plexus, such as evaluations,
+            Tasks represent individual units of work in Primus, such as evaluations,
             source processing, or model training. You can monitor tasks through both
             the web dashboard and the command line interface.
           </p>
@@ -34,28 +34,28 @@ export default function MonitorTasksPage() {
             <div>
               <h3 className="text-xl font-medium mb-2">Using the CLI</h3>
               <p className="text-muted-foreground mb-4">
-                The Plexus CLI provides powerful tools for monitoring tasks directly from your terminal:
+                The Primus CLI provides powerful tools for monitoring tasks directly from your terminal:
               </p>
               <pre className="bg-muted p-4 rounded-lg mb-4">
                 <code>{`# List tasks for an account (shows 10 most recent by default)
-plexus tasks list --account your-account-key
+primus tasks list --account your-account-key
 
 # Show all tasks instead of just the most recent
-plexus tasks list --account your-account-key --all
+primus tasks list --account your-account-key --all
 
 # Filter tasks by status
-plexus tasks list --account your-account-key --status RUNNING
-plexus tasks list --account your-account-key --status COMPLETED
-plexus tasks list --account your-account-key --status FAILED
+primus tasks list --account your-account-key --status RUNNING
+primus tasks list --account your-account-key --status COMPLETED
+primus tasks list --account your-account-key --status FAILED
 
 # Filter tasks by type
-plexus tasks list --account your-account-key --type evaluation
+primus tasks list --account your-account-key --type evaluation
 
 # Combine filters
-plexus tasks list --account your-account-key --status RUNNING --type evaluation
+primus tasks list --account your-account-key --status RUNNING --type evaluation
 
 # Limit the number of tasks shown
-plexus tasks list --account your-account-key --limit 5`}</code>
+primus tasks list --account your-account-key --limit 5`}</code>
               </pre>
               <p className="text-sm text-muted-foreground mb-4">
                 The CLI output displays comprehensive task information in a well-formatted view:
@@ -88,22 +88,22 @@ plexus tasks list --account your-account-key --limit 5`}</code>
               
               <pre className="bg-muted p-4 rounded-lg mb-4">
                 <code>{`# Delete a specific task by ID
-plexus tasks delete --account your-account-key --task-id "task-id"
+primus tasks delete --account your-account-key --task-id "task-id"
 
 # Delete all failed tasks for an account
-plexus tasks delete --account your-account-key --status FAILED
+primus tasks delete --account your-account-key --status FAILED
 
 # Delete all tasks of a specific type for an account
-plexus tasks delete --account your-account-key --type evaluation
+primus tasks delete --account your-account-key --type evaluation
 
 # Delete ALL tasks for a specific account
-plexus tasks delete --account your-account-key --all
+primus tasks delete --account your-account-key --all
 
 # Delete ALL tasks across ALL accounts (USE WITH EXTREME CAUTION)
-plexus tasks delete --all
+primus tasks delete --all
 
 # Skip confirmation prompt with -y/--yes (USE WITH EXTREME CAUTION)
-plexus tasks delete --all -y`}</code>
+primus tasks delete --all -y`}</code>
               </pre>
 
               <div className="space-y-2 text-sm text-muted-foreground">

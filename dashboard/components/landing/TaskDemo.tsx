@@ -295,7 +295,7 @@ const TaskDemoBase = ({
     scorecard: 'ABC, Inc Scorecard',
     score: 'DNC Requested?',
     time: startTime!,  // Use the original start time, it will always be set
-    description: 'plexus evaluate accuracy --scorecard abc-inc-scorecard --score "DNC Requested?"',
+    description: 'primus evaluate accuracy --scorecard abc-inc-scorecard --score "DNC Requested?"',
     stages: stages.map(stage => ({
       ...stage,
       key: stage.name,
@@ -319,7 +319,7 @@ const TaskDemoBase = ({
     data: {
       id: taskId,
       title: 'Demo Task',
-      command: 'plexus evaluate accuracy --scorecard abc-inc-scorecard --score "DNC Requested?"'
+      command: 'primus evaluate accuracy --scorecard abc-inc-scorecard --score "DNC Requested?"'
     } as BaseTaskData,
     dispatchStatus: undefined,
     celeryTaskId: undefined,

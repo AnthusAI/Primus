@@ -3,8 +3,8 @@ import Link from "next/link"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Basics - Plexus Documentation",
-  description: "Learn about the core concepts in Plexus"
+  title: "Basics - Primus Documentation",
+  description: "Learn about the core concepts in Primus"
 }
 
 export default function BasicsPage() {
@@ -12,7 +12,7 @@ export default function BasicsPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Core Concepts</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Learn about the fundamental building blocks that make up Plexus.
+        Learn about the fundamental building blocks that make up Primus.
       </p>
 
       <div className="space-y-8">
@@ -22,7 +22,7 @@ export default function BasicsPage() {
             <div>
               <h3 className="text-xl font-medium mb-2">Items</h3>
               <p className="text-muted-foreground mb-4">
-                Individual pieces of content that you want to analyze or evaluate using Plexus. Items are the core units that get scored.
+                Individual pieces of content that you want to analyze or evaluate using Primus. Items are the core units that get scored.
               </p>
               <Link href="/documentation/basics/items">
                 <DocButton>Learn about Items</DocButton>
@@ -33,7 +33,7 @@ export default function BasicsPage() {
               <h3 className="text-xl font-medium mb-2">Sources</h3>
               <p className="text-muted-foreground mb-4">
                 Input data for evaluation, including text and audio content. Sources are the foundation
-                of content analysis in Plexus.
+                of content analysis in Primus.
               </p>
               <Link href="/documentation/basics/sources">
                 <DocButton>Learn about Sources</DocButton>
@@ -87,7 +87,7 @@ export default function BasicsPage() {
             <div>
               <h3 className="text-xl font-medium mb-2">Tasks</h3>
               <p className="text-muted-foreground mb-4">
-                Individual units of work in Plexus, representing operations like source processing
+                Individual units of work in Primus, representing operations like source processing
                 and evaluations.
               </p>
               <Link href="/documentation/basics/tasks">
@@ -108,7 +108,7 @@ export default function BasicsPage() {
             <div>
               <h3 className="text-xl font-medium mb-2">Reports</h3>
               <p className="text-muted-foreground mb-4">
-                Flexible, template-driven analyses and summaries generated from your Plexus data using reusable components.
+                Flexible, template-driven analyses and summaries generated from your Primus data using reusable components.
               </p>
               <Link href="/documentation/concepts/reports">
                 <DocButton>Learn about Reports</DocButton>
@@ -130,7 +130,7 @@ export default function BasicsPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">How It All Works Together</h2>
           <p className="text-muted-foreground mb-6">
-            The Plexus workflow follows a simple pattern:
+            The Primus workflow follows a simple pattern:
           </p>
           <ol className="list-decimal pl-6 space-y-4 text-muted-foreground">
             <li>
@@ -155,7 +155,7 @@ export default function BasicsPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Next Steps</h2>
           <p className="text-muted-foreground mb-4">
-            Start with Sources to learn how to add content to Plexus, then explore Scorecards
+            Start with Sources to learn how to add content to Primus, then explore Scorecards
             to understand how to evaluate your content effectively.
           </p>
           <div className="flex gap-4">

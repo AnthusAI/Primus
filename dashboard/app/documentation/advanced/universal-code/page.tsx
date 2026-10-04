@@ -206,7 +206,7 @@ scores:
           </div>
           <div className="space-y-4 pr-20 md:pr-24 lg:pr-28">
             <p className="text-muted-foreground">
-              Throughout Plexus, this icon means you can grab structured data that works everywhere. Click it, copy the output, 
+              Throughout Primus, this icon means you can grab structured data that works everywhere. Click it, copy the output, 
               and paste it directly into ChatGPT, Claude, your code editor, or share it with other team members. 
               The YAML format includes built-in context so anyone (human or AI) immediately understands what they're looking at.
             </p>
@@ -220,7 +220,7 @@ scores:
         <section>
           <h2 className="text-2xl font-semibold mb-4">Visual Report → Universal Code</h2>
           <p className="text-muted-foreground mb-6">
-            Here's how it works: every graphical report in Plexus has a corresponding code representation. 
+            Here's how it works: every graphical report in Primus has a corresponding code representation. 
             Below is a real sales lead routing analysis report. The visual report displays agreement scores, confusion matrices, and insights beautifully. 
             The Code button reveals the same data as contextual YAML that works everywhere.
           </p>
@@ -265,7 +265,7 @@ scores:
         <section>
           <h2 className="text-2xl font-semibold mb-4">Available Everywhere</h2>
           <p className="text-muted-foreground mb-6">
-            Every report block in Plexus automatically generates Universal Code Snippets. Whether you're working with 
+            Every report block in Primus automatically generates Universal Code Snippets. Whether you're working with 
             topic analysis, feedback alignment, confusion matrices, or any other analytical output, the distinctive 
             code icon gives you instant access to structured, contextual data.
           </p>
@@ -309,7 +309,7 @@ scores:
             Universal Code Snippets solve this by packaging your data with built-in explanations that travel with it.
           </p>
           <p className="text-muted-foreground">
-            This means you can seamlessly move insights between Plexus, your AI tools, documentation, code repositories, 
+            This means you can seamlessly move insights between Primus, your AI tools, documentation, code repositories, 
             and team conversations without losing meaning or requiring additional explanation.
           </p>
         </section>

@@ -14,8 +14,8 @@ import {
 } from "@/app/documentation/evaluation-metrics/examples-data"
 
 export const metadata: Metadata = {
-  title: "Recall Gauge - Plexus Documentation",
-  description: "Understanding the Plexus Recall Gauge (Sensitivity) and its importance in evaluating classifier completeness, especially concerning False Negatives."
+  title: "Recall Gauge - Primus Documentation",
+  description: "Understanding the Primus Recall Gauge (Sensitivity) and its importance in evaluating classifier completeness, especially concerning False Negatives."
 }
 
 // Component to display a standalone Recall Gauge for illustration
@@ -48,7 +48,7 @@ const precisionForProhibitedInAlwaysSafe = 0; // 0 / (0 + 0) which is undefined,
 export default function RecallGaugePage() {
   return (
     <div className="max-w-4xl mx-auto py-8 px-6">
-      <h1 className="text-4xl font-bold mb-4">The Plexus Recall Gauge</h1>
+      <h1 className="text-4xl font-bold mb-4">The Primus Recall Gauge</h1>
       <p className="text-lg text-muted-foreground mb-8">
         Recall, also known as Sensitivity or True Positive Rate (TPR), answers the question: <strong>"Of all the items that were actually positive, what proportion did the classifier correctly identify?"</strong> It measures the completeness or comprehensiveness of the classifier in finding all positive instances. A high recall score indicates that the classifier has a low rate of False Negatives (FN).
       </p>
@@ -70,9 +70,9 @@ export default function RecallGaugePage() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mb-4">How the Plexus Recall Gauge Works</h2>
+          <h2 className="text-2xl font-semibold mb-4">How the Primus Recall Gauge Works</h2>
           <p className="text-muted-foreground mb-4">
-            The Recall Gauge in Plexus displays the calculated recall score, ranging from 0% to 100%. The formula is:
+            The Recall Gauge in Primus displays the calculated recall score, ranging from 0% to 100%. The formula is:
           </p>
           <p className="text-center text-lg font-semibold my-4 p-3 bg-muted rounded-md">
             Recall = True Positives / (True Positives + False Negatives)
@@ -138,7 +138,7 @@ export default function RecallGaugePage() {
             <li>Recall (Sensitivity) measures the ability to find all actual positive instances: TP / (TP + FN).</li>
             <li>High recall means a low False Negative rate.</li>
             <li>Crucial when the cost of False Negatives is high.</li>
-            <li>The Plexus Recall Gauge displays this score from 0-100%.</li>
+            <li>The Primus Recall Gauge displays this score from 0-100%.</li>
             <li>Often considered in conjunction with Precision; the F1-score balances both.</li>
           </ul>
         </section>

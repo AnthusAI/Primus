@@ -10,7 +10,7 @@ import { getClient } from "@/utils/amplify-client"
 import { menuItems } from "@/components/dashboard-layout"
 
 type Account = Schema['Account']['type']
-const LAST_ACCOUNT_STORAGE_KEY = "plexus.lastSelectedAccountId"
+const LAST_ACCOUNT_STORAGE_KEY = "primus.lastSelectedAccountId"
 
 interface AccountContextType {
   accounts: Account[]
@@ -77,7 +77,7 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
       if (storedAccount) return storedAccount
     }
 
-    const defaultAccountKey = process.env.NEXT_PUBLIC_PLEXUS_ACCOUNT_KEY?.trim()
+    const defaultAccountKey = process.env.NEXT_PUBLIC_PRIMUS_ACCOUNT_KEY?.trim()
     if (defaultAccountKey) {
       const envAccount = availableAccounts.find(account => account.key === defaultAccountKey)
       if (envAccount) return envAccount

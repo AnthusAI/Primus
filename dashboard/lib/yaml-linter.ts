@@ -61,7 +61,7 @@ export class YamlLinter {
   constructor(
     schema?: Record<string, any>,
     customRules: ValidationRule[] = [],
-    docBaseUrl: string = 'https://docs.plexus.ai/yaml-dsl'
+    docBaseUrl: string = 'https://docs.primus.ai/yaml-dsl'
   ) {
     this.schema = schema
     this.rules = customRules
@@ -358,7 +358,7 @@ export class RequiredFieldRule implements ValidationRule {
           title: 'Required Field Missing',
           message: `Required field '${this.fieldPath}' is missing.`,
           suggestion: `Please add the '${this.fieldPath}' field to your configuration.`,
-          doc_url: 'https://docs.plexus.ai/yaml-dsl/required-fields',
+          doc_url: 'https://docs.primus.ai/yaml-dsl/required-fields',
           context: { field_path: this.fieldPath }
         })
       } else if (current[finalField] === null || current[finalField] === '') {
@@ -368,7 +368,7 @@ export class RequiredFieldRule implements ValidationRule {
           title: 'Required Field Empty',
           message: `Required field '${this.fieldPath}' is empty.`,
           suggestion: `Please provide a value for the '${this.fieldPath}' field.`,
-          doc_url: 'https://docs.plexus.ai/yaml-dsl/required-fields',
+          doc_url: 'https://docs.primus.ai/yaml-dsl/required-fields',
           context: { field_path: this.fieldPath }
         })
       }
@@ -381,7 +381,7 @@ export class RequiredFieldRule implements ValidationRule {
         title: 'Required Field Missing',
         message: `Required field '${this.fieldPath}' is missing.`,
         suggestion: `Please add the '${this.fieldPath}' field to your configuration.`,
-        doc_url: 'https://docs.plexus.ai/yaml-dsl/required-fields',
+        doc_url: 'https://docs.primus.ai/yaml-dsl/required-fields',
         context: { field_path: this.fieldPath }
       })
     }
@@ -428,7 +428,7 @@ export class AllowedValuesRule implements ValidationRule {
           title: 'Invalid Field Value',
           message: `Field '${this.fieldPath}' has invalid value '${current}'.`,
           suggestion: `Please use one of the allowed values: ${this.allowedValues.join(', ')}`,
-          doc_url: 'https://docs.plexus.ai/yaml-dsl/field-values',
+          doc_url: 'https://docs.primus.ai/yaml-dsl/field-values',
           context: {
             field_path: this.fieldPath,
             current_value: current,
@@ -484,7 +484,7 @@ export class TypeValidationRule implements ValidationRule {
           title: 'Invalid Field Type',
           message: `Field '${this.fieldPath}' should be ${this.expectedType}, but got ${actualType}.`,
           suggestion: `Please ensure '${this.fieldPath}' is a ${this.expectedType}.`,
-          doc_url: 'https://docs.plexus.ai/yaml-dsl/data-types',
+          doc_url: 'https://docs.primus.ai/yaml-dsl/data-types',
           context: {
             field_path: this.fieldPath,
             expected_type: this.expectedType,

@@ -3,8 +3,8 @@ import Link from "next/link"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Methods - Plexus Documentation",
-  description: "Step-by-step guides for common operations and workflows in Plexus."
+  title: "Methods - Primus Documentation",
+  description: "Step-by-step guides for common operations and workflows in Primus."
 }
 
 export default function MethodsPage() {
@@ -12,7 +12,7 @@ export default function MethodsPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Methods</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Welcome to our step-by-step guides section. Here you'll find detailed, practical instructions for all common operations in Plexus. Whether you're setting up your first source, creating scorecards, or running evaluations, these guides will walk you through each process step by step.
+        Welcome to our step-by-step guides section. Here you'll find detailed, practical instructions for all common operations in Primus. Whether you're setting up your first source, creating scorecards, or running evaluations, these guides will walk you through each process step by step.
       </p>
 
       <div className="space-y-8">

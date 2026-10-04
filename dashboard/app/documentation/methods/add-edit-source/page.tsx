@@ -3,14 +3,14 @@ export default function AddEditSourcePage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Add/Edit a Source</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Learn how to create and manage sources in Plexus using the dashboard interface.
+        Learn how to create and manage sources in Primus using the dashboard interface.
       </p>
 
       <div className="space-y-8">
         <section>
           <h2 className="text-2xl font-semibold mb-4">Adding a Source in the Dashboard</h2>
           <p className="text-muted-foreground mb-4">
-            The Plexus dashboard provides an intuitive interface for creating and managing your sources.
+            The Primus dashboard provides an intuitive interface for creating and managing your sources.
             Follow these steps to add a new source:
           </p>
           
@@ -93,15 +93,15 @@ export default function AddEditSourcePage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Using the CLI</h2>
           <p className="text-muted-foreground mb-4">
-            For automation and scripting, you can use the Plexus CLI to manage sources:
+            For automation and scripting, you can use the Primus CLI to manage sources:
           </p>
           
           <pre className="bg-muted p-4 rounded-lg mb-4">
             <code>{`# Create a new source
-plexus sources create --name "My Source" --type text --content "Sample content"
+primus sources create --name "My Source" --type text --content "Sample content"
 
 # Update an existing source
-plexus sources update source-id --name "Updated Name" --content "Updated content"`}</code>
+primus sources update source-id --name "Updated Name" --content "Updated content"`}</code>
           </pre>
         </section>
 
@@ -112,19 +112,19 @@ plexus sources update source-id --name "Updated Name" --content "Updated content
           </p>
           
           <pre className="bg-muted p-4 rounded-lg mb-4">
-            <code>{`from plexus import Plexus
+            <code>{`from primus import Primus
 
-plexus = Plexus(api_key="your-api-key")
+primus = Primus(api_key="your-api-key")
 
 # Create a new source
-source = plexus.sources.create(
+source = primus.sources.create(
     name="My Source",
     type="text",
     data="Sample content"
 )
 
 # Update an existing source
-source = plexus.sources.update(
+source = primus.sources.update(
     source_id="source-id",
     name="Updated Source Name",
     data="Updated content"

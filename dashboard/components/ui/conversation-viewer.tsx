@@ -97,8 +97,8 @@ const EvaluationToolOutput = React.lazy(() => import('./evaluation-tool-output')
 const STANDARD_SESSION_CATEGORY = 'Optimize'
 
 const EVALUATION_TOOL_NAMES = new Set([
-  'plexus_evaluation_run',
-  'plexus_evaluation_info',
+  'primus_evaluation_run',
+  'primus_evaluation_info',
 ])
 
 type ExecuteTactusEnvelopeSummary = {
@@ -208,7 +208,7 @@ const parseExecuteTactusEnvelope = (output: unknown): ExecuteTactusEnvelopeSumma
 
 const isExecuteTactusEvaluationOutput = (output: unknown): boolean => {
   const summary = parseExecuteTactusEnvelope(output)
-  return summary.apiCalls.some((call) => call.startsWith('plexus.evaluation.'))
+  return summary.apiCalls.some((call) => call.startsWith('primus.evaluation.'))
     || summary.evaluationIds.length > 0
 }
 
@@ -1168,7 +1168,7 @@ const isConsoleTimingProbeEnabled = (): boolean => {
     return false
   }
   try {
-    const value = window.localStorage.getItem('plexus.console.timingProbe')
+    const value = window.localStorage.getItem('primus.console.timingProbe')
     if (!value) {
       return false
     }

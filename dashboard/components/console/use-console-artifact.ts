@@ -4,7 +4,7 @@ import * as React from "react"
 import type { ConsoleArtifactKind, ConsoleArtifactPayload, ConsoleArtifactState } from "@/components/console/types"
 
 const DEFAULT_WIDTH = 460
-const STORAGE_KEY = "plexus-console-artifact-width"
+const STORAGE_KEY = "primus-console-artifact-width"
 
 export function useConsoleArtifact() {
   const [state, setState] = React.useState<ConsoleArtifactState>({

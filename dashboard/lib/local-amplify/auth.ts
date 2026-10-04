@@ -1,14 +1,14 @@
 const demoUser = {
-  username: "demo@plexus.local",
+  username: "demo@primus.local",
   userId: "demo-user",
   signInDetails: {
-    loginId: "demo@plexus.local",
+    loginId: "demo@primus.local",
   },
 }
 
 const demoAttributes = {
   sub: "demo-user",
-  email: "demo@plexus.local",
+  email: "demo@primus.local",
   name: "Demo User",
   given_name: "Demo",
   family_name: "User",
@@ -17,7 +17,7 @@ const demoAttributes = {
 const demoToken = {
   payload: {
     sub: "demo-user",
-    email: "demo@plexus.local",
+    email: "demo@primus.local",
     name: "Demo User",
   },
   toString: () => "local-demo-token",

@@ -1,4 +1,4 @@
-# Plexus Sandbox Seeding
+# Primus Sandbox Seeding
 
 Automated utility for populating Amplify Gen2 sandboxes with production data to enable realistic development and testing.
 
@@ -42,9 +42,9 @@ cd dashboard
 This script reads from your `.env` and sets all required secrets. Make sure your `.env` contains:
 
 ```bash
-PLEXUS_API_URL=https://xxxxx.appsync-api.us-east-1.amazonaws.com/graphql
-PLEXUS_API_KEY=da2-xxxxxxxxxxxxx
-PLEXUS_ACCOUNT_UUID=9c929f25-a91f-4db7-8943-5aa93498b8e9
+PRIMUS_API_URL=https://xxxxx.appsync-api.us-east-1.amazonaws.com/graphql
+PRIMUS_API_KEY=da2-xxxxxxxxxxxxx
+PRIMUS_ACCOUNT_UUID=9c929f25-a91f-4db7-8943-5aa93498b8e9
 
 # Optional: add this to skip password prompt
 SANDBOX_SEED_PASSWORD=your-secure-password
@@ -81,7 +81,7 @@ You'll need these values from your production environment:
 }
 ```
 
-**PROD_ACCOUNT_ID**: Your Plexus account UUID (NOT AWS account ID or Amplify app ID).
+**PROD_ACCOUNT_ID**: Your Primus account UUID (NOT AWS account ID or Amplify app ID).
 This is the `id` field from your Account table. For example: `9c929f25-a91f-4db7-8943-5aa93498b8e9`
 
 To find your account ID:
@@ -102,7 +102,7 @@ npx ampx sandbox secret set PROD_API_KEY
 # Enter: da2-xxxxxxxxxxxxx
 
 npx ampx sandbox secret set PROD_ACCOUNT_ID
-# Enter: 9c929f25-a91f-4db7-8943-5aa93498b8e9 (your Plexus Account UUID)
+# Enter: 9c929f25-a91f-4db7-8943-5aa93498b8e9 (your Primus Account UUID)
 
 npx ampx sandbox secret set SEED_USER_PASSWORD
 # Enter: (secure password for sandbox seed user, min 8 characters)
@@ -139,7 +139,7 @@ The `generate-policy` command creates permissions for:
 - Reading/writing S3 buckets (if S3 sync is enabled)
 
 The seed script will:
-1. Create/sign in a seed user (`sandbox-seed@plexus.internal`)
+1. Create/sign in a seed user (`sandbox-seed@primus.internal`)
 2. Connect to production and sandbox environments
 3. Execute 5 phases of data copying:
    - Phase 1: Foundation (Account, User)

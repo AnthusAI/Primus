@@ -10,7 +10,7 @@ const required = (value: unknown, name: string) => {
   return value.trim();
 };
 async function graphql(query: string, variables: Record<string, unknown>) {
-  const url = required(process.env.PLEXUS_API_URL, 'PLEXUS_API_URL');
+  const url = required(process.env.PRIMUS_API_URL, 'PRIMUS_API_URL');
   const endpoint = new URL(url);
   const request = await new SignatureV4({ credentials: defaultProvider(), region: required(process.env.AWS_REGION, 'AWS_REGION'), service: 'appsync', sha256: Sha256 }).sign(new HttpRequest({ method: 'POST', hostname: endpoint.host, path: endpoint.pathname, headers: { host: endpoint.host, 'content-type': 'application/json' }, body: JSON.stringify({ query, variables }) }));
   const response = await fetch(new Request(url, request));

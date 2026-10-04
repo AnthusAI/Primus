@@ -53,10 +53,10 @@ echo "🔐 Setting seed script secrets..."
 echo ""
 
 # Seed script secrets (from .env)
-set_secret "PROD_API_URL" "PLEXUS_API_URL"
-set_secret "PROD_API_KEY" "PLEXUS_API_KEY"
-set_secret "PROD_ACCOUNT_KEY" "PLEXUS_ACCOUNT_KEY"
-set_secret "PROD_ACCOUNT_ID" "PLEXUS_ACCOUNT_UUID"
+set_secret "PROD_API_URL" "PRIMUS_API_URL"
+set_secret "PROD_API_KEY" "PRIMUS_API_KEY"
+set_secret "PROD_ACCOUNT_KEY" "PRIMUS_ACCOUNT_KEY"
+set_secret "PROD_ACCOUNT_ID" "PRIMUS_ACCOUNT_UUID"
 
 # Optional seed configuration (defaults)
 set_secret "DAYS_RECENT" "" "30"

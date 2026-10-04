@@ -17,19 +17,19 @@ const jersey20 = Jersey_20({
 
 export const metadata: Metadata = {
   title: "AI Agent Incubator",
-  description: "Plexus gives your team a reliable way to evaluate, deploy, and improve AI agents through continuous learning and human feedback loops.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://plexus.anth.us"),
+  description: "Primus gives your team a reliable way to evaluate, deploy, and improve AI agents through continuous learning and human feedback loops.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://primus.anth.us"),
   openGraph: {
     title: "AI Agent Incubator",
-    description: "Plexus gives your team a reliable way to evaluate, deploy, and improve AI agents through continuous learning and human feedback loops.",
-    url: "https://plexus.anth.us",
-    siteName: "Plexus",
+    description: "Primus gives your team a reliable way to evaluate, deploy, and improve AI agents through continuous learning and human feedback loops.",
+    url: "https://primus.anth.us",
+    siteName: "Primus",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Plexus - AI Agent Incubator"
+        alt: "Primus - AI Agent Incubator"
       }
     ],
     locale: "en_US",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "AI Agent Incubator",
-    description: "Plexus gives your team a reliable way to evaluate, deploy, and improve AI agents through continuous learning and human feedback loops.",
+    description: "Primus gives your team a reliable way to evaluate, deploy, and improve AI agents through continuous learning and human feedback loops.",
     creator: "@Anthus_AI",
     images: ["/og-image.png"],
   }

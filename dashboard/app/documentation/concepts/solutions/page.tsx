@@ -3,14 +3,14 @@ export default function SolutionsPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Solutions</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Discover how Plexus's powerful and flexible features can transform your AI operations.
+        Discover how Primus's powerful and flexible features can transform your AI operations.
       </p>
 
       <div className="space-y-8">
         <section>
           <h2 className="text-2xl font-semibold mb-4">Powerful Task Dispatch System</h2>
           <p className="text-muted-foreground mb-4">
-            Plexus features a sophisticated two-level dispatch system that seamlessly connects your applications to distributed worker nodes, enabling efficient execution of AI operations at any scale.
+            Primus features a sophisticated two-level dispatch system that seamlessly connects your applications to distributed worker nodes, enabling efficient execution of AI operations at any scale.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <div className="rounded-lg p-6 shadow-none border-none bg-card">

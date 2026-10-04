@@ -33,12 +33,12 @@
       ],
       "storage": ["scoreResultAttachments:readWrite"],
       "evidence": [
-        "plexus/cli/prediction/predictions.py",
-        "plexus/dashboard/api/models/scorecard.py",
-        "plexus/dashboard/api/models/score.py",
-        "plexus/dashboard/api/models/item.py",
-        "plexus/dashboard/api/models/score_result.py",
-        "plexus/dashboard/api/models/scoring_job.py"
+        "primus/cli/prediction/predictions.py",
+        "primus/dashboard/api/models/scorecard.py",
+        "primus/dashboard/api/models/score.py",
+        "primus/dashboard/api/models/item.py",
+        "primus/dashboard/api/models/score_result.py",
+        "primus/dashboard/api/models/scoring_job.py"
       ]
     },
     "evaluation.accuracy": {
@@ -62,10 +62,10 @@
       ],
       "storage": ["dataSources:read", "scoreResultAttachments:readWrite"],
       "evidence": [
-        "plexus/cli/evaluation/evaluations.py",
-        "plexus/dashboard/api/models/evaluation.py",
-        "plexus/dashboard/api/models/data_source.py",
-        "plexus/utils/score_result_s3_utils.py"
+        "primus/cli/evaluation/evaluations.py",
+        "primus/dashboard/api/models/evaluation.py",
+        "primus/dashboard/api/models/data_source.py",
+        "primus/utils/score_result_s3_utils.py"
       ]
     },
     "evaluation.feedback": {
@@ -78,8 +78,8 @@
       ],
       "storage": [],
       "evidence": [
-        "plexus/cli/evaluation/evaluations.py",
-        "plexus/dashboard/api/models/feedback_item.py"
+        "primus/cli/evaluation/evaluations.py",
+        "primus/dashboard/api/models/feedback_item.py"
       ]
     },
     "feedback.report": {
@@ -98,11 +98,11 @@
       ],
       "storage": ["reportBlockDetails:readWrite"],
       "evidence": [
-        "plexus/cli/feedback/feedback_report.py",
-        "plexus/cli/feedback/report_runner.py",
-        "plexus/reports/service.py",
-        "plexus/dashboard/api/models/report.py",
-        "plexus/dashboard/api/models/report_block.py"
+        "primus/cli/feedback/feedback_report.py",
+        "primus/cli/feedback/report_runner.py",
+        "primus/reports/service.py",
+        "primus/dashboard/api/models/report.py",
+        "primus/dashboard/api/models/report_block.py"
       ]
     },
     "report.run": {
@@ -112,9 +112,9 @@
       ],
       "storage": [],
       "evidence": [
-        "plexus/cli/report/report_commands.py",
-        "plexus/dashboard/api/models/report_configuration.py",
-        "plexus/reports/s3_utils.py"
+        "primus/cli/report/report_commands.py",
+        "primus/dashboard/api/models/report_configuration.py",
+        "primus/reports/s3_utils.py"
       ]
     },
     "procedure.run": {
@@ -141,11 +141,11 @@
       ],
       "storage": ["dataSources:read", "scoreResultAttachments:readWrite", "reportBlockDetails:readWrite"],
       "evidence": [
-        "plexus/cli/shared/experiment_runner.py",
-        "plexus/cli/procedure/tactus_adapters/storage.py",
-        "plexus/cli/procedure/chat_recorder.py",
-        "plexus/cli/procedure/continuation_service.py",
-        "plexus/storage/graphql_artifact_store.py"
+        "primus/cli/shared/experiment_runner.py",
+        "primus/cli/procedure/tactus_adapters/storage.py",
+        "primus/cli/procedure/chat_recorder.py",
+        "primus/cli/procedure/continuation_service.py",
+        "primus/storage/graphql_artifact_store.py"
       ]
     }
   }

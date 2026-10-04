@@ -49,13 +49,13 @@ export async function POST(request: NextRequest) {
   const normalizedProcedureId = (procedureId as string).trim()
   const normalizedTaskId = (taskId as string).trim()
 
-  // Clear checkpoints only (preserve accumulated State) via plexus CLI.
+  // Clear checkpoints only (preserve accumulated State) via primus CLI.
   // This prevents Tactus from replaying the completed procedure from cache,
   // while keeping the iterations/baseline/dataset State so the optimizer can
   // detect continuation and skip the expensive init phase.
   const resetResult = await new Promise<{ ok: boolean; error?: string }>((resolve) => {
     const resetChild = spawn(
-      "plexus",
+      "primus",
       ["procedure", "reset", normalizedProcedureId, "--checkpoints-only"],
       { stdio: ["ignore", "pipe", "pipe"] },
     )
@@ -79,10 +79,10 @@ export async function POST(request: NextRequest) {
   }
 
   // Dispatch the procedure run (same as /api/console/procedure-run)
-  const child = spawn("plexus", ["procedure", "run", normalizedProcedureId, "-o", "json"], {
+  const child = spawn("primus", ["procedure", "run", normalizedProcedureId, "-o", "json"], {
     env: {
       ...process.env,
-      PLEXUS_DISPATCH_TASK_ID: normalizedTaskId,
+      PRIMUS_DISPATCH_TASK_ID: normalizedTaskId,
     },
     stdio: "ignore",
     detached: true,

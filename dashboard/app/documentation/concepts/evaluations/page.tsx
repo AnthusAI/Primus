@@ -77,7 +77,7 @@ export default function EvaluationsPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Evaluations</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Evaluations in Plexus are how you validate and assess your scorecards to ensure they align with your 
+        Evaluations in Primus are how you validate and assess your scorecards to ensure they align with your 
         policies and stakeholder needs. They help you measure the effectiveness and accuracy of your scoring criteria 
         before deploying them to production.
       </p>
@@ -131,7 +131,7 @@ export default function EvaluationsPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Example Evaluation</h2>
           <p className="text-muted-foreground mb-4">
-            Here's an example of what a scorecard evaluation looks like in Plexus:
+            Here's an example of what a scorecard evaluation looks like in Primus:
           </p>
           <div className="mt-4 border rounded-lg overflow-hidden">
             <EvaluationTask
@@ -209,13 +209,13 @@ export default function EvaluationsPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Reliable Feedback Runner</h2>
           <p className="text-muted-foreground mb-4">
-            For feedback optimization loops, use <code>plexus evaluate feedback-runner</code> instead of
-            calling <code>plexus evaluate feedback</code> directly. The runner captures evaluation ID by
+            For feedback optimization loops, use <code>primus evaluate feedback-runner</code> instead of
+            calling <code>primus evaluate feedback</code> directly. The runner captures evaluation ID by
             runner task ID, waits for terminal backend status, and summarizes final metrics + RCA from the
             evaluation record.
           </p>
           <pre className="bg-muted p-4 rounded-lg overflow-x-auto mb-4">
-            <code>{`plexus evaluate feedback-runner \\
+            <code>{`primus evaluate feedback-runner \\
   --scorecard 1039 \\
   --score 45425 \\
   --days 180 \\

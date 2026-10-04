@@ -3,8 +3,8 @@ import Link from "next/link"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Scores - Plexus Documentation",
-  description: "Learn about Scores in Plexus - the fundamental building blocks for evaluating content"
+  title: "Scores - Primus Documentation",
+  description: "Learn about Scores in Primus - the fundamental building blocks for evaluating content"
 }
 
 export default function ScoresPage() {
@@ -12,7 +12,7 @@ export default function ScoresPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Scores</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Scores are the fundamental building blocks of evaluation in Plexus. They define what you want to measure 
+        Scores are the fundamental building blocks of evaluation in Primus. They define what you want to measure 
         or assess about your content.
       </p>
 
@@ -73,7 +73,7 @@ export default function ScoresPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Score Results</h2>
           <p className="text-muted-foreground mb-4">
-            Plexus standardizes all score results around a common structure, ensuring consistency and enabling 
+            Primus standardizes all score results around a common structure, ensuring consistency and enabling 
             powerful analysis capabilities across different types of evaluations.
           </p>
 
@@ -81,7 +81,7 @@ export default function ScoresPage() {
             <div>
               <h3 className="text-xl font-medium mb-2">Result Structure</h3>
               <p className="text-muted-foreground mb-4">
-                Every score result in Plexus contains these core components:
+                Every score result in Primus contains these core components:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                 <li>
@@ -135,7 +135,7 @@ export default function ScoresPage() {
             <div>
               <h3 className="text-xl font-medium mb-2">Score Versions</h3>
               <p className="text-muted-foreground mb-4">
-                Scores in Plexus support versioning, allowing you to track changes to score configurations over time.
+                Scores in Primus support versioning, allowing you to track changes to score configurations over time.
                 Each version represents a different configuration of the score, with one version designated as the
                 "champion" (active) version that's used for evaluations.
               </p>
@@ -156,7 +156,7 @@ export default function ScoresPage() {
               </p>
               <pre className="bg-muted rounded-lg mb-4">
                 <div className="code-container p-4">
-                  <code>{`plexus scores info --scorecard "Example Scorecard" --score "Example Score"`}</code>
+                  <code>{`primus scores info --scorecard "Example Scorecard" --score "Example Score"`}</code>
                 </div>
               </pre>
               <p className="text-muted-foreground">

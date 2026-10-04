@@ -25,8 +25,8 @@ import {
 } from "@/app/documentation/evaluation-metrics/examples-data"
 
 export const metadata: Metadata = {
-  title: "Interpreting Accuracy with Varying Number of Classes - Plexus Documentation",
-  description: "Understanding how the number of classes impacts accuracy interpretation and how Plexus addresses this challenge."
+  title: "Interpreting Accuracy with Varying Number of Classes - Primus Documentation",
+  description: "Understanding how the number of classes impacts accuracy interpretation and how Primus addresses this challenge."
 }
 
 // Simplified AccuracyGauge component for this page if needed, or use the main one if it fits.
@@ -51,7 +51,7 @@ export default function NumberOfClassesProblemPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">The Challenge: Number of Classes and Accuracy</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Raw accuracy scores can be deceptive. One of the most significant factors affecting how we interpret accuracy is the <strong>number of classes</strong> a classifier is trying to predict. This page focuses specifically on this challenge and how Plexus helps provide clarity.
+        Raw accuracy scores can be deceptive. One of the most significant factors affecting how we interpret accuracy is the <strong>number of classes</strong> a classifier is trying to predict. This page focuses specifically on this challenge and how Primus helps provide clarity.
       </p>
 
       <div className="space-y-10">
@@ -221,7 +221,7 @@ export default function NumberOfClassesProblemPage() {
       <div className="mt-12 p-4 bg-primary/10 dark:bg-primary/20 rounded-lg border-l-4 border-primary">
         <h3 className="text-lg font-semibold mb-2">For a Comprehensive Overview</h3>
         <p className="text-muted-foreground mb-3">
-          This page focuses specifically on the "number of classes" problem. For a broader understanding of how Plexus addresses various contextual factors in evaluation (including class imbalance and the full two-pronged solution strategy), please see our main guide:
+          This page focuses specifically on the "number of classes" problem. For a broader understanding of how Primus addresses various contextual factors in evaluation (including class imbalance and the full two-pronged solution strategy), please see our main guide:
         </p>
         <Link href="/documentation/evaluation-metrics/gauges-with-context">
           <DocButton>Understanding Gauges with Context</DocButton>

@@ -7,7 +7,7 @@ import manifest from "../../../../services/private-graphql-proxy/schema/amplify-
 describe("local Amplify compatibility shims", () => {
   beforeEach(() => {
     jest.restoreAllMocks()
-    delete process.env.NEXT_PUBLIC_PLEXUS_LOCAL_SUBSCRIPTION_POLL_MS
+    delete process.env.NEXT_PUBLIC_PRIMUS_LOCAL_SUBSCRIPTION_POLL_MS
   })
 
   afterEach(() => {
@@ -36,11 +36,11 @@ describe("local Amplify compatibility shims", () => {
   it("returns a fixed authenticated demo user", async () => {
     await expect(getCurrentUser()).resolves.toMatchObject({
       userId: "demo-user",
-      username: "demo@plexus.local",
+      username: "demo@primus.local",
     })
     await expect(fetchUserAttributes()).resolves.toMatchObject({
       sub: "demo-user",
-      email: "demo@plexus.local",
+      email: "demo@primus.local",
       name: "Demo User",
     })
     await expect(fetchAuthSession()).resolves.toMatchObject({
@@ -48,7 +48,7 @@ describe("local Amplify compatibility shims", () => {
       tokens: {
         idToken: {
           payload: {
-            email: "demo@plexus.local",
+            email: "demo@primus.local",
           },
         },
       },
@@ -136,7 +136,7 @@ describe("local Amplify compatibility shims", () => {
 
   it("delivers Task updates by polling the local control plane", async () => {
     jest.useFakeTimers()
-    process.env.NEXT_PUBLIC_PLEXUS_LOCAL_SUBSCRIPTION_POLL_MS = "25"
+    process.env.NEXT_PUBLIC_PRIMUS_LOCAL_SUBSCRIPTION_POLL_MS = "25"
     const task = { id: "task-1", status: "PENDING", updatedAt: "one" }
     ;(globalThis as any).fetch = jest.fn(async () => ({
       ok: true,

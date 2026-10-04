@@ -3,8 +3,8 @@ import Link from "next/link"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Rubric Memory - Plexus Documentation",
-  description: "Learn how Plexus scorecard knowledge bases provide rubric memory for agents, reports, and optimizer workflows."
+  title: "Rubric Memory - Primus Documentation",
+  description: "Learn how Primus scorecard knowledge bases provide rubric memory for agents, reports, and optimizer workflows."
 }
 
 export default function RubricMemoryPage() {
@@ -12,7 +12,7 @@ export default function RubricMemoryPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Rubric Memory</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Rubric memory is a local scorecard knowledge-base convention for giving Plexus agents
+        Rubric memory is a local scorecard knowledge-base convention for giving Primus agents
         and reports relevant policy history, scripts, meeting notes, emails, and other source
         material while keeping the active ScoreVersion rubric as the official authority.
       </p>
@@ -27,7 +27,7 @@ export default function RubricMemoryPage() {
             but it cannot silently override the official rubric.
           </p>
           <p className="text-muted-foreground">
-            Plexus is moving toward <strong className="text-foreground">rubric</strong> as the
+            Primus is moving toward <strong className="text-foreground">rubric</strong> as the
             domain term. Some storage fields are still named <code>guidelines</code>, and the
             rubric-memory boundary translates those fields into rubric terminology.
           </p>
@@ -128,7 +128,7 @@ export default function RubricMemoryPage() {
             </div>
           </pre>
           <p className="text-muted-foreground">
-            Plexus infers <code>source_timestamp</code> from the nearest ancestor folder matching
+            Primus infers <code>source_timestamp</code> from the nearest ancestor folder matching
             <code> YYYY-MM-DD</code>, including nested paths such as
             <code> 2026-04-24/client/source.md</code>. Unknown-date files remain retrievable, but
             they do not contribute to chronological history ordering.
@@ -139,7 +139,7 @@ export default function RubricMemoryPage() {
           <h2 className="text-2xl font-semibold mb-4">Prepared Corpora</h2>
           <p className="text-muted-foreground mb-4">
             Raw knowledge-base folders are the source of truth and are never rewritten. At runtime,
-            Plexus prepares a working Biblicus corpus under ignored local storage:
+            Primus prepares a working Biblicus corpus under ignored local storage:
           </p>
           <pre className="bg-muted rounded-lg mb-4 overflow-x-auto">
             <div className="code-container p-4">
@@ -153,7 +153,7 @@ export default function RubricMemoryPage() {
           </p>
           <pre className="bg-muted rounded-lg overflow-x-auto">
             <div className="code-container p-4">
-              <code>{`SCORECARD_CACHE_DIR=dashboard/scorecards plexus rubric-memory prewarm \\
+              <code>{`SCORECARD_CACHE_DIR=dashboard/scorecards primus rubric-memory prewarm \\
   --scorecard "Example Scorecard" \\
   --score "Example Score"`}</code>
             </div>
@@ -166,7 +166,7 @@ export default function RubricMemoryPage() {
             <div>
               <h3 className="text-xl font-medium mb-2">Retrieval-Only Citation Context</h3>
               <p className="text-muted-foreground">
-                This is input to an LLM call. Plexus retrieves official rubric authority and relevant
+                This is input to an LLM call. Primus retrieves official rubric authority and relevant
                 corpus snippets, assigns citation IDs, separates chronological memory from
                 relevance-ranked evidence, and injects the context into an existing agent or report
                 prompt. It does not add another synthesis agent.

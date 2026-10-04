@@ -58,14 +58,14 @@ export default function ResourcesPage() {
             <Lightbulb className="w-16 h-16 mb-6 text-accent" />
             <h3 className="text-xl font-semibold mb-2">Core Concepts</h3>
             <p className="text-muted-foreground">
-              Learn the fundamental concepts and architecture of the Plexus platform.
+              Learn the fundamental concepts and architecture of the Primus platform.
             </p>
           </Link>
           <Link href="/documentation/methods" className="flex flex-col items-center text-center p-6 rounded-lg transition-all duration-300 hover:bg-accent/5">
             <Blocks className="w-16 h-16 mb-6 text-accent" />
             <h3 className="text-xl font-semibold mb-2">Methods</h3>
             <p className="text-muted-foreground">
-              Step-by-step guides for common operations and workflows in Plexus.
+              Step-by-step guides for common operations and workflows in Primus.
             </p>
           </Link>
           <Link href="/documentation/advanced" className="flex flex-col items-center text-center p-6 rounded-lg transition-all duration-300 hover:bg-accent/5">
@@ -75,7 +75,7 @@ export default function ResourcesPage() {
               Advanced tools and concepts for power users and developers.
             </p>
           </Link>
-          <Link href="https://discord.gg/plexus" className="flex flex-col items-center text-center p-6 rounded-lg transition-all duration-300 hover:bg-accent/5">
+          <Link href="https://discord.gg/primus" className="flex flex-col items-center text-center p-6 rounded-lg transition-all duration-300 hover:bg-accent/5">
             <MessageSquare className="w-16 h-16 mb-6 text-accent" />
             <h3 className="text-xl font-semibold mb-2">Community</h3>
             <p className="text-muted-foreground">
@@ -96,7 +96,7 @@ export default function ResourcesPage() {
           <div className="space-y-4">
             <h3 className="text-2xl font-semibold">Getting Started Guide</h3>
             <p className="text-lg text-muted-foreground">
-              Learn the basics of building AI agents with Plexus in our comprehensive getting started guide.
+              Learn the basics of building AI agents with Primus in our comprehensive getting started guide.
             </p>
             <Button className="bg-primary text-white" asChild>
               <Link href="/documentation/basics">Read Guide</Link>

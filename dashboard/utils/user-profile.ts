@@ -108,7 +108,7 @@ function displayNameFromAttributes(attributes: UserAttributes, claims: TokenClai
 }
 
 function shouldUseLocalProfileAvatarFallback(): boolean {
-  return process.env.NEXT_PUBLIC_PLEXUS_BACKEND === "local"
+  return process.env.NEXT_PUBLIC_PRIMUS_BACKEND === "local"
 }
 
 function emailFromCurrentUser(

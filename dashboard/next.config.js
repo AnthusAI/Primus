@@ -3,8 +3,8 @@ const path = require('path')
 const webpack = require('webpack')
 
 const isLocalBackend =
-    process.env.NEXT_PUBLIC_PLEXUS_BACKEND === 'local' ||
-    process.env.PLEXUS_BACKEND_MODE === 'local'
+    process.env.NEXT_PUBLIC_PRIMUS_BACKEND === 'local' ||
+    process.env.PRIMUS_BACKEND_MODE === 'local'
 
 const nextConfig = {
     serverExternalPackages: ['@aws-crypto'],

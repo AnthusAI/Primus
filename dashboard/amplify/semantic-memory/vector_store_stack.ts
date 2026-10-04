@@ -27,9 +27,9 @@ export class TopicMemoryVectorStoreStack extends Stack {
     const isDevelopment = environmentName === 'development';
     const accountSuffix = Stack.of(this).account;
 
-    this.vectorBucketName = `plexus-vectors-${environmentName}-${accountSuffix}`;
+    this.vectorBucketName = `primus-vectors-${environmentName}-${accountSuffix}`;
     this.vectorIndexName = `topic-memory-idx-${environmentName}-${accountSuffix}`;
-    this.embeddingsBucketName = `plexus-embeddings-${environmentName}-${accountSuffix}`;
+    this.embeddingsBucketName = `primus-embeddings-${environmentName}-${accountSuffix}`;
 
     const vectorBucket = new CfnResource(this, 'TopicMemoryVectorBucket', {
       type: 'AWS::S3Vectors::VectorBucket',

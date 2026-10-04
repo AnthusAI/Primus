@@ -257,10 +257,10 @@ export const StatusMessages: Story = {
 const toolMessages: ChatMessage[] = [
   {
     id: 'tool-call',
-    content: 'plexus_evaluation_run({"scorecard_id": "cs3-v2", "sample_size": 500})',
+    content: 'primus_evaluation_run({"scorecard_id": "cs3-v2", "sample_size": 500})',
     role: 'TOOL',
     messageType: 'TOOL_CALL',
-    toolName: 'plexus_evaluation_run',
+    toolName: 'primus_evaluation_run',
     humanInteraction: 'INTERNAL',
     createdAt: timestamp(10),
   },
@@ -269,7 +269,7 @@ const toolMessages: ChatMessage[] = [
     content: '{"success": true, "evaluation_id": "eval-123", "status": "running"}',
     role: 'TOOL',
     messageType: 'TOOL_RESPONSE',
-    toolName: 'plexus_evaluation_run',
+    toolName: 'primus_evaluation_run',
     humanInteraction: 'INTERNAL',
     createdAt: timestamp(9),
   },

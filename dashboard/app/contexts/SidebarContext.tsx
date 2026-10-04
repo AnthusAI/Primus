@@ -14,7 +14,7 @@ interface SidebarContextType {
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined)
 
 const DEFAULT_SIDEBAR_WIDTH = 380
-const SIDEBAR_WIDTH_STORAGE_KEY = 'plexus-right-sidebar-width'
+const SIDEBAR_WIDTH_STORAGE_KEY = 'primus-right-sidebar-width'
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [rightSidebarState, setRightSidebarState] = useState<SidebarState>('collapsed')

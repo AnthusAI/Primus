@@ -4,8 +4,8 @@ import { Metadata } from "next"
 import { FileText, Download } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Technical Specification - Procedures - Plexus Documentation",
-  description: "Complete technical specification for the Plexus Procedure DSL"
+  title: "Technical Specification - Procedures - Primus Documentation",
+  description: "Complete technical specification for the Primus Procedure DSL"
 }
 
 export default function ProceduresSpecPage() {
@@ -13,7 +13,7 @@ export default function ProceduresSpecPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Procedure DSL Technical Specification</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Complete reference for the Plexus Procedure DSL v4.0.0
+        Complete reference for the Primus Procedure DSL v4.0.0
       </p>
 
       <div className="space-y-8">
@@ -24,7 +24,7 @@ export default function ProceduresSpecPage() {
               <h2 className="text-2xl font-semibold mb-2">Documentation Files</h2>
               <p className="text-muted-foreground mb-4">
                 The Procedure DSL documentation is maintained in the codebase at{" "}
-                <code className="text-sm bg-background px-2 py-1 rounded">/plexus/procedures/</code>
+                <code className="text-sm bg-background px-2 py-1 rounded">/primus/procedures/</code>
               </p>
 
               <div className="space-y-4">

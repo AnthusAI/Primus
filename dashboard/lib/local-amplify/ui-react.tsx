@@ -1,10 +1,10 @@
 import React from "react"
 
 const demoUser = {
-  username: "demo@plexus.local",
+  username: "demo@primus.local",
   userId: "demo-user",
   signInDetails: {
-    loginId: "demo@plexus.local",
+    loginId: "demo@primus.local",
   },
 }
 

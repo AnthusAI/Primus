@@ -12,11 +12,11 @@ const mockFetchUserAttributes = fetchUserAttributes as jest.MockedFunction<typeo
 const mockGetCurrentUser = getCurrentUser as jest.MockedFunction<typeof getCurrentUser>
 
 describe("getCurrentUserProfile", () => {
-  const originalBackendMode = process.env.NEXT_PUBLIC_PLEXUS_BACKEND
+  const originalBackendMode = process.env.NEXT_PUBLIC_PRIMUS_BACKEND
 
   beforeEach(() => {
     jest.clearAllMocks()
-    process.env.NEXT_PUBLIC_PLEXUS_BACKEND = originalBackendMode
+    process.env.NEXT_PUBLIC_PRIMUS_BACKEND = originalBackendMode
     mockGetCurrentUser.mockResolvedValue({
       userId: "user-123",
       username: "ada@example.com",
@@ -31,7 +31,7 @@ describe("getCurrentUserProfile", () => {
   })
 
   afterEach(() => {
-    process.env.NEXT_PUBLIC_PLEXUS_BACKEND = originalBackendMode
+    process.env.NEXT_PUBLIC_PRIMUS_BACKEND = originalBackendMode
   })
 
   it("returns profile from user attributes when available", async () => {
@@ -46,7 +46,7 @@ describe("getCurrentUserProfile", () => {
   })
 
   it("uses initials instead of external avatar URLs in local backend mode", async () => {
-    process.env.NEXT_PUBLIC_PLEXUS_BACKEND = "local"
+    process.env.NEXT_PUBLIC_PRIMUS_BACKEND = "local"
 
     const profile = await getCurrentUserProfile()
 

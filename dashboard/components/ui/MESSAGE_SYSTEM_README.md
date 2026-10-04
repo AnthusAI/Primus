@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Plexus dashboard includes a comprehensive message system for displaying chat conversations, system notifications, alerts, and interactive human-in-the-loop (HITL) prompts. This document provides an overview of the system architecture and how to use it.
+The Primus dashboard includes a comprehensive message system for displaying chat conversations, system notifications, alerts, and interactive human-in-the-loop (HITL) prompts. This document provides an overview of the system architecture and how to use it.
 
 ## Quick Links
 
@@ -240,7 +240,7 @@ export interface InputField {
 ### Creating Messages in Python (Backend)
 
 ```python
-from plexus.cli.procedure.chat_recorder import ChatRecorder
+from primus.cli.procedure.chat_recorder import ChatRecorder
 
 # Simple notification
 recorder.record_system_message(

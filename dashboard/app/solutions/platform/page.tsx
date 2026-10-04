@@ -51,7 +51,7 @@ export default function PlatformPage() {
         leftContent={
           <>
             <p className="text-xl text-muted-foreground mb-8 w-full">
-              Plexus is a powerful platform where your team can develop, test, and deploy AI agents without writing any code, and without worrying about the underlying infrastructure.
+              Primus is a powerful platform where your team can develop, test, and deploy AI agents without writing any code, and without worrying about the underlying infrastructure.
             </p>
             <p className="text-xl text-muted-foreground mb-8 w-full">
               Your team knows your business. Our team knows how to operate AI reliably at scale. Together, we can build and deploy solutions that transform your business.
@@ -93,7 +93,7 @@ export default function PlatformPage() {
               You can't just write prompts and put them into production and hope they work, you need a way to evaluate them quantitatively to see if they meet your needs. You can't optimize a metric you're not measuring.
             </p>
             <p className="text-xl text-muted-foreground mt-4">
-              Each use case demands its own success metrics: Is this a regulatory compliance question where we need high sensitivity? Do we need to use balanced accuracy because the data is unbalanced? Plexus gives you the gauges you need.
+              Each use case demands its own success metrics: Is this a regulatory compliance question where we need high sensitivity? Do we need to use balanced accuracy because the data is unbalanced? Primus gives you the gauges you need.
             </p>
           </div>
         }
@@ -126,7 +126,7 @@ export default function PlatformPage() {
               Use our UI
             </h3>
             <p className="text-muted-foreground">
-              Label items directly in the Plexus dashboard, contributing as much or as little as you can to improve classifier accuracy.
+              Label items directly in the Primus dashboard, contributing as much or as little as you can to improve classifier accuracy.
             </p>
           </div>
           <div className="bg-card p-6 rounded-lg shadow-md transition-all duration-300 hover:shadow-xl">

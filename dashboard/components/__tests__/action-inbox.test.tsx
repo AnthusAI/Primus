@@ -6,7 +6,7 @@ import {
   ActionInboxView,
   buildActionInboxViewModel,
   createAmplifyActionInboxDataSource,
-  derivePlexusResourceHref,
+  derivePrimusResourceHref,
   type ActionInboxAction,
   type ActionInboxDataSource,
   type ActionInboxMessage,
@@ -67,7 +67,7 @@ const message = (overrides: Partial<ActionInboxMessage> = {}): ActionInboxMessag
       evidence_fingerprint: "evidence-1",
       preconditions: { run_key: "run-1" },
       response_schema: SIMPLE_SCHEMA,
-      resource_refs: [{ system: "plexus", kind: "report", id: "report-1", label: "Open report" }],
+      resource_refs: [{ system: "primus", kind: "report", id: "report-1", label: "Open report" }],
       expires_at: "2099-07-29T16:00:00.000Z",
     },
   },
@@ -339,12 +339,12 @@ describe("ActionInbox classification and presentation", () => {
     expect(within(actions[0]).getByRole("link", { name: "Open report" })).toHaveAttribute("href", "/lab/reports/report-1")
   })
 
-  it("derives only supported typed Plexus resource routes", () => {
-    expect(derivePlexusResourceHref({ system: "plexus", kind: "score", id: "score-1", scorecardId: "scorecard-1" }))
+  it("derives only supported typed Primus resource routes", () => {
+    expect(derivePrimusResourceHref({ system: "primus", kind: "score", id: "score-1", scorecardId: "scorecard-1" }))
       .toBe("/lab/scorecards/scorecard-1/scores/score-1")
-    expect(derivePlexusResourceHref({ system: "plexus", kind: "report_block", id: "block-1", parentId: "report-1" }))
+    expect(derivePrimusResourceHref({ system: "primus", kind: "report_block", id: "block-1", parentId: "report-1" }))
       .toBe("/lab/reports/report-1")
-    expect(derivePlexusResourceHref({ system: "plexus", kind: "score", id: "score-1" })).toBeNull()
-    expect(derivePlexusResourceHref({ system: "other", kind: "report", id: "report-1" })).toBeNull()
+    expect(derivePrimusResourceHref({ system: "primus", kind: "score", id: "score-1" })).toBeNull()
+    expect(derivePrimusResourceHref({ system: "other", kind: "report", id: "report-1" })).toBeNull()
   })
 })

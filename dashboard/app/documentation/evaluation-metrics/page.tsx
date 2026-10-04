@@ -6,8 +6,8 @@ import EvaluationCard from '@/components/EvaluationCard'
 import { Segment } from "@/components/gauge"
 
 export const metadata: Metadata = {
-  title: "Interpreting Evaluation Metrics - Plexus Documentation",
-  description: "Understanding the challenges of interpreting classifier accuracy and an overview of Plexus solutions."
+  title: "Interpreting Evaluation Metrics - Primus Documentation",
+  description: "Understanding the challenges of interpreting classifier accuracy and an overview of Primus solutions."
 }
 
 // Helper function to create sample score data for examples
@@ -181,7 +181,7 @@ export default function EvaluationMetricsPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Interpreting Evaluation Metrics: The Challenge</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Understanding metrics like accuracy is key to evaluating AI performance. However, raw numbers can be deceptive without proper context. This page explores common pitfalls and introduces Plexus's approach to clearer, more reliable evaluation.
+        Understanding metrics like accuracy is key to evaluating AI performance. However, raw numbers can be deceptive without proper context. This page explores common pitfalls and introduces Primus's approach to clearer, more reliable evaluation.
       </p>
 
       <div className="space-y-10">
@@ -397,9 +397,9 @@ export default function EvaluationMetricsPage() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mb-4">Plexus's Solution: A Unified Approach to Clarity</h2>
+          <h2 className="text-2xl font-semibold mb-4">Primus's Solution: A Unified Approach to Clarity</h2>
           <p className="text-muted-foreground mb-4">
-            To overcome these common pitfalls and provide a true understanding of classifier performance, Plexus employs a two-pronged strategy that combines contextualized raw metrics with inherently context-aware agreement scores:
+            To overcome these common pitfalls and provide a true understanding of classifier performance, Primus employs a two-pronged strategy that combines contextualized raw metrics with inherently context-aware agreement scores:
           </p>
           <ol className="list-decimal pl-6 space-y-3 my-6 text-muted-foreground bg-card/50 p-4 rounded-md">
             <li>
@@ -414,7 +414,7 @@ export default function EvaluationMetricsPage() {
           </p>
 
           <EvaluationCard
-            title="Article Topic Labeler - The Plexus View"
+            title="Article Topic Labeler - The Primus View"
             subtitle="5-class, imbalanced (40% News). Accuracy: 62%, Gwet's AC1: 0.512"
             classDistributionData={articleTopicLabelerClassDistribution}
             isBalanced={false}
@@ -445,7 +445,7 @@ export default function EvaluationMetricsPage() {
           <div className="mt-8 p-4 bg-primary/10 dark:bg-primary/20 rounded-lg border-l-4 border-primary">
             <h3 className="text-lg font-semibold mb-2">Dive Deeper into the Solutions</h3>
             <p className="text-muted-foreground mb-3">
-              To understand the detailed mechanics of how Plexus contextualizes Accuracy gauges and how the Agreement gauge works across various scenarios, explore our dedicated guide:
+              To understand the detailed mechanics of how Primus contextualizes Accuracy gauges and how the Agreement gauge works across various scenarios, explore our dedicated guide:
             </p>
             <Link href="/documentation/evaluation-metrics/gauges-with-context">
               <DocButton>Understanding Gauges with Context</DocButton>

@@ -3,8 +3,8 @@ import Link from "next/link"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Getting Started - Procedures - Plexus Documentation",
-  description: "Learn the basics of Plexus Procedures and write your first agentic workflow"
+  title: "Getting Started - Procedures - Primus Documentation",
+  description: "Learn the basics of Primus Procedures and write your first agentic workflow"
 }
 
 export default function ProceduresGettingStartedPage() {

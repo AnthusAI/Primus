@@ -2,7 +2,7 @@
 
 ## Overview
 
-All chat messages in the Plexus dashboard support a flexible metadata structure for controlling message appearance, content formatting, and user interactions. This specification defines the universal message metadata format that works across all message types.
+All chat messages in the Primus dashboard support a flexible metadata structure for controlling message appearance, content formatting, and user interactions. This specification defines the universal message metadata format that works across all message types.
 
 ## Message Structure
 

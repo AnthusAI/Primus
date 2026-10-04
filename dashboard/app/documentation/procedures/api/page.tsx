@@ -3,8 +3,8 @@ import Link from "next/link"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "API Reference - Procedures - Plexus Documentation",
-  description: "Complete API reference for all Plexus Procedure primitives"
+  title: "API Reference - Procedures - Primus Documentation",
+  description: "Complete API reference for all Primus Procedure primitives"
 }
 
 export default function ProceduresAPIPage() {
@@ -300,12 +300,12 @@ end`}</code>
           <ul className="space-y-2">
             <li>
               <code className="block bg-background px-4 py-2 rounded text-sm">
-                /plexus/procedures/docs/api-reference.html
+                /primus/procedures/docs/api-reference.html
               </code>
             </li>
             <li>
               <code className="block bg-background px-4 py-2 rounded text-sm">
-                /plexus/procedures/AGENTS.md
+                /primus/procedures/AGENTS.md
               </code>
             </li>
           </ul>

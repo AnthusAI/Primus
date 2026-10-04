@@ -16,8 +16,8 @@ import {
  from "@/app/documentation/evaluation-metrics/examples-data"
 
 export const metadata: Metadata = {
-  title: "Precision Gauge - Plexus Documentation",
-  description: "Understanding the Plexus Precision Gauge and its role in evaluating classifier performance, especially concerning False Positives."
+  title: "Precision Gauge - Primus Documentation",
+  description: "Understanding the Primus Precision Gauge and its role in evaluating classifier performance, especially concerning False Positives."
 }
 
 // Component to display a standalone Precision Gauge for illustration
@@ -68,7 +68,7 @@ const alwaysProhibitedEmailData = {
 export default function PrecisionGaugePage() {
   return (
     <div className="max-w-4xl mx-auto py-8 px-6">
-      <h1 className="text-4xl font-bold mb-4">The Plexus Precision Gauge</h1>
+      <h1 className="text-4xl font-bold mb-4">The Primus Precision Gauge</h1>
       <p className="text-lg text-muted-foreground mb-8">
         Precision is a key metric that answers the question: <strong>"Of all the items the classifier labeled as positive, what proportion were actually positive?"</strong> It measures the exactness or correctness of the positive predictions. A high precision score indicates that the classifier has a low rate of False Positives (FP).
       </p>
@@ -90,9 +90,9 @@ export default function PrecisionGaugePage() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mb-4">How the Plexus Precision Gauge Works</h2>
+          <h2 className="text-2xl font-semibold mb-4">How the Primus Precision Gauge Works</h2>
           <p className="text-muted-foreground mb-4">
-            The Precision Gauge in Plexus displays the calculated precision score, ranging from 0% to 100%. The formula is:
+            The Precision Gauge in Primus displays the calculated precision score, ranging from 0% to 100%. The formula is:
           </p>
           <p className="text-center text-lg font-semibold my-4 p-3 bg-muted rounded-md">
             Precision = True Positives / (True Positives + False Positives)
@@ -161,7 +161,7 @@ export default function PrecisionGaugePage() {
             <li>Precision measures the accuracy of positive predictions: TP / (TP + FP).</li>
             <li>High precision means a low False Positive rate.</li>
             <li>Crucial when the cost of False Positives is high.</li>
-            <li>The Plexus Precision Gauge displays this score from 0-100%.</li>
+            <li>The Primus Precision Gauge displays this score from 0-100%.</li>
             <li>Often considered in conjunction with Recall due to their trade-off.</li>
           </ul>
         </section>

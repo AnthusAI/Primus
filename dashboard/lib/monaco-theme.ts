@@ -480,7 +480,7 @@ export const defineCustomMonacoThemes = (monaco: Monaco): void => {
   ]
 
   // Create a light theme using CSS variables
-  monaco.editor.defineTheme('plexusLightTheme', {
+  monaco.editor.defineTheme('primusLightTheme', {
     base: 'vs',
     inherit: true,
     rules: commonRules,
@@ -503,7 +503,7 @@ export const defineCustomMonacoThemes = (monaco: Monaco): void => {
   } as editor.IStandaloneThemeData)
 
   // Create a dark theme using the same CSS variables (they adapt automatically)
-  monaco.editor.defineTheme('plexusDarkTheme', {
+  monaco.editor.defineTheme('primusDarkTheme', {
     base: 'vs-dark',
     inherit: true,
     rules: commonRules, // Use the same rules - CSS variables will provide appropriate colors
@@ -541,7 +541,7 @@ export const applyMonacoTheme = (monaco: Monaco): void => {
   defineCustomMonacoThemes(monaco)
   
   // Apply the appropriate theme
-  monaco.editor.setTheme(isDarkMode ? 'plexusDarkTheme' : 'plexusLightTheme')
+  monaco.editor.setTheme(isDarkMode ? 'primusDarkTheme' : 'primusLightTheme')
 }
 
 /**

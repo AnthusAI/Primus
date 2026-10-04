@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Plexus - Reports',
-  description: 'Plexus Reports',
+  title: 'Primus - Reports',
+  description: 'Primus Reports',
 }
 
 export default function ReportsLayout({

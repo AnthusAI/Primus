@@ -30,17 +30,17 @@ export default function CliPage() {
       `}</style>
 
       <h1 className="text-4xl font-bold mb-4">
-        <code className="text-[36px]">plexus</code> CLI Tool
+        <code className="text-[36px]">primus</code> CLI Tool
       </h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Master the command-line interface for managing your Plexus deployment.
+        Master the command-line interface for managing your Primus deployment.
       </p>
 
       <div className="space-y-8">
         <section>
           <h2 className="text-2xl font-semibold mb-4">Overview</h2>
           <p className="text-muted-foreground mb-4">
-            The Plexus CLI tool provides a powerful command-line interface for managing your Plexus deployment,
+            The Primus CLI tool provides a powerful command-line interface for managing your Primus deployment,
             with a focus on evaluating and monitoring scorecard performance.
           </p>
         </section>
@@ -48,11 +48,11 @@ export default function CliPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Installation</h2>
           <p className="text-muted-foreground mb-4">
-            Install the Plexus CLI tool using pip:
+            Install the Primus CLI tool using pip:
           </p>
           <pre className="bg-muted rounded-lg mb-4">
             <div className="code-container p-4">
-              <code>pip install plexus-cli</code>
+              <code>pip install primus-cli</code>
             </div>
           </pre>
         </section>
@@ -60,7 +60,7 @@ export default function CliPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Flexible Identifier System</h2>
           <p className="text-muted-foreground mb-4">
-            The Plexus CLI uses a flexible identifier system that allows you to reference resources using different types of identifiers. This makes commands more intuitive and reduces the need to look up specific IDs.
+            The Primus CLI uses a flexible identifier system that allows you to reference resources using different types of identifiers. This makes commands more intuitive and reduces the need to look up specific IDs.
           </p>
           
           <div className="space-y-4">
@@ -82,10 +82,10 @@ export default function CliPage() {
               <pre className="bg-muted rounded-lg mb-4">
                 <div className="code-container p-4">
                   <code>{`# All of these commands do the same thing, using different identifier types
-plexus scorecards info --scorecard e51cd5ec-1940-4d8e-abcc-faa851390112
-plexus scorecards info --scorecard "Quality Assurance"
-plexus scorecards info --scorecard quality-assurance
-plexus scorecards info --scorecard qa-2023`}</code>
+primus scorecards info --scorecard e51cd5ec-1940-4d8e-abcc-faa851390112
+primus scorecards info --scorecard "Quality Assurance"
+primus scorecards info --scorecard quality-assurance
+primus scorecards info --scorecard qa-2023`}</code>
                 </div>
               </pre>
             </div>
@@ -110,19 +110,19 @@ plexus scorecards info --scorecard qa-2023`}</code>
               <pre className="bg-muted rounded-lg mb-6">
                 <div className="code-container p-4">
                   <code>{`# Using DynamoDB ID
-plexus scores info --scorecard "Quality Assurance" --score 7a9b2c3d-4e5f-6g7h-8i9j-0k1l2m3n4o5p
+primus scores info --scorecard "Quality Assurance" --score 7a9b2c3d-4e5f-6g7h-8i9j-0k1l2m3n4o5p
 
 # Using Name (with quotes for names containing spaces)
-plexus scores info --scorecard "Quality Assurance" --score "Grammar Check"
+primus scores info --scorecard "Quality Assurance" --score "Grammar Check"
 
 # Using Key
-plexus scores info --scorecard "Quality Assurance" --score grammar-check
+primus scores info --scorecard "Quality Assurance" --score grammar-check
 
 # Using External ID
-plexus scores info --scorecard "Quality Assurance" --score gc-001
+primus scores info --scorecard "Quality Assurance" --score gc-001
 
 # Combining different identifier types for scorecard and score
-plexus scores info --scorecard quality_assurance --score "Grammar Check"`}</code>
+primus scores info --scorecard quality_assurance --score "Grammar Check"`}</code>
                 </div>
               </pre>
               
@@ -155,19 +155,19 @@ plexus scores info --scorecard quality_assurance --score "Grammar Check"`}</code
           <pre className="bg-muted rounded-lg mb-4">
             <div className="code-container p-4">
               <code>{`# List all scorecards
-plexus scorecards list
+primus scorecards list
 
 # Get detailed information about a specific scorecard
-plexus scorecards info --scorecard example1
+primus scorecards info --scorecard example1
 
 # List all scores in a scorecard
-plexus scores list --scorecard example1
+primus scores list --scorecard example1
 
 # Pull scorecard configuration to YAML
-plexus scorecards pull --scorecard example1 --output ./my-scorecards
+primus scorecards pull --scorecard example1 --output ./my-scorecards
 
 # Delete a scorecard
-plexus scorecards delete --scorecard example1`}</code>
+primus scorecards delete --scorecard example1`}</code>
             </div>
           </pre>
         </section>
@@ -186,7 +186,7 @@ plexus scorecards delete --scorecard example1`}</code>
               </p>
               <pre className="bg-muted rounded-lg mb-4">
                 <div className="code-container p-4">
-                  <code>{`plexus scores info --scorecard "Example Scorecard" --score "Example Score"`}</code>
+                  <code>{`primus scores info --scorecard "Example Scorecard" --score "Example Score"`}</code>
                 </div>
               </pre>
               <p className="text-muted-foreground mb-4">
@@ -289,10 +289,10 @@ Score Versions (3 of 3 total versions, newest first):
               </p>
               <pre className="bg-muted rounded-lg mb-4">
                 <div className="code-container p-4">
-                  <code>{`plexus scores list --scorecard "Example Scorecard"
+                  <code>{`primus scores list --scorecard "Example Scorecard"
 
 # You can also use the score alias (singular form)
-plexus score list --scorecard "Example Scorecard"`}</code>
+primus score list --scorecard "Example Scorecard"`}</code>
                 </div>
               </pre>
               <p className="text-muted-foreground mb-4">
@@ -324,7 +324,7 @@ plexus score list --scorecard "Example Scorecard"`}</code>
           
           <pre className="bg-muted rounded-lg mb-4">
             <div className="code-container p-4">
-              <code>{`plexus \\
+              <code>{`primus \\
   evaluate \\
   accuracy \\
   --scorecard "Inbound Leads" \\
@@ -354,12 +354,12 @@ plexus score list --scorecard "Example Scorecard"`}</code>
           <pre className="bg-muted rounded-lg mb-4">
             <div className="code-container p-4">
               <code>{`# List all evaluation records
-plexus \\
+primus \\
   evaluations \\
   list
 
 # View detailed results
-plexus \\
+primus \\
   evaluations \\
   list-results \\
   --evaluation evaluation-id \\
@@ -388,10 +388,10 @@ plexus \\
               <pre className="bg-muted rounded-lg mb-4">
                 <div className="code-container p-4">
                   <code>{`# List score results for a specific scorecard
-plexus results list --scorecard "Example Scorecard" --limit 20
+primus results list --scorecard "Example Scorecard" --limit 20
 
 # List score results for a specific account
-plexus results list --account "Example Account" --limit 20`}</code>
+primus results list --account "Example Account" --limit 20`}</code>
                 </div>
               </pre>
               <p className="text-muted-foreground mb-4">
@@ -423,7 +423,7 @@ plexus results list --account "Example Account" --limit 20`}</code>
               </p>
               <pre className="bg-muted rounded-lg mb-4">
                 <div className="code-container p-4">
-                  <code>{`plexus results info --id "result-id-here"`}</code>
+                  <code>{`primus results info --id "result-id-here"`}</code>
                 </div>
               </pre>
               <p className="text-muted-foreground mb-4">
@@ -454,7 +454,7 @@ plexus results list --account "Example Account" --limit 20`}</code>
           <h2 className="text-2xl font-semibold mb-4">Report Commands</h2>
           <p className="text-muted-foreground mb-4">
             Manage report configurations and generated reports using the following commands.
-            Use the top-level `plexus report ...` command group.
+            Use the top-level `primus report ...` command group.
           </p>
 
           <div className="space-y-6">
@@ -463,20 +463,20 @@ plexus results list --account "Example Account" --limit 20`}</code>
               <pre className="bg-muted rounded-lg mb-4">
                 <div className="code-container p-4">
                   <code>{`# List available report configurations for your account
-plexus report config list
+primus report config list
 
 # Show details of a specific report configuration (using ID or Name)
 # Note: Uses the flexible identifier system (tries ID, then Name if it looks like UUID; otherwise Name then ID)
-plexus report config show <id_or_name>
+primus report config show <id_or_name>
 
 # Create a new report configuration from a Markdown/YAML file
-plexus report config create --name "My Report Config" --file ./path/to/config.md [--description "Optional description"]
+primus report config create --name "My Report Config" --file ./path/to/config.md [--description "Optional description"]
 
 # Delete a report configuration (prompts for confirmation)
-plexus report config delete <id_or_name>
+primus report config delete <id_or_name>
 
 # Delete a report configuration (skip confirmation prompt)
-plexus report config delete <id_or_name> --yes`}</code>
+primus report config delete <id_or_name> --yes`}</code>
                 </div>
               </pre>
             </div>
@@ -486,34 +486,34 @@ plexus report config delete <id_or_name> --yes`}</code>
               <pre className="bg-muted rounded-lg mb-4">
                 <div className="code-container p-4">
                   <code>{`# Trigger a new report generation run based on a configuration (using ID or Name for config)
-plexus report run --config <config_id_or_name> [param1=value1 param2=value2 ...]
+primus report run --config <config_id_or_name> [param1=value1 param2=value2 ...]
 
 # Run ScorecardHistory directly (scorecard-wide or single-score)
-plexus feedback report scorecard-history --scorecard "Customer Service QA" --days 10
-plexus feedback report scorecard-history --scorecard "Customer Service QA" --score "Medication Review: Dosage" --days 10
+primus feedback report scorecard-history --scorecard "Customer Service QA" --days 10
+primus feedback report scorecard-history --scorecard "Customer Service QA" --score "Medication Review: Dosage" --days 10
 
 # List generated reports, optionally filtered by configuration (using ID or Name for config filter)
 # Shows Report ID, Name, Config ID, Task ID, and Task Status
-plexus report list [--config <config_id_or_name>]
+primus report list [--config <config_id_or_name>]
 
 # Show details of a specific generated report (using ID or Name)
 # Includes Report details, linked Task status/details, rendered output, and Report Block summary
-plexus report show <report_id_or_name>
+primus report show <report_id_or_name>
 
 # Show details of the most recently created report
-plexus report last
+primus report last
 
 # Delete one report
-plexus report delete <report_id_or_name>
+primus report delete <report_id_or_name>
 
 # Purge old reports
-plexus report purge --older-than 30 --limit 50
+primus report purge --older-than 30 --limit 50
 
 # Generate action items from a feedback report
-plexus report action-items [report_id]
+primus report action-items [report_id]
 
 # Verify report S3 bucket access
-plexus report check-s3`}</code>
+primus report check-s3`}</code>
                 </div>
               </pre>
             </div>
@@ -527,8 +527,8 @@ plexus report check-s3`}</code>
           </p>
           <ul className="list-disc pl-6 space-y-2 text-muted-foreground mt-4">
             <li>Visit our <a href="/documentation/basics/evaluations" className="text-primary hover:underline">Evaluations Guide</a></li>
-            <li>Check the built-in help with <code>plexus --help</code></li>
-            <li>Get command-specific help with <code>plexus evaluate accuracy --help</code></li>
+            <li>Check the built-in help with <code>primus --help</code></li>
+            <li>Get command-specific help with <code>primus evaluate accuracy --help</code></li>
           </ul>
         </section>
       </div>
