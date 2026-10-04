@@ -23,7 +23,7 @@ Examples:
   $(basename "$0")
   $(basename "$0") -- --identifier my-sandbox
   $(basename "$0") --region us-east-1
-  $(basename "$0") --config-secret-name primus/staging/config
+  $(basename "$0") --config-secret-name plexus/staging/config
 
 Default region is us-east-1 because the sandbox worker intentionally reuses
 the staging command-service VPC contract parameters from that region.
@@ -76,9 +76,9 @@ unset AWS_BRANCH AMPLIFY_ENV PRIMUS_API_URL
 export AMPLIFY_ENABLE_SANDBOX_COMMAND_WORKER=true
 export AWS_REGION="$REGION"
 if [[ -z "$CONFIG_SECRET_NAME" ]]; then
-  CONFIG_SECRET_NAME="primus/staging/config"
+  CONFIG_SECRET_NAME="plexus/staging/config"
 fi
-if [[ "$CONFIG_SECRET_NAME" == "primus/production/config" ]]; then
+if [[ "$CONFIG_SECRET_NAME" == "plexus/production/config" ]]; then
   echo "Refusing to start a sandbox command worker with a production secret." >&2
   exit 1
 fi

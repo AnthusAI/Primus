@@ -20,7 +20,7 @@ export interface SandboxCommandWorkerStackProps extends NestedStackProps {
   readonly apiUrl: string;
   readonly apiGraphqlArn: string;
   readonly bedrockModelResources: readonly string[];
-  /** Defaults to primus/staging/config; must never be primus/production/config. */
+  /** Defaults to plexus/staging/config; must never be plexus/production/config. */
   readonly configSecretName?: string;
   readonly dataSourcesBucket: IBucket;
   readonly reportBlockDetailsBucket: IBucket;
@@ -48,7 +48,7 @@ export class SandboxCommandWorkerStack extends NestedStack {
     super(scope, id, props);
     const configSecretName = (props.configSecretName || 'plexus/staging/config').trim();
     if (configSecretName === PRODUCTION_CONFIG_SECRET_NAME) {
-      throw new Error('Sandbox command worker must not use primus/production/config');
+      throw new Error('Sandbox command worker must not use plexus/production/config');
     }
 
     const vpc = ec2.Vpc.fromVpcAttributes(this, 'StagingFoundationVpc', {

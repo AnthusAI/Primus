@@ -53,7 +53,7 @@ describe('SandboxCommandWorkerStack', () => {
   });
 
   it('refuses a production config secret', () => {
-    expect(() => createStack('plexus/production/config')).toThrow('must not use primus/production/config');
+    expect(() => createStack('plexus/production/config')).toThrow('must not use plexus/production/config');
   });
 
   it('defaults to the staging config secret', () => {

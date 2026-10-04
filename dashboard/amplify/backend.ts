@@ -280,8 +280,8 @@ backend.auth.resources.authenticatedUserIamRole.addToPrincipalPolicy(
             'logs:DescribeLogStreams',
         ],
         resources: [
-            'arn:aws:logs:*:*:log-group:/primus/procedures/*',
-            'arn:aws:logs:*:*:log-group:/primus/procedures/*:*',
+            'arn:aws:logs:*:*:log-group:/plexus/procedures/*',
+            'arn:aws:logs:*:*:log-group:/plexus/procedures/*:*',
         ],
     })
 );
@@ -424,7 +424,7 @@ if (shouldDeployConsoleWorker) {
         );
     }
     if (isSandbox && consoleWorkerConfigSecretName === 'plexus/production/config') {
-        throw new Error('Sandbox ConsoleRunWorker must not use primus/production/config');
+        throw new Error('Sandbox ConsoleRunWorker must not use plexus/production/config');
     }
 
     consoleRunWorkerStack = new ConsoleChatResponderStack(
@@ -515,10 +515,10 @@ const environmentName = normalizeForResourceName(resolveEnvironmentName());
 if (!isSandbox) {
     const dynamoDbBackupStack = backend.createStack('DynamoDbBackupStack');
     const backupVault = new backup.BackupVault(dynamoDbBackupStack, 'DynamoDbBackupVault', {
-        backupVaultName: `primus-dynamodb-${environmentName}-vault`
+        backupVaultName: `plexus-dynamodb-${environmentName}-vault`
     });
     const backupPlan = new backup.BackupPlan(dynamoDbBackupStack, 'DynamoDbBackupPlan', {
-        backupPlanName: `primus-dynamodb-${environmentName}-plan`,
+        backupPlanName: `plexus-dynamodb-${environmentName}-plan`,
         backupVault
     });
     backupPlan.addRule(new backup.BackupPlanRule({

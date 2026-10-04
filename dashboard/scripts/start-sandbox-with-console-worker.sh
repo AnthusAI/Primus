@@ -20,7 +20,7 @@ Usage:
 Examples:
   $(basename "$0")
   $(basename "$0") -- --identifier my-sandbox
-  $(basename "$0") --config-secret-name primus/production/config
+  $(basename "$0") --config-secret-name plexus/production/config
 EOF
 }
 
@@ -69,9 +69,9 @@ unset AWS_BRANCH AMPLIFY_ENV PRIMUS_API_URL
 export AMPLIFY_ENABLE_SANDBOX_CONSOLE_WORKER=true
 export AWS_REGION="$REGION"
 if [[ -z "$CONFIG_SECRET_NAME" ]]; then
-  CONFIG_SECRET_NAME="primus/staging/config"
+  CONFIG_SECRET_NAME="plexus/staging/config"
 fi
-if [[ "$CONFIG_SECRET_NAME" == "primus/production/config" ]]; then
+if [[ "$CONFIG_SECRET_NAME" == "plexus/production/config" ]]; then
   echo "Refusing to start a sandbox Console worker with a production secret." >&2
   exit 1
 fi
