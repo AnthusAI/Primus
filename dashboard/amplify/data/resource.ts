@@ -53,7 +53,7 @@ type ProcedureIndexFields = "accountId" | "scorecardId" | "scoreId" | "scoreVers
 const getResourceByShareTokenHandler = defineFunction({
     entry: './resolvers/getResourceByShareToken.ts',
     environment: {
-        PLEXUS_API_URL: process.env.PLEXUS_API_URL || ''
+        PRIMUS_API_URL: process.env.PRIMUS_API_URL || ''
     }
 });
 

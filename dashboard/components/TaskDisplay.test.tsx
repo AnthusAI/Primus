@@ -39,7 +39,7 @@ describe('TaskDisplay Golden Path', () => {
     type: 'evaluation',
     status: 'COMPLETED',
     target: 'accuracy',
-    command: 'plexus evaluate accuracy --scorecard test',
+    command: 'primus evaluate accuracy --scorecard test',
     createdAt: '2024-01-01T00:00:00Z'
   };
 

@@ -615,10 +615,10 @@ describe("ConversationViewer session-routing states", () => {
             messageType: "TOOL_CALL",
             humanInteraction: "INTERNAL",
             toolName: "execute_tactus",
-            toolParameters: JSON.stringify({ tactus: "return plexus.evaluation.info({ evaluation_id = 'eval-1' })" }),
+            toolParameters: JSON.stringify({ tactus: "return primus.evaluation.info({ evaluation_id = 'eval-1' })" }),
             toolResponse: JSON.stringify({
               ok: true,
-              api_calls: ["plexus.evaluation.info"],
+              api_calls: ["primus.evaluation.info"],
               value: { evaluation_id: "eval-1", status: "completed" },
             }),
             content: "execute_tactus(...)",

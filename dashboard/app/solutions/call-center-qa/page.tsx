@@ -36,7 +36,7 @@ export default function CallCenterQAPage() {
               We know how to operate AI agents at scale. We've built a platform that enables you to monitor calls with with no code.
             </p>
             <p className="text-xl text-muted-foreground mb-8 w-full">
-              Humans still need to steer it, and your team knows best how to do that. Plexus gives your team the tools they need to make it happen.
+              Humans still need to steer it, and your team knows best how to do that. Primus gives your team the tools they need to make it happen.
             </p>
           </>
         }
@@ -134,10 +134,10 @@ export default function CallCenterQAPage() {
         rightContent={
           <div className="space-y-4">
             <p className="text-xl text-muted-foreground">
-              The AI landscape evolves weekly. What works today might be outdated tomorrow. Plexus gives you the flexibility to integrate any AI model - whether it's OpenAI, Anthropic, Google, or Deepseek - without being locked into a single vendor's ecosystem.
+              The AI landscape evolves weekly. What works today might be outdated tomorrow. Primus gives you the flexibility to integrate any AI model - whether it's OpenAI, Anthropic, Google, or Deepseek - without being locked into a single vendor's ecosystem.
             </p>
             <p className="text-xl text-muted-foreground">
-              Build your solution your way. Use the latest GPT-4 model, fine-tune Claude for your specific needs, or deploy your own custom models. Plexus handles the infrastructure, scaling, and monitoring, so you can focus on delivering value to your customers.
+              Build your solution your way. Use the latest GPT-4 model, fine-tune Claude for your specific needs, or deploy your own custom models. Primus handles the infrastructure, scaling, and monitoring, so you can focus on delivering value to your customers.
             </p>
           </div>
         }
@@ -150,7 +150,7 @@ export default function CallCenterQAPage() {
       >
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-xl text-muted-foreground mb-6">
-            Connect Plexus to your existing systems to automate actions based on call analysis. Whether you need to update tickets in ServiceNow, create tasks in Salesforce, or trigger custom workflows in your internal tools, we can integrate with your stack.
+            Connect Primus to your existing systems to automate actions based on call analysis. Whether you need to update tickets in ServiceNow, create tasks in Salesforce, or trigger custom workflows in your internal tools, we can integrate with your stack.
           </p>
           <p className="text-xl text-muted-foreground">
             Ready to work with your VoIP provider of choice, including RingCentral, Five9, Twilio, and Microsoft Teams. We've built certified integrations with major enterprise platforms and can adapt to your specific infrastructure needs.

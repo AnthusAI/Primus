@@ -1950,9 +1950,9 @@ describe("ConversationViewer streaming updates", () => {
           role: "ASSISTANT",
           messageType: "TOOL_CALL",
           humanInteraction: "INTERNAL",
-          toolName: "plexus_search",
+          toolName: "primus_search",
           toolParameters: JSON.stringify({ query: "console status" }),
-          content: "plexus_search(query='console status')",
+          content: "primus_search(query='console status')",
           createdAt: "2026-03-27T00:00:01.000Z",
           sequenceNumber: 1,
         },
@@ -1964,7 +1964,7 @@ describe("ConversationViewer streaming updates", () => {
           role: "TOOL",
           messageType: "TOOL_RESPONSE",
           humanInteraction: "INTERNAL",
-          toolName: "plexus_search",
+          toolName: "primus_search",
           toolResponse: JSON.stringify({ result: "ok" }),
           content: "tool response",
           createdAt: "2026-03-27T00:00:02.000Z",
@@ -1982,8 +1982,8 @@ describe("ConversationViewer streaming updates", () => {
     )
 
     await waitFor(() => {
-      expect(screen.getByText("plexus_search input-available")).toBeInTheDocument()
-      expect(screen.getByText("plexus_search output-available")).toBeInTheDocument()
+      expect(screen.getByText("primus_search input-available")).toBeInTheDocument()
+      expect(screen.getByText("primus_search output-available")).toBeInTheDocument()
       expect(screen.getAllByTestId("tool")).toHaveLength(2)
     })
   })
@@ -2084,7 +2084,7 @@ describe("ConversationViewer streaming updates", () => {
           toolParameters: JSON.stringify({ tactus: "evaluate{ scorecard = 'X', score = 'Y' }" }),
           toolResponse: JSON.stringify({
             ok: true,
-            api_calls: ["plexus.evaluation.run"],
+            api_calls: ["primus.evaluation.run"],
             value: { evaluation_id: "eval-1" },
           }),
           content: "execute_tactus(...)",
@@ -2127,10 +2127,10 @@ describe("ConversationViewer streaming updates", () => {
           messageType: "TOOL_CALL",
           humanInteraction: "INTERNAL",
           toolName: "execute_tactus",
-          toolParameters: JSON.stringify({ tactus: "return plexus.evaluation.run({ async = true })" }),
+          toolParameters: JSON.stringify({ tactus: "return primus.evaluation.run({ async = true })" }),
           toolResponse: JSON.stringify({
             ok: true,
-            api_calls: ["plexus.evaluation.run"],
+            api_calls: ["primus.evaluation.run"],
             value: {
               status: "queued",
               task_id: "task-queued-1",
@@ -2180,10 +2180,10 @@ describe("ConversationViewer streaming updates", () => {
           messageType: "TOOL_CALL",
           humanInteraction: "INTERNAL",
           toolName: "execute_tactus",
-          toolParameters: JSON.stringify({ tactus: "return plexus.evaluation.info({ evaluation_id = 'eval-failed-1' })" }),
+          toolParameters: JSON.stringify({ tactus: "return primus.evaluation.info({ evaluation_id = 'eval-failed-1' })" }),
           toolResponse: JSON.stringify({
             ok: false,
-            api_calls: ["plexus.evaluation.info"],
+            api_calls: ["primus.evaluation.info"],
             value: {
               status: "failed",
               task_id: "task-failed-1",
@@ -2224,7 +2224,7 @@ describe("ConversationViewer streaming updates", () => {
           messageType: "TOOL_CALL",
           humanInteraction: "INTERNAL",
           toolName: "execute_tactus",
-          toolParameters: JSON.stringify({ tactus: "return plexus.evaluation.info({ evaluation_id = 'eval-2' })" }),
+          toolParameters: JSON.stringify({ tactus: "return primus.evaluation.info({ evaluation_id = 'eval-2' })" }),
           toolResponse: JSON.stringify({
             ok: true,
             value: { evaluationId: "eval-2" },
@@ -2262,10 +2262,10 @@ describe("ConversationViewer streaming updates", () => {
           messageType: "TOOL_CALL",
           humanInteraction: "INTERNAL",
           toolName: "execute_tactus",
-          toolParameters: JSON.stringify({ tactus: "return plexus.scorecards.list({})" }),
+          toolParameters: JSON.stringify({ tactus: "return primus.scorecards.list({})" }),
           toolResponse: JSON.stringify({
             ok: true,
-            api_calls: ["plexus.scorecards.list"],
+            api_calls: ["primus.scorecards.list"],
             value: [{ id: "scorecard-1", name: "QA Scorecard" }],
           }),
           content: "execute_tactus(...)",
@@ -2302,7 +2302,7 @@ describe("ConversationViewer streaming updates", () => {
           messageType: "TOOL_CALL",
           humanInteraction: "INTERNAL",
           toolName: "execute_tactus",
-          toolParameters: JSON.stringify({ tactus: "return plexus.api.list({})" }),
+          toolParameters: JSON.stringify({ tactus: "return primus.api.list({})" }),
           toolResponse: "{not-json",
           content: "execute_tactus(...)",
           createdAt: "2026-03-27T00:00:06.000Z",
@@ -2323,7 +2323,7 @@ describe("ConversationViewer streaming updates", () => {
       expect(screen.getByText("execute_tactus input-available")).toBeInTheDocument()
     })
     expect(screen.queryByTestId("evaluation-tool-output")).not.toBeInTheDocument()
-    expect(screen.getByText(/return plexus\.api\.list/)).toBeInTheDocument()
+    expect(screen.getByText(/return primus\.api\.list/)).toBeInTheDocument()
   })
 
   it("keeps USER message before ASSISTANT when timestamps are identical", async () => {

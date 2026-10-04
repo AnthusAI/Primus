@@ -10,7 +10,7 @@ from celery import Celery
 
 READY = "READY"
 DISPATCHED = "DISPATCHED"
-TASK_NAME = "plexus.command_worker.execute"
+TASK_NAME = "primus.command_worker.execute"
 _deserializer = TypeDeserializer()
 
 
@@ -105,7 +105,7 @@ def _celery() -> Celery:
     if not region:
         raise ValueError("Lambda execution region is unavailable")
     queue_name = queue_url.rstrip("/").rsplit("/", 1)[-1]
-    app = Celery("plexus.command_worker.dispatcher", broker="sqs://")
+    app = Celery("primus.command_worker.dispatcher", broker="sqs://")
     app.conf.update(
         task_default_queue=queue_name,
         task_ignore_result=True,

@@ -197,7 +197,7 @@ export function createScoreValidationRules(): ValidationRule[] {
               title: 'Invalid Key Format',
               message: `Score key '${data.key}' contains invalid characters.`,
               suggestion: 'Use only lowercase letters, numbers, underscores, and hyphens. Example: "sentiment_analysis" or "quality-score"',
-              doc_url: 'https://docs.plexus.ai/yaml-dsl/score-keys',
+              doc_url: 'https://docs.primus.ai/yaml-dsl/score-keys',
               context: { field_path: 'key', current_value: data.key }
             })
           }
@@ -223,7 +223,7 @@ export function createScoreValidationRules(): ValidationRule[] {
             title: 'Inconsistent External ID Format',
             message: 'Both externalId and external_id are present. Use only one format.',
             suggestion: 'Choose either camelCase (externalId) or snake_case (external_id) and remove the other.',
-            doc_url: 'https://docs.plexus.ai/yaml-dsl/external-ids',
+            doc_url: 'https://docs.primus.ai/yaml-dsl/external-ids',
             context: { has_camel_case: hasCamelCase, has_snake_case: hasSnakeCase }
           })
         }
@@ -271,7 +271,7 @@ export function createDataSourceValidationRules(): ValidationRule[] {
             title: 'Missing Queries or Searches',
             message: 'Data source must have either "queries" or "searches" defined (or both).',
             suggestion: 'Add a "queries" section for database queries or a "searches" section for file-based searches.',
-            doc_url: 'https://docs.plexus.ai/yaml-dsl/data-sources#structure',
+            doc_url: 'https://docs.primus.ai/yaml-dsl/data-sources#structure',
             context: { has_queries: hasQueries, has_searches: hasSearches }
           })
         }
@@ -299,7 +299,7 @@ export function createDataSourceValidationRules(): ValidationRule[] {
                 title: 'Missing Scorecard ID',
                 message: `Query item ${index + 1} is missing required "scorecard_id" field.`,
                 suggestion: 'Add a "scorecard_id" field with a numeric scorecard identifier.',
-                doc_url: 'https://docs.plexus.ai/yaml-dsl/data-sources#queries',
+                doc_url: 'https://docs.primus.ai/yaml-dsl/data-sources#queries',
                 context: { query_index: index, field: 'scorecard_id' }
               })
             }
@@ -311,7 +311,7 @@ export function createDataSourceValidationRules(): ValidationRule[] {
                 title: 'Missing Number Field',
                 message: `Query item ${index + 1} is missing required "number" field.`,
                 suggestion: 'Add a "number" field specifying how many records to retrieve.',
-                doc_url: 'https://docs.plexus.ai/yaml-dsl/data-sources#queries',
+                doc_url: 'https://docs.primus.ai/yaml-dsl/data-sources#queries',
                 context: { query_index: index, field: 'number' }
               })
             }
@@ -324,7 +324,7 @@ export function createDataSourceValidationRules(): ValidationRule[] {
                 title: 'Invalid Number Value',
                 message: `Query item ${index + 1} has invalid "number" value. Must be a positive integer.`,
                 suggestion: 'Set "number" to a positive integer (e.g., 1000, 5000).',
-                doc_url: 'https://docs.plexus.ai/yaml-dsl/data-sources#queries',
+                doc_url: 'https://docs.primus.ai/yaml-dsl/data-sources#queries',
                 context: { query_index: index, current_value: query.number }
               })
             }
@@ -337,7 +337,7 @@ export function createDataSourceValidationRules(): ValidationRule[] {
                 title: 'Invalid Scorecard ID',
                 message: `Query item ${index + 1} has invalid "scorecard_id" value. Must be a number.`,
                 suggestion: 'Set "scorecard_id" to a numeric scorecard identifier (e.g., 1329, 555).',
-                doc_url: 'https://docs.plexus.ai/yaml-dsl/data-sources#queries',
+                doc_url: 'https://docs.primus.ai/yaml-dsl/data-sources#queries',
                 context: { query_index: index, current_value: query.scorecard_id }
               })
             }
@@ -366,7 +366,7 @@ export function createDataSourceValidationRules(): ValidationRule[] {
                 title: 'Missing Item List Filename',
                 message: `Search item ${index + 1} is missing required "item_list_filename" field.`,
                 suggestion: 'Add an "item_list_filename" field with a path to a CSV or text file.',
-                doc_url: 'https://docs.plexus.ai/yaml-dsl/data-sources#searches',
+                doc_url: 'https://docs.primus.ai/yaml-dsl/data-sources#searches',
                 context: { search_index: index, field: 'item_list_filename' }
               })
             }
@@ -381,7 +381,7 @@ export function createDataSourceValidationRules(): ValidationRule[] {
                   title: 'Unusual File Type',
                   message: `Search item ${index + 1} file "${search.item_list_filename}" should typically be a .csv or .txt file.`,
                   suggestion: 'Use a .csv or .txt file for item lists.',
-                  doc_url: 'https://docs.plexus.ai/yaml-dsl/data-sources#searches',
+                  doc_url: 'https://docs.primus.ai/yaml-dsl/data-sources#searches',
                   context: { search_index: index, filename: search.item_list_filename }
                 })
               }
@@ -417,7 +417,7 @@ export function createDataSourceValidationRules(): ValidationRule[] {
               title: `Missing ${field.charAt(0).toUpperCase() + field.slice(1)} Field`,
               message: `FeedbackItems data source is missing required "${field}" field.`,
               suggestion: `Add a "${field}" field to specify the ${field} parameter.`,
-              doc_url: 'https://docs.plexus.ai/yaml-dsl/data-sources#feedback-items',
+              doc_url: 'https://docs.primus.ai/yaml-dsl/data-sources#feedback-items',
               context: { field }
             })
           }
@@ -433,7 +433,7 @@ export function createDataSourceValidationRules(): ValidationRule[] {
               title: 'Invalid Days Value',
               message: 'FeedbackItems "days" must be a positive integer.',
               suggestion: 'Set "days" to a positive integer (e.g., 7, 14, 30).',
-              doc_url: 'https://docs.plexus.ai/yaml-dsl/data-sources#feedback-items',
+              doc_url: 'https://docs.primus.ai/yaml-dsl/data-sources#feedback-items',
               context: { current_value: days }
             })
           }
@@ -449,7 +449,7 @@ export function createDataSourceValidationRules(): ValidationRule[] {
               title: 'Invalid Limit Value',
               message: 'FeedbackItems "limit" must be a positive integer.',
               suggestion: 'Set "limit" to a positive integer (e.g., 100, 500, 1000).',
-              doc_url: 'https://docs.plexus.ai/yaml-dsl/data-sources#feedback-items',
+              doc_url: 'https://docs.primus.ai/yaml-dsl/data-sources#feedback-items',
               context: { current_value: limit }
             })
           }
@@ -465,7 +465,7 @@ export function createDataSourceValidationRules(): ValidationRule[] {
               title: 'Invalid Limit Per Cell Value',
               message: 'FeedbackItems "limit_per_cell" must be a positive integer.',
               suggestion: 'Set "limit_per_cell" to a positive integer (e.g., 10, 50, 100).',
-              doc_url: 'https://docs.plexus.ai/yaml-dsl/data-sources#feedback-items',
+              doc_url: 'https://docs.primus.ai/yaml-dsl/data-sources#feedback-items',
               context: { current_value: limitPerCell }
             })
           }
@@ -482,7 +482,7 @@ export function createDataSourceValidationRules(): ValidationRule[] {
                 title: `Invalid ${field.charAt(0).toUpperCase() + field.slice(1)} Value`,
                 message: `FeedbackItems "${field}" must be a string or number.`,
                 suggestion: `Set "${field}" to a string name, key, or numeric ID.`,
-                doc_url: 'https://docs.plexus.ai/yaml-dsl/data-sources#feedback-items',
+                doc_url: 'https://docs.primus.ai/yaml-dsl/data-sources#feedback-items',
                 context: { field, current_value: value }
               })
             }
@@ -550,7 +550,7 @@ export function createExperimentValidationRules(): ValidationRule[] {
               title: 'Invalid Class Name',
               message: 'Class name must be a valid Python class name (PascalCase, starting with uppercase letter).',
               suggestion: 'Use PascalCase for class names (e.g., "BeamSearch", "RandomSearch", "GeneticAlgorithm").',
-              doc_url: 'https://docs.plexus.ai/yaml-dsl/experiments#class',
+              doc_url: 'https://docs.primus.ai/yaml-dsl/experiments#class',
               context: { field_path: 'class', current_value: data.class }
             })
           }
@@ -566,7 +566,7 @@ export function createScoreLinter(): YamlLinter {
   return new YamlLinter(
     SCORE_YAML_SCHEMA,
     createScoreValidationRules(),
-    'https://docs.plexus.ai/yaml-dsl/scores'
+    'https://docs.primus.ai/yaml-dsl/scores'
   )
 }
 
@@ -574,7 +574,7 @@ export function createDataSourceLinter(): YamlLinter {
   return new YamlLinter(
     DATA_SOURCE_YAML_SCHEMA,
     createDataSourceValidationRules(),
-    'https://docs.plexus.ai/yaml-dsl/data-sources'
+    'https://docs.primus.ai/yaml-dsl/data-sources'
   )
 }
 
@@ -582,7 +582,7 @@ export function createExperimentLinter(): YamlLinter {
   return new YamlLinter(
     EXPERIMENT_YAML_SCHEMA,
     createExperimentValidationRules(),
-    'https://docs.plexus.ai/yaml-dsl/experiments'
+    'https://docs.primus.ai/yaml-dsl/experiments'
   )
 }
 

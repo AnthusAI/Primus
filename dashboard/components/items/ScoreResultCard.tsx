@@ -13,7 +13,7 @@ import remarkBreaks from 'remark-breaks'
 import { IdentifierDisplay } from '@/components/ui/identifier-display'
 import { ScoreResultTrace } from '@/components/ui/score-result-trace'
 import FileContentViewer from '@/components/ui/FileContentViewer'
-import { getDashboardUrl } from '@/utils/plexus-links';
+import { getDashboardUrl } from '@/utils/primus-links';
 import { downloadData } from 'aws-amplify/storage';
 import {
   Accordion,

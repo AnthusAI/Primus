@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Feedback Alignment Optimizer - Plexus Documentation",
+  title: "Feedback Alignment Optimizer - Primus Documentation",
   description: "Learn how the Feedback Alignment Optimizer iteratively improves score accuracy through hypothesis-driven experimentation"
 }
 
@@ -318,7 +318,7 @@ export default function OptimizerPage() {
           <pre className="bg-background rounded-lg overflow-x-auto">
             <div className="code-container p-4">
               <code>{`# CLI
-plexus procedure run -y plexus/procedures/feedback_alignment_optimizer.yaml \\
+primus procedure run -y primus/procedures/feedback_alignment_optimizer.yaml \\
   -s scorecard="My Scorecard" \\
   -s score="My Score" \\
   -s max_iterations=10 \\

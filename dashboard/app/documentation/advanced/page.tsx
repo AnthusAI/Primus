@@ -3,8 +3,8 @@ import Link from "next/link"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Advanced - Plexus Documentation",
-  description: "Advanced tools and concepts for power users of the Plexus platform."
+  title: "Advanced - Primus Documentation",
+  description: "Advanced tools and concepts for power users of the Primus platform."
 }
 
 export default function AdvancedPage() {
@@ -12,7 +12,7 @@ export default function AdvancedPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Advanced Tools & Concepts</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Explore advanced tools and concepts that enable deeper integration and customization of Plexus 
+        Explore advanced tools and concepts that enable deeper integration and customization of Primus 
         for technical users and developers.
       </p>
 
@@ -21,7 +21,7 @@ export default function AdvancedPage() {
           <h2 className="text-2xl font-semibold mb-4">Command Line Interface</h2>
           <div className="space-y-4">
             <p className="text-muted-foreground mb-4">
-              The <code>plexus</code> CLI tool provides powerful command-line access to all Plexus functionality, 
+              The <code>primus</code> CLI tool provides powerful command-line access to all Primus functionality, 
               perfect for automation and advanced workflows.
             </p>
             <Link href="/documentation/advanced/cli">
@@ -34,7 +34,7 @@ export default function AdvancedPage() {
           <h2 className="text-2xl font-semibold mb-4">Worker Infrastructure</h2>
           <div className="space-y-4">
             <p className="text-muted-foreground mb-4">
-              Learn how to set up and manage Plexus worker nodes to process tasks efficiently 
+              Learn how to set up and manage Primus worker nodes to process tasks efficiently 
               across your infrastructure.
             </p>
             <Link href="/documentation/advanced/worker-nodes">
@@ -47,7 +47,7 @@ export default function AdvancedPage() {
           <h2 className="text-2xl font-semibold mb-4">Python SDK</h2>
           <div className="space-y-4">
             <p className="text-muted-foreground mb-4">
-              Integrate Plexus directly into your Python applications with our comprehensive SDK, 
+              Integrate Primus directly into your Python applications with our comprehensive SDK, 
               enabling programmatic access to all platform features.
             </p>
             <Link href="/documentation/advanced/sdk">
@@ -60,7 +60,7 @@ export default function AdvancedPage() {
           <h2 className="text-2xl font-semibold mb-4">Universal Code Snippets</h2>
           <div className="space-y-4">
             <p className="text-muted-foreground mb-4">
-              Learn about Plexus's universal YAML code format designed for seamless communication 
+              Learn about Primus's universal YAML code format designed for seamless communication 
               between humans, AI models, and other systems.
             </p>
             <Link href="/documentation/advanced/universal-code">
@@ -70,11 +70,11 @@ export default function AdvancedPage() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mb-4">Plexus MCP / Tactus Runtime</h2>
+          <h2 className="text-2xl font-semibold mb-4">Primus MCP / Tactus Runtime</h2>
           <div className="space-y-4">
             <p className="text-muted-foreground mb-4">
               Connect MCP clients to one programmable Tactus tool that can
-              compose Plexus APIs through a sandboxed host module.
+              compose Primus APIs through a sandboxed host module.
             </p>
             <Link href="/documentation/advanced/mcp-server">
               <DocButton>Explore MCP / Tactus Runtime</DocButton>

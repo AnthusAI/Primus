@@ -15,8 +15,8 @@ import {
 } from "@/app/documentation/evaluation-metrics/examples-data"
 
 export const metadata: Metadata = {
-  title: "Agreement Gauge - Plexus Documentation",
-  description: "Understanding the Plexus Agreement Gauge (e.g., Gwet's AC1) and how it provides a chance-corrected measure of performance."
+  title: "Agreement Gauge - Primus Documentation",
+  description: "Understanding the Primus Agreement Gauge (e.g., Gwet's AC1) and how it provides a chance-corrected measure of performance."
 }
 
 // Component to display a standalone Agreement Gauge for illustration
@@ -39,9 +39,9 @@ const AgreementGaugeDisplay = ({ value, title }: {
 export default function AgreementGaugePage() {
   return (
     <div className="max-w-4xl mx-auto py-8 px-6">
-      <h1 className="text-4xl font-bold mb-4">The Plexus Agreement Gauge</h1>
+      <h1 className="text-4xl font-bold mb-4">The Primus Agreement Gauge</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        The Agreement Gauge in Plexus typically displays a chance-corrected agreement coefficient, such as <strong>Gwet's AC1</strong>. Unlike raw accuracy, which can be misleading, these metrics are designed to measure concordance (or model performance) while accounting for agreement that could occur purely by chance. This provides a more reliable assessment of a classifier's true skill.
+        The Agreement Gauge in Primus typically displays a chance-corrected agreement coefficient, such as <strong>Gwet's AC1</strong>. Unlike raw accuracy, which can be misleading, these metrics are designed to measure concordance (or model performance) while accounting for agreement that could occur purely by chance. This provides a more reliable assessment of a classifier's true skill.
       </p>
 
       <div className="space-y-10">
@@ -56,7 +56,7 @@ export default function AgreementGaugePage() {
            <div className="p-4 bg-primary/10 dark:bg-primary/20 rounded-lg border-l-4 border-primary">
             <h3 className="text-lg font-semibold mb-2">Learn More About Contextual Challenges</h3>
             <p className="text-muted-foreground mb-3">
-              For a comprehensive discussion on how Plexus addresses various contextual factors in evaluation, see:
+              For a comprehensive discussion on how Primus addresses various contextual factors in evaluation, see:
             </p>
             <Link href="/documentation/evaluation-metrics/gauges-with-context">
               <DocButton>Understanding Gauges with Context</DocButton>
@@ -65,7 +65,7 @@ export default function AgreementGaugePage() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mb-4">How the Plexus Agreement Gauge Works</h2>
+          <h2 className="text-2xl font-semibold mb-4">How the Primus Agreement Gauge Works</h2>
           <p className="text-muted-foreground mb-4">
             The Agreement Gauge displays the calculated agreement coefficient, typically Gwet's AC1. This score usually ranges from -1 to +1:
           </p>
@@ -159,7 +159,7 @@ export default function AgreementGaugePage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Key Takeaways</h2>
           <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-            <li>The Plexus Agreement Gauge typically displays a chance-corrected metric like Gwet's AC1.</li>
+            <li>The Primus Agreement Gauge typically displays a chance-corrected metric like Gwet's AC1.</li>
             <li>This metric inherently accounts for the number of classes and class imbalance, providing a score of "skill beyond chance."</li>
             <li>A score of 0.0 means performance is no better than random chance for that context; +1.0 is perfect agreement.</li>
             <li>The visual segments on the Agreement Gauge are generally fixed, as the metric value itself is already context-normalized.</li>

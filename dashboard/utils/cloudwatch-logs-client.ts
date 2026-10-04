@@ -6,7 +6,7 @@ import {
 } from '@aws-sdk/client-cloudwatch-logs'
 
 function resolveAwsRegion(): string {
-  const regionOverride = process.env.NEXT_PUBLIC_PLEXUS_API_REGION?.trim()
+  const regionOverride = process.env.NEXT_PUBLIC_PRIMUS_API_REGION?.trim()
   if (regionOverride) return regionOverride
 
   try {

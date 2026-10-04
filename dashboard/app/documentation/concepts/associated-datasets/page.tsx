@@ -2,7 +2,7 @@ import Link from "next/link"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Deterministic Associated Datasets - Plexus Documentation",
+  title: "Deterministic Associated Datasets - Primus Documentation",
   description: "How deterministic score-associated datasets work and how to use them in evaluation workflows."
 }
 
@@ -24,20 +24,20 @@ export default function AssociatedDatasetsPage() {
         </p>
         <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
           <code>{`# 1) Build associated dataset from recent feedback
-plexus score dataset-curate \\
+primus score dataset-curate \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --max-items 100 \\
   --days 180
 
 # 2) Evaluate against latest associated dataset for that score
-plexus evaluate accuracy \\
+primus evaluate accuracy \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --use-score-associated-dataset
 
 # Optional machine-friendly output
-plexus evaluate accuracy \\
+primus evaluate accuracy \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --use-score-associated-dataset \\
@@ -82,7 +82,7 @@ plexus evaluate accuracy \\
           Build from a DataSource configuration:
         </p>
         <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
-          <code>{`plexus dataset load \\
+          <code>{`primus dataset load \\
   --source <data_source_identifier> \\
   --deterministic-order`}</code>
         </pre>
@@ -90,7 +90,7 @@ plexus evaluate accuracy \\
           Or curate directly from qualifying feedback labels:
         </p>
         <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
-          <code>{`plexus score dataset-curate \\
+          <code>{`primus score dataset-curate \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --max-items 100 \\
@@ -100,7 +100,7 @@ plexus evaluate accuracy \\
           Balancing is enabled by default. Use <code>--no-balance</code> to keep pure recency sampling.
         </p>
         <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
-          <code>{`plexus score dataset-curate \\
+          <code>{`primus score dataset-curate \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --max-items 100 \\
@@ -110,7 +110,7 @@ plexus evaluate accuracy \\
           Or run the canonical vetted workflow (report evidence first, then dataset build):
         </p>
         <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
-          <code>{`plexus score dataset-curate-vetted \\
+          <code>{`primus score dataset-curate-vetted \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --days 180 \\
@@ -128,7 +128,7 @@ plexus evaluate accuracy \\
           Run accuracy evaluation directly against score-associated deterministic datasets:
         </p>
         <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
-          <code>{`plexus evaluate accuracy \\
+          <code>{`primus evaluate accuracy \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --use-score-associated-dataset \\

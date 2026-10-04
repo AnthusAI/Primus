@@ -65,21 +65,21 @@ You can pass normal sandbox args after `--`, for example:
 ./scripts/start-sandbox-with-console-worker.sh -- --identifier full-app
 ```
 
-If your sandbox-region provider secret is not `plexus/staging/config`, pass it explicitly:
+If your sandbox-region provider secret is not `primus/staging/config`, pass it explicitly:
 
 ```bash
 ./scripts/start-sandbox-with-console-worker.sh \
-  --config-secret-name plexus/development/config \
+  --config-secret-name primus/development/config \
   --region us-west-2
 ```
 
-The launcher rejects `plexus/production/config` so a sandbox worker cannot
+The launcher rejects `primus/production/config` so a sandbox worker cannot
 silently use production model credentials.
 
 ### 2. Infrastructure Requirements
 
 - **Docker available locally**: CDK image asset build requires Docker
-- **Secrets Manager**: `plexus/<environment>/config` secret must exist with provider keys
+- **Secrets Manager**: `primus/<environment>/config` secret must exist with provider keys
 - **No TaskDispatcher in sandbox**: TaskDispatcher remains disabled in sandbox mode.
   Do not dispatch reports/evaluations for completion testing in this setup;
   they will create durable `PENDING` tasks but no worker can consume them.
@@ -105,7 +105,7 @@ This script:
 - Sets `AMPLIFY_ENABLE_SANDBOX_COMMAND_WORKER=true`
 - Runs `npx ampx sandbox`
 - Lets CDK build the worker image from the current checkout as a Docker
-  asset (`plexus/command_worker/Dockerfile`), so the sandbox worker runs
+  asset (`primus/command_worker/Dockerfile`), so the sandbox worker runs
   your local code — not a pinned staging digest
 - Borrows staging's VPC via the same SSM contract
   `CommandServiceStack` uses (`/plexus/staging/command-service/...`).
@@ -119,8 +119,8 @@ You can pass normal sandbox args after `--`, e.g. `-- --identifier my-sandbox`.
 - **Staging foundation must exist**: the sandbox VPC lookup reads staging's
   published SSM parameters (`ServiceNetworkFoundationStack` for staging must
   already be deployed — it normally is)
-- **Secrets Manager**: defaults to `plexus/staging/config`; refuses
-  `plexus/production/config`
+- **Secrets Manager**: defaults to `primus/staging/config`; refuses
+  `primus/production/config`
 
 ### 3. What This Does Not Cover
 

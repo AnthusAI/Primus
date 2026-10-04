@@ -37,10 +37,10 @@ export async function POST(request: NextRequest) {
   const normalizedProcedureId = procedureId.trim()
   const normalizedTaskId = taskId.trim()
 
-  const child = spawn("plexus", ["procedure", "run", normalizedProcedureId, "-o", "json"], {
+  const child = spawn("primus", ["procedure", "run", normalizedProcedureId, "-o", "json"], {
     env: {
       ...process.env,
-      PLEXUS_DISPATCH_TASK_ID: normalizedTaskId,
+      PRIMUS_DISPATCH_TASK_ID: normalizedTaskId,
     },
     stdio: "ignore",
     detached: true,

@@ -39,7 +39,7 @@ const pendingMessage: ActionInboxMessage = {
           comment: { type: "string" },
         },
       },
-      resource_refs: [{ system: "plexus", kind: "report", id: "report-1", label: "Open report" }],
+      resource_refs: [{ system: "primus", kind: "report", id: "report-1", label: "Open report" }],
     },
   },
 }

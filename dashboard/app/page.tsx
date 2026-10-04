@@ -64,10 +64,10 @@ export default function LandingPage() {
         leftContent={
           <>
             <p className="text-xl text-muted-foreground mb-8 w-full">
-              Plexus gives your team a reliable way to evaluate, deploy, and improve AI agents. It's built for running agent workflows at scale, making it easy to capture feedback, measure accuracy, and automatically refine how your AI behaves.
+              Primus gives your team a reliable way to evaluate, deploy, and improve AI agents. It's built for running agent workflows at scale, making it easy to capture feedback, measure accuracy, and automatically refine how your AI behaves.
             </p>
             <p className="text-xl text-muted-foreground mb-8 w-full">
-              Instead of guessing if your prompts work, use Plexus to set up a continuous learning loop where human feedback directly improves the models and logic behind your agents.
+              Instead of guessing if your prompts work, use Primus to set up a continuous learning loop where human feedback directly improves the models and logic behind your agents.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90 text-lg font-semibold" asChild>
@@ -115,12 +115,12 @@ export default function LandingPage() {
         leftContent={
           <p className="text-xl text-muted-foreground">
             AI changes every week! Don't lock yourself into one solution. 
-            Plexus is a workbench for applying any newfangled AI model to 
+            Primus is a workbench for applying any newfangled AI model to 
             solve your problems. Or simpler and cheaper ML models. Or 
             logical rules -- anything your solution requires.
             {"\n\n"}
             OpenAI, Anthropic, Google, Deepseek, Azure, AWS Bedrock, Hugging Face, PyTorch, TensorFlow — 
-            Plexus supports them all.
+            Primus supports them all.
           </p>
         }
         rightContent={
@@ -187,7 +187,7 @@ export default function LandingPage() {
               You can't just write prompts and put them into production and hope they work, you need a way to evaluate them quantitatively to see if they meet your needs. You can't optimize a metric you're not measuring.
             </p>
             <p className="text-xl text-muted-foreground mt-4">
-              Each use case demands its own success metrics: Is this a regulatory compliance question where we need high sensitivity? Do we need to use balanced accuracy because the data is unbalanced? Plexus gives you the gauges you need.
+              Each use case demands its own success metrics: Is this a regulatory compliance question where we need high sensitivity? Do we need to use balanced accuracy because the data is unbalanced? Primus gives you the gauges you need.
             </p>
           </div>
         }
@@ -203,7 +203,7 @@ export default function LandingPage() {
           <p className="text-xl text-muted-foreground">
             Your answers should match your questions. Sometimes a simple yes/no will do, 
             other times you need a 5-star rating, a percentage score, or just a thumbs up. 
-            Plexus gives you the flexibility to express your results in the format that makes sense 
+            Primus gives you the flexibility to express your results in the format that makes sense 
             for your use case.
             {"\n\n"}
             Binary classifiers, multi-class classifiers, scalar values, entity extraction, quote extraction, 
@@ -254,7 +254,7 @@ export default function LandingPage() {
               Serverless
             </h3>
             <p className="text-muted-foreground">
-              Plexus is a lightning-fast, fully DevOps / IaC / NoSQL project that doesn't depend on servers or databases.
+              Primus is a lightning-fast, fully DevOps / IaC / NoSQL project that doesn't depend on servers or databases.
             </p>
           </div>
           <div className="bg-card p-6 rounded-lg shadow-md transition-all duration-300 hover:shadow-xl">

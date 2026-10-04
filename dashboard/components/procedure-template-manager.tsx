@@ -78,9 +78,9 @@ conversation_flow:
         **Next Steps:** {next_action_guidance}
         
         **Available Tools:**
-        - \`plexus_feedback_alignment(scorecard_name="{scorecard_name}", score_name="{score_name}")\` - Get confusion matrix and patterns
-        - \`plexus_feedback_find(scorecard_name="{scorecard_name}", score_name="{score_name}", initial_value="No", final_value="Yes")\` - Find specific correction cases  
-        - \`plexus_item_info(item_id="...")\` - Examine individual item details
+        - \`primus_feedback_alignment(scorecard_name="{scorecard_name}", score_name="{score_name}")\` - Get confusion matrix and patterns
+        - \`primus_feedback_find(scorecard_name="{scorecard_name}", score_name="{score_name}", initial_value="No", final_value="Yes")\` - Find specific correction cases  
+        - \`primus_item_info(item_id="...")\` - Examine individual item details
         
         Focus on discovering actionable patterns that could inform configuration changes.
         
@@ -149,13 +149,13 @@ conversation_flow:
       to_state: "pattern_analysis"
       conditions:
         - type: "tool_usage_count"
-          tool: "plexus_feedback_alignment"
+          tool: "primus_feedback_alignment"
           min_count: 1
         - type: "tool_usage_count" 
-          tool: "plexus_feedback_find"
+          tool: "primus_feedback_find"
           min_count: 2
         - type: "tool_usage_count"
-          tool: "plexus_item_info" 
+          tool: "primus_item_info" 
           min_count: 3
         - type: "round_in_state"
           min_rounds: 2
@@ -166,7 +166,7 @@ conversation_flow:
       to_state: "pattern_analysis"
       conditions:
         - type: "tool_usage_count"
-          tool: "plexus_feedback_alignment"
+          tool: "primus_feedback_alignment"
           min_count: 1
         - type: "round_in_state"
           min_rounds: 6
@@ -216,9 +216,9 @@ conversation_flow:
   # Guidance for specific situations
   guidance:
     missing_tools:
-      plexus_feedback_alignment: "Start with the feedback alignment to understand overall error patterns and confusion matrix"
-      plexus_feedback_find: "Search for specific feedback corrections to understand individual misalignment cases"
-      plexus_item_info: "Examine item details to understand what content characteristics lead to errors"
+      primus_feedback_alignment: "Start with the feedback alignment to understand overall error patterns and confusion matrix"
+      primus_feedback_find: "Search for specific feedback corrections to understand individual misalignment cases"
+      primus_item_info: "Examine item details to understand what content characteristics lead to errors"
       create_experiment_node: "Create testable hypotheses based on the patterns you've discovered"
       
     insufficient_investigation:
@@ -226,8 +226,8 @@ conversation_flow:
         📊 **MORE INVESTIGATION NEEDED** 📊
         
         You need deeper analysis before moving forward:
-        - Use \`plexus_feedback_find\` to examine specific correction cases
-        - Use \`plexus_item_info\` to understand why particular items were misclassified
+        - Use \`primus_feedback_find\` to examine specific correction cases
+        - Use \`primus_item_info\` to understand why particular items were misclassified
         - Look for patterns in content, wording, or context that lead to errors
         
         Quality over speed - thorough investigation leads to better hypotheses.`

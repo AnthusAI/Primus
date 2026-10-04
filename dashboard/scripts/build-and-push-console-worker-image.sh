@@ -8,7 +8,7 @@ REPO_ROOT="$(cd "$DASHBOARD_DIR/.." && pwd)"
 
 REGION="${AWS_REGION:-${AWS_REGION_NAME:-us-west-2}}"
 PROFILE="${AWS_PROFILE:-}"
-REPOSITORY_NAME="${CONSOLE_WORKER_ECR_REPOSITORY:-plexus-console-run-worker}"
+REPOSITORY_NAME="${CONSOLE_WORKER_ECR_REPOSITORY:-primus-console-run-worker}"
 TAG="${CONSOLE_WORKER_IMAGE_TAG:-sandbox-$(whoami)-$(date +%Y%m%d%H%M%S)}"
 
 usage() {

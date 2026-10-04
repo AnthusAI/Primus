@@ -58,7 +58,7 @@ def test_console_worker_uses_a_preinitialized_interactive_alias():
     backend = repo_root.joinpath("dashboard/amplify/backend.ts").read_text()
     data_resource = repo_root.joinpath("dashboard/amplify/data/resource.ts").read_text()
 
-    assert 'PLEXUS_EAGER_CONSOLE_RUNTIME: "true"' in resource
+    assert 'PRIMUS_EAGER_CONSOLE_RUNTIME: "true"' in resource
     assert 'aliasName: "interactive"' in resource
     assert "provisionedConcurrentExecutions: 1" in resource
     assert "stringValue: this.responderAlias.functionArn" in resource
@@ -107,7 +107,7 @@ def test_sandbox_hotpatch_overlays_the_complete_worker_source():
         "dashboard/amplify/functions/consoleRunWorker/Dockerfile.sandbox-hotpatch"
     ).read_text()
 
-    assert "COPY plexus /workspace/plexus" in dockerfile
+    assert "COPY primus /workspace/primus" in dockerfile
     assert "COPY MCP /workspace/MCP" in dockerfile
     assert (
         "COPY dashboard/amplify/functions/consoleRunWorker/app.py /var/task/app.py"

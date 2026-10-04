@@ -37,7 +37,7 @@ export function BrandProvider({ children }: BrandProviderProps) {
     const configUrl = process.env.NEXT_PUBLIC_BRAND_CONFIG_URL;
     
     if (!configUrl) {
-      // No brand config URL specified, use default Plexus branding
+      // No brand config URL specified, use default Primus branding
       return;
     }
 

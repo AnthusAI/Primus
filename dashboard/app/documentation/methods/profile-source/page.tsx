@@ -3,7 +3,7 @@ export default function ProfileSourcePage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Profile a Source</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Learn how to analyze and profile your sources using the Plexus dashboard interface.
+        Learn how to analyze and profile your sources using the Primus dashboard interface.
       </p>
 
       <div className="space-y-8">
@@ -101,15 +101,15 @@ export default function ProfileSourcePage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Using the CLI</h2>
           <p className="text-muted-foreground mb-4">
-            For automated profiling workflows, you can use the Plexus CLI:
+            For automated profiling workflows, you can use the Primus CLI:
           </p>
           
           <pre className="bg-muted p-4 rounded-lg mb-4">
             <code>{`# Run a profile on a source
-plexus sources profile source-id --analysis-type full
+primus sources profile source-id --analysis-type full
 
 # Get profile results
-plexus sources profile-results source-id`}</code>
+primus sources profile-results source-id`}</code>
           </pre>
         </section>
 
@@ -120,12 +120,12 @@ plexus sources profile-results source-id`}</code>
           </p>
           
           <pre className="bg-muted p-4 rounded-lg mb-4">
-            <code>{`from plexus import Plexus
+            <code>{`from primus import Primus
 
-plexus = Plexus(api_key="your-api-key")
+primus = Primus(api_key="your-api-key")
 
 # Run a profile on a source
-profile = plexus.sources.profile(
+profile = primus.sources.profile(
     source_id="source-id",
     options={
         "content_analysis": True,

@@ -153,7 +153,7 @@ const hasEvaluationContext = (record: Record<string, unknown>, toolName?: string
   const normalizedToolName = String(toolName || "").toLowerCase()
   return (
     normalizedToolName.includes("evaluation")
-    || apiCalls(record).some((call) => call.startsWith("plexus.evaluation."))
+    || apiCalls(record).some((call) => call.startsWith("primus.evaluation."))
     || [
       "evaluation_id",
       "evaluationId",
@@ -172,7 +172,7 @@ const hasReportContext = (record: Record<string, unknown>, toolName?: string | n
   const normalizedToolName = String(toolName || "").toLowerCase()
   return (
     normalizedToolName.includes("report")
-    || apiCalls(record).some((call) => call.startsWith("plexus.report."))
+    || apiCalls(record).some((call) => call.startsWith("primus.report."))
     || ["report_id", "reportId"].some((key) => key in record)
   )
 }
@@ -181,7 +181,7 @@ const hasOptimizationContext = (record: Record<string, unknown>, toolName?: stri
   const normalizedToolName = String(toolName || "").toLowerCase()
   return (
     normalizedToolName.includes("optimiz")
-    || apiCalls(record).some((call) => call.includes("optimiz") || call.startsWith("plexus.procedure."))
+    || apiCalls(record).some((call) => call.includes("optimiz") || call.startsWith("primus.procedure."))
     || ["procedure_id", "procedureId", "optimization_id", "optimizationId"].some((key) => key in record)
   )
 }

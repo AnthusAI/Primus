@@ -3,14 +3,14 @@ export default function SourcesPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Sources</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Learn about Sources in Plexus and how they form the foundation of your evaluation workflows.
+        Learn about Sources in Primus and how they form the foundation of your evaluation workflows.
       </p>
 
       <div className="space-y-8">
         <section>
           <h2 className="text-2xl font-semibold mb-4">What are Sources?</h2>
           <p className="text-muted-foreground mb-4">
-            Sources are the input data that you want to evaluate using Plexus. They can be text,
+            Sources are the input data that you want to evaluate using Primus. They can be text,
             audio files, or other supported formats that you want to analyze using AI models.
           </p>
         </section>

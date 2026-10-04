@@ -166,7 +166,7 @@ export default function EvaluationsPage() {
             against labeled samples. This process is essential for ensuring your scorecards are accurate and reliable.
           </p>
           <p className="text-muted-foreground mb-4">
-            When you run an evaluation, Plexus will:
+            When you run an evaluation, Primus will:
           </p>
           <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
             <li>Test your scorecard against a set of labeled examples</li>
@@ -268,7 +268,7 @@ export default function EvaluationsPage() {
               </p>
               <pre className="bg-muted rounded-lg mb-4">
                 <div className="code-container p-4">
-                  <code>{`plexus \\
+                  <code>{`primus \\
   evaluate \\
   accuracy \\
   --scorecard "Lead Qualification" \\

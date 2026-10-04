@@ -131,9 +131,9 @@ const mockGraphQLClient = {
                   sessionId: 'session-2',
                   procedureId: variables.procedureId || 'proc-123',
                   role: 'TOOL',
-                  content: 'plexus_score_update',
+                  content: 'primus_score_update',
                   messageType: 'TOOL_CALL',
-                  toolName: 'plexus_score_update',
+                  toolName: 'primus_score_update',
                   toolParameters: JSON.stringify({
                     scorecard_identifier: 'CS3 Services v2',
                     score_identifier: 'Good Call',

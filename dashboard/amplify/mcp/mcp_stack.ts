@@ -72,7 +72,7 @@ export class McpStack extends Stack {
               // Create the systemd service file
               'cat << EOF | tee /etc/systemd/system/{{ ServiceName }} > /dev/null',
               '[Unit]',
-              'Description=Plexus MCP Server (Managed by SSM)',
+              'Description=Primus MCP Server (Managed by SSM)',
               'After=network.target',
               '',
               '[Service]',

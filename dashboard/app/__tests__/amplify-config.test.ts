@@ -7,10 +7,10 @@ describe("resolveAmplifyOutputs", () => {
 
   it("returns local API-key outputs in local backend mode", () => {
     const outputs = resolveAmplifyOutputs({
-      NEXT_PUBLIC_PLEXUS_BACKEND: "local",
-      NEXT_PUBLIC_PLEXUS_API_URL: "http://localhost:18080/graphql",
-      NEXT_PUBLIC_PLEXUS_API_KEY: "local-key",
-      NEXT_PUBLIC_PLEXUS_API_REGION: "us-east-1",
+      NEXT_PUBLIC_PRIMUS_BACKEND: "local",
+      NEXT_PUBLIC_PRIMUS_API_URL: "http://localhost:18080/graphql",
+      NEXT_PUBLIC_PRIMUS_API_KEY: "local-key",
+      NEXT_PUBLIC_PRIMUS_API_REGION: "us-east-1",
     }, () => null)
 
     expect(outputs).toMatchObject({
@@ -38,13 +38,13 @@ describe("resolveAmplifyOutputs", () => {
     }
 
     const outputs = resolveAmplifyOutputs({
-      NEXT_PUBLIC_PLEXUS_API_URL: "https://legacy.example/graphql",
-      NEXT_PUBLIC_PLEXUS_API_KEY: "da2-legacy",
+      NEXT_PUBLIC_PRIMUS_API_URL: "https://legacy.example/graphql",
+      NEXT_PUBLIC_PRIMUS_API_KEY: "da2-legacy",
     }, () => configuredOutputs)
 
     expect(outputs).toBe(configuredOutputs)
     expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Ignoring legacy NEXT_PUBLIC_PLEXUS_API_URL/NEXT_PUBLIC_PLEXUS_API_KEY"),
+      expect.stringContaining("Ignoring legacy NEXT_PUBLIC_PRIMUS_API_URL/NEXT_PUBLIC_PRIMUS_API_KEY"),
     )
   })
 

@@ -87,7 +87,7 @@ module.exports = {
                 input: 'var(--input)',
                 ring: 'var(--ring)',
                 'user-chat': 'var(--user-chat)',
-                'plexus-chat': 'var(--plexus-chat)',
+                'primus-chat': 'var(--primus-chat)',
                 'chart-1': {
                     DEFAULT: 'var(--chart-1)',
                     selected: 'var(--chart-1-selected)'

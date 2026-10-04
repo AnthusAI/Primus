@@ -3,8 +3,8 @@ import Link from "next/link"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Reports - Plexus Documentation",
-  description: "Learn about Reports in Plexus - a flexible system for generating custom analyses and summaries."
+  title: "Reports - Primus Documentation",
+  description: "Learn about Reports in Primus - a flexible system for generating custom analyses and summaries."
 }
 
 export default function ReportsPage() {
@@ -12,7 +12,7 @@ export default function ReportsPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Reports</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Plexus Reports offer a powerful and flexible way to define, generate, and view custom analyses, summaries, and visualizations based on your Plexus data. Instead of building bespoke dashboards for every need, the reporting system provides reusable components and a standardized workflow.
+        Primus Reports offer a powerful and flexible way to define, generate, and view custom analyses, summaries, and visualizations based on your Primus data. Instead of building bespoke dashboards for every need, the reporting system provides reusable components and a standardized workflow.
       </p>
 
       <div className="space-y-8">
@@ -25,7 +25,7 @@ export default function ReportsPage() {
             <li>
               <strong className="text-foreground">Report Configuration (`ReportConfiguration`)</strong>
               <p>
-                This is the template or blueprint for a specific type of report. It's typically defined using Markdown mixed with simple configuration blocks. It specifies the static content (text, headers), the dynamic analysis blocks to include, and any parameters needed for those blocks. Configurations are stored and managed within Plexus, allowing reuse.
+                This is the template or blueprint for a specific type of report. It's typically defined using Markdown mixed with simple configuration blocks. It specifies the static content (text, headers), the dynamic analysis blocks to include, and any parameters needed for those blocks. Configurations are stored and managed within Primus, allowing reuse.
               </p>
               <p className="mt-2">Think of it like a recipe for generating a specific kind of analysis.</p>
               <pre className="bg-muted rounded-lg mt-2">
@@ -77,11 +77,11 @@ time_range: last_30_days
           <ol className="list-decimal pl-6 space-y-4 text-muted-foreground">
             <li>
               <strong className="text-foreground">Define a `ReportConfiguration`</strong>
-              <p>Create a template (using Markdown and block definitions) for the type of report you need. This is often done once and then reused. This can be done using the Plexus CLI, the Dashboard UI, or programmatically via the API/SDK (used by AI agents).</p>
+              <p>Create a template (using Markdown and block definitions) for the type of report you need. This is often done once and then reused. This can be done using the Primus CLI, the Dashboard UI, or programmatically via the API/SDK (used by AI agents).</p>
               <pre className="bg-muted rounded-lg mt-2">
                 <div className="code-container p-4">
                   <code>{`# Example: Creating a config from a file
-plexus report config create --name "Agent Prof Report" --file agent_prof_report.md`}</code>
+primus report config create --name "Agent Prof Report" --file agent_prof_report.md`}</code>
                 </div>
               </pre>
             </li>
@@ -91,7 +91,7 @@ plexus report config create --name "Agent Prof Report" --file agent_prof_report.
                <pre className="bg-muted rounded-lg mt-2">
                 <div className="code-container p-4">
                   <code>{`# Example: Running the report
-plexus report run --config "Agent Prof Report"`}</code>
+primus report run --config "Agent Prof Report"`}</code>
                 </div>
               </pre>
             </li>
@@ -105,7 +105,7 @@ plexus report run --config "Agent Prof Report"`}</code>
                <pre className="bg-muted rounded-lg mt-2">
                 <div className="code-container p-4">
                   <code>{`# Example: Viewing the latest generated report
-plexus report last`}</code>
+primus report last`}</code>
                 </div>
               </pre>
             </li>

@@ -3,8 +3,8 @@ import Link from "next/link"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Scorecards - Plexus Documentation",
-  description: "Learn about Scorecards in Plexus - the framework for evaluating content quality and performance"
+  title: "Scorecards - Primus Documentation",
+  description: "Learn about Scorecards in Primus - the framework for evaluating content quality and performance"
 }
 
 export default function ScorecardsPage() {
@@ -89,22 +89,22 @@ export default function ScorecardsPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">CLI Management</h2>
           <p className="text-muted-foreground mb-4">
-            The Plexus CLI provides powerful commands for managing scorecards:
+            The Primus CLI provides powerful commands for managing scorecards:
           </p>
           <div className="space-y-4">
             <div>
               <h3 className="text-xl font-medium mb-2">Listing Scorecards</h3>
               <pre className="bg-muted p-4 rounded-lg mb-4">
                 <code>{`# List all scorecards for an account
-plexus scorecards list "account-name"
+primus scorecards list "account-name"
 
 # List with filtering
-plexus scorecards list "account-name" --name "Scorecard Name"
-plexus scorecards list "account-name" --key "scorecard-key"
+primus scorecards list "account-name" --name "Scorecard Name"
+primus scorecards list "account-name" --key "scorecard-key"
 
 # Performance options
-plexus scorecards list "account-name" --fast  # Skip fetching scores for faster results
-plexus scorecards list "account-name" --hide-scores  # Don't display scores in output`}</code>
+primus scorecards list "account-name" --fast  # Skip fetching scores for faster results
+primus scorecards list "account-name" --hide-scores  # Don't display scores in output`}</code>
               </pre>
               <p className="text-muted-foreground">
                 The list command uses an optimized single GraphQL query to fetch scorecards, sections, 
@@ -115,12 +115,12 @@ plexus scorecards list "account-name" --hide-scores  # Don't display scores in o
               <h3 className="text-xl font-medium mb-2">Viewing Score Details</h3>
               <pre className="bg-muted p-4 rounded-lg mb-4">
                 <code>{`# View a specific score by name, key, ID, or external ID
-plexus scorecards score "Score Name" --account "account-name"
-plexus scorecards score "score-key" --account "account-name"
-plexus scorecards score "score-id" --show-versions --show-config
+primus scorecards score "Score Name" --account "account-name"
+primus scorecards score "score-key" --account "account-name"
+primus scorecards score "score-id" --show-versions --show-config
 
 # Scope to a specific scorecard
-plexus scorecards score "Score Name" --scorecard "Scorecard Name"`}</code>
+primus scorecards score "Score Name" --scorecard "Scorecard Name"`}</code>
               </pre>
             </div>
             <div>
@@ -130,10 +130,10 @@ plexus scorecards score "Score Name" --scorecard "Scorecard Name"`}</code>
               </p>
               <pre className="bg-muted p-4 rounded-lg mb-4">
                 <code>{`# List all scores in a scorecard
-plexus scores list --scorecard "Scorecard Name"
+primus scores list --scorecard "Scorecard Name"
 
 # You can also use the singular form
-plexus score list --scorecard "Scorecard Name"`}</code>
+primus score list --scorecard "Scorecard Name"`}</code>
               </pre>
               <p className="text-muted-foreground">
                 This command displays all scores organized by section, including their IDs, keys, and external IDs.
@@ -143,16 +143,16 @@ plexus score list --scorecard "Scorecard Name"`}</code>
               <h3 className="text-xl font-medium mb-2">Version Management</h3>
               <pre className="bg-muted p-4 rounded-lg mb-4">
                 <code>{`# View version history (coming soon)
-plexus scorecards history --account-key "account-key" --score-key "score-key"
+primus scorecards history --account-key "account-key" --score-key "score-key"
 
 # Promote a version to champion (coming soon)
-plexus scorecards promote --account-key "account-key" --score-id "score-id" --version-id "version-id"
+primus scorecards promote --account-key "account-key" --score-id "score-id" --version-id "version-id"
 
 # Pull latest champion versions (coming soon)
-plexus scorecards pull --account-key "account-key"
+primus scorecards pull --account-key "account-key"
 
 # Update scores via score-level tools instead of scorecard-wide push
-plexus scores pull --scorecard "scorecard-name" --score "score-name"`}</code>
+primus scores pull --scorecard "scorecard-name" --score "score-name"`}</code>
               </pre>
             </div>
           </div>

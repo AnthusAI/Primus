@@ -686,7 +686,7 @@ export function ScoreProcedureList({
                           <DropdownMenuItem
                             onSelect={() =>
                               void copyText(
-                                `plexus procedure index-optimizer-run ${run.procedureId}`,
+                                `primus procedure index-optimizer-run ${run.procedureId}`,
                                 'Index command copied'
                               )
                             }

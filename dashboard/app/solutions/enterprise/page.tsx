@@ -103,7 +103,7 @@ export default function EnterprisePage() {
       >
         <div className="space-y-12 max-w-6xl mx-auto">
           <p className="text-xl text-muted-foreground text-center max-w-4xl mx-auto">
-            Plexus is engineered following AWS Well-Architected Framework principles, delivering enterprise-grade reliability, security, and operational excellence through a fully serverless architecture.
+            Primus is engineered following AWS Well-Architected Framework principles, delivering enterprise-grade reliability, security, and operational excellence through a fully serverless architecture.
           </p>
           
           <div className="grid md:grid-cols-2 gap-12">

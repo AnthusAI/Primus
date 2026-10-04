@@ -7,7 +7,7 @@ DASHBOARD_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 REGION="${AWS_REGION:-${AWS_REGION_NAME:-us-east-1}}"
 PROFILE="${AWS_PROFILE:-}"
-CONFIG_SECRET_NAME="${PLEXUS_CONFIG_SECRET_NAME:-}"
+CONFIG_SECRET_NAME="${PRIMUS_CONFIG_SECRET_NAME:-}"
 
 usage() {
   cat <<EOF
@@ -23,7 +23,7 @@ Examples:
   $(basename "$0")
   $(basename "$0") -- --identifier my-sandbox
   $(basename "$0") --region us-east-1
-  $(basename "$0") --config-secret-name plexus/staging/config
+  $(basename "$0") --config-secret-name primus/staging/config
 
 Default region is us-east-1 because the sandbox worker intentionally reuses
 the staging command-service VPC contract parameters from that region.
@@ -71,18 +71,18 @@ cd "$DASHBOARD_DIR"
 
 # A sandbox must never inherit branch/runtime wiring from a production or
 # staging deployment shell.  Let Amplify resolve its own sandbox data API.
-unset AWS_BRANCH AMPLIFY_ENV PLEXUS_API_URL
+unset AWS_BRANCH AMPLIFY_ENV PRIMUS_API_URL
 
 export AMPLIFY_ENABLE_SANDBOX_COMMAND_WORKER=true
 export AWS_REGION="$REGION"
 if [[ -z "$CONFIG_SECRET_NAME" ]]; then
-  CONFIG_SECRET_NAME="plexus/staging/config"
+  CONFIG_SECRET_NAME="primus/staging/config"
 fi
-if [[ "$CONFIG_SECRET_NAME" == "plexus/production/config" ]]; then
+if [[ "$CONFIG_SECRET_NAME" == "primus/production/config" ]]; then
   echo "Refusing to start a sandbox command worker with a production secret." >&2
   exit 1
 fi
-export PLEXUS_CONFIG_SECRET_NAME="$CONFIG_SECRET_NAME"
+export PRIMUS_CONFIG_SECRET_NAME="$CONFIG_SECRET_NAME"
 if [[ -n "$PROFILE" ]]; then
   export AWS_PROFILE="$PROFILE"
 fi

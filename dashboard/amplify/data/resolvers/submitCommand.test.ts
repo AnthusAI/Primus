@@ -34,7 +34,7 @@ describe('submitCommand', () => {
   beforeEach(() => {
     process.env.TASK_TABLE_NAME = 'Task';
     process.env.ACCOUNT_TABLE_NAME = 'Account';
-    process.env.PLEXUS_API_URL = 'https://example.appsync-api.us-east-1.amazonaws.com/graphql';
+    process.env.PRIMUS_API_URL = 'https://example.appsync-api.us-east-1.amazonaws.com/graphql';
     process.env.AWS_REGION = 'us-east-1';
     mockSend.mockReset();
     mockFetch.mockReset();

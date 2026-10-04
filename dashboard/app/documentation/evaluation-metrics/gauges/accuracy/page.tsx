@@ -17,8 +17,8 @@ import {
 } from "@/app/documentation/evaluation-metrics/examples-data"
 
 export const metadata: Metadata = {
-  title: "Accuracy Gauge - Plexus Documentation",
-  description: "Understanding the Plexus Accuracy gauge and how its dynamic contextualization aids in interpreting classification performance."
+  title: "Accuracy Gauge - Primus Documentation",
+  description: "Understanding the Primus Accuracy gauge and how its dynamic contextualization aids in interpreting classification performance."
 }
 
 // Example segments if we decide to add a simple visual:
@@ -94,9 +94,9 @@ export default function AccuracyGaugePage() {
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-6">
-      <h1 className="text-4xl font-bold mb-4">The Plexus Accuracy Gauge</h1>
+      <h1 className="text-4xl font-bold mb-4">The Primus Accuracy Gauge</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Accuracy is a fundamental metric in classification, representing the proportion of correct predictions made by a model. While seemingly straightforward, interpreting raw accuracy figures can be challenging. The Plexus Accuracy Gauge is designed to provide a more nuanced and reliable understanding of your classifier's performance by incorporating crucial contextual information directly into its visual representation.
+        Accuracy is a fundamental metric in classification, representing the proportion of correct predictions made by a model. While seemingly straightforward, interpreting raw accuracy figures can be challenging. The Primus Accuracy Gauge is designed to provide a more nuanced and reliable understanding of your classifier's performance by incorporating crucial contextual information directly into its visual representation.
       </p>
 
       <div className="space-y-10">
@@ -119,7 +119,7 @@ export default function AccuracyGaugePage() {
           <div className="p-4 bg-primary/10 dark:bg-primary/20 rounded-lg border-l-4 border-primary">
             <h3 className="text-lg font-semibold mb-2">Learn More About These Challenges</h3>
             <p className="text-muted-foreground mb-3">
-              For a comprehensive discussion on the pitfalls of interpreting raw metrics and how Plexus approaches these challenges, please see:
+              For a comprehensive discussion on the pitfalls of interpreting raw metrics and how Primus approaches these challenges, please see:
             </p>
             <Link href="/documentation/evaluation-metrics">
               <DocButton>Interpreting Evaluation Metrics</DocButton>
@@ -156,9 +156,9 @@ export default function AccuracyGaugePage() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold mb-4">How the Plexus Accuracy Gauge Adds Clarity</h2>
+          <h2 className="text-2xl font-semibold mb-4">How the Primus Accuracy Gauge Adds Clarity</h2>
           <p className="text-muted-foreground mb-4">
-            The Plexus Accuracy Gauge addresses these interpretation challenges by dynamically contextualizing its visual scale. The colored segments (e.g., indicating 'poor', 'fair', 'good', 'excellent') are not fixed; they adjust based on the specific context of your evaluation:
+            The Primus Accuracy Gauge addresses these interpretation challenges by dynamically contextualizing its visual scale. The colored segments (e.g., indicating 'poor', 'fair', 'good', 'excellent') are not fixed; they adjust based on the specific context of your evaluation:
           </p>
           <ul className="list-disc pl-6 space-y-3 text-muted-foreground mb-4">
             <li>
@@ -169,7 +169,7 @@ export default function AccuracyGaugePage() {
             </li>
           </ul>
           <p className="text-muted-foreground mb-4">
-            By visually encoding this context, the Plexus Accuracy Gauge helps you quickly understand whether an observed accuracy score is genuinely good, merely acceptable, or poor for your specific dataset and classification task. It aims to turn a simple percentage into a more insightful measure of performance.
+            By visually encoding this context, the Primus Accuracy Gauge helps you quickly understand whether an observed accuracy score is genuinely good, merely acceptable, or poor for your specific dataset and classification task. It aims to turn a simple percentage into a more insightful measure of performance.
           </p>
           
           {/* Added Class Number Visualization */}
@@ -252,7 +252,7 @@ export default function AccuracyGaugePage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Key Takeaways</h2>
           <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-            <li>The Plexus Accuracy Gauge displays the percentage of correct predictions.</li>
+            <li>The Primus Accuracy Gauge displays the percentage of correct predictions.</li>
             <li>Its visual scale (colors and thresholds) is <strong className="text-foreground">dynamically adjusted</strong> to account for the number of classes and class imbalance in your specific dataset.</li>
             <li>This contextualization provides a more intuitive and reliable interpretation of whether an accuracy score is truly good for your particular problem.</li>
             <li>It is best understood alongside the Agreement gauge for a complete performance picture.</li>

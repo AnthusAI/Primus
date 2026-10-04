@@ -9,7 +9,7 @@ export const auth = defineAuth({
     email: true,
     externalProviders: {
       // This fixed, loopback-only callback is the stable contract consumed by
-      // the official `plexus login` authorization-code flow.
+      // the official `primus login` authorization-code flow.
       callbackUrls: ['http://127.0.0.1:8765/callback'],
       logoutUrls: ['http://127.0.0.1:8765/logout'],
       scopes: ['OPENID', 'EMAIL', 'PROFILE'],

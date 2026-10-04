@@ -5,8 +5,8 @@ import { MessageExample } from "@/components/documentation/message-examples"
 import { MessageExampleData as MessageExamples } from "@/components/documentation/message-example-data"
 
 export const metadata: Metadata = {
-  title: "Message Classification - Procedures - Plexus Documentation",
-  description: "Understand message types and visibility in Plexus Procedures"
+  title: "Message Classification - Procedures - Primus Documentation",
+  description: "Understand message types and visibility in Primus Procedures"
 }
 
 export default function ProceduresMessagesPage() {
@@ -21,7 +21,7 @@ export default function ProceduresMessagesPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Overview</h2>
           <p className="text-muted-foreground mb-4">
-            Every message in the Plexus system has a <code>humanInteraction</code> field that determines:
+            Every message in the Primus system has a <code>humanInteraction</code> field that determines:
           </p>
           <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
             <li><strong>UI Visibility:</strong> Whether humans see the message</li>
@@ -276,7 +276,7 @@ AND status = 'pending'`}</code>
             Detailed documentation with examples is available at:
           </p>
           <code className="block bg-background px-4 py-2 rounded text-sm">
-            /plexus/procedures/docs/message-classification.html
+            /primus/procedures/docs/message-classification.html
           </code>
         </section>
 

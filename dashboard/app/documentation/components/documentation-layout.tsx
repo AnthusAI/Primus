@@ -173,7 +173,7 @@ const docSections: DocSidebarItem[] = [
     name: "Advanced",
     href: "/documentation/advanced",
     items: [
-      { name: "plexus CLI Tool", href: "/documentation/advanced/cli" },
+      { name: "primus CLI Tool", href: "/documentation/advanced/cli" },
       { name: "Worker Nodes", href: "/documentation/advanced/worker-nodes" },
       { name: "Python SDK Reference", href: "/documentation/advanced/sdk" },
       { name: "Universal Code Snippets", href: "/documentation/advanced/universal-code" },
@@ -243,7 +243,7 @@ export default function DocumentationLayout({ children, tableOfContents }: Docum
                           }`}
                         >
                           {isLeftSidebarOpen && (
-                            section.name === "plexus CLI Tool" ? (
+                            section.name === "primus CLI Tool" ? (
                               <code className="text-sm">{section.name}</code>
                             ) : (
                               section.name

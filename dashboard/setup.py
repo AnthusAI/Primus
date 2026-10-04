@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="plexus-dashboard",
+    name="primus-dashboard",
     version="0.1.0",
     packages=find_packages(),
     install_requires=[
@@ -13,7 +13,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "plexus-dashboard=plexus_dashboard.cli:cli",
+            "primus-dashboard=primus_dashboard.cli:cli",
         ],
     },
 ) 

@@ -12,7 +12,7 @@ WORKDIR /var/task
 RUN apt-get update -qq && apt-get install -y -qq --no-install-recommends git && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy repository so the worker can import Plexus source directly.
+# Copy repository so the worker can import Primus source directly.
 COPY . /workspace
 
 # The Console agent's model-facing runtime depends on MCP execute_tactus modules.
@@ -20,10 +20,10 @@ COPY . /workspace
 RUN test -f /workspace/MCP/tools/tactus_runtime/execute.py && \
     test -f /workspace/MCP/tools/tactus_runtime/_item_helpers.py && \
     test -f /workspace/MCP/server.py && \
-    test -f /workspace/plexus/procedures/console/chat_agent.tac
+    test -f /workspace/primus/procedures/console/chat_agent.tac
 
-# Install Plexus, Lambda runtime interface client, and required dependencies.
-# `plexus.score.test` imports the Celery-backed score-task module even when it
+# Install Primus, Lambda runtime interface client, and required dependencies.
+# `primus.score.test` imports the Celery-backed score-task module even when it
 # runs synchronously, so the Console's post-submit verification needs Celery
 # in addition to the lightweight scoring extra. Console-specific optional
 # dependencies are declared by the package instead of resolved ad hoc here.

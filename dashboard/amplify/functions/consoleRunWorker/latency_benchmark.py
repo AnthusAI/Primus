@@ -3,8 +3,8 @@ Deterministic local Console chat latency benchmark.
 
 Usage example:
   CONSOLE_RESPONSE_TARGET=local:ryan \
-  PLEXUS_API_URL=... \
-  PLEXUS_API_KEY=... \
+  PRIMUS_API_URL=... \
+  PRIMUS_API_KEY=... \
   python dashboard/amplify/functions/consoleRunWorker/latency_benchmark.py \
     --account-id <account_id> \
     --session-id <session_id> \
@@ -28,8 +28,8 @@ from typing import Any, Dict, List, Optional
 
 from dotenv import load_dotenv
 
-from plexus.cli.procedure.builtin_procedures import CONSOLE_CHAT_BUILTIN_ID
-from plexus.dashboard.api.client import PlexusDashboardClient
+from primus.cli.procedure.builtin_procedures import CONSOLE_CHAT_BUILTIN_ID
+from primus.dashboard.api.client import PrimusDashboardClient
 
 
 def _load_local_env() -> None:
@@ -46,13 +46,13 @@ def _load_local_env() -> None:
             load_dotenv(env_file, override=override)
 
 
-def _resolve_client() -> PlexusDashboardClient:
+def _resolve_client() -> PrimusDashboardClient:
     _load_local_env()
-    api_url = str(os.getenv("PLEXUS_API_URL") or os.getenv("NEXT_PUBLIC_PLEXUS_API_URL") or "").strip()
-    api_key = str(os.getenv("PLEXUS_API_KEY") or os.getenv("NEXT_PUBLIC_PLEXUS_API_KEY") or "").strip()
+    api_url = str(os.getenv("PRIMUS_API_URL") or os.getenv("NEXT_PUBLIC_PRIMUS_API_URL") or "").strip()
+    api_key = str(os.getenv("PRIMUS_API_KEY") or os.getenv("NEXT_PUBLIC_PRIMUS_API_KEY") or "").strip()
     if not api_url or not api_key:
-        raise RuntimeError("PLEXUS_API_URL and PLEXUS_API_KEY are required")
-    return PlexusDashboardClient(api_url=api_url, api_key=api_key)
+        raise RuntimeError("PRIMUS_API_URL and PRIMUS_API_KEY are required")
+    return PrimusDashboardClient(api_url=api_url, api_key=api_key)
 
 
 def _parse_iso(value: Optional[str]) -> Optional[datetime]:
@@ -89,7 +89,7 @@ def _percentile(values: List[float], p: float) -> Optional[float]:
 
 
 def _find_first_assistant_chunk(
-    client: PlexusDashboardClient,
+    client: PrimusDashboardClient,
     *,
     session_id: str,
     after_iso: Optional[str],
@@ -175,7 +175,7 @@ def _find_first_assistant_chunk(
 
 
 def _create_user_message(
-    client: PlexusDashboardClient,
+    client: PrimusDashboardClient,
     *,
     account_id: str,
     session_id: str,
@@ -256,7 +256,7 @@ def _dispatch_console_message(
         raise RuntimeError(f"Console dispatcher failed for message {message_id}")
 
 
-def _get_message(client: PlexusDashboardClient, message_id: str) -> Dict[str, Any]:
+def _get_message(client: PrimusDashboardClient, message_id: str) -> Dict[str, Any]:
     query = """
     query GetBenchmarkMessage($id: ID!) {
       getChatMessage(id: $id) {
@@ -293,7 +293,7 @@ class BenchmarkRow:
 
 def run_benchmark(
     *,
-    client: PlexusDashboardClient,
+    client: PrimusDashboardClient,
     account_id: str,
     session_id: str,
     response_target: str,

@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { CommandWorkerFargateService } from './worker-service';
 
 const STAGING_CONTRACT_PREFIX = '/plexus/staging/command-service';
-const PRODUCTION_CONFIG_SECRET_NAME = 'plexus/production/config';
+const PRODUCTION_CONFIG_SECRET_NAME = 'primus/production/config';
 
 export interface SandboxCommandWorkerStackProps extends NestedStackProps {
   readonly taskTable: ITable;
@@ -20,7 +20,7 @@ export interface SandboxCommandWorkerStackProps extends NestedStackProps {
   readonly apiUrl: string;
   readonly apiGraphqlArn: string;
   readonly bedrockModelResources: readonly string[];
-  /** Defaults to plexus/staging/config; must never be plexus/production/config. */
+  /** Defaults to primus/staging/config; must never be primus/production/config. */
   readonly configSecretName?: string;
   readonly dataSourcesBucket: IBucket;
   readonly reportBlockDetailsBucket: IBucket;
@@ -46,9 +46,9 @@ export class SandboxCommandWorkerStack extends NestedStack {
 
   constructor(scope: Construct, id: string, props: SandboxCommandWorkerStackProps) {
     super(scope, id, props);
-    const configSecretName = (props.configSecretName || 'plexus/staging/config').trim();
+    const configSecretName = (props.configSecretName || 'primus/staging/config').trim();
     if (configSecretName === PRODUCTION_CONFIG_SECRET_NAME) {
-      throw new Error('Sandbox command worker must not use plexus/production/config');
+      throw new Error('Sandbox command worker must not use primus/production/config');
     }
 
     const vpc = ec2.Vpc.fromVpcAttributes(this, 'StagingFoundationVpc', {
@@ -60,7 +60,7 @@ export class SandboxCommandWorkerStack extends NestedStack {
     const repoRootPath = fileURLToPath(new URL('../../../', import.meta.url));
     const workerImageAsset = new ecr_assets.DockerImageAsset(this, 'CommandWorkerImage', {
       directory: repoRootPath,
-      file: 'plexus/command_worker/Dockerfile',
+      file: 'primus/command_worker/Dockerfile',
       platform: ecr_assets.Platform.LINUX_AMD64,
     });
 

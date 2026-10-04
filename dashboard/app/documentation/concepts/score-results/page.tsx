@@ -3,8 +3,8 @@ import Link from "next/link"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Score Results - Plexus Documentation",
-  description: "Learn about Score Results in Plexus - the records of scoring items against scores in a scorecard"
+  title: "Score Results - Primus Documentation",
+  description: "Learn about Score Results in Primus - the records of scoring items against scores in a scorecard"
 }
 
 export default function ScoreResultsPage() {
@@ -55,7 +55,7 @@ export default function ScoreResultsPage() {
             <div>
               <h3 className="text-xl font-medium mb-2">Relationships</h3>
               <p className="text-muted-foreground mb-4">
-                Score Results are connected to several other entities in the Plexus system:
+                Score Results are connected to several other entities in the Primus system:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                 <li>
@@ -138,14 +138,14 @@ export default function ScoreResultsPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Working with Score Results</h2>
           <p className="text-muted-foreground mb-4">
-            Plexus provides several ways to work with Score Results, both through the dashboard interface and the CLI.
+            Primus provides several ways to work with Score Results, both through the dashboard interface and the CLI.
           </p>
           
           <div className="space-y-4">
             <div>
               <h3 className="text-xl font-medium mb-2">Viewing Results in the Dashboard</h3>
               <p className="text-muted-foreground mb-4">
-                The Plexus dashboard provides a user-friendly interface for viewing and analyzing Score Results:
+                The Primus dashboard provides a user-friendly interface for viewing and analyzing Score Results:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                 <li>
@@ -163,18 +163,18 @@ export default function ScoreResultsPage() {
             <div>
               <h3 className="text-xl font-medium mb-2">Using the CLI</h3>
               <p className="text-muted-foreground mb-4">
-                The Plexus CLI provides powerful commands for working with Score Results:
+                The Primus CLI provides powerful commands for working with Score Results:
               </p>
               <pre className="bg-muted rounded-lg mb-4">
                 <div className="code-container p-4">
                   <code>{`# List recent score results for a specific scorecard
-plexus results list --scorecard "Example Scorecard" --limit 20
+primus results list --scorecard "Example Scorecard" --limit 20
 
 # List recent score results for a specific account
-plexus results list --account "Example Account" --limit 20
+primus results list --account "Example Account" --limit 20
 
 # Get detailed information about a specific score result
-plexus results info --id "result-id-here"`}</code>
+primus results info --id "result-id-here"`}</code>
                 </div>
               </pre>
               <p className="text-muted-foreground">

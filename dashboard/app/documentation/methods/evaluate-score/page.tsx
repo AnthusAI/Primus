@@ -11,20 +11,20 @@ export default function EvaluateScorePage() {
           <h2 className="text-2xl font-semibold mb-4">Quickstart: Evaluate Latest Associated Dataset</h2>
           <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
             <code>{`# Build/update dataset for the score
-plexus score dataset-curate \\
+primus score dataset-curate \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --max-items 100 \\
   --days 180
 
 # Evaluate against the latest associated dataset
-plexus evaluate accuracy \\
+primus evaluate accuracy \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --use-score-associated-dataset
 
 # Optional machine-friendly output
-plexus evaluate accuracy \\
+primus evaluate accuracy \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --use-score-associated-dataset \\
@@ -49,21 +49,21 @@ plexus evaluate accuracy \\
           <h2 className="text-2xl font-semibold mb-4">Operator Loop: Build -&gt; Check -&gt; Evaluate</h2>
           <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
             <code>{`# 1) Build associated dataset from feedback
-plexus score dataset-curate \\
+primus score dataset-curate \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --max-items 200 \\
   --days 180
 
 # 2) Evaluate baseline/candidate against dataset
-plexus evaluate accuracy \\
+primus evaluate accuracy \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --use-score-associated-dataset \\
   --baseline <evaluation-id>`}</code>
           </pre>
           <p className="text-muted-foreground mt-3">
-            In MCP workflows, call <code>plexus_dataset_check_associated</code> before dispatching
+            In MCP workflows, call <code>primus_dataset_check_associated</code> before dispatching
             optimizer runs. If readiness fails, rebuild the dataset first.
           </p>
         </section>
@@ -90,18 +90,18 @@ plexus evaluate accuracy \\
             <div>
               <h3 className="text-xl font-medium mb-2">Using the SDK</h3>
               <pre className="bg-muted p-4 rounded-lg mb-4">
-                <code>{`from plexus import Plexus
+                <code>{`from primus import Primus
 
-plexus = Plexus(api_key="your-api-key")
+primus = Primus(api_key="your-api-key")
 
 # Evaluate using a specific score (accepts ID, name, key, or external ID)
-evaluation = plexus.evaluations.create(
+evaluation = primus.evaluations.create(
     source_id="source-id",
     score="Grammar Check"  # Can use name, key, ID, or external ID
 )
 
 # Or evaluate using an entire scorecard (accepts ID, name, key, or external ID)
-evaluation = plexus.evaluations.create(
+evaluation = primus.evaluations.create(
     source_id="source-id",
     scorecard="Content Quality"  # Can use name, key, ID, or external ID
 )
@@ -123,13 +123,13 @@ for score in results.scores:
               <h3 className="text-xl font-medium mb-2">Using the CLI</h3>
               <pre className="bg-muted p-4 rounded-lg mb-4">
                 <code>{`# Evaluate using a scorecard
-plexus evaluate accuracy --scorecard "Content Quality" --number-of-samples 100
+primus evaluate accuracy --scorecard "Content Quality" --number-of-samples 100
 
 # List evaluation results
-plexus evaluations list
+primus evaluations list
 
 # View detailed results for a specific evaluation
-plexus evaluations list-results --evaluation evaluation-id`}</code>
+primus evaluations list-results --evaluation evaluation-id`}</code>
               </pre>
               
               <p className="text-muted-foreground mb-4">
@@ -213,7 +213,7 @@ plexus evaluations list-results --evaluation evaluation-id`}</code>
           
           <pre className="bg-muted p-4 rounded-lg mb-4">
             <code>{`# Create a batch evaluation
-batch = plexus.evaluations.create_batch(
+batch = primus.evaluations.create_batch(
     source_ids=["source-1", "source-2", "source-3"],
     scorecard="Quality Assurance"  # Can use name, key, ID, or external ID
 )
@@ -239,39 +239,39 @@ results = batch.get_results()`}</code>
           <div className="space-y-4">
             <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
               <code>{`# Build a deterministic associated dataset
-plexus dataset load \\
+primus dataset load \\
   --source <data_source_identifier> \\
   --deterministic-order
 
 # Or curate from qualifying feedback labels (newest-first)
-plexus score dataset-curate \\
+primus score dataset-curate \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --max-items 100
 
 # Disable balancing when pure recency sampling is preferred
-plexus score dataset-curate \\
+primus score dataset-curate \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --max-items 100 \\
   --no-balance
 
 # Or run vetted+balanced curation with report evidence
-plexus score dataset-curate-vetted \\
+primus score dataset-curate-vetted \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --days 180 \\
   --max-items 100
 
 # Evaluate against latest associated dataset for this score
-plexus evaluate accuracy \\
+primus evaluate accuracy \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --use-score-associated-dataset \\
   --number-of-samples 200
 
 # Same run with machine-friendly output
-plexus evaluate accuracy \\
+primus evaluate accuracy \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --use-score-associated-dataset \\
@@ -279,7 +279,7 @@ plexus evaluate accuracy \\
   --json-only
 
 # Evaluate across all associated datasets for this score
-plexus evaluate accuracy \\
+primus evaluate accuracy \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --use-score-associated-dataset \\
@@ -334,14 +334,14 @@ plexus evaluate accuracy \\
           </p>
           <pre className="bg-muted p-4 rounded-lg overflow-x-auto mb-4">
             <code>{`# Stage A: deterministic associated-dataset check
-plexus evaluate accuracy \\
+primus evaluate accuracy \\
   --scorecard "Example Scorecard" \\
   --score "Identify Objections" \\
   --use-score-associated-dataset \\
   --number-of-samples 200
 
 # Stage B: fast random loop
-plexus evaluate feedback-runner \\
+primus evaluate feedback-runner \\
   --scorecard 1039 \\
   --score 45425 \\
   --days 180 \\
@@ -350,7 +350,7 @@ plexus evaluate feedback-runner \\
   --kanbus-issue-id plx-9aa370
 
 # Stage C: hard random gate before accept
-plexus evaluate feedback-runner \\
+primus evaluate feedback-runner \\
   --scorecard 1039 \\
   --score 45425 \\
   --days 180 \\

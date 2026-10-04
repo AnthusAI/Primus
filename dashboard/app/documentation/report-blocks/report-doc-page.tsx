@@ -164,7 +164,7 @@ export default function ReportDocPage({ doc }: Props) {
               Run From The CLI
             </CardTitle>
             <CardDescription>
-              Direct report commands are the simplest path for one-off usage. Saved report configurations use `plexus report config create` and `plexus report run`.
+              Direct report commands are the simplest path for one-off usage. Saved report configurations use `primus report config create` and `primus report run`.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -173,8 +173,8 @@ export default function ReportDocPage({ doc }: Props) {
               <CodeBlock>{doc.tactus}</CodeBlock>
             ) : null}
             {!doc.relatedCheck ? (
-              <CodeBlock>{`plexus report config create --name "${doc.title} Example" --file ${doc.slug}.md
-plexus report run --config "${doc.title} Example"`}</CodeBlock>
+              <CodeBlock>{`primus report config create --name "${doc.title} Example" --file ${doc.slug}.md
+primus report run --config "${doc.title} Example"`}</CodeBlock>
             ) : null}
           </CardContent>
         </Card>

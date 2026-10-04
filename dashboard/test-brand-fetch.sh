@@ -7,7 +7,7 @@ echo "=== Testing Brand Asset Fetch (Simulating Amplify Build) ==="
 echo ""
 
 # Simulate the environment variable
-BRAND_ASSETS_URL="${BRAND_ASSETS_URL:-file:///Users/ryan.porter/Projects/Plexus-Capacity-branding/capacity-branding.tar.gz}"
+BRAND_ASSETS_URL="${BRAND_ASSETS_URL:-file:///Users/ryan.porter/Projects/Primus-Capacity-branding/capacity-branding.tar.gz}"
 
 echo "BRAND_ASSETS_URL: $BRAND_ASSETS_URL"
 echo ""

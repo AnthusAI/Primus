@@ -60,7 +60,7 @@ if (getResourceByShareTokenFunction) {
 if (cancelCommandFunction) {
     const cancelCommandCfn = cancelCommandFunction.node.defaultChild as lambda.CfnFunction;
     const api = backend.data.resources.cfnResources.cfnGraphqlApi;
-    cancelCommandCfn.addPropertyOverride('Environment.Variables.PLEXUS_API_URL', api.attrGraphQlUrl);
+    cancelCommandCfn.addPropertyOverride('Environment.Variables.PRIMUS_API_URL', api.attrGraphQlUrl);
     grantCancelCommandTaskAccess(cancelCommandFunction, api.attrArn);
 }
 
@@ -293,17 +293,17 @@ let consoleRunWorkerStack: ConsoleChatResponderStack | undefined;
 
 const commandServiceEnvironment = resolveEnvironmentName();
 if (isLongLivedCommandServiceEnvironment(commandServiceEnvironment)) {
-    const workerImageUri = (process.env.PLEXUS_COMMAND_WORKER_IMAGE_URI || '').trim();
-    const foundationRepositoryUri = (process.env.PLEXUS_COMMAND_WORKER_FOUNDATION_REPOSITORY_URI || '').trim();
-    const amplifyDeploymentRoleArn = (process.env.PLEXUS_AMPLIFY_DEPLOYMENT_ROLE_ARN || '').trim();
+    const workerImageUri = (process.env.PRIMUS_COMMAND_WORKER_IMAGE_URI || '').trim();
+    const foundationRepositoryUri = (process.env.PRIMUS_COMMAND_WORKER_FOUNDATION_REPOSITORY_URI || '').trim();
+    const amplifyDeploymentRoleArn = (process.env.PRIMUS_AMPLIFY_DEPLOYMENT_ROLE_ARN || '').trim();
     if (!workerImageUri) {
-        throw new Error('PLEXUS_COMMAND_WORKER_IMAGE_URI must provide repository@sha256 for command-service deployment');
+        throw new Error('PRIMUS_COMMAND_WORKER_IMAGE_URI must provide repository@sha256 for command-service deployment');
     }
     if (!foundationRepositoryUri) {
-        throw new Error('PLEXUS_COMMAND_WORKER_FOUNDATION_REPOSITORY_URI is required from the image handoff');
+        throw new Error('PRIMUS_COMMAND_WORKER_FOUNDATION_REPOSITORY_URI is required from the image handoff');
     }
     if (!amplifyDeploymentRoleArn) {
-        throw new Error('PLEXUS_AMPLIFY_DEPLOYMENT_ROLE_ARN is required for the command activity gate');
+        throw new Error('PRIMUS_AMPLIFY_DEPLOYMENT_ROLE_ARN is required for the command activity gate');
     }
     const dataCfnResources = backend.data.resources.cfnResources as unknown as {
         cfnGraphqlApi?: { attrGraphQlUrl?: string; attrArn?: string };
@@ -314,11 +314,11 @@ if (isLongLivedCommandServiceEnvironment(commandServiceEnvironment)) {
         throw new Error('Command service requires generated AppSync API URL and ARN');
     }
     const configSecretName = (
-        process.env.PLEXUS_CONFIG_SECRET_NAME || `plexus/${commandServiceEnvironment}/config`
+        process.env.PRIMUS_CONFIG_SECRET_NAME || `primus/${commandServiceEnvironment}/config`
     ).trim();
-    const bedrockModelResources = (process.env.PLEXUS_COMMAND_WORKER_BEDROCK_MODEL_ARNS || 'arn:aws:bedrock:*::foundation-model/*')
+    const bedrockModelResources = (process.env.PRIMUS_COMMAND_WORKER_BEDROCK_MODEL_ARNS || 'arn:aws:bedrock:*::foundation-model/*')
         .split(',').map((value) => value.trim()).filter(Boolean);
-    const servicePrefix = (process.env.PLEXUS_SERVICE_PREFIX || 'plexus').trim().toLowerCase();
+    const servicePrefix = (process.env.PRIMUS_SERVICE_PREFIX || 'plexus').trim().toLowerCase();
     new ssm.StringParameter(backend.data.stack, 'CommandServiceTaskTableName', {
         parameterName: `/${servicePrefix}/${commandServiceEnvironment}/command-service/task-table-name`,
         stringValue: taskTable.tableName,
@@ -377,8 +377,8 @@ if (isSandbox && enableSandboxCommandWorker) {
     if (!sandboxApiUrl || !sandboxApiGraphqlArn) {
         throw new Error('Unable to resolve sandbox GraphQL URL/ARN for SandboxCommandWorkerStack deployment');
     }
-    const sandboxConfigSecretName = (process.env.PLEXUS_CONFIG_SECRET_NAME || 'plexus/staging/config').trim();
-    const sandboxBedrockModelResources = (process.env.PLEXUS_COMMAND_WORKER_BEDROCK_MODEL_ARNS || 'arn:aws:bedrock:*::foundation-model/*')
+    const sandboxConfigSecretName = (process.env.PRIMUS_CONFIG_SECRET_NAME || 'primus/staging/config').trim();
+    const sandboxBedrockModelResources = (process.env.PRIMUS_COMMAND_WORKER_BEDROCK_MODEL_ARNS || 'arn:aws:bedrock:*::foundation-model/*')
         .split(',').map((value) => value.trim()).filter(Boolean);
     new SandboxCommandWorkerStack(
         // Keep the worker below the generated data stack that owns the Task
@@ -407,24 +407,24 @@ if (shouldDeployConsoleWorker) {
     };
     const sandboxGraphqlUrl = dataCfnResources.cfnGraphqlApi?.attrGraphQlUrl || '';
     const resolvedDataApiUrl = (
-        isSandbox ? sandboxGraphqlUrl : (process.env.PLEXUS_API_URL || '')
+        isSandbox ? sandboxGraphqlUrl : (process.env.PRIMUS_API_URL || '')
     ).trim();
     const consoleWorkerEnvironmentName = normalizeForResourceName(resolveEnvironmentName());
     const consoleResponderParameterName = `/plexus/${consoleWorkerEnvironmentName}/console-chat/responder`;
     const consoleWorkerConfigSecretName = (
-        process.env.PLEXUS_CONFIG_SECRET_NAME ||
-        (isSandbox ? 'plexus/staging/config' : `plexus/${consoleWorkerEnvironmentName}/config`)
+        process.env.PRIMUS_CONFIG_SECRET_NAME ||
+        (isSandbox ? 'primus/staging/config' : `primus/${consoleWorkerEnvironmentName}/config`)
     ).trim();
 
     if (!resolvedDataApiUrl) {
         throw new Error(
             isSandbox
                 ? 'Unable to resolve sandbox GraphQL URL for ConsoleRunWorkerStack deployment'
-                : 'PLEXUS_API_URL must be set for ConsoleRunWorkerStack deployment'
+                : 'PRIMUS_API_URL must be set for ConsoleRunWorkerStack deployment'
         );
     }
-    if (isSandbox && consoleWorkerConfigSecretName === 'plexus/production/config') {
-        throw new Error('Sandbox ConsoleRunWorker must not use plexus/production/config');
+    if (isSandbox && consoleWorkerConfigSecretName === 'primus/production/config') {
+        throw new Error('Sandbox ConsoleRunWorker must not use primus/production/config');
     }
 
     consoleRunWorkerStack = new ConsoleChatResponderStack(
@@ -432,7 +432,7 @@ if (shouldDeployConsoleWorker) {
         'ConsoleChatResponder',
         {
             chatMessageTable,
-            plexusApiUrl: resolvedDataApiUrl,
+            primusApiUrl: resolvedDataApiUrl,
             environmentName: consoleWorkerEnvironmentName,
             asyncTasksAvailable: !isSandbox,
             responderParameterName: consoleResponderParameterName,

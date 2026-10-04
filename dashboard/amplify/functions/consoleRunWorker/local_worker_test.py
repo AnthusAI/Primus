@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 
 def _load_local_worker_module():
-    worker_path = Path(__file__).resolve().parents[4] / "plexus" / "console" / "local_worker.py"
+    worker_path = Path(__file__).resolve().parents[4] / "primus" / "console" / "local_worker.py"
     spec = importlib.util.spec_from_file_location("console_chat_local_worker", worker_path)
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
@@ -22,12 +22,12 @@ def test_resolve_client_accepts_next_public_env(monkeypatch):
         def __init__(self, *, api_url, api_key):
             created.append((api_url, api_key))
 
-    monkeypatch.delenv("PLEXUS_API_URL", raising=False)
-    monkeypatch.delenv("PLEXUS_API_KEY", raising=False)
-    monkeypatch.setenv("NEXT_PUBLIC_PLEXUS_API_URL", "https://example.appsync-api.us-east-1.amazonaws.com/graphql")
-    monkeypatch.setenv("NEXT_PUBLIC_PLEXUS_API_KEY", "da2-test")
+    monkeypatch.delenv("PRIMUS_API_URL", raising=False)
+    monkeypatch.delenv("PRIMUS_API_KEY", raising=False)
+    monkeypatch.setenv("NEXT_PUBLIC_PRIMUS_API_URL", "https://example.appsync-api.us-east-1.amazonaws.com/graphql")
+    monkeypatch.setenv("NEXT_PUBLIC_PRIMUS_API_KEY", "da2-test")
     monkeypatch.setattr(worker, "_load_local_env", lambda: None)
-    monkeypatch.setattr(worker, "PlexusDashboardClient", FakeClient)
+    monkeypatch.setattr(worker, "PrimusDashboardClient", FakeClient)
 
     worker._resolve_client()
 
@@ -193,7 +193,7 @@ def test_main_startup_log_includes_worker_identity(monkeypatch):
     monkeypatch.setattr(worker, "_resolve_api_url_for_log", lambda: "https://sandbox.example/graphql")
     monkeypatch.setattr(worker, "_current_git_sha", lambda: "abc123")
     monkeypatch.setattr(worker.os, "getpid", lambda: 12345)
-    monkeypatch.setattr(worker.os, "getcwd", lambda: "/tmp/plexus")
+    monkeypatch.setattr(worker.os, "getcwd", lambda: "/tmp/primus")
     monkeypatch.setattr(worker.logger, "info", lambda message, *args: log_calls.append((message, args)))
     monkeypatch.setattr(worker, "process_pending_local_messages", lambda *_args, **_kwargs: 0)
 
@@ -207,6 +207,6 @@ def test_main_startup_log_includes_worker_identity(monkeypatch):
     assert "code_sha=%s" in message
     assert args[0] == "local:ryan"
     assert args[2] == 12345
-    assert args[3] == "/tmp/plexus"
+    assert args[3] == "/tmp/primus"
     assert args[4] == "https://sandbox.example/graphql"
     assert args[5] == "abc123"

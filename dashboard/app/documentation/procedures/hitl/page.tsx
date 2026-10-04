@@ -5,8 +5,8 @@ import { MessageExample } from "@/components/documentation/message-examples"
 import { MessageExampleData as MessageExamples } from "@/components/documentation/message-example-data"
 
 export const metadata: Metadata = {
-  title: "Human-in-the-Loop - Procedures - Plexus Documentation",
-  description: "Master human collaboration patterns with Plexus Procedures"
+  title: "Human-in-the-Loop - Procedures - Primus Documentation",
+  description: "Master human collaboration patterns with Primus Procedures"
 }
 
 export default function ProceduresHITLPage() {

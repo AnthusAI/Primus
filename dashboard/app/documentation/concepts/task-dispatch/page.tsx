@@ -3,7 +3,7 @@ export default function TaskDispatchPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Task Dispatch System</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Learn how to operate, monitor, and utilize Plexus's task dispatch system for distributed AI operations.
+        Learn how to operate, monitor, and utilize Primus's task dispatch system for distributed AI operations.
       </p>
 
       <div className="space-y-8">
@@ -13,10 +13,10 @@ export default function TaskDispatchPage() {
             <div>
               <h3 className="text-xl font-medium mb-2">Starting a Worker</h3>
               <p className="text-muted-foreground mb-4">
-                Worker nodes can be started using the Plexus CLI. Make sure you're in the correct directory with access to your scorecards:
+                Worker nodes can be started using the Primus CLI. Make sure you're in the correct directory with access to your scorecards:
               </p>
               <div className="bg-muted p-4 rounded-md">
-                <code className="text-sm">plexus command worker --concurrency=4 --loglevel=INFO</code>
+                <code className="text-sm">primus command worker --concurrency=4 --loglevel=INFO</code>
               </div>
               <p className="text-sm text-muted-foreground mt-2">
                 Adjust concurrency based on your system's capabilities.
@@ -91,11 +91,11 @@ export default function TaskDispatchPage() {
               <div className="bg-muted p-4 rounded-md space-y-2">
                 <code className="text-sm block">
                   # Run demo task synchronously<br/>
-                  plexus command demo
+                  primus command demo
                 </code>
                 <code className="text-sm block">
                   # Run evaluation asynchronously<br/>
-                  plexus command dispatch "evaluate accuracy --scorecard agent-scorecard --number-of-samples 10"
+                  primus command dispatch "evaluate accuracy --scorecard agent-scorecard --number-of-samples 10"
                 </code>
               </div>
             </div>
@@ -106,7 +106,7 @@ export default function TaskDispatchPage() {
                 Monitor task status and progress:
               </p>
               <div className="bg-muted p-4 rounded-md">
-                <code className="text-sm">plexus command status &lt;task-id&gt;</code>
+                <code className="text-sm">primus command status &lt;task-id&gt;</code>
               </div>
             </div>
           </div>

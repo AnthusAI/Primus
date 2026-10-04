@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
   const result = await new Promise<{ ok: boolean; error?: string }>((resolve) => {
     const child = spawn(
-      "plexus",
+      "primus",
       [
         "procedure", "clone-state",
         sourceProcedureId.trim(),

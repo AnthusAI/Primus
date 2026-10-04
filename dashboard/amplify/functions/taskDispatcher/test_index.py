@@ -68,7 +68,7 @@ def test_dispatches_only_initial_ready_eligibility(monkeypatch):
     ) == {"processed": 1, "skipped": 1}
     assert sent == [
         (
-            "plexus.command_worker.execute",
+            "primus.command_worker.execute",
             [
                 {
                     "schema_version": 2,

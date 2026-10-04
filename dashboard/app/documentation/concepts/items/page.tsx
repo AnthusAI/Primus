@@ -3,14 +3,14 @@ export default function ItemsPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Items</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Learn about Items, the core content units that Plexus analyzes and scores.
+        Learn about Items, the core content units that Primus analyzes and scores.
       </p>
 
       <div className="space-y-8">
         <section>
           <h2 className="text-2xl font-semibold mb-4">What are Items?</h2>
           <p className="text-muted-foreground mb-4">
-            Items are individual pieces of content that you want to analyze or evaluate using Plexus. 
+            Items are individual pieces of content that you want to analyze or evaluate using Primus. 
             They can be any type of content that your AI, ML, or logical scoring techniques can process, such as:
           </p>
           <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
@@ -25,7 +25,7 @@ export default function ItemsPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">How Items Work</h2>
           <p className="text-muted-foreground mb-4">
-            Items are the foundation of Plexus's evaluation system:
+            Items are the foundation of Primus's evaluation system:
           </p>
           <div className="space-y-4">
             <div>
@@ -38,7 +38,7 @@ export default function ItemsPage() {
             <div>
               <h3 className="text-xl font-medium mb-2">2. Scoring</h3>
               <p className="text-muted-foreground">
-                When you apply a Scorecard to an Item, Plexus creates a ScoringJob to process it.
+                When you apply a Scorecard to an Item, Primus creates a ScoringJob to process it.
                 The results are stored as ScoreResults, which contain the scores, confidence levels,
                 and any additional metadata from the scoring process.
               </p>
