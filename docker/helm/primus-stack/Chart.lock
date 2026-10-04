@@ -5,8 +5,8 @@ dependencies:
 - name: graphql-proxy
   repository: file://../charts/graphql-proxy
   version: 1.0.0
-- name: plexus-worker
-  repository: file://../plexus-worker
+- name: primus-worker
+  repository: file://../primus-worker
   version: 1.0.0
 digest: sha256:a87e2cc37ecca81ea9118bde369ae7b445ffdf6b73c314565398d6e4f264132b
 generated: "2026-05-29T09:58:09.697487-07:00"
