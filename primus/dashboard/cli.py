@@ -1,5 +1,5 @@
 """
-Plexus Dashboard CLI - Command line interface for the Plexus Dashboard API.
+Primus Dashboard CLI - Command line interface for the Primus Dashboard API.
 
 This CLI mirrors the GraphQL API schema structure, providing commands and options
 that map directly to the API's models and their attributes. The command hierarchy
@@ -61,7 +61,7 @@ def generate_key(name: str) -> str:
 
 @click.group()
 def cli():
-    """Plexus Dashboard CLI"""
+    """Primus Dashboard CLI"""
     load_dotenv(override=False)
 
 @cli.group()
@@ -1017,7 +1017,7 @@ def create(evaluation_id: str, value: str):
 def scorecards():
     """Manage scorecards"""
     click.echo("WARNING: The 'primus-dashboard scorecard' commands are deprecated.", err=True)
-    click.echo("Please use the main 'plexus scorecards' commands instead.", err=True)
+    click.echo("Please use the main 'primus scorecards' commands instead.", err=True)
     pass
 
 @scorecards.command()
@@ -1033,9 +1033,9 @@ def list(account_key: Optional[str], name: Optional[str], key: Optional[str]):
         primus-dashboard scorecards list --name "QA Scorecard"
         primus-dashboard scorecards list --key qa-v1
     """
-    click.echo("WARNING: This command is deprecated. Please use 'plexus scorecards list-scorecards' instead.", err=True)
+    click.echo("WARNING: This command is deprecated. Please use 'primus scorecards list-scorecards' instead.", err=True)
     # Forward to the main CLI command
-    os.system(f"plexus scorecards list-scorecards {' --account-key ' + account_key if account_key else ''} {' --name ' + name if name else ''} {' --key ' + key if key else ''}")
+    os.system(f"primus scorecards list-scorecards {' --account-key ' + account_key if account_key else ''} {' --name ' + name if name else ''} {' --key ' + key if key else ''}")
 
 @scorecards.command()
 @click.option('--account-key', default='call-criteria', help='Account key identifier')
@@ -1048,9 +1048,9 @@ def sync(account_key: str, directory: str):
         primus-dashboard scorecards sync --account-key my-account
         primus-dashboard scorecards sync --directory path/to/scorecards
     """
-    click.echo("WARNING: This command is deprecated. Please use 'plexus scorecards sync' instead.", err=True)
+    click.echo("WARNING: This command is deprecated. Please use 'primus scorecards sync' instead.", err=True)
     # Forward to the main CLI command
-    os.system(f"plexus scorecards sync --account-key {account_key} --directory {directory}")
+    os.system(f"primus scorecards sync --account-key {account_key} --directory {directory}")
 
 @scorecards.command()
 @click.option('--account-key', required=True, help='Account key')

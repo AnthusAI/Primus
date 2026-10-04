@@ -1,5 +1,5 @@
 """
-Comprehensive tests for Item.upsert_by_identifiers functionality in Plexus SDK.
+Comprehensive tests for Item.upsert_by_identifiers functionality in Primus SDK.
 
 This test suite validates the Item upsert logic to ensure:
 1. Items are found correctly using identifier-based lookups

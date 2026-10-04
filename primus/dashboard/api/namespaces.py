@@ -1,4 +1,4 @@
-"""Model namespaces for the Plexus Dashboard API client."""
+"""Model namespaces for the Primus Dashboard API client."""
 
 from typing import Optional, Dict, TYPE_CHECKING
 

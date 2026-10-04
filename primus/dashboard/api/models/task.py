@@ -209,10 +209,10 @@ class Task(BaseModel):
 
     @classmethod
     def _get_account_id(cls, client) -> str:
-        """Get the account ID from PLEXUS_ACCOUNT_KEY environment variable."""
-        account_key = os.getenv('PLEXUS_ACCOUNT_KEY')
+        """Get the account ID from PRIMUS_ACCOUNT_KEY environment variable."""
+        account_key = os.getenv('PRIMUS_ACCOUNT_KEY')
         if not account_key:
-            raise ValueError("PLEXUS_ACCOUNT_KEY environment variable must be set")
+            raise ValueError("PRIMUS_ACCOUNT_KEY environment variable must be set")
         account = Account.list_by_key(client, account_key)
         if not account:
             raise ValueError(f"No account found with key: {account_key}")

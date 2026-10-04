@@ -15,7 +15,7 @@ class Score: # Basic placeholder, ideally import the actual Score model
 @dataclass
 class ScoreResult(BaseModel):
     """
-    Represents a single classification or scoring result in the Plexus dashboard.
+    Represents a single classification or scoring result in the Primus dashboard.
 
     ScoreResult is the core data structure for tracking individual scoring operations,
     used both for real-time scoring and evaluation. It integrates with the GraphQL API

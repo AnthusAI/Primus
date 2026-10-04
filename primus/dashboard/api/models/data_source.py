@@ -134,10 +134,10 @@ class DataSource(BaseModel):
         """Fetch DataSources by key using GSI with pagination."""
         logging.debug(f"list_by_key called with key: {key}")
 
-        account_key = os.environ.get('PLEXUS_ACCOUNT_KEY')
-        logging.debug(f"PLEXUS_ACCOUNT_KEY: {account_key}")
+        account_key = os.environ.get('PRIMUS_ACCOUNT_KEY')
+        logging.debug(f"PRIMUS_ACCOUNT_KEY: {account_key}")
         if not account_key:
-            logging.error("PLEXUS_ACCOUNT_KEY not found in environment")
+            logging.error("PRIMUS_ACCOUNT_KEY not found in environment")
             return []
 
         account = Account.get_by_key(account_key, client)
@@ -194,10 +194,10 @@ class DataSource(BaseModel):
         """Fetch DataSources by name using GSI with pagination."""
         logging.debug(f"list_by_name called with name: {name}")
 
-        account_key = os.environ.get('PLEXUS_ACCOUNT_KEY')
-        logging.debug(f"PLEXUS_ACCOUNT_KEY: {account_key}")
+        account_key = os.environ.get('PRIMUS_ACCOUNT_KEY')
+        logging.debug(f"PRIMUS_ACCOUNT_KEY: {account_key}")
         if not account_key:
-            logging.error("PLEXUS_ACCOUNT_KEY not found in environment")
+            logging.error("PRIMUS_ACCOUNT_KEY not found in environment")
             return []
 
         account = Account.get_by_key(account_key, client)

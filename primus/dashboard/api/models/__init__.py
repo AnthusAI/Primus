@@ -1,5 +1,5 @@
 """
-Plexus Dashboard API Models
+Primus Dashboard API Models
 """
 from .item import Item
 from .score import Score

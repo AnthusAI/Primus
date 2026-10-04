@@ -8,8 +8,8 @@ This client provides three main functionalities:
 
 Authentication:
     Uses API key authentication configured through environment variables:
-    - PLEXUS_API_URL: The AppSync API endpoint
-    - PLEXUS_API_KEY: The API key for authentication
+    - PRIMUS_API_URL: The AppSync API endpoint
+    - PRIMUS_API_KEY: The API key for authentication
 
 Background Logging:
     The client maintains a background thread for efficient score logging with these features:
@@ -100,11 +100,11 @@ class _RefreshingCognitoAuth(AuthBase):
             access_token = self._token_provider.get_access_token()
         except Exception as exc:
             raise ValueError(
-                "Plexus application authentication is unavailable. Run `plexus login` to authenticate."
+                "Primus application authentication is unavailable. Run `primus login` to authenticate."
             ) from exc
         if not isinstance(access_token, str) or not access_token:
             raise ValueError(
-                "Plexus application authentication is unavailable. Run `plexus login` to authenticate."
+                "Primus application authentication is unavailable. Run `primus login` to authenticate."
             )
         request.headers["Authorization"] = f"Bearer {access_token}"
         return request
@@ -211,12 +211,12 @@ class _BaseAPIClient:
         token_provider: Optional[Any] = None,
         auth_mode: Optional[str] = None,
     ):
-        self.api_url = api_url or os.getenv('PLEXUS_API_URL')
-        self.api_key = api_key or os.getenv('PLEXUS_API_KEY')
-        self.auth_mode = (auth_mode or os.getenv('PLEXUS_GRAPHQL_AUTH_MODE') or 'api_key').strip().lower()
+        self.api_url = api_url or os.getenv('PRIMUS_API_URL')
+        self.api_key = api_key or os.getenv('PRIMUS_API_KEY')
+        self.auth_mode = (auth_mode or os.getenv('PRIMUS_GRAPHQL_AUTH_MODE') or 'api_key').strip().lower()
         self._token_provider = token_provider
         self.api_region = (
-            os.getenv('PLEXUS_API_REGION')
+            os.getenv('PRIMUS_API_REGION')
             or os.getenv('NEXT_PUBLIC_PLEXUS_API_REGION')
             or self._region_from_api_url(self.api_url)
         )
@@ -228,7 +228,7 @@ class _BaseAPIClient:
         self._stop_logging = None
         self._log_thread = None
         self._background_logging_enabled = os.getenv(
-            'PLEXUS_DISABLE_BACKGROUND_LOGGING', 'false'
+            'PRIMUS_DISABLE_BACKGROUND_LOGGING', 'false'
         ).lower() not in ('true', '1', 'yes')
         
         if not self.api_url:
@@ -240,8 +240,8 @@ class _BaseAPIClient:
 
         # Check environment variable for schema introspection setting
         # Default to False — introspection adds 500ms-2s per execute() call (full schema fetch).
-        # Enable only for development/debugging via PLEXUS_FETCH_SCHEMA_FROM_TRANSPORT=true.
-        fetch_schema_str = os.getenv('PLEXUS_FETCH_SCHEMA_FROM_TRANSPORT', 'false').lower()
+        # Enable only for development/debugging via PRIMUS_FETCH_SCHEMA_FROM_TRANSPORT=true.
+        fetch_schema_str = os.getenv('PRIMUS_FETCH_SCHEMA_FROM_TRANSPORT', 'false').lower()
         self._fetch_schema = fetch_schema_str in ('true', '1', 'yes')
 
         transport = self._build_transport()
@@ -320,7 +320,7 @@ class _BaseAPIClient:
                     self._token_provider = CognitoAuthService()
             except Exception as exc:
                 raise ValueError(
-                    "Plexus application authentication is unavailable. Run `plexus login` to authenticate."
+                    "Primus application authentication is unavailable. Run `primus login` to authenticate."
                 ) from exc
             auth = _RefreshingCognitoAuth(self._token_provider)
         else:
@@ -1044,7 +1044,7 @@ class _BaseAPIClient:
 
     def generate_deep_link(self, url_pattern: str, params: Dict[str, str]) -> str:
         """
-        Generate a deep link URL to a Plexus dashboard resource.
+        Generate a deep link URL to a Primus dashboard resource.
         
         Args:
             url_pattern: URL pattern with placeholders (e.g., "/reports/{reportId}")
@@ -1056,10 +1056,10 @@ class _BaseAPIClient:
         
         Example:
             client.generate_deep_link("/reports/{reportId}", {"reportId": "123"})
-            # Returns: "https://app.plexus.domain/reports/123"
+            # Returns: "https://app.primus.domain/reports/123"
         """
         # Use environment variable for base URL, with fallback to a default
-        base_url = os.environ.get('PLEXUS_DASHBOARD_URL', 'https://app.plexus.ai')
+        base_url = os.environ.get('PRIMUS_DASHBOARD_URL', 'https://app.primus.ai')
         
         # Remove trailing slash from base_url if present
         if base_url.endswith('/'):
@@ -1081,7 +1081,7 @@ class _BaseAPIClient:
 
 class PrimusDashboardClient(_BaseAPIClient):
     """
-    Client for the Plexus Dashboard API.
+    Client for the Primus Dashboard API.
     
     Provides access to all API resources with schema-matching namespaces:
         client.ScoreResult.create(...)

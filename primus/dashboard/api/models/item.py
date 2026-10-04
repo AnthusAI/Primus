@@ -445,7 +445,7 @@ class Item(BaseModel):
         
         Args:
             client: PrimusDashboardClient instance
-            account_id: The Plexus account ID
+            account_id: The Primus account ID
             identifiers: Dict containing identifier values like {'formId': '12345', 'reportId': '67890'}
             external_id: Optional external ID for the item
             description: Optional item description

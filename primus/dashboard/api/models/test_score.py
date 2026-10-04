@@ -95,7 +95,7 @@ class TestScoreConfiguration(unittest.TestCase):
         import shutil
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    @patch('plexus.dashboard.api.models.scorecard.Scorecard.get_by_id')
+    @patch('primus.dashboard.api.models.scorecard.Scorecard.get_by_id')
     def test_pull_configuration_success(self, mock_get_scorecard):
         """Test successful configuration pull."""
         # Setup mocks
@@ -121,7 +121,7 @@ class TestScoreConfiguration(unittest.TestCase):
                 with open(yaml_path, 'r') as f:
                     content = f.read()
                 
-                self.assertNotIn('# Pulled from Plexus API', content)
+                self.assertNotIn('# Pulled from Primus API', content)
                 self.assertNotIn('# Champion Version ID:', content)
                 self.assertIn('test: yaml content', content)
 
@@ -165,7 +165,7 @@ class TestScoreConfiguration(unittest.TestCase):
                 
                 # Create test YAML file with changed content
                 with open(yaml_path, 'w') as f:
-                    f.write("# Pulled from Plexus API\n")
+                    f.write("# Pulled from Primus API\n")
                     f.write("# Score: Test Score\n") 
                     f.write("# Champion Version ID: version-123\n")
                     f.write("#\n")
@@ -198,7 +198,7 @@ class TestScoreConfiguration(unittest.TestCase):
                 
                 # Create test YAML file with same content as current version
                 with open(yaml_path, 'w') as f:
-                    f.write("# Pulled from Plexus API\n")
+                    f.write("# Pulled from Primus API\n")
                     f.write("# Score: Test Score\n")
                     f.write("# Champion Version ID: version-123\n") 
                     f.write("#\n")
@@ -251,10 +251,10 @@ class TestScoreConfiguration(unittest.TestCase):
         self.assertFalse(result['success'])
         self.assertEqual(result['error'], 'NO_CLIENT')
 
-    @patch('plexus.dashboard.api.models.scorecard.Scorecard.get_by_id')
+    @patch('primus.dashboard.api.models.scorecard.Scorecard.get_by_id')
     def test_get_local_configuration_path_with_scorecard_name(self, mock_get_scorecard):
         """Test getting local path when scorecard name is provided."""
-        with patch('plexus.cli.shared.get_score_yaml_path') as mock_get_path:
+        with patch('primus.cli.shared.get_score_yaml_path') as mock_get_path:
             mock_get_path.return_value = Path('./scorecards/Test_Scorecard/test_score.yaml')
             
             result = self.score.get_local_configuration_path('Test Scorecard')
@@ -263,7 +263,7 @@ class TestScoreConfiguration(unittest.TestCase):
             # Should not call API when scorecard name is provided
             mock_get_scorecard.assert_not_called()
 
-    @patch('plexus.dashboard.api.models.scorecard.Scorecard.get_by_id')
+    @patch('primus.dashboard.api.models.scorecard.Scorecard.get_by_id')
     def test_get_local_configuration_path_lookup_scorecard(self, mock_get_scorecard):
         """Test getting local path when scorecard name needs to be looked up."""
         # Setup mocks
@@ -271,7 +271,7 @@ class TestScoreConfiguration(unittest.TestCase):
         mock_scorecard.name = 'Looked Up Scorecard'
         mock_get_scorecard.return_value = mock_scorecard
         
-        with patch('plexus.cli.shared.get_score_yaml_path') as mock_get_path:
+        with patch('primus.cli.shared.get_score_yaml_path') as mock_get_path:
             mock_get_path.return_value = Path('./scorecards/Looked_Up_Scorecard/test_score.yaml')
             
             result = self.score.get_local_configuration_path()
@@ -305,8 +305,8 @@ class TestScoreConfiguration(unittest.TestCase):
         
         self.assertIn('No API client available', str(context.exception))
 
-    @patch('plexus.cli.shared.get_score_yaml_path')
-    @patch('plexus.dashboard.api.models.scorecard.Scorecard.get_by_id')
+    @patch('primus.cli.shared.get_score_yaml_path')
+    @patch('primus.dashboard.api.models.scorecard.Scorecard.get_by_id')
     def test_error_handling_api_failures(self, mock_get_scorecard, mock_get_path):
         """Test error handling for various API failure scenarios."""
         yaml_path = Path(self.temp_dir) / 'test_score.yaml'
@@ -327,7 +327,7 @@ class TestScoreConfiguration(unittest.TestCase):
         with patch.object(self.score, 'get_local_code_path', return_value=yaml_path):
             with patch.object(self.score, 'get_local_guidelines_path', return_value=yaml_path.with_suffix('.md')):
                 # Create YAML file with metadata comments and content
-                test_content = """# Pulled from Plexus API
+                test_content = """# Pulled from Primus API
 # Score: Test Score
 # Champion Version ID: version-123
 # Created: 2024-01-01T00:00:00Z
@@ -364,7 +364,7 @@ nested:
                 pushed_content = create_call['variables']['input']['configuration']
                 
                 # Should not contain metadata comments
-                self.assertNotIn('# Pulled from Plexus API', pushed_content)
+                self.assertNotIn('# Pulled from Primus API', pushed_content)
                 self.assertNotIn('# Score:', pushed_content)
                 self.assertNotIn('# Champion Version ID:', pushed_content)
                 

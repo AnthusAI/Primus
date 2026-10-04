@@ -795,7 +795,7 @@ class Score(BaseModel):
                 # Strip metadata comments that we add during pull
                 local_yaml_lines = []
                 metadata_prefixes = [
-                    '# Pulled from Plexus API',
+                    '# Pulled from Primus API',
                     '# Score:',
                     '# Champion Version ID:',
                     '# Version ID:',

@@ -23,22 +23,22 @@ def _make_transport_query_error(message: str, error_type: str | None = None):
 @pytest.fixture
 def mock_env(monkeypatch):
     """Set up test environment variables"""
-    monkeypatch.setenv('PLEXUS_API_URL', 'https://test.api')
-    monkeypatch.setenv('PLEXUS_API_KEY', 'test-key')
+    monkeypatch.setenv('PRIMUS_API_URL', 'https://test.api')
+    monkeypatch.setenv('PRIMUS_API_KEY', 'test-key')
 
 @pytest.fixture
 def mock_transport():
-    with patch('plexus.dashboard.api.client.RequestsHTTPTransport') as mock:
+    with patch('primus.dashboard.api.client.RequestsHTTPTransport') as mock:
         yield mock
 
 @pytest.fixture
 def mock_gql_client():
-    with patch('plexus.dashboard.api.client.Client') as mock:
+    with patch('primus.dashboard.api.client.Client') as mock:
         yield mock
 
 @pytest.fixture
 def mock_score_result():
-    with patch('plexus.dashboard.api.models.score_result.ScoreResult') as mock:
+    with patch('primus.dashboard.api.models.score_result.ScoreResult') as mock:
         yield mock
 
 @pytest.fixture
@@ -88,13 +88,13 @@ def test_client_configures_transport_correctly(mock_env, mock_transport):
 
 
 def test_client_uses_fresh_cognito_bearer_tokens_per_prepared_request_and_fails_closed(mock_transport, monkeypatch):
-    monkeypatch.setenv('PLEXUS_API_URL', 'https://test.api')
-    monkeypatch.setenv('PLEXUS_API_KEY', 'legacy-key')
-    monkeypatch.setenv('PLEXUS_GRAPHQL_AUTH_MODE', 'cognito')
+    monkeypatch.setenv('PRIMUS_API_URL', 'https://test.api')
+    monkeypatch.setenv('PRIMUS_API_KEY', 'legacy-key')
+    monkeypatch.setenv('PRIMUS_GRAPHQL_AUTH_MODE', 'cognito')
     token_provider = Mock(get_access_token=Mock(side_effect=[
         'access-token-a',
         'access-token-b',
-        RuntimeError('Run `plexus login` to authenticate.'),
+        RuntimeError('Run `primus login` to authenticate.'),
     ]))
 
     PrimusDashboardClient(token_provider=token_provider)
@@ -110,14 +110,14 @@ def test_client_uses_fresh_cognito_bearer_tokens_per_prepared_request_and_fails_
 
     assert first.headers['Authorization'] == 'Bearer access-token-a'
     assert second.headers['Authorization'] == 'Bearer access-token-b'
-    with pytest.raises(ValueError, match='plexus login'):
+    with pytest.raises(ValueError, match='primus login'):
         auth(Request('POST', 'https://test.api').prepare())
     assert token_provider.get_access_token.call_count == 3
 
 
 def test_client_accepts_explicit_cognito_auth_mode_without_global_environment(mock_transport, monkeypatch):
-    monkeypatch.setenv('PLEXUS_API_URL', 'https://test.api')
-    monkeypatch.delenv('PLEXUS_GRAPHQL_AUTH_MODE', raising=False)
+    monkeypatch.setenv('PRIMUS_API_URL', 'https://test.api')
+    monkeypatch.delenv('PRIMUS_GRAPHQL_AUTH_MODE', raising=False)
     token_provider = Mock(get_access_token=Mock(return_value='access-token'))
 
     PrimusDashboardClient(auth_mode='cognito', token_provider=token_provider)
@@ -127,22 +127,22 @@ def test_client_accepts_explicit_cognito_auth_mode_without_global_environment(mo
 
 
 def test_client_does_not_fall_back_to_api_key_when_cognito_session_is_unavailable(monkeypatch):
-    monkeypatch.setenv('PLEXUS_API_URL', 'https://test.api')
-    monkeypatch.setenv('PLEXUS_API_KEY', 'legacy-key')
-    monkeypatch.setenv('PLEXUS_GRAPHQL_AUTH_MODE', 'cognito')
-    token_provider = Mock(get_access_token=Mock(side_effect=RuntimeError('Run `plexus login` to authenticate.')))
+    monkeypatch.setenv('PRIMUS_API_URL', 'https://test.api')
+    monkeypatch.setenv('PRIMUS_API_KEY', 'legacy-key')
+    monkeypatch.setenv('PRIMUS_GRAPHQL_AUTH_MODE', 'cognito')
+    token_provider = Mock(get_access_token=Mock(side_effect=RuntimeError('Run `primus login` to authenticate.')))
 
     client = PrimusDashboardClient(token_provider=token_provider)
 
-    with pytest.raises(ValueError, match='plexus login'):
+    with pytest.raises(ValueError, match='primus login'):
         client.client.transport.auth(Request('POST', 'https://test.api').prepare())
     token_provider.get_access_token.assert_called_once()
 
 
 def test_client_keeps_explicit_iam_workload_auth(mock_transport, monkeypatch):
-    monkeypatch.setenv('PLEXUS_API_URL', 'https://example.appsync-api.us-east-1.amazonaws.com/graphql')
-    monkeypatch.setenv('PLEXUS_GRAPHQL_AUTH_MODE', 'iam')
-    monkeypatch.setenv('PLEXUS_API_KEY', 'legacy-key')
+    monkeypatch.setenv('PRIMUS_API_URL', 'https://example.appsync-api.us-east-1.amazonaws.com/graphql')
+    monkeypatch.setenv('PRIMUS_GRAPHQL_AUTH_MODE', 'iam')
+    monkeypatch.setenv('PRIMUS_API_KEY', 'legacy-key')
     credentials = Mock()
     session = Mock(get_credentials=Mock(return_value=credentials))
     boto_session = Mock(return_value=session)
@@ -164,9 +164,9 @@ def test_client_keeps_explicit_iam_workload_auth(mock_transport, monkeypatch):
 
 
 def test_client_iam_workload_auth_fails_closed_without_role_credentials(mock_transport, monkeypatch):
-    monkeypatch.setenv('PLEXUS_API_URL', 'https://example.appsync-api.us-east-1.amazonaws.com/graphql')
-    monkeypatch.setenv('PLEXUS_GRAPHQL_AUTH_MODE', 'iam')
-    monkeypatch.setenv('PLEXUS_API_KEY', 'legacy-key')
+    monkeypatch.setenv('PRIMUS_API_URL', 'https://example.appsync-api.us-east-1.amazonaws.com/graphql')
+    monkeypatch.setenv('PRIMUS_GRAPHQL_AUTH_MODE', 'iam')
+    monkeypatch.setenv('PRIMUS_API_KEY', 'legacy-key')
     boto_session = Mock(return_value=Mock(get_credentials=Mock(return_value=None)))
     aws_auth = Mock()
     monkeypatch.setitem(sys.modules, 'boto3', SimpleNamespace(Session=boto_session))
@@ -225,8 +225,8 @@ def test_execute_retries_retryable_query_error_then_succeeds(mock_env, mock_gql_
     ]
     mock_gql_client.return_value.__enter__.return_value = mock_session
 
-    with patch("plexus.dashboard.api.client.time.sleep") as mock_sleep, \
-         patch("plexus.dashboard.api.client.random.uniform", return_value=0.0):
+    with patch("primus.dashboard.api.client.time.sleep") as mock_sleep, \
+         patch("primus.dashboard.api.client.random.uniform", return_value=0.0):
         result = client.execute("query { test }")
 
     assert result == expected_result
@@ -245,8 +245,8 @@ def test_execute_retries_transient_dns_failure_then_succeeds(mock_env, mock_gql_
     ]
     mock_gql_client.return_value.__enter__.return_value = mock_session
 
-    with patch("plexus.dashboard.api.client.time.sleep") as mock_sleep, \
-         patch("plexus.dashboard.api.client.random.uniform", return_value=0.0):
+    with patch("primus.dashboard.api.client.time.sleep") as mock_sleep, \
+         patch("primus.dashboard.api.client.random.uniform", return_value=0.0):
         result = client.execute("query { test }")
 
     assert result == expected_result
@@ -261,7 +261,7 @@ def test_execute_does_not_retry_non_retryable_query_error(mock_env, mock_gql_cli
     mock_session.execute.side_effect = _make_transport_query_error("Validation failed")
     mock_gql_client.return_value.__enter__.return_value = mock_session
 
-    with patch("plexus.dashboard.api.client.time.sleep") as mock_sleep:
+    with patch("primus.dashboard.api.client.time.sleep") as mock_sleep:
         with pytest.raises(Exception, match="GraphQL query failed: Validation failed"):
             client.execute("query { test }")
 
@@ -287,8 +287,8 @@ def test_execute_uses_long_running_policy_until_exhausted(mock_env, mock_gql_cli
         max_delay_seconds=0.2,
     )
 
-    with patch("plexus.dashboard.api.client.time.sleep") as mock_sleep, \
-         patch("plexus.dashboard.api.client.random.uniform", return_value=0.0):
+    with patch("primus.dashboard.api.client.time.sleep") as mock_sleep, \
+         patch("primus.dashboard.api.client.random.uniform", return_value=0.0):
         with pytest.raises(Exception, match="GraphQL query failed after 3 attempts"):
             client.execute("mutation { test }", retry_policy=policy)
 
@@ -402,8 +402,8 @@ def test_score_logging_with_different_configs(mock_score_result):
 
 def test_batch_scoring_job_creates_new_batch(mock_client):
     """Test that a new batch is created when no suitable open batch exists"""
-    with patch('plexus.dashboard.api.models.scoring_job.ScoringJob') as mock_scoring_job, \
-         patch('plexus.dashboard.api.models.batch_job.BatchJob') as mock_batch_job:
+    with patch('primus.dashboard.api.models.scoring_job.ScoringJob') as mock_scoring_job, \
+         patch('primus.dashboard.api.models.batch_job.BatchJob') as mock_batch_job:
 
         # No existing scoring job
         mock_scoring_job.find_by_item_id.return_value = None
@@ -447,8 +447,8 @@ def test_batch_scoring_job_creates_new_batch(mock_client):
 
 def test_batch_scoring_job_uses_existing_batch(mock_client):
     """Test that a new scoring job is assigned to an existing open batch when available"""
-    with patch('plexus.dashboard.api.models.scoring_job.ScoringJob') as mock_scoring_job, \
-         patch('plexus.dashboard.api.models.batch_job.BatchJob') as mock_batch_job:
+    with patch('primus.dashboard.api.models.scoring_job.ScoringJob') as mock_scoring_job, \
+         patch('primus.dashboard.api.models.batch_job.BatchJob') as mock_batch_job:
 
         # No existing scoring job
         mock_scoring_job.find_by_item_id.return_value = None
@@ -484,8 +484,8 @@ def test_batch_scoring_job_uses_existing_batch(mock_client):
 
 def test_batch_scoring_job_finds_existing_job(mock_client):
     """Test that finding an existing scoring job also returns its associated batch job"""
-    with patch('plexus.dashboard.api.models.scoring_job.ScoringJob') as mock_scoring_job, \
-         patch('plexus.dashboard.api.models.batch_job.BatchJob') as mock_batch_job:
+    with patch('primus.dashboard.api.models.scoring_job.ScoringJob') as mock_scoring_job, \
+         patch('primus.dashboard.api.models.batch_job.BatchJob') as mock_batch_job:
 
         # Configure mocks to return objects with expected IDs
         mock_scoring_job.find_by_item_id.return_value = Mock(id='job-1')
@@ -559,8 +559,8 @@ def test_update_evaluation_error_handling(mock_client):
 
 def test_batch_scoring_job_handles_metadata_and_parameters(mock_client):
     """Test that batch scoring job correctly handles metadata and parameters"""
-    with patch('plexus.dashboard.api.models.scoring_job.ScoringJob') as mock_scoring_job, \
-         patch('plexus.dashboard.api.models.batch_job.BatchJob') as mock_batch_job:
+    with patch('primus.dashboard.api.models.scoring_job.ScoringJob') as mock_scoring_job, \
+         patch('primus.dashboard.api.models.batch_job.BatchJob') as mock_batch_job:
         
         # No existing scoring job
         mock_scoring_job.find_by_item_id.return_value = None
@@ -608,8 +608,8 @@ def test_batch_scoring_job_handles_metadata_and_parameters(mock_client):
 
 def test_batch_scoring_job_handles_none_values(mock_client):
     """Test that batch scoring job correctly handles None values for optional parameters"""
-    with patch('plexus.dashboard.api.models.scoring_job.ScoringJob') as mock_scoring_job, \
-         patch('plexus.dashboard.api.models.batch_job.BatchJob') as mock_batch_job:
+    with patch('primus.dashboard.api.models.scoring_job.ScoringJob') as mock_scoring_job, \
+         patch('primus.dashboard.api.models.batch_job.BatchJob') as mock_batch_job:
         
         # No existing scoring job
         mock_scoring_job.find_by_item_id.return_value = None
