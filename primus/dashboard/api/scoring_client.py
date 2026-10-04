@@ -36,7 +36,7 @@ Implementation Notes:
 
 from typing import Optional, Dict, Any, Union
 from dataclasses import dataclass
-from .client import PlexusAPIClient
+from .client import PrimusAPIClient
 from .models.account import Account
 from .models.scorecard import Scorecard
 from .models.score import Score
@@ -56,10 +56,10 @@ class ScoringContext:
 class ScoringClient:
     def __init__(
         self,
-        api_client: Optional[PlexusAPIClient] = None,
+        api_client: Optional[PrimusAPIClient] = None,
         context: Optional[ScoringContext] = None
     ):
-        self.api_client = api_client or PlexusAPIClient()
+        self.api_client = api_client or PrimusAPIClient()
         self.context = context or ScoringContext()
         self._cache = {}  # Cache for resolved IDs
         

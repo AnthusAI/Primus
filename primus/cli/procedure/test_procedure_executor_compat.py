@@ -7,7 +7,7 @@ import yaml
 
 from primus.cli.procedure.mcp_transport import create_procedure_mcp_server
 from primus.cli.procedure.procedure_executor import (
-    _PlexusTraceLogBridge,
+    _PrimusTraceLogBridge,
     _execute_tactus,
     _score_edit_audit_markdown,
 )
@@ -509,7 +509,7 @@ async def test_trace_bridge_forwards_cost_events_to_trace_sink():
 
     sink = _CollectingTraceSink()
     cost_events = []
-    bridge = _PlexusTraceLogBridge(sink, on_cost_event=lambda e: cost_events.append(e))
+    bridge = _PrimusTraceLogBridge(sink, on_cost_event=lambda e: cost_events.append(e))
     event = CostEvent(
         agent_name="optimizer",
         model="gpt-5.4",
@@ -545,7 +545,7 @@ async def test_trace_bridge_consumes_supported_agent_lifecycle_events(monkeypatc
         "primus.cli.procedure.logging_utils.capture_tactus_dspy_context_for_agent",
         lambda **kwargs: captured_contexts.append(kwargs),
     )
-    bridge = _PlexusTraceLogBridge(
+    bridge = _PrimusTraceLogBridge(
         sink,
         lifecycle_trace=lifecycle_trace,
     )
@@ -682,14 +682,14 @@ async def test_execute_tactus_forwards_procedure_task_context_to_primus_runtime_
 
     captured = {}
 
-    class _CapturingPlexusRuntimeModule:
+    class _CapturingPrimusRuntimeModule:
         def __init__(self, **kwargs):
             captured.update(kwargs)
 
     monkeypatch.setattr(
         tactus_execute,
-        "PlexusRuntimeModule",
-        _CapturingPlexusRuntimeModule,
+        "PrimusRuntimeModule",
+        _CapturingPrimusRuntimeModule,
     )
 
     result = await _execute_tactus(

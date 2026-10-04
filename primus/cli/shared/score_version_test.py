@@ -10,7 +10,7 @@ from primus.cli.shared.identifier_resolution import (
     resolve_score_identifier,
     resolve_scorecard_identifier,
 )
-from primus.dashboard.api.models.item import Item as PlexusItem
+from primus.dashboard.api.models.item import Item as PrimusItem
 from primus.scores.prompt_trace import (
     CAPTURE_RENDERED_MESSAGES_METADATA_KEY,
     extract_unresolved_placeholders_from_trace,
@@ -475,7 +475,7 @@ async def _predict_single_item(
         }
     metadata[CAPTURE_RENDERED_MESSAGES_METADATA_KEY] = True
     try:
-        item_obj = PlexusItem.from_dict(item_data, client)
+        item_obj = PrimusItem.from_dict(item_data, client)
     except Exception:
         item_obj = None
 

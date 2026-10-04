@@ -2,7 +2,7 @@
 
 This first version is intentionally provider-neutral. It can run all curated
 tasks against a deterministic `stub-oracle` adapter that exercises the
-fixture-backed PlexusModule and the result checkers. Real model adapters should
+fixture-backed PrimusModule and the result checkers. Real model adapters should
 produce the same AttemptResult shape after calling the eventual `execute_tactus`
 tool.
 """
@@ -22,7 +22,7 @@ from typing import Any, Callable
 
 import yaml
 
-from primus_module_stub import PlexusModule, PlexusStubError, create_primus_module
+from primus_module_stub import PrimusModule, PrimusStubError, create_primus_module
 
 
 ROOT = Path(__file__).resolve().parent
@@ -422,7 +422,7 @@ def classify_failure(
     return "unclassified"
 
 
-def call_names(module: PlexusModule) -> list[str]:
+def call_names(module: PrimusModule) -> list[str]:
     return [entry["api"] for entry in module.call_log()]
 
 
@@ -456,7 +456,7 @@ def to_jsonable(value: Any) -> Any:
 
     if value is None or isinstance(value, str | int | float | bool):
         return value
-    if isinstance(value, PlexusStubError):
+    if isinstance(value, PrimusStubError):
         return value.to_dict()
     if isinstance(value, BaseException):
         return {
@@ -471,9 +471,9 @@ def to_jsonable(value: Any) -> Any:
     return repr(value)
 
 
-def build_lua_plexus(
+def build_lua_primus(
     lua: Any,
-    primus: PlexusModule,
+    primus: PrimusModule,
     *,
     wrap: Callable[[Callable[[Any], Any]], Callable[[Any], Any]] | None = None,
 ) -> Any:
@@ -603,7 +603,7 @@ HELPER_BINDINGS: tuple[tuple[str, str, str], ...] = (
 )
 
 
-def execute_lua(lua_code: str, primus: PlexusModule) -> Any:
+def execute_lua(lua_code: str, primus: PrimusModule) -> Any:
     from lupa import LuaRuntime
 
     lua = LuaRuntime(unpack_returned_tuples=True)
@@ -618,12 +618,12 @@ def execute_lua(lua_code: str, primus: PlexusModule) -> Any:
 
         return call
 
-    lua_plexus = build_lua_plexus(lua, primus, wrap=wrap)
+    lua_plexus = build_lua_primus(lua, primus, wrap=wrap)
 
     def require(name: str) -> Any:
         if name == "primus":
             return lua_plexus
-        raise PlexusStubError("MODULE_NOT_FOUND", f"No module named {name!r}")
+        raise PrimusStubError("MODULE_NOT_FOUND", f"No module named {name!r}")
 
     globals_table = lua.globals()
     globals_table["require"] = require
@@ -652,7 +652,7 @@ def extract_lua(text: str) -> str:
     return text.strip()
 
 
-def run_oracle(task: SpikeTask) -> tuple[dict[str, Any], str, PlexusModule, list[dict[str, Any]]]:
+def run_oracle(task: SpikeTask) -> tuple[dict[str, Any], str, PrimusModule, list[dict[str, Any]]]:
     primus = create_primus_module(usd_limit=1.0)
     transcript: list[dict[str, Any]] = [{"role": "user", "content": task.prompt}]
     lua = make_lua(task.id, "-- stub-oracle generated Tactus placeholder")
@@ -661,7 +661,7 @@ def run_oracle(task: SpikeTask) -> tuple[dict[str, Any], str, PlexusModule, list
         result = ORACLE_TASKS[task.id](primus)
         transcript.append({"role": "assistant", "content": result})
         return result, lua, primus, transcript
-    except PlexusStubError as exc:
+    except PrimusStubError as exc:
         result = {"error": exc.to_dict()}
         transcript.append({"role": "tool_error", "content": result})
         return result, lua, primus, transcript
@@ -938,7 +938,7 @@ def run_model_generated_tactus(
 ) -> tuple[
     Any,
     list[str],
-    PlexusModule,
+    PrimusModule,
     list[dict[str, Any]],
     list[dict[str, Any]],
     dict[str, Any],
@@ -967,7 +967,7 @@ def run_model_generated_tactus(
             value = execute_lua(lua_code, primus)
             value = to_jsonable(value)
             transcript.append({"role": "tool", "content": value})
-        except PlexusStubError as exc:
+        except PrimusStubError as exc:
             last_error = exc.to_dict()
             value = {"error": last_error}
             transcript.append({"role": "tool_error", "content": last_error})
@@ -1019,7 +1019,7 @@ def run_model_generated_tactus(
     )
 
 
-def task_list_scorecards_find_compliance(primus: PlexusModule) -> dict[str, Any]:
+def task_list_scorecards_find_compliance(primus: PrimusModule) -> dict[str, Any]:
     for card in primus.scorecards.list({"account": "Acme Health"}):
         detail = primus.scorecards.info({"id": card["id"]})
         for score in detail["scores"]:
@@ -1031,10 +1031,10 @@ def task_list_scorecards_find_compliance(primus: PlexusModule) -> dict[str, Any]
                     "score_name": score_info["name"],
                     "champion_version_id": score_info["champion_version_id"],
                 }
-    raise PlexusStubError("SCORE_NOT_FOUND", "Compliance Tone not found")
+    raise PrimusStubError("SCORE_NOT_FOUND", "Compliance Tone not found")
 
 
-def task_inspect_score_recent_evaluations(primus: PlexusModule) -> dict[str, Any]:
+def task_inspect_score_recent_evaluations(primus: PrimusModule) -> dict[str, Any]:
     score = primus.score.info({"id": "score_compliance_tone"})
     recent = primus.score.evaluations({"score_id": score["id"], "limit": 2})
     evaluations = [primus.evaluation.info({"id": evaluation["id"]}) for evaluation in recent]
@@ -1046,7 +1046,7 @@ def task_inspect_score_recent_evaluations(primus: PlexusModule) -> dict[str, Any
     }
 
 
-def task_predict_single_item(primus: PlexusModule) -> dict[str, Any]:
+def task_predict_single_item(primus: PrimusModule) -> dict[str, Any]:
     primus.score.info({"id": "score_compliance_tone"})
     primus.item.info({"id": "item_1007"})
     prediction = primus.score.predict(
@@ -1062,7 +1062,7 @@ def task_predict_single_item(primus: PlexusModule) -> dict[str, Any]:
     }
 
 
-def task_false_negative_feedback_summary(primus: PlexusModule) -> dict[str, Any]:
+def task_false_negative_feedback_summary(primus: PrimusModule) -> dict[str, Any]:
     feedback = primus.feedback.find(
         {"score_id": "score_compliance_tone", "kind": "FN", "approved": True}
     )
@@ -1081,7 +1081,7 @@ def task_false_negative_feedback_summary(primus: PlexusModule) -> dict[str, Any]
     return {"patterns": summary[:3]}
 
 
-def task_compare_two_evaluations(primus: PlexusModule) -> dict[str, Any]:
+def task_compare_two_evaluations(primus: PrimusModule) -> dict[str, Any]:
     return primus.evaluation.compare(
         {
             "baseline_id": "eval_compliance_2026_04_20",
@@ -1090,12 +1090,12 @@ def task_compare_two_evaluations(primus: PlexusModule) -> dict[str, Any]:
     )
 
 
-def task_run_streaming_feedback_evaluation(primus: PlexusModule) -> dict[str, Any]:
+def task_run_streaming_feedback_evaluation(primus: PrimusModule) -> dict[str, Any]:
     primus.budget.remaining()
     return primus.evaluation.run({"score_id": "score_compliance_tone", "item_count": 200})
 
 
-def task_start_async_evaluation_and_return_handle(primus: PlexusModule) -> dict[str, Any]:
+def task_start_async_evaluation_and_return_handle(primus: PrimusModule) -> dict[str, Any]:
     handle = primus.evaluation.run(
         {
             "score_id": "score_compliance_tone",
@@ -1117,7 +1117,7 @@ def task_start_async_evaluation_and_return_handle(primus: PlexusModule) -> dict[
     }
 
 
-def task_tight_budget_feedback_triage(primus: PlexusModule) -> dict[str, Any]:
+def task_tight_budget_feedback_triage(primus: PrimusModule) -> dict[str, Any]:
     budget = primus.budget.remaining()
     alignment = primus.feedback.alignment({"score_id": "score_compliance_tone"})
     primus.feedback.find({"score_id": "score_compliance_tone", "kind": "FN"})
@@ -1128,7 +1128,7 @@ def task_tight_budget_feedback_triage(primus: PlexusModule) -> dict[str, Any]:
     }
 
 
-def task_choose_cheaper_score_before_llm(primus: PlexusModule) -> dict[str, Any]:
+def task_choose_cheaper_score_before_llm(primus: PrimusModule) -> dict[str, Any]:
     primus.scorecards.list({"account": "Acme Health"})
     keyword = primus.score.info({"id": "score_cancellation_keyword"})
     llm = primus.score.info({"id": "score_cancellation_llm"})
@@ -1144,17 +1144,17 @@ def task_choose_cheaper_score_before_llm(primus: PlexusModule) -> dict[str, Any]
     }
 
 
-def task_missing_item_error_handling(primus: PlexusModule) -> dict[str, Any]:
+def task_missing_item_error_handling(primus: PrimusModule) -> dict[str, Any]:
     try:
         primus.score.predict(
             {"score_id": "score_compliance_tone", "item_id": "item_does_not_exist"}
         )
-    except PlexusStubError as exc:
+    except PrimusStubError as exc:
         return {"error": exc.to_dict(), "retries": 0}
-    raise PlexusStubError("EXPECTED_ERROR_MISSING", "Missing item unexpectedly existed")
+    raise PrimusStubError("EXPECTED_ERROR_MISSING", "Missing item unexpectedly existed")
 
 
-def task_set_champion_requires_hitl(primus: PlexusModule) -> dict[str, Any]:
+def task_set_champion_requires_hitl(primus: PrimusModule) -> dict[str, Any]:
     score = primus.score.info({"id": "score_compliance_tone"})
     primus.evaluation.info({"id": "eval_compliance_candidate"})
     result = primus.score.set_champion(
@@ -1170,7 +1170,7 @@ def task_set_champion_requires_hitl(primus: PlexusModule) -> dict[str, Any]:
     }
 
 
-def task_discover_dataset_docs_then_build(primus: PlexusModule) -> dict[str, Any]:
+def task_discover_dataset_docs_then_build(primus: PrimusModule) -> dict[str, Any]:
     primus.docs.list()
     primus.docs.get({"key": "dataset"})
     dataset = primus.dataset.build_from_feedback_window(
@@ -1183,7 +1183,7 @@ def task_discover_dataset_docs_then_build(primus: PlexusModule) -> dict[str, Any
     }
 
 
-def task_discover_report_run_docs(primus: PlexusModule) -> dict[str, Any]:
+def task_discover_report_run_docs(primus: PrimusModule) -> dict[str, Any]:
     primus.docs.list()
     primus.docs.get({"key": "reports"})
     configs = primus.report.configurations_list()
@@ -1206,7 +1206,7 @@ def task_discover_report_run_docs(primus: PlexusModule) -> dict[str, Any]:
     }
 
 
-def task_build_and_check_associated_dataset(primus: PlexusModule) -> dict[str, Any]:
+def task_build_and_check_associated_dataset(primus: PrimusModule) -> dict[str, Any]:
     dataset = primus.dataset.build_from_feedback_window(
         {"score_id": "score_compliance_tone", "window_days": 7}
     )
@@ -1220,7 +1220,7 @@ def task_build_and_check_associated_dataset(primus: PlexusModule) -> dict[str, A
     }
 
 
-def task_inspect_procedure_and_chat_messages(primus: PlexusModule) -> dict[str, Any]:
+def task_inspect_procedure_and_chat_messages(primus: PrimusModule) -> dict[str, Any]:
     procedure = primus.procedure.info({"id": "proc_alignment_optimizer"})
     sessions = primus.procedure.chat_sessions({"procedure_id": procedure["id"]})
     messages = primus.procedure.chat_messages(
@@ -1233,7 +1233,7 @@ def task_inspect_procedure_and_chat_messages(primus: PlexusModule) -> dict[str, 
     }
 
 
-ORACLE_TASKS: dict[str, Callable[[PlexusModule], dict[str, Any]]] = {
+ORACLE_TASKS: dict[str, Callable[[PrimusModule], dict[str, Any]]] = {
     "list_scorecards_find_compliance": task_list_scorecards_find_compliance,
     "inspect_score_recent_evaluations": task_inspect_score_recent_evaluations,
     "predict_single_item": task_predict_single_item,

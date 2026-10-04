@@ -666,7 +666,7 @@ def test_to_jsonable_converts_structured_stub_errors() -> None:
     value = to_jsonable(
         {
             "status": "handled",
-            "error": harness.PlexusStubError(
+            "error": harness.PrimusStubError(
                 "ITEM_NOT_FOUND",
                 "No item found for 'missing'",
                 retryable=False,

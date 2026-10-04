@@ -158,7 +158,7 @@ Agent: You're very welcome. Thank you for your patience and for shopping with Re
     return examples[:num_samples]
 
 
-def create_items_in_plexus(transcripts: List[Dict], proxy_url: str, api_key: str, account_id: str) -> List[str]:
+def create_items_in_primus(transcripts: List[Dict], proxy_url: str, api_key: str, account_id: str) -> List[str]:
     """
     Create items in Primus from the fetched transcripts.
 
@@ -262,7 +262,7 @@ def main():
         return 1
 
     # Create items in Primus
-    item_ids = create_items_in_plexus(
+    item_ids = create_items_in_primus(
         transcripts,
         args.proxy_url,
         args.api_key,

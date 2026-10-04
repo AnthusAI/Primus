@@ -1,7 +1,7 @@
 """Stub Primus module for the runtime MCP validation spike.
 
 This module intentionally mirrors the proposed Tactus-facing surface without
-touching real Primus services. The later harness can register a PlexusModule
+touching real Primus services. The later harness can register a PrimusModule
 instance with Tactus so Tactus code can do:
 
     score{ id = "score_compliance_tone" }
@@ -23,7 +23,7 @@ DEFAULT_FIXTURE_PATH = (
 )
 
 
-class PlexusStubError(Exception):
+class PrimusStubError(Exception):
     """Structured error surfaced to the validation harness."""
 
     def __init__(
@@ -82,7 +82,7 @@ class StubBudget:
         }
         self.events.append(event)
         if self.usd_spent > self.usd_limit:
-            raise PlexusStubError(
+            raise PrimusStubError(
                 "BUDGET_EXHAUSTED",
                 f"Budget exhausted while running {operation}",
                 retryable=False,
@@ -125,10 +125,10 @@ def create_primus_module(
     *,
     fixture_path: str | Path = DEFAULT_FIXTURE_PATH,
     usd_limit: float = 10.0,
-) -> "PlexusModule":
+) -> "PrimusModule":
     data = load_fixture(fixture_path)
     context = StubContext(data=data, budget=StubBudget(usd_limit=usd_limit))
-    return PlexusModule(context)
+    return PrimusModule(context)
 
 
 def _plain_value(value: Any) -> Any:
@@ -163,14 +163,14 @@ def _args(value: Any = None, **defaults: Any) -> dict[str, Any]:
     if callable(items):
         converted = _plain_value(value)
         if not isinstance(converted, dict):
-            raise PlexusStubError(
+            raise PrimusStubError(
                 "INVALID_ARGUMENTS",
                 f"Expected table/dict arguments, got {type(converted).__name__}",
                 retryable=False,
             )
         result.update(converted)
         return result
-    raise PlexusStubError(
+    raise PrimusStubError(
         "INVALID_ARGUMENTS",
         f"Expected table/dict arguments, got {type(value).__name__}",
         retryable=False,
@@ -185,14 +185,14 @@ def _first(items: Iterable[dict[str, Any]], key: str, value: Any, code: str) -> 
     for item in items:
         if item.get(key) == value:
             return item
-    raise PlexusStubError(code, f"No fixture found where {key}={value!r}")
+    raise PrimusStubError(code, f"No fixture found where {key}={value!r}")
 
 
 def _score_by_identifier(data: dict[str, Any], identifier: str) -> dict[str, Any]:
     for score in data["scores"]:
         if identifier in {score["id"], score["key"], score["name"]}:
             return score
-    raise PlexusStubError("SCORE_NOT_FOUND", f"No score found for {identifier!r}")
+    raise PrimusStubError("SCORE_NOT_FOUND", f"No score found for {identifier!r}")
 
 
 def _as_bool(value: Any) -> bool:
@@ -279,7 +279,7 @@ class ScoreNamespace(Namespace):
                     tool_calls=0,
                 )
                 return _copy(prediction)
-        raise PlexusStubError(
+        raise PrimusStubError(
             "PREDICTION_NOT_FOUND",
             f"No prediction fixture for score={score['id']} item={item_id}",
         )
@@ -474,7 +474,7 @@ class EvaluationNamespace(Namespace):
                     }
                     progress_events.append(event)
                     self._ctx.emit_stream(event)
-        except PlexusStubError as exc:
+        except PrimusStubError as exc:
             if exc.code != "BUDGET_EXHAUSTED":
                 raise
             return {
@@ -517,7 +517,7 @@ class DocsNamespace(Namespace):
         self._call("get", parsed)
         key = parsed.get("key") or parsed.get("name") or parsed.get("id")
         if key not in self._ctx.data["docs"]:
-            raise PlexusStubError("DOC_NOT_FOUND", f"No doc fixture for {key!r}")
+            raise PrimusStubError("DOC_NOT_FOUND", f"No doc fixture for {key!r}")
         return {"key": key, "content": self._ctx.data["docs"][key]}
 
 
@@ -576,7 +576,7 @@ class DatasetNamespace(Namespace):
                     tool_calls=0,
                 )
                 return _copy(dataset)
-        raise PlexusStubError(
+        raise PrimusStubError(
             "DATASET_NOT_FOUND",
             f"No dataset fixture for score={score['id']} window_days={days}",
         )
@@ -623,7 +623,7 @@ class HandleNamespace(Namespace):
         self._call("status", parsed)
         handle_id = parsed.get("id") or parsed.get("handle_id")
         if handle_id not in self._ctx.handles:
-            raise PlexusStubError("HANDLE_NOT_FOUND", f"No handle fixture for {handle_id!r}")
+            raise PrimusStubError("HANDLE_NOT_FOUND", f"No handle fixture for {handle_id!r}")
         return _copy(self._ctx.handles[handle_id])
 
     def peek(self, args: Any = None) -> dict[str, Any]:
@@ -631,7 +631,7 @@ class HandleNamespace(Namespace):
         self._call("peek", parsed)
         handle_id = parsed.get("id") or parsed.get("handle_id")
         if handle_id not in self._ctx.handles:
-            raise PlexusStubError("HANDLE_NOT_FOUND", f"No handle fixture for {handle_id!r}")
+            raise PrimusStubError("HANDLE_NOT_FOUND", f"No handle fixture for {handle_id!r}")
         return _copy(self._ctx.handles[handle_id])
 
     def await_(self, args: Any = None) -> dict[str, Any]:
@@ -639,7 +639,7 @@ class HandleNamespace(Namespace):
         self._call("await", parsed)
         handle = self.status(parsed)
         if handle["kind"] != "evaluation":
-            raise PlexusStubError("UNSUPPORTED_HANDLE_KIND", f"Cannot await {handle['kind']}")
+            raise PrimusStubError("UNSUPPORTED_HANDLE_KIND", f"Cannot await {handle['kind']}")
         score = _score_by_identifier(self._ctx.data, handle["score_id"])
         result = EvaluationNamespace(self._ctx, "primus.evaluation")._run_synchronously(
             score,
@@ -660,7 +660,7 @@ class HandleNamespace(Namespace):
         self._call("cancel", parsed)
         handle_id = parsed.get("id") or parsed.get("handle_id")
         if handle_id not in self._ctx.handles:
-            raise PlexusStubError("HANDLE_NOT_FOUND", f"No handle fixture for {handle_id!r}")
+            raise PrimusStubError("HANDLE_NOT_FOUND", f"No handle fixture for {handle_id!r}")
         self._ctx.handles[handle_id]["status"] = "cancelled"
         self._ctx.emit_stream(
             {"event": "handle_cancelled", "handle_id": handle_id, "status": "cancelled"}
@@ -760,7 +760,7 @@ class ApiNamespace(Namespace):
         }
 
 
-class PlexusModule:
+class PrimusModule:
     """Fixture-backed Primus module exposed to Tactus during the spike."""
 
     def __init__(self, context: StubContext) -> None:
@@ -794,8 +794,8 @@ class PlexusModule:
 
 __all__ = [
     "DEFAULT_FIXTURE_PATH",
-    "PlexusModule",
-    "PlexusStubError",
+    "PrimusModule",
+    "PrimusStubError",
     "StubBudget",
     "StubContext",
     "create_primus_module",

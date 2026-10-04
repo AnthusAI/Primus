@@ -13,7 +13,7 @@ import uuid
 from celery import shared_task, Task
 from primus.cli.score_chat.service import ScoreChatService
 from primus.dashboard.api.client import PrimusDashboardClient
-from primus.dashboard.api.models.task import Task as PlexusTask
+from primus.dashboard.api.models.task import Task as PrimusTask
 import logging
 
 # Dictionary to store active chat sessions, indexed by chat ID
@@ -90,7 +90,7 @@ def process_chat_message(self: Task, chat_id: str, message: str, scorecard: Opti
                 
                 if api_url and api_key:
                     client = PrimusDashboardClient(api_url=api_url, api_key=api_key)
-                    task = PlexusTask.get_by_id(task_id, client)
+                    task = PrimusTask.get_by_id(task_id, client)
                     
                     # Update the task status based on the chat responses
                     ai_responses = [r for r in responses if r.get("type") == "ai_message"]

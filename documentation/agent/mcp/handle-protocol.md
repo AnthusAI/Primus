@@ -47,7 +47,7 @@ called without `async = true`, it:
 No MCP-loopback call is made and no remote dispatch is started for blocking
 forms.
 
-For `async = true`, `PlexusRuntimeModule`:
+For `async = true`, `PrimusRuntimeModule`:
 
 1. Checks the active budget before dispatch.
 2. Requires an explicit child `budget = { usd, wallclock_seconds, depth, tool_calls }`.
@@ -68,7 +68,7 @@ For runs that complete in a "feel-tolerable" timeframe (single-digit
 minutes), `execute_tactus` blocks while progress events stream up to the
 MCP client through FastMCP `Context` progress and info messages. Tactus
 runtime log events flow through the same stream handler shape used by
-`_PlexusTraceLogBridge`, and Primus runtime API calls emit progress messages
+`_PrimusTraceLogBridge`, and Primus runtime API calls emit progress messages
 as they are invoked.
 
 Response envelope additions:

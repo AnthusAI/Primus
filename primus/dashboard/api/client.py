@@ -217,7 +217,7 @@ class _BaseAPIClient:
         self._token_provider = token_provider
         self.api_region = (
             os.getenv('PRIMUS_API_REGION')
-            or os.getenv('NEXT_PUBLIC_PLEXUS_API_REGION')
+            or os.getenv('NEXT_PUBLIC_PRIMUS_API_REGION')
             or self._region_from_api_url(self.api_url)
         )
         self.context = context or ClientContext()

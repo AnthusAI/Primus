@@ -826,7 +826,7 @@ def _advance_task_to_running_stage(client: Any, task_id: str, target_order: int)
                 })
 
 
-class _PlexusTraceLogBridge:
+class _PrimusTraceLogBridge:
     """
     Bridges synchronous Tactus log events to async Primus trace persistence.
 
@@ -952,7 +952,7 @@ class _PlexusTraceLogBridge:
 
     @staticmethod
     def _event_timestamp_iso(event: Any) -> str:
-        timestamp = _PlexusTraceLogBridge._event_field(event, "timestamp")
+        timestamp = _PrimusTraceLogBridge._event_field(event, "timestamp")
         if hasattr(timestamp, "isoformat"):
             return timestamp.isoformat()
         return str(timestamp or "")
@@ -1155,7 +1155,7 @@ async def _execute_tactus(
         Execution results
     """
     logger.info(f"Executing procedure {procedure_id} with Tactus runtime")
-    log_bridge: Optional[_PlexusTraceLogBridge] = None
+    log_bridge: Optional[_PrimusTraceLogBridge] = None
     _task_id: Optional[str] = None
 
     try:
@@ -1671,7 +1671,7 @@ async def _execute_tactus(
             else str(uuid.uuid4())
         )
 
-        log_bridge = _PlexusTraceLogBridge(
+        log_bridge = _PrimusTraceLogBridge(
             trace_sink,
             on_cost_event=_on_incremental_cost_event,
             lifecycle_trace=options.pop("lifecycle_trace", None),
@@ -1873,7 +1873,7 @@ async def _execute_tactus(
                 _sys.path.insert(0, _mcp_dir)
 
             from tools.tactus_runtime.execute import (  # type: ignore[import]
-                PlexusRuntimeModule,
+                PrimusRuntimeModule,
                 _default_handle_store,
                 _default_evaluation_runner,
                 _default_report_runner_sync,
@@ -1891,7 +1891,7 @@ async def _execute_tactus(
                     depth=99,
                     tool_calls=999_999,
                 ))
-                _primus_module = PlexusRuntimeModule(
+                _primus_module = PrimusRuntimeModule(
                     mcp=None,
                     trace_id=procedure_id,
                     handle_store=_default_handle_store(),
