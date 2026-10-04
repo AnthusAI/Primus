@@ -11,7 +11,7 @@ import { IBucket } from 'aws-cdk-lib/aws-s3';
 import { fileURLToPath } from 'node:url';
 import { CommandWorkerFargateService } from './worker-service';
 
-const STAGING_CONTRACT_PREFIX = '/plexus/staging/command-service';
+const STAGING_CONTRACT_PREFIX = '/primus/staging/command-service';
 const PRODUCTION_CONFIG_SECRET_NAME = 'primus/production/config';
 
 export interface SandboxCommandWorkerStackProps extends NestedStackProps {

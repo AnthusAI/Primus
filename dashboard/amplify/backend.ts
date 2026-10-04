@@ -410,7 +410,7 @@ if (shouldDeployConsoleWorker) {
         isSandbox ? sandboxGraphqlUrl : (process.env.PRIMUS_API_URL || '')
     ).trim();
     const consoleWorkerEnvironmentName = normalizeForResourceName(resolveEnvironmentName());
-    const consoleResponderParameterName = `/plexus/${consoleWorkerEnvironmentName}/console-chat/responder`;
+    const consoleResponderParameterName = `/primus/${consoleWorkerEnvironmentName}/console-chat/responder`;
     const consoleWorkerConfigSecretName = (
         process.env.PRIMUS_CONFIG_SECRET_NAME ||
         (isSandbox ? 'primus/staging/config' : `primus/${consoleWorkerEnvironmentName}/config`)
