@@ -505,7 +505,7 @@ kind: ServiceAccount
 metadata:
   name: primus-worker
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/PlexusWorkerRole
+    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/PrimusWorkerRole
 ```
 
 This eliminates the need for AWS access keys in secrets.

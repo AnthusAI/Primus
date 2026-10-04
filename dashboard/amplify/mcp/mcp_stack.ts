@@ -40,7 +40,7 @@ export class McpStack extends Stack {
         WorkingDirectory: {
           type: 'String',
           description: 'Absolute path to the working directory for the service.',
-          default: '/home/ec2-user/projects/Plexus'
+          default: '/home/ec2-user/projects/Primus'
         },
         PythonExecutable: {
           type: 'String',
@@ -50,7 +50,7 @@ export class McpStack extends Stack {
         Environment: {
           type: 'String',
           description: 'Environment variables for the service.',
-          default: 'PYTHONPATH=/home/ec2-user/projects/Plexus'
+          default: 'PYTHONPATH=/home/ec2-user/projects/Primus'
         },
         Workers: {
           type: 'String',

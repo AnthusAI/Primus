@@ -128,7 +128,7 @@ class CommandWorkerStack(Stack):
                     "description": "Absolute path to the working directory for the service.",
                     "default": "/home/ec2-user/projects/Call-Criteria-Python"
                 },
-                "PlexusExecutable": {
+                "PrimusExecutable": {
                     "type": "String",
                     "description": "Absolute path to the primus executable.",
                     "default": "/home/ec2-user/miniconda3/envs/py311/bin/primus"
@@ -160,7 +160,7 @@ class CommandWorkerStack(Stack):
                             "User={{ ServiceUser }}",
                             "Group={{ ServiceGroup }}",
                             "WorkingDirectory={{ WorkingDirectory }}",
-                            "ExecStart={{ PlexusExecutable }} command worker",
+                            "ExecStart={{ PrimusExecutable }} command worker",
                             "Restart=on-failure",
                             "RestartSec=5s",
                             "StandardOutput=journal",

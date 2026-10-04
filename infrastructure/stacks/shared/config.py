@@ -49,7 +49,7 @@ class EnvironmentConfig:
         # Look up the secret (must exist before deployment)
         self.secret = secretsmanager.Secret.from_secret_name_v2(
             scope,
-            "PlexusConfig",
+            "PrimusConfig",
             secret_name=self.secret_name
         )
 

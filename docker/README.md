@@ -336,7 +336,7 @@ networkPolicy:
 
 serviceAccount:
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/PlexusWorkerRole
+    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/PrimusWorkerRole
 ```
 
 ## Local Testing

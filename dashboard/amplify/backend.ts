@@ -280,8 +280,8 @@ backend.auth.resources.authenticatedUserIamRole.addToPrincipalPolicy(
             'logs:DescribeLogStreams',
         ],
         resources: [
-            'arn:aws:logs:*:*:log-group:/plexus/procedures/*',
-            'arn:aws:logs:*:*:log-group:/plexus/procedures/*:*',
+            'arn:aws:logs:*:*:log-group:/primus/procedures/*',
+            'arn:aws:logs:*:*:log-group:/primus/procedures/*:*',
         ],
     })
 );
@@ -318,7 +318,7 @@ if (isLongLivedCommandServiceEnvironment(commandServiceEnvironment)) {
     ).trim();
     const bedrockModelResources = (process.env.PRIMUS_COMMAND_WORKER_BEDROCK_MODEL_ARNS || 'arn:aws:bedrock:*::foundation-model/*')
         .split(',').map((value) => value.trim()).filter(Boolean);
-    const servicePrefix = (process.env.PRIMUS_SERVICE_PREFIX || 'plexus').trim().toLowerCase();
+    const servicePrefix = (process.env.PRIMUS_SERVICE_PREFIX || 'primus').trim().toLowerCase();
     new ssm.StringParameter(backend.data.stack, 'CommandServiceTaskTableName', {
         parameterName: `/${servicePrefix}/${commandServiceEnvironment}/command-service/task-table-name`,
         stringValue: taskTable.tableName,
@@ -515,10 +515,10 @@ const environmentName = normalizeForResourceName(resolveEnvironmentName());
 if (!isSandbox) {
     const dynamoDbBackupStack = backend.createStack('DynamoDbBackupStack');
     const backupVault = new backup.BackupVault(dynamoDbBackupStack, 'DynamoDbBackupVault', {
-        backupVaultName: `plexus-dynamodb-${environmentName}-vault`
+        backupVaultName: `primus-dynamodb-${environmentName}-vault`
     });
     const backupPlan = new backup.BackupPlan(dynamoDbBackupStack, 'DynamoDbBackupPlan', {
-        backupPlanName: `plexus-dynamodb-${environmentName}-plan`,
+        backupPlanName: `primus-dynamodb-${environmentName}-plan`,
         backupVault
     });
     backupPlan.addRule(new backup.BackupPlanRule({

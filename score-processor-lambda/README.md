@@ -352,7 +352,7 @@ If you get "image manifest, config or layer media type... is not supported":
 - **Memory**: 2048 MB
 - **Timeout**: 300 seconds (5 minutes)
 - **Architecture**: x86_64
-- **IAM Role**: `plexusScoreProcessor-role-ls7dow27`
+- **IAM Role**: `primusScoreProcessor-role-ls7dow27`
   - AmazonDynamoDBFullAccess
   - AmazonS3FullAccess
   - AmazonSQSFullAccess

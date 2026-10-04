@@ -94,7 +94,7 @@ securityContext:
 serviceAccount:
   create: true
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/PlexusWorkerRole
+    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/PrimusWorkerRole
 ```
 
 **Why**: No AWS credentials stored in cluster; uses short-lived tokens
