@@ -31,7 +31,7 @@ export class ConsoleChatResponderStack extends NestedStack {
     const configSecretName = (
       props.configSecretName ||
       process.env.PRIMUS_CONFIG_SECRET_NAME ||
-      `plexus/${environmentName}/config`
+      `primus/${environmentName}/config`
     ).trim();
 
     if (!configSecretName) {

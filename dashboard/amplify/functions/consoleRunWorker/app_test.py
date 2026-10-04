@@ -270,7 +270,7 @@ def test_load_provider_credentials_sets_openai_and_optional_anthropic(monkeypatc
 
     class FakeSecretsManager:
         def get_secret_value(self, *, SecretId):
-            assert SecretId == "plexus/production/config"
+            assert SecretId == "primus/production/config"
             return {
                 "SecretString": json.dumps(
                     {
@@ -280,7 +280,7 @@ def test_load_provider_credentials_sets_openai_and_optional_anthropic(monkeypatc
                 )
             }
 
-    monkeypatch.setenv("PRIMUS_CONFIG_SECRET_NAME", "plexus/production/config")
+    monkeypatch.setenv("PRIMUS_CONFIG_SECRET_NAME", "primus/production/config")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.setattr(app.boto3, "client", lambda service_name: FakeSecretsManager())
@@ -299,7 +299,7 @@ def test_load_provider_credentials_allows_missing_anthropic(monkeypatch):
         def get_secret_value(self, *, SecretId):
             return {"SecretString": json.dumps({"openai-api-key": "test-openai-key"})}
 
-    monkeypatch.setenv("PRIMUS_CONFIG_SECRET_NAME", "plexus/production/config")
+    monkeypatch.setenv("PRIMUS_CONFIG_SECRET_NAME", "primus/production/config")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.setattr(app.boto3, "client", lambda service_name: FakeSecretsManager())

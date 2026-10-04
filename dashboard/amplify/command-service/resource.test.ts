@@ -33,7 +33,7 @@ function createFixture(workerImageUri = DIGEST): CommandServiceFixture {
     apiGraphqlArn: 'arn:aws:appsync:us-east-1:123456789012:apis/example',
     workerImageUri,
     foundationRepositoryUri: '123456789012.dkr.ecr.us-east-1.amazonaws.com/plexus-staging-command-worker',
-    configSecretName: 'plexus/staging/config',
+    configSecretName: 'primus/staging/config',
     bedrockModelResources: ['arn:aws:bedrock:us-east-1::foundation-model/*'],
     environmentName: 'staging',
     amplifyDeploymentRoleArn: DEPLOYMENT_ROLE_ARN,

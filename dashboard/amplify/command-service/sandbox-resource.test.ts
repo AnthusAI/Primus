@@ -53,13 +53,13 @@ describe('SandboxCommandWorkerStack', () => {
   });
 
   it('refuses a production config secret', () => {
-    expect(() => createStack('plexus/production/config')).toThrow('must not use plexus/production/config');
+    expect(() => createStack('primus/production/config')).toThrow('must not use primus/production/config');
   });
 
   it('defaults to the staging config secret', () => {
     const template = Template.fromStack(createStack());
     const rendered = JSON.stringify(template.toJSON());
-    expect(rendered).toContain('plexus/staging/config');
+    expect(rendered).toContain('primus/staging/config');
   });
 
   it('borrows the staging foundation VPC contract, not a sandbox-specific one', () => {
