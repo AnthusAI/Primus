@@ -35,17 +35,17 @@ from docker.demo.core import (
 )
 
 
-NAMESPACE = "plexus-local"
-RELEASE = "plexus"
-WORKER_DEPLOYMENT = "plexus-plexus-worker"
-PROXY_DEPLOYMENT = "plexus-graphql-proxy"
-WORKER_SERVICE = "plexus-plexus-worker"
-PROXY_SERVICE = "plexus-graphql-proxy"
-OBJECT_STORE_DEPLOYMENT = "plexus-local-object-store"
-OBJECT_STORE_SERVICE = "plexus-local-object-store"
-OPENAI_SECRET = "plexus-local-llm-keys"
+NAMESPACE = "primus-local"
+RELEASE = "primus"
+WORKER_DEPLOYMENT = "primus-primus-worker"
+PROXY_DEPLOYMENT = "primus-graphql-proxy"
+WORKER_SERVICE = "primus-primus-worker"
+PROXY_SERVICE = "primus-graphql-proxy"
+OBJECT_STORE_DEPLOYMENT = "primus-local-object-store"
+OBJECT_STORE_SERVICE = "primus-local-object-store"
+OPENAI_SECRET = "primus-local-llm-keys"
 PROXY_API_KEY = "local-dev-key"
-OBJECT_STORE_TLS_SECRET = "plexus-local-object-store-tls"
+OBJECT_STORE_TLS_SECRET = "primus-local-object-store-tls"
 ACCOUNT_ID = "local-demo-account"
 ACCOUNT_KEY = "local-demo"
 ANSI_RE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
@@ -231,7 +231,7 @@ class DemoHarness:
         helm = self.runner.run(("helm", "status", RELEASE, "-n", NAMESPACE, "-o", "json"))
         helm_status = json.loads(helm.stdout)
         if helm_status.get("info", {}).get("status") != "deployed":
-            raise DemoFailure("plexus Helm release is not deployed")
+            raise DemoFailure("primus Helm release is not deployed")
 
         for deployment in (WORKER_DEPLOYMENT, PROXY_DEPLOYMENT, OBJECT_STORE_DEPLOYMENT):
             self.runner.run(
@@ -290,7 +290,7 @@ class DemoHarness:
         if not pvcs.get("items") or any(
             pvc.get("status", {}).get("phase") != "Bound" for pvc in pvcs["items"]
         ):
-            raise DemoFailure("one or more Plexus PVCs are not Bound")
+            raise DemoFailure("one or more Primus PVCs are not Bound")
 
         gateways = self._json_command(
             ("kubectl", "get", "gateway,httproute", "-n", NAMESPACE, "-o", "json")
@@ -552,7 +552,7 @@ class DemoHarness:
             if len(regression_ids) != 100:
                 raise DemoFailure(f"expected 100 regression feedback IDs, got {len(regression_ids)}")
             command = self._worker_command(
-                "plexus",
+                "primus",
                 "score",
                 "dataset-curate",
                 "--scorecard",
@@ -691,7 +691,7 @@ class DemoHarness:
             regression_id = self._run_evaluation(
                 "accuracy",
                 (
-                    "plexus",
+                    "primus",
                     "evaluate",
                     "accuracy",
                     "--scorecard",
@@ -752,22 +752,22 @@ class DemoHarness:
     def reporting(self) -> dict[str, Any]:
         ids = self.ids
         overview_command = (
-            "plexus", "feedback", "report", "overview", "--scorecard", ids["scorecard"],
+            "primus", "feedback", "report", "overview", "--scorecard", ids["scorecard"],
             "--score", ids["score"], "--days", "7", "--max-feedback-items", "100",
             "--max-concurrent", "4", "--format", "json",
         )
         commands = {
             "alignment": (
-                "plexus", "feedback", "report", "alignment", "--scorecard", ids["scorecard"],
+                "primus", "feedback", "report", "alignment", "--scorecard", ids["scorecard"],
                 "--score", ids["score"], "--days", "7", "--format", "json",
             ),
             "score_results": (
-                "plexus", "feedback", "report", "score-results-report", "--scorecard",
+                "primus", "feedback", "report", "score-results-report", "--scorecard",
                 ids["scorecard"], "--score", ids["score"], "--id",
                 str(self.manifest.metadata["sample_item_id"]), "--format", "json",
             ),
             "champion_history": (
-                "plexus", "feedback", "report", "score-champion-version-timeline", "--scorecard",
+                "primus", "feedback", "report", "score-champion-version-timeline", "--scorecard",
                 ids["scorecard"], "--score", ids["score"], "--days", "7", "--format", "json",
             ),
         }
@@ -856,7 +856,7 @@ class DemoHarness:
             final_evaluation_id = self._run_evaluation(
                 "final-feedback",
                 (
-                    "plexus", "evaluate", "feedback", "--scorecard", ids["scorecard"], "--score",
+                    "primus", "evaluate", "feedback", "--scorecard", ids["scorecard"], "--score",
                     ids["score"], "--version", str(winning_version), "--days", "7", "--max-items",
                     "100", "--sampling-mode", "newest", "--baseline",
                     str(self.manifest.metadata["feedback_evaluation_id"]), "--notes",
@@ -916,7 +916,7 @@ class DemoHarness:
 
         listed = self.runner.run(
             self._worker_command(
-                "plexus", "procedure", "list", "--account", "local-demo", "--scorecard",
+                "primus", "procedure", "list", "--account", "local-demo", "--scorecard",
                 ids["scorecard"], "--limit", "100", "--output", "json",
             ),
             timeout=300,
@@ -934,7 +934,7 @@ class DemoHarness:
         procedure_id = str(procedure_items[0].get("id") or "")
         summary_result = self.runner.run(
             self._worker_command(
-                "plexus", "procedure", "optimizer-summary", procedure_id, "--output", "json"
+                "primus", "procedure", "optimizer-summary", procedure_id, "--output", "json"
             ),
             timeout=300,
         )
@@ -943,9 +943,9 @@ class DemoHarness:
 
         code = (
             "import json,sys;"
-            "from plexus.dashboard.api.client import PlexusDashboardClient;"
-            "from plexus.cli.shared.task_output_storage import download_task_output_artifact;"
-            "client=PlexusDashboardClient();"
+            "from primus.dashboard.api.client import PrimusDashboardClient;"
+            "from primus.cli.shared.task_output_storage import download_task_output_artifact;"
+            "client=PrimusDashboardClient();"
             "task=(client.execute('query DemoTask($id: ID!){getTask(id:$id){id output}}',{'id':sys.argv[1]}).get('getTask') or {});"
             "payload=json.loads(download_task_output_artifact(task_id=sys.argv[1],compact_output=task.get('output'),client=client));"
             "result=payload.get('result') or {};"
@@ -1296,7 +1296,7 @@ class DemoHarness:
         services = self._json_command(
             (
                 "kubectl", "get", "svc", "-A", "-l",
-                "gateway.envoyproxy.io/owning-gateway-name=plexus-plexus-worker-gateway",
+                "gateway.envoyproxy.io/owning-gateway-name=primus-primus-worker-gateway",
                 "-o", "json",
             )
         )
@@ -1358,7 +1358,7 @@ def optimizer_cli_command(manifest: DemoManifest, ids: Mapping[str, str]) -> lis
     if not recent_baseline_id or not regression_baseline_id:
         raise DemoFailure("optimizer requires both verified baseline evaluation IDs")
     return [
-        "plexus", "procedure", "optimize", "--scorecard", ids["scorecard"], "--score",
+        "primus", "procedure", "optimize", "--scorecard", ids["scorecard"], "--score",
         ids["score"], "--days", "7", "--max-samples", "100", "--max-iterations",
         str(manifest.max_iterations), "--num-candidates", "1", "--max-cost-usd",
         str(manifest.max_cost_usd), "--improvement-threshold", "0.05",
@@ -1391,7 +1391,7 @@ def feedback_evaluation_cli_command(
         return value.isoformat(timespec="seconds").replace("+00:00", "Z")
 
     return [
-        "plexus", "evaluate", "feedback", "--scorecard", ids["scorecard"],
+        "primus", "evaluate", "feedback", "--scorecard", ids["scorecard"],
         "--score", ids["score"], "--version", ids["version"], "--days", "7",
         "--max-items", "100", "--sampling-mode", "newest",
         "--feedback-start-at", iso_z(start_at), "--feedback-end-at", iso_z(end_at),

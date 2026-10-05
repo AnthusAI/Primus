@@ -1,0 +1,39 @@
+---
+description: About the MCP server for enabling AI agents to use Primus.
+globs:
+alwaysApply: false
+---
+# Primus MCP
+
+Primus exposes a single MCP tool: **`execute_tactus`**. Everything an
+agent does inside Primus happens through that tool, including
+discovering APIs and loading documentation.
+
+```lua
+-- Discover available namespaces.
+return primus.api.list({})
+
+-- List documentation topics with metadata summaries.
+return primus.docs.list({})
+
+-- Get a topic by canonical id.
+return primus.docs.get({ key = "mcp.execute-tactus-overview" })
+```
+
+## Where to read more
+
+- Top-level rules and Git Flow: [`AGENTS.md`](mdc:AGENTS.md)
+- The Way and Kanbus rituals: [`CONTRIBUTING_AGENT.md`](mdc:CONTRIBUTING_AGENT.md)
+- Server install and local harness: [`MCP/README.md`](mdc:MCP/README.md)
+- Agent documentation namespaces and audit:
+  [`documentation/agent-doc-audit.md`](mdc:documentation/agent-doc-audit.md)
+- Canonical agent docs: [`documentation/agent/`](mdc:documentation/agent)
+
+## Notes
+
+- There is one canonical lookup model. Documentation ids are namespaced
+  (for example `mcp.execute-tactus-overview`). There is no legacy
+  stem-only fallback.
+- Do not invent new MCP tools. The server only registers
+  `execute_tactus`. Older multi-tool names like `mcp__Primus__*` and
+  `get_primus_documentation` no longer exist.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only scanner for sensitive client references in the Plexus repo."""
+"""Read-only scanner for sensitive client references in the Primus repo."""
 
 from __future__ import annotations
 

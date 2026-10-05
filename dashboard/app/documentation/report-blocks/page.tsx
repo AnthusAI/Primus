@@ -13,7 +13,7 @@ export default function ReportBlocksPage() {
         <h1 className="text-3xl font-bold">Report Blocks</h1>
         <p className="max-w-3xl text-lg leading-relaxed text-muted-foreground">
           Report blocks are reusable analysis components that generate metrics, charts,
-          review queues, and supporting context for Plexus reports. These pages show how
+          review queues, and supporting context for Primus reports. These pages show how
           to run each report, configure it, and interpret the rendered dashboard block.
         </p>
       </div>
@@ -29,11 +29,11 @@ export default function ReportBlocksPage() {
         <CardContent className="space-y-4">
           <pre className="overflow-x-auto rounded-lg bg-muted p-4 text-xs">
             <code>{`# Direct one-off report
-plexus feedback report alignment --scorecard "Customer Service QA" --score "Medication Review: Dosage" --days 30
+primus feedback report alignment --scorecard "Customer Service QA" --score "Medication Review: Dosage" --days 30
 
 # Reusable report configuration
-plexus report config create --name "Dosage Feedback Overview" --file dosage-report.md
-plexus report run --config "Dosage Feedback Overview"`}</code>
+primus report config create --name "Dosage Feedback Overview" --file dosage-report.md
+primus report run --config "Dosage Feedback Overview"`}</code>
           </pre>
           <p className="text-sm text-muted-foreground">
             `FeedbackAnalysis` is still accepted as an alias for `FeedbackAlignment`; new

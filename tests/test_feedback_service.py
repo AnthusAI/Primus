@@ -5,14 +5,14 @@ Tests for the FeedbackService.
 import pytest
 from unittest.mock import Mock, AsyncMock, patch
 
-from plexus.cli.feedback.feedback_service import (
+from primus.cli.feedback.feedback_service import (
     FeedbackService, 
     FeedbackItemSummary,
     FeedbackSearchContext,
     FeedbackSearchResult,
     FeedbackSummaryResult
 )
-from plexus.dashboard.api.models.feedback_item import FeedbackItem
+from primus.dashboard.api.models.feedback_item import FeedbackItem
 
 
 class TestFeedbackItemSummary:
@@ -260,7 +260,7 @@ class TestFeedbackService:
         assert len(result["class_distribution"]) == 2  # Yes and No
         assert len(result["predicted_class_distribution"]) == 2
     
-    @patch('plexus.analysis.feedback_analyzer.GwetAC1')
+    @patch('primus.analysis.feedback_analyzer.GwetAC1')
     def test_analyze_feedback_items_ac1_calculation(self, mock_gwet_class):
         """Test AC1 calculation integration."""
         # Mock the GwetAC1 calculator to return perfect agreement
@@ -456,7 +456,7 @@ class TestFeedbackServiceTimeWindow:
         """Test that feedback items created very recently are found due to time buffer."""
         from datetime import datetime, timezone, timedelta
         from unittest.mock import Mock, patch
-        from plexus.cli.feedback.feedback_service import FeedbackService
+        from primus.cli.feedback.feedback_service import FeedbackService
         
         # Create a simple mock client that returns feedback items
         mock_client = Mock()
@@ -471,7 +471,7 @@ class TestFeedbackServiceTimeWindow:
         mock_feedback_obj.isInvalid = False
         
         # Mock FeedbackItem.list to return the mock object directly
-        with patch('plexus.dashboard.api.models.feedback_item.FeedbackItem.list') as mock_list:
+        with patch('primus.dashboard.api.models.feedback_item.FeedbackItem.list') as mock_list:
             mock_list.return_value = ([mock_feedback_obj], None)
             
             # Test the feedback search
@@ -498,7 +498,7 @@ class TestFeedbackServiceTimeWindow:
     async def test_time_window_buffer_prevents_missing_items(self):
         """Test that the 5-minute buffer prevents missing items created during query execution."""
         from unittest.mock import Mock, patch
-        from plexus.cli.feedback.feedback_service import FeedbackService
+        from primus.cli.feedback.feedback_service import FeedbackService
         
         # Create a simple mock client
         mock_client = Mock()
@@ -512,7 +512,7 @@ class TestFeedbackServiceTimeWindow:
         mock_feedback_obj.isInvalid = False
         
         # Mock FeedbackItem.list to return the mock object directly
-        with patch('plexus.dashboard.api.models.feedback_item.FeedbackItem.list') as mock_list:
+        with patch('primus.dashboard.api.models.feedback_item.FeedbackItem.list') as mock_list:
             mock_list.return_value = ([mock_feedback_obj], None)
             
             # Test the feedback search
@@ -537,13 +537,13 @@ class TestFeedbackServiceTimeWindow:
     async def test_time_calculation_includes_buffer(self):
         """Test that the time calculation properly includes the 5-minute buffer."""
         from unittest.mock import Mock, patch
-        from plexus.cli.feedback.feedback_service import FeedbackService
+        from primus.cli.feedback.feedback_service import FeedbackService
         
         # Create a simple mock client
         mock_client = Mock()
         
         # Mock FeedbackItem.list to verify the time calculation
-        with patch('plexus.dashboard.api.models.feedback_item.FeedbackItem.list') as mock_list:
+        with patch('primus.dashboard.api.models.feedback_item.FeedbackItem.list') as mock_list:
             mock_list.return_value = ([], None)  # Empty result for simplicity
             
             # Test the feedback search with a 7-day window

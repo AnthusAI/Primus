@@ -9,7 +9,7 @@ to CLI evaluation command processing with proper Score ID resolution.
 import pytest
 import uuid
 from unittest.mock import Mock, patch
-from plexus.Scorecard import Scorecard
+from primus.Scorecard import Scorecard
 
 
 class TestScoreIdIntegration:
@@ -93,7 +93,7 @@ data:
         assert score_config['originalExternalId'] == self.external_id
         
         # Step 3: Simulate CLI evaluation command processing
-        # User runs: plexus evaluate accuracy --scorecard example-scorecard --score 45925
+        # User runs: primus evaluate accuracy --scorecard example-scorecard --score 45925
         primary_score_identifier = self.external_id  # CLI input "45925"
         
         # Step 4: CLI matching logic (as implemented in EvaluationCommands.py)

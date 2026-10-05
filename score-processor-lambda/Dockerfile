@@ -15,10 +15,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /var/task
 
-# Copy repository so Plexus can be installed directly from pyproject.toml.
+# Copy repository so Primus can be installed directly from pyproject.toml.
 COPY . /workspace
 
-# Install Plexus and Lambda runtime interface client.
+# Install Primus and Lambda runtime interface client.
 RUN python -m pip install --upgrade pip && \
     python -m pip install --no-cache-dir -e "/workspace[all]" && \
     python -m pip install --no-cache-dir awslambdaric

@@ -20,7 +20,7 @@ def test(context):
 
 @task
 def docs(context):
-    context.run("poetry run sphinx-apidoc --separate -o documentation/source plexus " \
+    context.run("poetry run sphinx-apidoc --separate -o documentation/source primus " \
                "\"**/*_test*.*\" -f -M")
     context.run("poetry run sphinx-build documentation/source documentation")
 

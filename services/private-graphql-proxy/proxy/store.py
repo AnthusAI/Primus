@@ -27,15 +27,15 @@ def iso_now() -> str:
 
 def scoring_job_claim_lease_seconds() -> int:
     """Return the configured stale-claim lease for synchronous scoring jobs."""
-    raw_value = os.getenv("PLEXUS_SCORING_JOB_CLAIM_LEASE_SECONDS", "120")
+    raw_value = os.getenv("PRIMUS_SCORING_JOB_CLAIM_LEASE_SECONDS", "120")
     try:
         lease_seconds = int(raw_value)
     except ValueError as exc:
         raise ValueError(
-            "PLEXUS_SCORING_JOB_CLAIM_LEASE_SECONDS must be a positive integer"
+            "PRIMUS_SCORING_JOB_CLAIM_LEASE_SECONDS must be a positive integer"
         ) from exc
     if lease_seconds <= 0:
-        raise ValueError("PLEXUS_SCORING_JOB_CLAIM_LEASE_SECONDS must be a positive integer")
+        raise ValueError("PRIMUS_SCORING_JOB_CLAIM_LEASE_SECONDS must be a positive integer")
     return lease_seconds
 
 
@@ -718,7 +718,7 @@ class PostgresStore:
 
     def _uses_local_model_store(self, model: str) -> bool:
         return (
-            os.getenv("PLEXUS_BACKEND_MODE", "amplify") == "local"
+            os.getenv("PRIMUS_BACKEND_MODE", "amplify") == "local"
             or model in configured_local_models()
             or model not in MODEL_CONFIGS
         )

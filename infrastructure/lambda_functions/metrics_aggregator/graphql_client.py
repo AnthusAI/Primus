@@ -15,7 +15,7 @@ from botocore.awsrequest import AWSRequest
 
 
 class GraphQLClient:
-    """Client for interacting with the Plexus GraphQL API."""
+    """Client for interacting with the Primus GraphQL API."""
     
     def __init__(self, endpoint: str):
         """
@@ -343,7 +343,7 @@ def get_client_from_env() -> GraphQLClient:
     """
     Create a GraphQL client from environment variables.
     
-    Looks for PLEXUS_API_URL (developer .env format)
+    Looks for PRIMUS_API_URL (developer .env format)
     or GRAPHQL_ENDPOINT (Lambda environment format).
     
     Returns:
@@ -353,11 +353,11 @@ def get_client_from_env() -> GraphQLClient:
         ValueError: If required environment variables are missing
     """
     # Try developer .env format first
-    endpoint = os.environ.get('PLEXUS_API_URL') or os.environ.get('GRAPHQL_ENDPOINT')
+    endpoint = os.environ.get('PRIMUS_API_URL') or os.environ.get('GRAPHQL_ENDPOINT')
     
     if not endpoint:
         raise ValueError(
-            "GraphQL endpoint not found. Set PLEXUS_API_URL or GRAPHQL_ENDPOINT environment variable."
+            "GraphQL endpoint not found. Set PRIMUS_API_URL or GRAPHQL_ENDPOINT environment variable."
         )
     
     return GraphQLClient(endpoint)

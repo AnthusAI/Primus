@@ -1,7 +1,7 @@
 ---
 id: score-authoring.dataset-yaml-format
 title: Dataset YAML Format
-summary: Authoring reference for Plexus dataset YAML configurations.
+summary: Authoring reference for Primus dataset YAML configurations.
 namespace: score-authoring
 status: canonical
 disclosure: reference
@@ -10,11 +10,11 @@ tags: [dataset, yaml, authoring]
 related:
   - score-authoring.score-yaml-format
 ---
-# Plexus Dataset Configuration YAML Format Documentation
+# Primus Dataset Configuration YAML Format Documentation
 
 ## Core Concepts
 
-A **Dataset** configuration defines how to retrieve and prepare data for training and evaluation in Plexus. The CallCriteriaDBCache class provides flexible data loading from the Call Criteria database using two main approaches: **queries** for database searches and **searches** for working with specific lists of IDs.
+A **Dataset** configuration defines how to retrieve and prepare data for training and evaluation in Primus. The CallCriteriaDBCache class provides flexible data loading from the Call Criteria database using two main approaches: **queries** for database searches and **searches** for working with specific lists of IDs.
 
 ## Basic Structure
 

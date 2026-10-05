@@ -37,7 +37,7 @@ const alerts = [
   { id: 6, message: "DNC request detected", source: "CS3 Services v2", date: relativeDate(0, 3, 0), status: "actions...", severity: "medium" },
   { id: 7, message: "Agent gave legal advice", source: "AW IB Sales", date: relativeDate(0, 4, 0), status: "actions...", severity: "high" },
   { id: 8, message: "No new data in the last 24 hours", source: "System", date: relativeDate(1, 0, 0), status: "resolved", severity: "low" },
-  { id: 9, message: "Exception from Plexus processing: NullPointerException at line 237", source: "System", date: relativeDate(2, 0, 0), status: "resolved", severity: "critical" },
+  { id: 9, message: "Exception from Primus processing: NullPointerException at line 237", source: "System", date: relativeDate(2, 0, 0), status: "resolved", severity: "critical" },
   { id: 10, message: "Compliance training overdue for multiple agents", source: "Example Scorecard", date: relativeDate(3, 0, 0), status: "resolved", severity: "medium" },
   { id: 11, message: "Unusual spike in refund requests", source: "Example Scorecard", date: relativeDate(4, 0, 0), status: "resolved", severity: "high" },
   { id: 12, message: "Agent provided incorrect product information", source: "Example Scorecard", date: relativeDate(5, 0, 0), status: "resolved", severity: "medium" },

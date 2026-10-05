@@ -13,7 +13,7 @@ case "$environment" in
   *) exit 0 ;;
 esac
 
-prefix="${PLEXUS_SERVICE_PREFIX:-plexus}"
+prefix="${PRIMUS_SERVICE_PREFIX:-primus}"
 parameter="/${prefix}/${environment}/command-service/worker-image-repository-uri"
 repository_uri="$(aws ssm get-parameter --name "$parameter" --query 'Parameter.Value' --output text)"
 if [[ ! "$repository_uri" =~ ^[^[:space:]@]+/[^[:space:]@]+$ ]]; then
@@ -22,17 +22,17 @@ if [[ ! "$repository_uri" =~ ^[^[:space:]@]+/[^[:space:]@]+$ ]]; then
 fi
 # The task definition changes only when the worker runtime inputs change. A
 # general dashboard commit must not replace an ECS task that is protecting an
-# active command. The Dockerfile copies the entire plexus package, so every
+# active command. The Dockerfile copies the entire primus package, so every
 # copied file participates in the content address.
 worker_content_hash="$({
-  printf '%s\n' plexus/command_worker/Dockerfile pyproject.toml poetry.lock
-  find plexus -type f -print
+  printf '%s\n' primus/command_worker/Dockerfile pyproject.toml poetry.lock
+  find primus -type f -print
 } | LC_ALL=C sort | while IFS= read -r file; do shasum -a 256 "$file"; done | shasum -a 256 | awk '{print $1}')"
 tag="worker-${worker_content_hash}"
 aws ecr get-login-password | docker login --username AWS --password-stdin "${repository_uri%%/*}"
 if ! aws ecr describe-images --repository-name "${repository_uri##*/}" --image-ids imageTag="$tag" >/dev/null 2>&1; then
   docker buildx build --platform linux/amd64 --provenance=false --push \
-    -f plexus/command_worker/Dockerfile -t "${repository_uri}:${tag}" .
+    -f primus/command_worker/Dockerfile -t "${repository_uri}:${tag}" .
 fi
 digest="$(aws ecr describe-images --repository-name "${repository_uri##*/}" --image-ids imageTag="$tag" --query 'imageDetails[0].imageDigest' --output text)"
 if [[ ! "$digest" =~ ^sha256:[a-f0-9]{64}$ ]]; then
@@ -136,8 +136,8 @@ EOF
   fi
 fi
 {
-  printf 'export PLEXUS_COMMAND_WORKER_FOUNDATION_REPOSITORY_URI=%q\n' "$repository_uri"
-  printf 'export PLEXUS_COMMAND_WORKER_IMAGE_URI=%q\n' "$selected_image_uri"
-  printf 'export PLEXUS_COMMAND_WORKER_IMAGE_CONTENT_HASH=%q\n' "$worker_content_hash"
-  printf 'export PLEXUS_COMMAND_WORKER_IMAGE_REPLACEMENT_DEFERRED=%q\n' "$replacement_deferred"
+  printf 'export PRIMUS_COMMAND_WORKER_FOUNDATION_REPOSITORY_URI=%q\n' "$repository_uri"
+  printf 'export PRIMUS_COMMAND_WORKER_IMAGE_URI=%q\n' "$selected_image_uri"
+  printf 'export PRIMUS_COMMAND_WORKER_IMAGE_CONTENT_HASH=%q\n' "$worker_content_hash"
+  printf 'export PRIMUS_COMMAND_WORKER_IMAGE_REPLACEMENT_DEFERRED=%q\n' "$replacement_deferred"
 } > "$handoff_file"

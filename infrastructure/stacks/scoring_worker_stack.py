@@ -1,5 +1,5 @@
 """
-Stack for Plexus scoring worker resources.
+Stack for Primus scoring worker resources.
 
 This stack manages the infrastructure needed for scoring workers,
 including SQS queues and related resources.
@@ -21,7 +21,7 @@ class ScoringWorkerStack(Stack):
     """
     CDK Stack for scoring worker resources.
 
-    Creates environment-specific resources for the Plexus scoring worker system.
+    Creates environment-specific resources for the Primus scoring worker system.
     """
 
     def __init__(
@@ -128,7 +128,7 @@ class ScoringWorkerStack(Stack):
                 "ServiceName": {
                     "type": "String",
                     "description": "Name of the systemd service.",
-                    "default": "plexus-scoring-worker.service"
+                    "default": "primus-scoring-worker.service"
                 },
                 "ServiceUser": {
                     "type": "String",
@@ -143,7 +143,7 @@ class ScoringWorkerStack(Stack):
                 "WorkingDirectory": {
                     "type": "String",
                     "description": "Absolute path to the working directory for the service.",
-                    "default": "/home/ec2-user/projects/Plexus"
+                    "default": "/home/ec2-user/projects/Primus"
                 },
                 "ScoringRequestQueueUrl": {
                     "type": "String",
@@ -155,9 +155,9 @@ class ScoringWorkerStack(Stack):
                     "description": "SQS queue URL for scoring responses.",
                     "default": self.response_queue.queue_url
                 },
-                "PlexusAccountKey": {
+                "PrimusAccountKey": {
                     "type": "String",
-                    "description": "Plexus account key for authentication.",
+                    "description": "Primus account key for authentication.",
                     "default": "CHANGE_ME"
                 },
                 "NumWorkers": {
@@ -180,22 +180,22 @@ class ScoringWorkerStack(Stack):
                             # Create the systemd service file
                             "cat << 'EOF' | tee /etc/systemd/system/{{ ServiceName }} > /dev/null",
                             "[Unit]",
-                            "Description=Plexus Scoring Worker Service (Managed by SSM)",
+                            "Description=Primus Scoring Worker Service (Managed by SSM)",
                             "After=network.target",
                             "",
                             "[Service]",
                             "User={{ ServiceUser }}",
                             "Group={{ ServiceGroup }}",
                             "WorkingDirectory={{ WorkingDirectory }}",
-                            "ExecStart=/home/ec2-user/miniconda3/envs/py311/bin/python -m plexus.workers.ProcessScoreWorker",
+                            "ExecStart=/home/ec2-user/miniconda3/envs/py311/bin/python -m primus.workers.ProcessScoreWorker",
                             "Restart=on-failure",
                             "RestartSec=5s",
                             "StandardOutput=journal",
                             "StandardError=journal",
                             "Environment=PYTHONPATH={{ WorkingDirectory }}",
-                            "Environment=PLEXUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL={{ ScoringRequestQueueUrl }}",
-                            "Environment=PLEXUS_RESPONSE_WORKER_QUEUE_URL={{ ScoringResponseQueueUrl }}",
-                            "Environment=PLEXUS_ACCOUNT_KEY={{ PlexusAccountKey }}",
+                            "Environment=PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL={{ ScoringRequestQueueUrl }}",
+                            "Environment=PRIMUS_RESPONSE_WORKER_QUEUE_URL={{ ScoringResponseQueueUrl }}",
+                            "Environment=PRIMUS_ACCOUNT_KEY={{ PrimusAccountKey }}",
                             "Environment=NUM_WORKERS={{ NumWorkers }}",
                             "",
                             "[Install]",

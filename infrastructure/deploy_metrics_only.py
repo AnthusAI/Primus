@@ -35,9 +35,9 @@ print(f"Deploying to region: {region}")
 # Deploy just the metrics aggregation stack for production
 MetricsAggregationStack(
     app,
-    "plexus-metrics-aggregation-production",
+    "primus-metrics-aggregation-production",
     environment="production",
-    stack_name="plexus-metrics-aggregation-production",
+    stack_name="primus-metrics-aggregation-production",
     env=env
 )
 

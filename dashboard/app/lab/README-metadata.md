@@ -1,15 +1,15 @@
 # Lab Routes Metadata Customization
 
-This document explains how to customize the metadata (title, description) for lab routes in the Plexus dashboard.
+This document explains how to customize the metadata (title, description) for lab routes in the Primus dashboard.
 
 ## Overview
 
-By default, all pages in the Plexus dashboard use the global metadata defined in `dashboard/app/layout.tsx`:
+By default, all pages in the Primus dashboard use the global metadata defined in `dashboard/app/layout.tsx`:
 
 ```typescript
 export const metadata: Metadata = {
-  title: "Plexus - No-Code AI Agents at Scale",
-  description: "Run AI agents over your data with no code. Plexus is a powerful platform for building agent-based AI workflows that analyze streams of content and take action.",
+  title: "Primus - No-Code AI Agents at Scale",
+  description: "Run AI agents over your data with no code. Primus is a powerful platform for building agent-based AI workflows that analyze streams of content and take action.",
   // ...
 }
 ```

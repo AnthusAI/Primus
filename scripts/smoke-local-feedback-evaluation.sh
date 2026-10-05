@@ -2,9 +2,9 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-export PLEXUS_API_URL="${PLEXUS_API_URL:-http://localhost:18080/graphql}"
-export PLEXUS_API_KEY="${PLEXUS_API_KEY:-local-smoke-key}"
-export PLEXUS_ACCOUNT_KEY="${PLEXUS_ACCOUNT_KEY:-local-demo}"
+export PRIMUS_API_URL="${PRIMUS_API_URL:-http://localhost:18080/graphql}"
+export PRIMUS_API_KEY="${PRIMUS_API_KEY:-local-smoke-key}"
+export PRIMUS_ACCOUNT_KEY="${PRIMUS_ACCOUNT_KEY:-local-demo}"
 export SMOKE_PROOF_DIR="${SMOKE_PROOF_DIR:-$ROOT_DIR/tmp/local-control-plane-proof}"
 export SMOKE_FEEDBACK_PROOF_FILE="${SMOKE_FEEDBACK_PROOF_FILE:-$SMOKE_PROOF_DIR/feedback-evaluation.json}"
 export SMOKE_FEEDBACK_MAX_ITEMS="${SMOKE_FEEDBACK_MAX_ITEMS:-200}"
@@ -37,7 +37,7 @@ run_step() {
 }
 
 wait_for_readyz() {
-  local ready_url="${PLEXUS_API_URL%/graphql}/readyz"
+  local ready_url="${PRIMUS_API_URL%/graphql}/readyz"
   local i
 
   for ((i = 1; i <= SMOKE_READY_ATTEMPTS; i++)); do
@@ -101,9 +101,9 @@ PY
   )"
 
   local payload
-  payload="$(curl -fsS -m 15 "$PLEXUS_API_URL" \
+  payload="$(curl -fsS -m 15 "$PRIMUS_API_URL" \
     -H 'content-type: application/json' \
-    -H "x-api-key: $PLEXUS_API_KEY" \
+    -H "x-api-key: $PRIMUS_API_KEY" \
     --data "$body" 2>/dev/null || true)"
 
   [[ -n "$payload" ]] || return 1
@@ -146,7 +146,7 @@ subprocess.run([sys.executable, "-m", "pip", "install", "griffe==1.15.0"], check
 
 for _ in range(24):
     try:
-        importlib.import_module("plexus.cli.evaluation.evaluations")
+        importlib.import_module("primus.cli.evaluation.evaluations")
         break
     except ModuleNotFoundError as exc:
         module_name = (exc.name or "").split(".")[0]
@@ -177,11 +177,11 @@ from contextlib import redirect_stdout
 
 import requests
 
-from plexus.cli.evaluation.evaluations import evaluate
+from primus.cli.evaluation.evaluations import evaluate
 
-api_url = os.environ["PLEXUS_API_URL"]
-api_key = os.environ["PLEXUS_API_KEY"]
-account_key = os.environ["PLEXUS_ACCOUNT_KEY"]
+api_url = os.environ["PRIMUS_API_URL"]
+api_key = os.environ["PRIMUS_API_KEY"]
+account_key = os.environ["PRIMUS_ACCOUNT_KEY"]
 scorecard = os.environ["SMOKE_FEEDBACK_SCORECARD"]
 score = os.environ["SMOKE_FEEDBACK_SCORE"]
 score_version_id = os.environ["SMOKE_FEEDBACK_SCORE_VERSION"]
@@ -219,7 +219,7 @@ try:
         )
 except Exception as exc:
     raise SystemExit(
-        "plexus evaluate feedback failed\n"
+        "primus evaluate feedback failed\n"
         f"error: {exc}\n"
         f"stdout:\n{evaluation_stdout.getvalue()}"
     ) from exc
@@ -370,7 +370,7 @@ assert_no_upstream_requests() {
     return 0
   fi
 
-  local debug_url="${PLEXUS_API_URL%/graphql}/debug/upstream-requests"
+  local debug_url="${PRIMUS_API_URL%/graphql}/debug/upstream-requests"
   local payload
   payload="$(curl -fsS -m 10 "$debug_url")"
   python3 -c '

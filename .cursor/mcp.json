@@ -1,17 +1,17 @@
 {
   "mcpServers": {
-    "plexus": {
-      "command": "/Users/ryan.porter/Projects/Plexus/.venv/bin/python",
+    "primus": {
+      "command": "/Users/ryan.porter/Projects/Primus/.venv/bin/python",
       "args": [
-        "/Users/ryan.porter/Projects/Plexus/MCP/plexus_fastmcp_wrapper.py",
+        "/Users/ryan.porter/Projects/Primus/MCP/primus_fastmcp_wrapper.py",
         "--target-cwd",
-        "/Users/ryan.porter/Projects/Plexus",
+        "/Users/ryan.porter/Projects/Primus",
         "--transport",
         "stdio"
       ],
       "env": {
         "PYTHONUNBUFFERED": "1",
-        "PYTHONPATH": "/Users/ryan.porter/Projects/Plexus"
+        "PYTHONPATH": "/Users/ryan.porter/Projects/Primus"
       }
     }
   }

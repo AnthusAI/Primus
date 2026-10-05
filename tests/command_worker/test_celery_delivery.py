@@ -6,8 +6,8 @@ import pytest
 from celery import Celery
 from celery.exceptions import Reject
 
-from plexus.command_worker import Claim, ClaimStatus, CommandEnvelope
-from plexus.command_worker.adapters.celery_delivery import (
+from primus.command_worker import Claim, ClaimStatus, CommandEnvelope
+from primus.command_worker.adapters.celery_delivery import (
     register_portable_command_task,
 )
 
@@ -71,7 +71,7 @@ def register(*, lifecycle=None, executor=None):
     app = Celery("portable-command-test")
     task = register_portable_command_task(
         app,
-        task_name="plexus.portable.execute_command",
+        task_name="primus.portable.execute_command",
         lifecycle=lifecycle or Lifecycle(),
         executor=executor or Executor(),
         clock=Clock(),
@@ -84,7 +84,7 @@ def register(*, lifecycle=None, executor=None):
 def test_registered_task_uses_late_ack_and_worker_loss_rejection() -> None:
     task = register()
 
-    assert task.name == "plexus.portable.execute_command"
+    assert task.name == "primus.portable.execute_command"
     assert task.acks_late is True
     assert task.reject_on_worker_lost is True
     assert task.task_acks_on_failure_or_timeout is False

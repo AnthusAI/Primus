@@ -9,9 +9,9 @@ from pathlib import Path
 import re
 from types import SimpleNamespace
 
-from plexus.cli.procedure.tactus_adapters.storage import PlexusStorageAdapter
-from plexus.dashboard.api.models.procedure import Procedure
-from plexus.storage.graphql_artifact_store import GraphQLArtifactStore
+from primus.cli.procedure.tactus_adapters.storage import PrimusStorageAdapter
+from primus.dashboard.api.models.procedure import Procedure
+from primus.storage.graphql_artifact_store import GraphQLArtifactStore
 
 
 def _procedure_authority() -> set[str]:
@@ -100,7 +100,7 @@ def test_declared_procedure_authority_loads_procedure_and_verified_state() -> No
 
     client = AuthorityClient()
     procedure = Procedure.get_by_id("procedure-1", client)
-    storage = PlexusStorageAdapter(
+    storage = PrimusStorageAdapter(
         client,
         procedure.id,
         artifact_store=GraphQLArtifactStore(client, http_session=HTTPSession()),

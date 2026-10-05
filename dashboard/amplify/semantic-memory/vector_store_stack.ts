@@ -27,9 +27,9 @@ export class TopicMemoryVectorStoreStack extends Stack {
     const isDevelopment = environmentName === 'development';
     const accountSuffix = Stack.of(this).account;
 
-    this.vectorBucketName = `plexus-vectors-${environmentName}-${accountSuffix}`;
+    this.vectorBucketName = `primus-vectors-${environmentName}-${accountSuffix}`;
     this.vectorIndexName = `topic-memory-idx-${environmentName}-${accountSuffix}`;
-    this.embeddingsBucketName = `plexus-embeddings-${environmentName}-${accountSuffix}`;
+    this.embeddingsBucketName = `primus-embeddings-${environmentName}-${accountSuffix}`;
 
     const vectorBucket = new CfnResource(this, 'TopicMemoryVectorBucket', {
       type: 'AWS::S3Vectors::VectorBucket',
@@ -65,31 +65,31 @@ export class TopicMemoryVectorStoreStack extends Stack {
     new CfnOutput(this, 'S3VectorBucketName', {
       value: this.vectorBucketName,
       description: 'S3 Vectors bucket for S3_VECTOR_BUCKET_NAME',
-      exportName: `PlexusS3VectorBucket-${environmentName}`,
+      exportName: `PrimusS3VectorBucket-${environmentName}`,
     });
 
     new CfnOutput(this, 'S3VectorBucketArn', {
       value: vectorBucket.getAtt('VectorBucketArn').toString(),
       description: 'S3 Vectors bucket ARN',
-      exportName: `PlexusS3VectorBucketArn-${environmentName}`,
+      exportName: `PrimusS3VectorBucketArn-${environmentName}`,
     });
 
     new CfnOutput(this, 'S3VectorIndexName', {
       value: this.vectorIndexName,
       description: 'S3 Vectors index name for S3_VECTOR_INDEX_NAME',
-      exportName: `PlexusS3VectorIndex-${environmentName}`,
+      exportName: `PrimusS3VectorIndex-${environmentName}`,
     });
 
     new CfnOutput(this, 'S3VectorIndexArn', {
       value: vectorIndex.getAtt('IndexArn').toString(),
       description: 'S3 Vectors index ARN for S3_VECTOR_INDEX_ARN (optional)',
-      exportName: `PlexusS3VectorIndexArn-${environmentName}`,
+      exportName: `PrimusS3VectorIndexArn-${environmentName}`,
     });
 
     new CfnOutput(this, 'EmbeddingsBucketName', {
       value: embeddingsBucket.bucketName,
       description: 'S3 bucket for EMBEDDING_CACHE_BUCKET',
-      exportName: `PlexusEmbeddingsBucket-${environmentName}`,
+      exportName: `PrimusEmbeddingsBucket-${environmentName}`,
     });
   }
 }

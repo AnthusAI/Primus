@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """One-shot migration helper for the agent documentation knowledge base.
 
-This script copies markdown content from the legacy ``plexus/docs/`` tree
+This script copies markdown content from the legacy ``primus/docs/`` tree
 (plus a couple of files in ``documentation/`` and ``docs/``) into the new
 ``documentation/agent/`` layout and prepends a YAML frontmatter block
 based on a static mapping table.
@@ -41,7 +41,7 @@ class Migration:
 MIGRATIONS: tuple[Migration, ...] = (
     # MCP / runtime
     Migration(
-        source="plexus/docs/overview.md",
+        source="primus/docs/overview.md",
         dest="documentation/agent/mcp/execute-tactus-overview.md",
         doc_id="mcp.execute-tactus-overview",
         title="execute_tactus Overview",
@@ -52,7 +52,7 @@ MIGRATIONS: tuple[Migration, ...] = (
         related=("mcp.discovery", "mcp.read-apis", "mcp.long-running-apis"),
     ),
     Migration(
-        source="plexus/docs/discovery.md",
+        source="primus/docs/discovery.md",
         dest="documentation/agent/mcp/discovery.md",
         doc_id="mcp.discovery",
         title="Discovery",
@@ -63,7 +63,7 @@ MIGRATIONS: tuple[Migration, ...] = (
         related=("mcp.execute-tactus-overview",),
     ),
     Migration(
-        source="plexus/docs/read-apis.md",
+        source="primus/docs/read-apis.md",
         dest="documentation/agent/mcp/read-apis.md",
         doc_id="mcp.read-apis",
         title="Read-only APIs",
@@ -74,7 +74,7 @@ MIGRATIONS: tuple[Migration, ...] = (
         related=("mcp.execute-tactus-overview", "mcp.long-running-apis"),
     ),
     Migration(
-        source="plexus/docs/long-running-apis.md",
+        source="primus/docs/long-running-apis.md",
         dest="documentation/agent/mcp/long-running-apis.md",
         doc_id="mcp.long-running-apis",
         title="Long-running APIs",
@@ -85,7 +85,7 @@ MIGRATIONS: tuple[Migration, ...] = (
         related=("mcp.handles-and-budgets", "mcp.handle-protocol"),
     ),
     Migration(
-        source="plexus/docs/handles-and-budgets.md",
+        source="primus/docs/handles-and-budgets.md",
         dest="documentation/agent/mcp/handles-and-budgets.md",
         doc_id="mcp.handles-and-budgets",
         title="Handles and Budgets",
@@ -108,29 +108,29 @@ MIGRATIONS: tuple[Migration, ...] = (
     ),
     # Score authoring
     Migration(
-        source="plexus/docs/score-and-dataset-authoring/score-yaml-format.md",
+        source="primus/docs/score-and-dataset-authoring/score-yaml-format.md",
         dest="documentation/agent/score-authoring/score-yaml-format.md",
         doc_id="score-authoring.score-yaml-format",
         title="Score YAML Format",
-        summary="Authoring reference for Plexus score YAML configurations.",
+        summary="Authoring reference for Primus score YAML configurations.",
         namespace="score-authoring",
         disclosure="reference",
         tags=("score", "yaml", "authoring"),
         related=("score-authoring.dataset-yaml-format", "score-authoring.rubric-memory"),
     ),
     Migration(
-        source="plexus/docs/score-and-dataset-authoring/dataset-yaml-format.md",
+        source="primus/docs/score-and-dataset-authoring/dataset-yaml-format.md",
         dest="documentation/agent/score-authoring/dataset-yaml-format.md",
         doc_id="score-authoring.dataset-yaml-format",
         title="Dataset YAML Format",
-        summary="Authoring reference for Plexus dataset YAML configurations.",
+        summary="Authoring reference for Primus dataset YAML configurations.",
         namespace="score-authoring",
         disclosure="reference",
         tags=("dataset", "yaml", "authoring"),
         related=("score-authoring.score-yaml-format",),
     ),
     Migration(
-        source="plexus/docs/score-and-dataset-authoring/rubric-memory.md",
+        source="primus/docs/score-and-dataset-authoring/rubric-memory.md",
         dest="documentation/agent/score-authoring/rubric-memory.md",
         doc_id="score-authoring.rubric-memory",
         title="Rubric Memory",
@@ -141,7 +141,7 @@ MIGRATIONS: tuple[Migration, ...] = (
         related=("score-authoring.rubric-consistency", "evaluation-feedback.optimizer-cookbook"),
     ),
     Migration(
-        source="plexus/docs/score-and-dataset-authoring/score-rubric-consistency.md",
+        source="primus/docs/score-and-dataset-authoring/score-rubric-consistency.md",
         dest="documentation/agent/score-authoring/rubric-consistency.md",
         doc_id="score-authoring.rubric-consistency",
         title="Score and Rubric Consistency",
@@ -156,7 +156,7 @@ MIGRATIONS: tuple[Migration, ...] = (
         dest="documentation/agent/score-authoring/classifier-interface.md",
         doc_id="score-authoring.classifier-interface",
         title="Classifier Interface Standard",
-        summary="Interface contract for Plexus classifiers.",
+        summary="Interface contract for Primus classifiers.",
         namespace="score-authoring",
         disclosure="reference",
         tags=("classifier", "interface"),
@@ -174,7 +174,7 @@ MIGRATIONS: tuple[Migration, ...] = (
     ),
     # Evaluation and feedback
     Migration(
-        source="plexus/docs/evaluation-and-feedback/feedback-alignment.md",
+        source="primus/docs/evaluation-and-feedback/feedback-alignment.md",
         dest="documentation/agent/evaluation-feedback/feedback-alignment.md",
         doc_id="evaluation-feedback.feedback-alignment",
         title="Feedback Alignment",
@@ -185,7 +185,7 @@ MIGRATIONS: tuple[Migration, ...] = (
         related=("evaluation-feedback.evaluation-alignment", "evaluation-feedback.acceptance-rate"),
     ),
     Migration(
-        source="plexus/docs/evaluation-and-feedback/evaluation-alignment.md",
+        source="primus/docs/evaluation-and-feedback/evaluation-alignment.md",
         dest="documentation/agent/evaluation-feedback/evaluation-alignment.md",
         doc_id="evaluation-feedback.evaluation-alignment",
         title="Evaluation Alignment",
@@ -196,7 +196,7 @@ MIGRATIONS: tuple[Migration, ...] = (
         related=("evaluation-feedback.feedback-alignment",),
     ),
     Migration(
-        source="plexus/docs/evaluation-and-feedback/acceptance-rate.md",
+        source="primus/docs/evaluation-and-feedback/acceptance-rate.md",
         dest="documentation/agent/evaluation-feedback/acceptance-rate.md",
         doc_id="evaluation-feedback.acceptance-rate",
         title="Acceptance Rate",
@@ -206,7 +206,7 @@ MIGRATIONS: tuple[Migration, ...] = (
         tags=("acceptance-rate", "feedback"),
     ),
     Migration(
-        source="plexus/docs/evaluation-and-feedback/optimizer-cookbook.md",
+        source="primus/docs/evaluation-and-feedback/optimizer-cookbook.md",
         dest="documentation/agent/evaluation-feedback/optimizer-cookbook.md",
         doc_id="evaluation-feedback.optimizer-cookbook",
         title="Optimizer Cookbook",
@@ -221,7 +221,7 @@ MIGRATIONS: tuple[Migration, ...] = (
         ),
     ),
     Migration(
-        source="plexus/docs/evaluation-and-feedback/optimizer-cookbook-normal.md",
+        source="primus/docs/evaluation-and-feedback/optimizer-cookbook-normal.md",
         dest="documentation/agent/evaluation-feedback/optimizer-cookbook-normal.md",
         doc_id="evaluation-feedback.optimizer-cookbook-normal",
         title="Optimizer Cookbook (Normal)",
@@ -232,7 +232,7 @@ MIGRATIONS: tuple[Migration, ...] = (
         related=("evaluation-feedback.optimizer-cookbook",),
     ),
     Migration(
-        source="plexus/docs/evaluation-and-feedback/optimizer-cookbook-creative.md",
+        source="primus/docs/evaluation-and-feedback/optimizer-cookbook-creative.md",
         dest="documentation/agent/evaluation-feedback/optimizer-cookbook-creative.md",
         doc_id="evaluation-feedback.optimizer-cookbook-creative",
         title="Optimizer Cookbook (Creative)",
@@ -243,7 +243,7 @@ MIGRATIONS: tuple[Migration, ...] = (
         related=("evaluation-feedback.optimizer-cookbook",),
     ),
     Migration(
-        source="plexus/docs/evaluation-and-feedback/optimizer-cookbook-structural.md",
+        source="primus/docs/evaluation-and-feedback/optimizer-cookbook-structural.md",
         dest="documentation/agent/evaluation-feedback/optimizer-cookbook-structural.md",
         doc_id="evaluation-feedback.optimizer-cookbook-structural",
         title="Optimizer Cookbook (Structural)",
@@ -254,7 +254,7 @@ MIGRATIONS: tuple[Migration, ...] = (
         related=("evaluation-feedback.optimizer-cookbook",),
     ),
     Migration(
-        source="plexus/docs/evaluation-and-feedback/optimizer-procedures.md",
+        source="primus/docs/evaluation-and-feedback/optimizer-procedures.md",
         dest="documentation/agent/evaluation-feedback/optimizer-procedures.md",
         doc_id="evaluation-feedback.optimizer-procedures",
         title="Optimizer Procedures",
@@ -268,7 +268,7 @@ MIGRATIONS: tuple[Migration, ...] = (
         ),
     ),
     Migration(
-        source="plexus/docs/evaluation-and-feedback/optimizer-objective-alignment.md",
+        source="primus/docs/evaluation-and-feedback/optimizer-objective-alignment.md",
         dest="documentation/agent/evaluation-feedback/optimizer-objective-alignment.md",
         doc_id="evaluation-feedback.optimizer-objective-alignment",
         title="Optimizer Objective: Alignment",
@@ -278,7 +278,7 @@ MIGRATIONS: tuple[Migration, ...] = (
         tags=("optimizer", "objective", "alignment"),
     ),
     Migration(
-        source="plexus/docs/evaluation-and-feedback/optimizer-objective-precision.md",
+        source="primus/docs/evaluation-and-feedback/optimizer-objective-precision.md",
         dest="documentation/agent/evaluation-feedback/optimizer-objective-precision.md",
         doc_id="evaluation-feedback.optimizer-objective-precision",
         title="Optimizer Objective: Precision",
@@ -288,7 +288,7 @@ MIGRATIONS: tuple[Migration, ...] = (
         tags=("optimizer", "objective", "precision"),
     ),
     Migration(
-        source="plexus/docs/evaluation-and-feedback/optimizer-objective-recall.md",
+        source="primus/docs/evaluation-and-feedback/optimizer-objective-recall.md",
         dest="documentation/agent/evaluation-feedback/optimizer-objective-recall.md",
         doc_id="evaluation-feedback.optimizer-objective-recall",
         title="Optimizer Objective: Recall",
@@ -298,7 +298,7 @@ MIGRATIONS: tuple[Migration, ...] = (
         tags=("optimizer", "objective", "recall"),
     ),
     Migration(
-        source="plexus/docs/evaluation-and-feedback/optimizer-objective-cost.md",
+        source="primus/docs/evaluation-and-feedback/optimizer-objective-cost.md",
         dest="documentation/agent/evaluation-feedback/optimizer-objective-cost.md",
         doc_id="evaluation-feedback.optimizer-objective-cost",
         title="Optimizer Objective: Cost",
@@ -338,7 +338,7 @@ INDEX_FILES = {
     ),
     "score-authoring": (
         "Score and Dataset Authoring",
-        "How to author Plexus scores, datasets, classifiers, and processors.",
+        "How to author Primus scores, datasets, classifiers, and processors.",
     ),
     "evaluation-feedback": (
         "Evaluation and Feedback",
@@ -346,7 +346,7 @@ INDEX_FILES = {
     ),
     "procedures": (
         "Procedures",
-        "Authoring and running Plexus procedures.",
+        "Authoring and running Primus procedures.",
     ),
     "reports": (
         "Reports",
@@ -435,8 +435,8 @@ def migrate(repo_root: Path) -> None:
             f"# {title}\n\n"
             f"{summary}\n\n"
             "## Topics in this namespace\n\n"
-            "Use `plexus.docs.list({ namespace = \"" + namespace + "\" })` to list every topic, "
-            "then `plexus.docs.get({ key = \"<id>\" })` for the full doc.\n"
+            "Use `primus.docs.list({ namespace = \"" + namespace + "\" })` to list every topic, "
+            "then `primus.docs.get({ key = \"<id>\" })` for the full doc.\n"
         )
         path.write_text(_index_frontmatter(namespace, title, summary) + body, encoding="utf-8")
         print(f"wrote     {path.relative_to(repo_root)}")

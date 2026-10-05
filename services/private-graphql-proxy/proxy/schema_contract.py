@@ -72,7 +72,7 @@ class SchemaContract:
         backend_mode: Optional[str] = None,
         local_models: Optional[set[str]] = None,
     ) -> RootClassification:
-        mode = backend_mode or os.getenv("PLEXUS_BACKEND_MODE", "amplify")
+        mode = backend_mode or os.getenv("PRIMUS_BACKEND_MODE", "amplify")
         active_local_models = local_models if local_models is not None else configured_local_models()
 
         if root_name == "claimScoringJob" and mode == "local" and operation_type == "mutation":
@@ -221,14 +221,14 @@ class SchemaContract:
 
 
 def configured_local_models() -> set[str]:
-    configured = os.getenv("PLEXUS_PROXY_LOCAL_MODELS")
+    configured = os.getenv("PRIMUS_PROXY_LOCAL_MODELS")
     if not configured:
         return set(DEFAULT_LOCAL_MODELS)
     return {model.strip() for model in configured.split(",") if model.strip()}
 
 
 def schema_contract_dir() -> Path:
-    configured = os.getenv("PLEXUS_SCHEMA_CONTRACT_DIR")
+    configured = os.getenv("PRIMUS_SCHEMA_CONTRACT_DIR")
     if configured:
         return Path(configured)
     return Path(__file__).resolve().parents[1] / "schema"

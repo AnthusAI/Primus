@@ -17,7 +17,7 @@ related:
 
 Common patterns for scorecard-wide feedback analysis and optimization workflows.
 
-**IMPORTANT**: `plexus.procedure.optimize_batch` is limited to **5 scores maximum** per call.
+**IMPORTANT**: `primus.procedure.optimize_batch` is limited to **5 scores maximum** per call.
 Each optimizer consumes 1-2GB RAM during execution. For larger batches, process in sequential
 groups of 5.
 
@@ -33,12 +33,12 @@ batch result in Lua, and return coverage evidence instead of the raw batch paylo
 local token, pages, scorecard_ids = nil, 0, {}
 repeat
   local ok, page = pcall(function()
-    return plexus.scorecards.list({ return_metadata = true, next_token = token })
+    return primus.scorecards.list({ return_metadata = true, next_token = token })
   end)
   if ok and page == nil then ok = false end
   if not ok then
     ok, page = pcall(function()
-      return plexus.scorecards.list({ return_metadata = true, next_token = token })
+      return primus.scorecards.list({ return_metadata = true, next_token = token })
     end)
   end
   if ok and page == nil then ok = false end
@@ -66,7 +66,7 @@ if #scorecard_ids == 0 then
   }
 end
 
-local analysis = plexus.feedback.alignment_batch({
+local analysis = primus.feedback.alignment_batch({
   scorecards = scorecard_ids,
   days = 14,
 })
@@ -135,7 +135,7 @@ Identify underperforming scores and dispatch optimizers (up to 5 at once).
 
 ```lua
 -- Step 1: Get all scores below 90% accuracy
-local alignment = plexus.feedback.alignment_batch({
+local alignment = primus.feedback.alignment_batch({
   scorecard = "My Scorecard",
   days = 90,
   accuracy_threshold = 90,
@@ -150,7 +150,7 @@ for _, s in ipairs(alignment.scores) do
 end
 
 -- Step 3: Dispatch optimizers
-local dispatch = plexus.procedure.optimize_batch({
+local dispatch = primus.procedure.optimize_batch({
   scorecard = "My Scorecard",
   scores = scores,
   max_iterations = 3,
@@ -173,7 +173,7 @@ For scorecards with 10+ low-accuracy scores, process in batches of 5.
 
 ```lua
 -- Step 1: Get all scores below threshold
-local alignment = plexus.feedback.alignment_batch({
+local alignment = primus.feedback.alignment_batch({
   scorecard = "My Scorecard",
   days = 90,
   accuracy_threshold = 85,
@@ -194,7 +194,7 @@ for i = 1, #all_scores, 5 do
     table.insert(batch, all_scores[j])
   end
   
-  local dispatch = plexus.procedure.optimize_batch({
+  local dispatch = primus.procedure.optimize_batch({
     scorecard = "My Scorecard",
     scores = batch,
     max_iterations = 3,
@@ -206,7 +206,7 @@ for i = 1, #all_scores, 5 do
   end
   
   -- NOTE: In practice, wait for this batch to complete before dispatching next
-  -- Check status with plexus.procedure.status_batch before continuing
+  -- Check status with primus.procedure.status_batch before continuing
 end
 
 return {
@@ -224,7 +224,7 @@ When you can't optimize all scores at once, start with the lowest performers.
 
 ```lua
 -- Get all scores
-local alignment = plexus.feedback.alignment_batch({
+local alignment = primus.feedback.alignment_batch({
   scorecard = "My Scorecard",
   days = 90,
 })
@@ -247,7 +247,7 @@ for i = 1, math.min(5, #valid) do
 end
 
 -- Optimize with a more generous iteration budget for chronic underperformers
-local dispatch = plexus.procedure.optimize_batch({
+local dispatch = primus.procedure.optimize_batch({
   scorecard = "My Scorecard",
   scores = worst_5,
   max_iterations = 10,
@@ -265,7 +265,7 @@ Validate the optimizer can make progress before running a full batch.
 
 ```lua
 -- Phase 1: Dry run on a sample (first 3 low-accuracy scores)
-local alignment = plexus.feedback.alignment_batch({
+local alignment = primus.feedback.alignment_batch({
   scorecard = "My Scorecard",
   days = 90,
   accuracy_threshold = 85,
@@ -278,7 +278,7 @@ for i, s in ipairs(alignment.scores) do
   end
 end
 
-local dry = plexus.procedure.optimize_batch({
+local dry = primus.procedure.optimize_batch({
   scorecard = "My Scorecard",
   scores = sample,
   max_iterations = 2,
@@ -301,7 +301,7 @@ Catch regressions by comparing a short recent window against a longer baseline.
 
 ```lua
 -- Get alignment over the last 30 days only
-local recent = plexus.feedback.alignment_batch({
+local recent = primus.feedback.alignment_batch({
   scorecard = "My Scorecard",
   days = 30,
 })
@@ -319,7 +319,7 @@ if #regressed == 0 then
 end
 
 -- Re-optimize with longer lookback and regression-focused hint
-local dispatch = plexus.procedure.optimize_batch({
+local dispatch = primus.procedure.optimize_batch({
   scorecard = "My Scorecard",
   scores = regressed,
   max_iterations = 5,
@@ -340,7 +340,7 @@ Inject learnings from a prior optimizer run into the next batch.
 -- After reviewing a prior run's lab report, extract its prescription:
 local prescription = "From prior run: broad STT rescue always regresses. Focus only on narrow transcript-anchored evidence rules."
 
-local dispatch = plexus.procedure.optimize_batch({
+local dispatch = primus.procedure.optimize_batch({
   scorecard = "My Scorecard",
   scores = {"Score A", "Score B", "Score C"},
   max_iterations = 5,
@@ -361,7 +361,7 @@ Poll procedure statuses and summarize completion.
 -- Assume proc_ids is a list of procedure IDs from a prior optimize_batch call
 local proc_ids = { "uuid-1", "uuid-2", "uuid-3" }
 
-local status = plexus.procedure.status_batch({
+local status = primus.procedure.status_batch({
   procedure_ids = proc_ids,
 })
 
@@ -388,7 +388,7 @@ return summary
 Always check `dispatch.failed` before assuming all scores were dispatched:
 
 ```lua
-local dispatch = plexus.procedure.optimize_batch({
+local dispatch = primus.procedure.optimize_batch({
   scorecard = "My Scorecard",
   scores = {"Score A", "Typo Score Naem", "Score B"},
   max_iterations = 3,
@@ -409,7 +409,7 @@ end
 Similarly, check `score_data.error` when iterating alignment results:
 
 ```lua
-local alignment = plexus.feedback.alignment_batch({
+local alignment = primus.feedback.alignment_batch({
   scorecard = "My Scorecard",
   days = 90,
 })

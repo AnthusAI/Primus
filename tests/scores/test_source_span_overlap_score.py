@@ -2,9 +2,9 @@ import importlib
 
 import pytest
 
-from plexus.scores import resolve_score_class
-from plexus.scores.Score import Score
-from plexus.scores.SourceSpanOverlapScore import SourceSpanOverlapScore, _spans_overlap
+from primus.scores import resolve_score_class
+from primus.scores.Score import Score
+from primus.scores.SourceSpanOverlapScore import SourceSpanOverlapScore, _spans_overlap
 
 
 def _item(
@@ -52,7 +52,7 @@ def test_yaml_class_resolves():
     )
     assert isinstance(score, SourceSpanOverlapScore)
 
-    module = importlib.import_module("plexus.scores.SourceSpanOverlapScore")
+    module = importlib.import_module("primus.scores.SourceSpanOverlapScore")
     module_source = importlib.import_module("inspect").getsource(module)
     assert "TactusScore" not in module_source
     assert "tactus" not in module_source.lower()

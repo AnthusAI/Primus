@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Configuration Files - Plexus Documentation',
-  description: 'How to configure Plexus using YAML configuration files',
+  title: 'Configuration Files - Primus Documentation',
+  description: 'How to configure Primus using YAML configuration files',
 }
 
 export default function ConfigurationPage() {
@@ -10,7 +10,7 @@ export default function ConfigurationPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Configuration Files</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Learn how to configure Plexus using YAML configuration files for managing environment variables and settings.
+        Learn how to configure Primus using YAML configuration files for managing environment variables and settings.
         This provides a more organized and maintainable alternative to using .env files.
       </p>
 
@@ -19,20 +19,20 @@ export default function ConfigurationPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Configuration File Locations</h2>
           <p className="text-muted-foreground mb-4">
-            Plexus looks for configuration files in the following locations, in order of precedence:
+            Primus looks for configuration files in the following locations, in order of precedence:
           </p>
 
           <ol className="list-decimal pl-6 space-y-2 text-muted-foreground mb-6">
-            <li><code>{'{project}'}/.plexus/config.yaml</code> (project-specific, highest priority)</li>
-            <li><code>{'{project}'}/.plexus/config.yml</code></li>
-            <li><code>~/.plexus/config.yaml</code> (user-wide configuration)</li>
-            <li><code>~/.plexus/config.yml</code> (lowest priority)</li>
+            <li><code>{'{project}'}/.primus/config.yaml</code> (project-specific, highest priority)</li>
+            <li><code>{'{project}'}/.primus/config.yml</code></li>
+            <li><code>~/.primus/config.yaml</code> (user-wide configuration)</li>
+            <li><code>~/.primus/config.yml</code> (lowest priority)</li>
           </ol>
 
           <div className="bg-muted/50 border rounded-lg p-4">
             <h4 className="font-medium mb-2">💡 Recommendation</h4>
             <p className="text-muted-foreground mb-0">
-              Use <code>.plexus/config.yaml</code> in your project directory for project-specific settings.
+              Use <code>.primus/config.yaml</code> in your project directory for project-specific settings.
               This keeps your configuration version-controlled and consistent across team members.
             </p>
           </div>
@@ -45,21 +45,21 @@ export default function ConfigurationPage() {
           </p>
 
           <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
-            <code>{`# Create the .plexus directory
-mkdir -p .plexus
+            <code>{`# Create the .primus directory
+mkdir -p .primus
 
 # Copy the example configuration
-cp plexus.yaml.example .plexus/config.yaml
+cp primus.yaml.example .primus/config.yaml
 
 # Edit the configuration with your settings
-nano .plexus/config.yaml`}</code>
+nano .primus/config.yaml`}</code>
           </pre>
         </section>
 
         <section>
           <h2 className="text-2xl font-semibold mb-4">Configuration Structure</h2>
           <p className="text-muted-foreground mb-4">
-            The YAML configuration supports all Plexus environment variables organized in a hierarchical structure:
+            The YAML configuration supports all Primus environment variables organized in a hierarchical structure:
           </p>
 
           <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
@@ -67,11 +67,11 @@ nano .plexus/config.yaml`}</code>
 environment: development  # development, staging, production
 debug: false
 
-# Core Plexus Configuration
-plexus:
-  api_url: https://your-plexus-instance.appsync-api.amazonaws.com/graphql
+# Core Primus Configuration
+primus:
+  api_url: https://your-primus-instance.appsync-api.amazonaws.com/graphql
   api_key: da2-your-api-key-here
-  app_url: https://plexus.anth.us
+  app_url: https://primus.anth.us
   account_key: your-account-key
   enable_batching: true
   
@@ -92,8 +92,8 @@ aws:
 
 # Celery Task Queue Configuration
 celery:
-  queue_name: plexus-celery-development
-  result_backend_template: "dynamodb://{aws_access_key}:{aws_secret_key}@{aws_region_name}/plexus-action-development"
+  queue_name: primus-celery-development
+  result_backend_template: "dynamodb://{aws_access_key}:{aws_secret_key}@{aws_region_name}/primus-action-development"
 
 # AI/ML Service APIs
 openai:
@@ -128,8 +128,8 @@ langchain:
               </p>
               <ol className="list-decimal pl-6 space-y-2 text-muted-foreground">
                 <li><strong>Environment variables</strong> - Always take highest priority</li>
-                <li><strong>Project-level config</strong> - <code>.plexus/config.yaml</code> in current directory</li>
-                <li><strong>User-level config</strong> - <code>~/.plexus/config.yaml</code> in home directory</li>
+                <li><strong>Project-level config</strong> - <code>.primus/config.yaml</code> in current directory</li>
+                <li><strong>User-level config</strong> - <code>~/.primus/config.yaml</code> in home directory</li>
               </ol>
             </div>
 
@@ -139,9 +139,9 @@ langchain:
                 Configuration is automatically loaded when you use:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                <li>Plexus CLI commands (e.g., <code>plexus item last</code>)</li>
-                <li>Plexus MCP server</li>
-                <li>Python code that imports Plexus modules</li>
+                <li>Primus CLI commands (e.g., <code>primus item last</code>)</li>
+                <li>Primus MCP server</li>
+                <li>Python code that imports Primus modules</li>
               </ul>
             </div>
 
@@ -151,7 +151,7 @@ langchain:
                 When configuration is loaded, you'll see a log message like:
               </p>
               <pre className="bg-muted p-4 rounded-lg">
-                <code>Loaded Plexus configuration from 1 file(s): /project/.plexus/config.yaml - Set 34 environment variables</code>
+                <code>Loaded Primus configuration from 1 file(s): /project/.primus/config.yaml - Set 34 environment variables</code>
               </pre>
             </div>
           </div>
@@ -166,7 +166,7 @@ langchain:
                 You can specify a working directory in your configuration that will be set when the config loads:
               </p>
               <pre className="bg-muted p-4 rounded-lg">
-                <code>{`plexus:
+                <code>{`primus:
   working_directory: /path/to/your/project`}</code>
               </pre>
             </div>
@@ -200,8 +200,8 @@ langchain:
                 <div>
                   <h5 className="font-medium mb-2">Before (.env)</h5>
                   <pre className="bg-muted p-3 rounded text-sm">
-            <code>{`PLEXUS_API_URL=https://api.example.com
-PLEXUS_API_KEY=da2-key
+            <code>{`PRIMUS_API_URL=https://api.example.com
+PRIMUS_API_KEY=da2-key
 AWS_ACCESS_KEY_ID=AKIA123
 AWS_SECRET_ACCESS_KEY=secret
 OPENAI_API_KEY=sk-key`}</code>
@@ -210,7 +210,7 @@ OPENAI_API_KEY=sk-key`}</code>
                 <div>
                   <h5 className="font-medium mb-2">After (config.yaml)</h5>
                   <pre className="bg-muted p-3 rounded text-sm">
-            <code>{`plexus:
+            <code>{`primus:
   api_url: https://api.example.com
   api_key: da2-key
 aws:
@@ -229,7 +229,7 @@ openai:
                 Test that your configuration works by running a simple command:
               </p>
               <pre className="bg-muted p-4 rounded-lg">
-                <code>plexus item last</code>
+                <code>primus item last</code>
               </pre>
             </div>
 
@@ -248,7 +248,7 @@ openai:
             <h4 className="font-medium mb-2">⚠️ Security Notice</h4>
             <ul className="text-muted-foreground space-y-1">
               <li>Never commit configuration files with real credentials to version control</li>
-              <li>Use <code>.gitignore</code> to exclude <code>.plexus/config.yaml</code> from git</li>
+              <li>Use <code>.gitignore</code> to exclude <code>.primus/config.yaml</code> from git</li>
               <li>Consider using separate config files for different environments</li>
               <li>Use environment variables for the most sensitive credentials in production</li>
             </ul>
@@ -296,12 +296,12 @@ openai:
           <div className="bg-muted/50 border border-green-200 rounded-lg p-4">
             <h4 className="font-medium mb-2">✅ Next Steps</h4>
             <p className="text-muted-foreground mb-0">
-              Once you have your configuration file set up, try running <code>plexus item last</code> to verify
+              Once you have your configuration file set up, try running <code>primus item last</code> to verify
               everything is working correctly. You can also explore the{' '}
               <a href="/documentation/concepts" className="text-blue-600 hover:text-blue-800">
                 Concepts
               </a>{' '}
-              section to learn more about how Plexus works.
+              section to learn more about how Primus works.
             </p>
           </div>
         </section>

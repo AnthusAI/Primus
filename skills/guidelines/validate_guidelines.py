@@ -15,7 +15,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from plexus.guidelines.validator import (  # noqa: E402
+from primus.guidelines.validator import (  # noqa: E402
     ValidationResult,
     determine_classifier_type,
     extract_classes_metadata,

@@ -3,7 +3,7 @@ import pandas as pd
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
 
-from plexus.cli.prediction.predictions import predict_score_with_individual_loading
+from primus.cli.prediction.predictions import predict_score_with_individual_loading
 
 
 @pytest.mark.asyncio
@@ -16,13 +16,13 @@ async def test_predict_score_with_individual_loading_uses_item_when_text_missing
         get_accumulated_costs=lambda: {"total_cost": 0},
     )
 
-    with patch("plexus.cli.shared.client_utils.create_client", return_value=Mock()):
-        with patch("plexus.cli.shared.direct_memoized_resolvers.direct_memoized_resolve_scorecard_identifier", return_value="scid"):
-            with patch("plexus.cli.shared.fetch_scorecard_structure.fetch_scorecard_structure", return_value={"id": "scid"}):
-                with patch("plexus.cli.shared.identify_target_scores.identify_target_scores", return_value=[{"name": "TestScore"}]):
-                    with patch("plexus.cli.shared.iterative_config_fetching.iteratively_fetch_configurations", return_value={"TestScore": {"name": "TestScore"}}):
-                        with patch("plexus.cli.prediction.predictions.Scorecard.create_instance_from_api_data", return_value=fake_scorecard):
-                            with patch("plexus.dashboard.api.models.item.Item.get_by_id", return_value=fake_item):
+    with patch("primus.cli.shared.client_utils.create_client", return_value=Mock()):
+        with patch("primus.cli.shared.direct_memoized_resolvers.direct_memoized_resolve_scorecard_identifier", return_value="scid"):
+            with patch("primus.cli.shared.fetch_scorecard_structure.fetch_scorecard_structure", return_value={"id": "scid"}):
+                with patch("primus.cli.shared.identify_target_scores.identify_target_scores", return_value=[{"name": "TestScore"}]):
+                    with patch("primus.cli.shared.iterative_config_fetching.iteratively_fetch_configurations", return_value={"TestScore": {"name": "TestScore"}}):
+                        with patch("primus.cli.prediction.predictions.Scorecard.create_instance_from_api_data", return_value=fake_scorecard):
+                            with patch("primus.dashboard.api.models.item.Item.get_by_id", return_value=fake_item):
                                 await predict_score_with_individual_loading(
                                     "scid",
                                     "TestScore",

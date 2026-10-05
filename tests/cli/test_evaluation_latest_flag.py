@@ -13,7 +13,7 @@ from click.testing import CliRunner
 from datetime import datetime
 
 # Import the functions we need to test
-from plexus.cli.evaluation.evaluations import get_latest_score_version, accuracy
+from primus.cli.evaluation.evaluations import get_latest_score_version, accuracy
 
 
 class TestLatestVersionResolution:
@@ -95,8 +95,8 @@ class TestLatestFlagValidation:
         """Set up test runner."""
         self.runner = CliRunner()
 
-    @patch('plexus.cli.evaluation.evaluations.create_client')
-    @patch('plexus.cli.evaluation.evaluations.load_scorecard_from_api')
+    @patch('primus.cli.evaluation.evaluations.create_client')
+    @patch('primus.cli.evaluation.evaluations.load_scorecard_from_api')
     def test_latest_and_version_mutually_exclusive(self, mock_load, mock_client):
         """Test that --latest and --version cannot be used together."""
         # Mock basic dependencies to get to validation
@@ -116,8 +116,8 @@ class TestLatestFlagValidation:
         assert result.exit_code == 0
         assert "Cannot use both --version and --latest options" in result.output
 
-    @patch('plexus.cli.evaluation.evaluations.create_client')
-    @patch('plexus.cli.evaluation.evaluations.load_scorecard_from_api')
+    @patch('primus.cli.evaluation.evaluations.create_client')
+    @patch('primus.cli.evaluation.evaluations.load_scorecard_from_api')
     def test_latest_flag_without_version(self, mock_load, mock_client):
         """Test that --latest flag works without --version."""
         # Mock scorecard loading
@@ -141,8 +141,8 @@ class TestLatestFlagValidation:
         # Should not show the mutual exclusion error
         assert "Cannot use both --version and --latest options" not in result.output
 
-    @patch('plexus.cli.evaluation.evaluations.create_client')
-    @patch('plexus.cli.evaluation.evaluations.load_scorecard_from_api')
+    @patch('primus.cli.evaluation.evaluations.create_client')
+    @patch('primus.cli.evaluation.evaluations.load_scorecard_from_api')
     def test_version_flag_without_latest(self, mock_load, mock_client):
         """Test that --version flag works without --latest."""
         mock_scorecard = Mock()
@@ -185,9 +185,9 @@ class TestLatestVersionIntegration:
             'championVersionId': self.champion_version_id
         }]
 
-    @patch('plexus.cli.evaluation.evaluations.create_client')
-    @patch('plexus.cli.evaluation.evaluations.get_latest_score_version')
-    @patch('plexus.cli.evaluation.evaluations.load_scorecard_from_api')
+    @patch('primus.cli.evaluation.evaluations.create_client')
+    @patch('primus.cli.evaluation.evaluations.get_latest_score_version')
+    @patch('primus.cli.evaluation.evaluations.load_scorecard_from_api')
     def test_latest_flag_resolves_version(self, mock_load, mock_get_latest, mock_client_class):
         """Test that --latest flag resolves to the most recent version."""
         # Setup mocks
@@ -317,9 +317,9 @@ class TestScoreVersionAssociation:
 class TestLatestVersionErrorHandling:
     """Test error handling in latest version resolution."""
     
-    @patch('plexus.cli.evaluation.evaluations.create_client')
-    @patch('plexus.cli.evaluation.evaluations.get_latest_score_version')
-    @patch('plexus.cli.evaluation.evaluations.load_scorecard_from_api')
+    @patch('primus.cli.evaluation.evaluations.create_client')
+    @patch('primus.cli.evaluation.evaluations.get_latest_score_version')
+    @patch('primus.cli.evaluation.evaluations.load_scorecard_from_api')
     def test_latest_flag_fallback_on_error(self, mock_load, mock_get_latest, mock_client_class):
         """Test that --latest falls back gracefully when version resolution fails."""
         # Setup mocks

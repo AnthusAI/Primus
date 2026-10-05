@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Single-tool Tactus execution prototype for the Plexus MCP server."""
+"""Single-tool Tactus execution prototype for the Primus MCP server."""
 
 from __future__ import annotations
 
@@ -21,8 +21,8 @@ from typing import Annotated, Any, Callable, Mapping, Optional
 
 from fastmcp import Context, FastMCP
 from pydantic import Field
-from plexus.runtime_budget import RuntimeBudgetSpec
-from plexus.attribution.actor_context import (
+from primus.runtime_budget import RuntimeBudgetSpec
+from primus.attribution.actor_context import (
     apply_actor_attribution,
     apply_actor_context_to_env,
     extract_request_user_id_from_mcp_context,
@@ -47,8 +47,8 @@ OPTIMIZATION_RANK_INVENTORY_PAGE_SIZE = 100
 # scorecard page/result while still giving an operator regular confirmation of
 # forward progress.
 OPTIMIZATION_RANK_PROGRESS_INTERVAL = 5
-_MISSING_CONFIGURATION_DIGEST_INPUT = b"plexus:optimization:missing-configuration:v1"
-_MISSING_GUIDELINES_DIGEST_INPUT = b"plexus:optimization:missing-guidelines:v1"
+_MISSING_CONFIGURATION_DIGEST_INPUT = b"primus:optimization:missing-configuration:v1"
+_MISSING_GUIDELINES_DIGEST_INPUT = b"primus:optimization:missing-guidelines:v1"
 
 
 def _frozen_assessment_input_digest(
@@ -90,7 +90,7 @@ def _same_iso_timestamp(left: Any, right: Any) -> bool:
         return False
 
 
-PLEXUS_DOCS_DIR = os.path.normpath(
+PRIMUS_DOCS_DIR = os.path.normpath(
     os.path.join(
         os.path.dirname(__file__),
         "..",
@@ -101,7 +101,7 @@ PLEXUS_DOCS_DIR = os.path.normpath(
     )
 )
 
-PLEXUS_SKILLS_DIR = os.path.normpath(
+PRIMUS_SKILLS_DIR = os.path.normpath(
     os.path.join(
         os.path.dirname(__file__),
         "..",
@@ -111,27 +111,27 @@ PLEXUS_SKILLS_DIR = os.path.normpath(
     )
 )
 
-PLEXUS_TACTUS_TRACE_DIR_DEFAULT = os.path.normpath(
+PRIMUS_TACTUS_TRACE_DIR_DEFAULT = os.path.normpath(
     os.path.join(os.path.dirname(__file__), "..", "..", "..", "tmp", "tactus_traces")
 )
 
-PLEXUS_PROJECT_ROOT = os.path.normpath(
+PRIMUS_PROJECT_ROOT = os.path.normpath(
     os.path.join(os.path.dirname(__file__), "..", "..", "..")
 )
 
-PLEXUS_PROCEDURE_RUN_LOG_DIR_DEFAULT = os.path.join(
-    PLEXUS_PROJECT_ROOT, "tmp", "tactus_procedure_runs"
+PRIMUS_PROCEDURE_RUN_LOG_DIR_DEFAULT = os.path.join(
+    PRIMUS_PROJECT_ROOT, "tmp", "tactus_procedure_runs"
 )
 
 
 def _resolve_trace_dir(request_id: Optional[str] = None) -> str:
-    configured = os.environ.get("PLEXUS_TACTUS_TRACE_DIR")
+    configured = os.environ.get("PRIMUS_TACTUS_TRACE_DIR")
     if configured:
         base_dir = configured
     elif os.environ.get("AWS_LAMBDA_FUNCTION_NAME") or os.environ.get("LAMBDA_TASK_ROOT"):
         base_dir = os.path.join("/tmp", "tactus_traces")
     else:
-        base_dir = PLEXUS_TACTUS_TRACE_DIR_DEFAULT
+        base_dir = PRIMUS_TACTUS_TRACE_DIR_DEFAULT
 
     if request_id:
         return os.path.join("/tmp", request_id, os.path.basename(base_dir))
@@ -139,13 +139,13 @@ def _resolve_trace_dir(request_id: Optional[str] = None) -> str:
 
 
 def _resolve_procedure_run_log_dir(request_id: Optional[str] = None) -> str:
-    configured = os.environ.get("PLEXUS_PROCEDURE_RUN_LOG_DIR")
+    configured = os.environ.get("PRIMUS_PROCEDURE_RUN_LOG_DIR")
     if configured:
         base_dir = configured
     elif os.environ.get("AWS_LAMBDA_FUNCTION_NAME") or os.environ.get("LAMBDA_TASK_ROOT"):
         base_dir = os.path.join("/tmp", "tactus_procedure_runs")
     else:
-        base_dir = PLEXUS_PROCEDURE_RUN_LOG_DIR_DEFAULT
+        base_dir = PRIMUS_PROCEDURE_RUN_LOG_DIR_DEFAULT
 
     if request_id:
         return os.path.join("/tmp", request_id, os.path.basename(base_dir))
@@ -182,13 +182,13 @@ def _local_procedure_env() -> dict[str, str]:
     env = {
         **os.environ,
         "PYTHONUNBUFFERED": "1",
-        "PLEXUS_LOCAL_DISPATCH": "1",
+        "PRIMUS_LOCAL_DISPATCH": "1",
     }
     existing_pythonpath = env.get("PYTHONPATH")
     env["PYTHONPATH"] = (
-        PLEXUS_PROJECT_ROOT
+        PRIMUS_PROJECT_ROOT
         if not existing_pythonpath
-        else os.pathsep.join([PLEXUS_PROJECT_ROOT, existing_pythonpath])
+        else os.pathsep.join([PRIMUS_PROJECT_ROOT, existing_pythonpath])
     )
     return apply_actor_context_to_env(env)
 
@@ -454,14 +454,14 @@ def _attach_console_audit_events(
 def _launch_local_procedure_subprocess(cmd: list[str], procedure_id: str) -> tuple[Any, str]:
     import subprocess
 
-    request_id = os.environ.get("PLEXUS_LAMBDA_REQUEST_ID")
+    request_id = os.environ.get("PRIMUS_LAMBDA_REQUEST_ID")
     log_dir = _resolve_procedure_run_log_dir(request_id=request_id)
     os.makedirs(log_dir, exist_ok=True)
     log_path = os.path.join(log_dir, f"{procedure_id}.log")
     with open(log_path, "ab", buffering=0) as log_file:
         proc = subprocess.Popen(
             cmd,
-            cwd=PLEXUS_PROJECT_ROOT,
+            cwd=PRIMUS_PROJECT_ROOT,
             env=_local_procedure_env(),
             stdout=log_file,
             stderr=subprocess.STDOUT,
@@ -498,7 +498,7 @@ class FileTactusTraceStore(TactusTraceStore):
 
 
 def _default_trace_store() -> TactusTraceStore:
-    request_id = os.environ.get("PLEXUS_LAMBDA_REQUEST_ID")
+    request_id = os.environ.get("PRIMUS_LAMBDA_REQUEST_ID")
     return FileTactusTraceStore(_resolve_trace_dir(request_id=request_id))
 
 
@@ -595,7 +595,7 @@ class FileTactusHandleStore(TactusHandleStore):
 
 
 def _default_handle_store() -> TactusHandleStore:
-    request_id = os.environ.get("PLEXUS_LAMBDA_REQUEST_ID")
+    request_id = os.environ.get("PRIMUS_LAMBDA_REQUEST_ID")
     return FileTactusHandleStore(os.path.join(_resolve_trace_dir(request_id=request_id), "handles"))
 
 
@@ -752,11 +752,11 @@ LONG_RUNNING_METHODS: frozenset[tuple[str, str]] = frozenset({})
 
 
 class RequiresHandleProtocol(RuntimeError):
-    """Raised when a long-running Plexus runtime API is called in v0."""
+    """Raised when a long-running Primus runtime API is called in v0."""
 
     def __init__(self, namespace: str, method: str) -> None:
         super().__init__(
-            f"plexus.{namespace}.{method} requires the long-running handle/streaming "
+            f"primus.{namespace}.{method} requires the long-running handle/streaming "
             "protocol (see Kanbus epic plx-247588) and is not enabled in this "
             "execute_tactus build."
         )
@@ -769,7 +769,7 @@ class PlanningModeToolNotAllowed(PermissionError):
 
     def __init__(self, namespace: str, method: str) -> None:
         super().__init__(
-            f"plexus.{namespace}.{method} is visible for planning, but cannot run "
+            f"primus.{namespace}.{method} is visible for planning, but cannot run "
             "while Console is in planning mode because it can create or mutate "
             "score versions, promote champions, or start/continue procedure runs. "
             "Switch the chat to Execute mode before calling this method."
@@ -783,8 +783,8 @@ class ConsoleScoreCodeUpdateRequiresSubagent(PermissionError):
 
     def __init__(self) -> None:
         super().__init__(
-            "Console chat cannot call plexus.score.update with direct score code "
-            "or YAML content. Use plexus.score.edit with a concrete instruction so "
+            "Console chat cannot call primus.score.update with direct score code "
+            "or YAML content. Use primus.score.edit with a concrete instruction so "
             "the dedicated score editor worker creates the updated score version."
         )
 
@@ -794,10 +794,10 @@ class ConsoleGuidelinesUpdateRequiresGuidelinesIntent(PermissionError):
 
     def __init__(self) -> None:
         super().__init__(
-            "Console chat can use plexus.score.update with guidelines only when "
+            "Console chat can use primus.score.update with guidelines only when "
             "the current user request is explicitly about guidelines, rubric, or "
             "policy wording. For scoring behavior, classifier logic, prompt, or "
-            "stricter/looser scoring requests, use plexus.score.edit instead."
+            "stricter/looser scoring requests, use primus.score.edit instead."
         )
 
 
@@ -806,9 +806,9 @@ class ConsoleScoreEditBlockedForGuidelinesOnly(PermissionError):
 
     def __init__(self) -> None:
         super().__init__(
-            "Console chat cannot call plexus.score.edit for an explicitly guidelines-only, "
+            "Console chat cannot call primus.score.edit for an explicitly guidelines-only, "
             "behavior-preserving request. Load the full current guidelines and use "
-            "plexus.score.update with guidelines only."
+            "primus.score.update with guidelines only."
         )
 
 
@@ -817,7 +817,7 @@ class ConsoleScoreEditRequiresConcreteInstruction(PermissionError):
 
     def __init__(self) -> None:
         super().__init__(
-            "Console chat cannot start plexus.score.edit from a candidate-only approval "
+            "Console chat cannot start primus.score.edit from a candidate-only approval "
             "without a concrete score change. Ask what behavior, code, or prompt should "
             "change, or continue the specific proposal already present in this chat session."
         )
@@ -836,7 +836,7 @@ def _method_spec(handler: str, *, planning_allowed: bool) -> RuntimeMethodSpec:
     return RuntimeMethodSpec(handler=handler, planning_allowed=planning_allowed)
 
 
-# Per-method handlers implemented directly on PlexusRuntimeModule (no MCP loopback).
+# Per-method handlers implemented directly on PrimusRuntimeModule (no MCP loopback).
 # Each (namespace, method) here MUST NOT also appear in MCP_TOOL_MAP — every
 # method has exactly one dispatcher and one planning-mode policy.
 RUNTIME_METHOD_SPECS: dict[tuple[str, str], RuntimeMethodSpec] = {
@@ -908,7 +908,7 @@ RUNTIME_METHOD_SPECS: dict[tuple[str, str], RuntimeMethodSpec] = {
     ("model_frontier", "finalize"): _method_spec("_call_model_frontier", planning_allowed=False),
     ("scorecard_retarget", "plan_score"): _method_spec("_call_scorecard_retarget", planning_allowed=True),
     # The decision service owns policy and packet construction.  The runtime
-    # only exposes its methods, supplies existing Plexus capabilities, and
+    # only exposes its methods, supplies existing Primus capabilities, and
     # blocks optimizer dispatch in Console planning mode.
     ("optimization", "rank"): _method_spec("_call_optimization", planning_allowed=True),
     ("optimization", "assess"): _method_spec("_call_optimization", planning_allowed=True),
@@ -937,22 +937,22 @@ def _require_optimization_application_authority() -> None:
     propagate unchanged: each already includes operator-specific recovery
     guidance and none proves it is safe to begin the run.
     """
-    from plexus.auth.cognito import CognitoAuthService
+    from primus.auth.cognito import CognitoAuthService
 
     CognitoAuthService().get_access_token()
 
 
 def _default_scorecards_list(args: dict[str, Any]) -> Any:
-    """Run plexus.scorecards.list directly against the dashboard.
+    """Run primus.scorecards.list directly against the dashboard.
 
-    Equivalent to the legacy `plexus_scorecards_list` MCP tool but native
+    Equivalent to the legacy `primus_scorecards_list` MCP tool but native
     Python so the runtime no longer depends on the legacy tool registration.
     """
 
     import json as _json
 
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.cli.shared.memoized_resolvers import (
+    from primus.cli.shared.client_utils import create_client
+    from primus.cli.shared.memoized_resolvers import (
         memoized_resolve_scorecard_identifier,
     )
 
@@ -969,16 +969,16 @@ def _default_scorecards_list(args: dict[str, Any]) -> Any:
             fetch_limit = int(raw_limit)
         except (TypeError, ValueError) as exc:
             raise ValueError(
-                f"plexus.scorecards.list limit must be an integer, got {raw_limit!r}"
+                f"primus.scorecards.list limit must be an integer, got {raw_limit!r}"
             ) from exc
         if fetch_limit < 1:
             raise ValueError(
-                "plexus.scorecards.list limit must be a positive integer"
+                "primus.scorecards.list limit must be a positive integer"
             )
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.scorecards.list: could not create dashboard client")
+        raise RuntimeError("primus.scorecards.list: could not create dashboard client")
 
     if identifier:
         scorecard_id = memoized_resolve_scorecard_identifier(client, str(identifier))
@@ -992,7 +992,7 @@ def _default_scorecards_list(args: dict[str, Any]) -> Any:
             response = client.execute(query)
             if "errors" in response:
                 raise RuntimeError(
-                    "plexus.scorecards.list dashboard error: "
+                    "primus.scorecards.list dashboard error: "
                     + _json.dumps(response["errors"])
                 )
             scorecard_data = response.get("getScorecard")
@@ -1002,7 +1002,7 @@ def _default_scorecards_list(args: dict[str, Any]) -> Any:
             return items
 
     filter_parts: list[str] = []
-    account_id = _resolve_runtime_account_id(client, args, "plexus.scorecards.list")
+    account_id = _resolve_runtime_account_id(client, args, "primus.scorecards.list")
     filter_parts.append(f'accountId: {{ eq: "{account_id}" }}')
     if identifier:
         ident = str(identifier)
@@ -1037,7 +1037,7 @@ def _default_scorecards_list(args: dict[str, Any]) -> Any:
     response = client.execute(query)
     if "errors" in response:
         raise RuntimeError(
-            "plexus.scorecards.list dashboard error: "
+            "primus.scorecards.list dashboard error: "
             + _json.dumps(response["errors"])
         )
 
@@ -1050,12 +1050,12 @@ def _default_scorecards_list(args: dict[str, Any]) -> Any:
 
 
 def _default_scorecards_info(args: dict[str, Any]) -> dict[str, Any]:
-    """Run plexus.scorecards.info directly against the dashboard."""
+    """Run primus.scorecards.info directly against the dashboard."""
 
     import json as _json
 
-    from plexus.cli.scorecard.scorecards import resolve_scorecard_identifier
-    from plexus.cli.shared.client_utils import create_client
+    from primus.cli.scorecard.scorecards import resolve_scorecard_identifier
+    from primus.cli.shared.client_utils import create_client
 
     identifier = (
         args.get("identifier")
@@ -1068,17 +1068,17 @@ def _default_scorecards_info(args: dict[str, Any]) -> dict[str, Any]:
     )
     if not identifier:
         raise ValueError(
-            "plexus.scorecards.info requires identifier (id, name, key, or external_id)"
+            "primus.scorecards.info requires identifier (id, name, key, or external_id)"
         )
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.scorecards.info: could not create dashboard client")
+        raise RuntimeError("primus.scorecards.info: could not create dashboard client")
 
     scorecard_id = resolve_scorecard_identifier(client, str(identifier))
     if not scorecard_id:
         raise ValueError(
-            f"plexus.scorecards.info: scorecard {identifier!r} not found"
+            f"primus.scorecards.info: scorecard {identifier!r} not found"
         )
 
     query = (
@@ -1092,14 +1092,14 @@ def _default_scorecards_info(args: dict[str, Any]) -> dict[str, Any]:
     response = client.execute(query)
     if "errors" in response:
         raise RuntimeError(
-            "plexus.scorecards.info dashboard error: "
+            "primus.scorecards.info dashboard error: "
             + _json.dumps(response["errors"])
         )
 
     data = response.get("getScorecard")
     if not data:
         raise ValueError(
-            f"plexus.scorecards.info: scorecard {identifier!r} (id {scorecard_id}) "
+            f"primus.scorecards.info: scorecard {identifier!r} (id {scorecard_id}) "
             "not found after query"
         )
 
@@ -1133,47 +1133,47 @@ def _default_scorecards_search(args: dict[str, Any]) -> dict[str, Any]:
 
     from rapidfuzz import fuzz, process
 
-    from plexus.cli.shared.client_utils import create_client
+    from primus.cli.shared.client_utils import create_client
 
     query = _search_query_string(args)
     if not query:
         raise ValueError(
-            "plexus.scorecards.search requires query (or q / name)"
+            "primus.scorecards.search requires query (or q / name)"
         )
 
     try:
         result_limit = int(args.get("limit") or 20)
     except (TypeError, ValueError) as exc:
         raise ValueError(
-            f"plexus.scorecards.search limit must be an integer, got {args.get('limit')!r}"
+            f"primus.scorecards.search limit must be an integer, got {args.get('limit')!r}"
         ) from exc
     if result_limit < 1:
-        raise ValueError("plexus.scorecards.search limit must be a positive integer")
+        raise ValueError("primus.scorecards.search limit must be a positive integer")
 
     try:
         min_score = float(args.get("min_score") if args.get("min_score") is not None else 55.0)
     except (TypeError, ValueError) as exc:
         raise ValueError(
-            f"plexus.scorecards.search min_score must be a number, got {args.get('min_score')!r}"
+            f"primus.scorecards.search min_score must be a number, got {args.get('min_score')!r}"
         ) from exc
 
     try:
         fetch_limit = int(args.get("scorecard_limit") or args.get("fetch_limit") or 1000)
     except (TypeError, ValueError) as exc:
         raise ValueError(
-            "plexus.scorecards.search scorecard_limit must be an integer"
+            "primus.scorecards.search scorecard_limit must be an integer"
         ) from exc
     if fetch_limit < 1:
         raise ValueError(
-            "plexus.scorecards.search scorecard_limit must be a positive integer"
+            "primus.scorecards.search scorecard_limit must be a positive integer"
         )
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.scorecards.search: could not create dashboard client")
+        raise RuntimeError("primus.scorecards.search: could not create dashboard client")
 
     filter_parts: list[str] = []
-    account_id = _resolve_runtime_account_id(client, args, "plexus.scorecards.search")
+    account_id = _resolve_runtime_account_id(client, args, "primus.scorecards.search")
     filter_parts.append(f'accountId: {{ eq: "{account_id}" }}')
     filter_str = ", ".join(filter_parts)
     gql = (
@@ -1185,7 +1185,7 @@ def _default_scorecards_search(args: dict[str, Any]) -> dict[str, Any]:
     response = client.execute(gql)
     if "errors" in response:
         raise RuntimeError(
-            "plexus.scorecards.search dashboard error: "
+            "primus.scorecards.search dashboard error: "
             + _json.dumps(response["errors"])
         )
     items = (response.get("listScorecards") or {}).get("items") or []
@@ -1250,10 +1250,10 @@ def _default_scorecards_search(args: dict[str, Any]) -> dict[str, Any]:
 
 
 def _default_scorecards_create(args: dict[str, Any]) -> dict[str, Any]:
-    """Create a scorecard directly in Plexus."""
-    from plexus.attribution.actor_context import apply_actor_attribution
-    from plexus.cli.report.utils import resolve_account_id_for_command
-    from plexus.cli.shared.client_utils import create_client
+    """Create a scorecard directly in Primus."""
+    from primus.attribution.actor_context import apply_actor_attribution
+    from primus.cli.report.utils import resolve_account_id_for_command
+    from primus.cli.shared.client_utils import create_client
 
     def _slugify(value: str) -> str:
         cleaned = re.sub(r"[^a-z0-9]+", "-", str(value).strip().lower())
@@ -1261,7 +1261,7 @@ def _default_scorecards_create(args: dict[str, Any]) -> dict[str, Any]:
 
     name = str(args.get("name") or "").strip()
     if not name:
-        raise ValueError("plexus.scorecards.create requires name")
+        raise ValueError("primus.scorecards.create requires name")
 
     key = str(args.get("key") or "").strip() or _slugify(name)
 
@@ -1285,7 +1285,7 @@ def _default_scorecards_create(args: dict[str, Any]) -> dict[str, Any]:
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.scorecards.create: could not create dashboard client")
+        raise RuntimeError("primus.scorecards.create: could not create dashboard client")
 
     account_id = resolve_account_id_for_command(
         client,
@@ -1404,15 +1404,15 @@ def _default_scorecards_create(args: dict[str, Any]) -> dict[str, Any]:
                 )
 
     raise RuntimeError(
-        "plexus.scorecards.create failed after compatibility attempts: "
+        "primus.scorecards.create failed after compatibility attempts: "
         + " | ".join(attempted_errors)
     )
 
 
 def _default_scorecards_update(args: dict[str, Any]) -> dict[str, Any]:
     """Update scorecard metadata without changing its scores or versions."""
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.cli.shared.direct_identifier_resolution import (
+    from primus.cli.shared.client_utils import create_client
+    from primus.cli.shared.direct_identifier_resolution import (
         direct_resolve_scorecard_identifier,
     )
 
@@ -1424,7 +1424,7 @@ def _default_scorecards_update(args: dict[str, Any]) -> dict[str, Any]:
         or args.get("scorecard")
     )
     if not identifier:
-        raise ValueError("plexus.scorecards.update requires id or scorecard identifier")
+        raise ValueError("primus.scorecards.update requires id or scorecard identifier")
 
     fields = {
         "name": "name",
@@ -1440,13 +1440,13 @@ def _default_scorecards_update(args: dict[str, Any]) -> dict[str, Any]:
     }
     if not updates:
         raise ValueError(
-            "plexus.scorecards.update requires at least one metadata field "
+            "primus.scorecards.update requires at least one metadata field "
             "(name, key, description, or external_id)"
         )
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.scorecards.update: could not create dashboard client")
+        raise RuntimeError("primus.scorecards.update: could not create dashboard client")
     scorecard_id = direct_resolve_scorecard_identifier(client, str(identifier))
     if not scorecard_id:
         raise ValueError(f"Scorecard not found: {identifier!r}")
@@ -1462,20 +1462,20 @@ def _default_scorecards_update(args: dict[str, Any]) -> dict[str, Any]:
     response = client.execute(mutation, {"input": input_obj})
     updated = (response or {}).get("updateScorecard") or {}
     if not updated.get("id"):
-        raise RuntimeError("plexus.scorecards.update returned no scorecard")
+        raise RuntimeError("primus.scorecards.update returned no scorecard")
     return {"success": True, "scorecard": updated, "changed_fields": sorted(updates)}
 
 
 def _default_scorecards_delete(args: dict[str, Any]) -> dict[str, Any]:
     """Delete an explicitly confirmed scorecard and all of its contents."""
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.cli.shared.direct_identifier_resolution import (
+    from primus.cli.shared.client_utils import create_client
+    from primus.cli.shared.direct_identifier_resolution import (
         direct_resolve_scorecard_identifier,
     )
 
     if args.get("confirmed") is not True:
         raise ValueError(
-            "plexus.scorecards.delete is destructive and requires confirmed = true"
+            "primus.scorecards.delete is destructive and requires confirmed = true"
         )
     identifier = (
         args.get("id")
@@ -1485,11 +1485,11 @@ def _default_scorecards_delete(args: dict[str, Any]) -> dict[str, Any]:
         or args.get("scorecard")
     )
     if not identifier:
-        raise ValueError("plexus.scorecards.delete requires id or scorecard identifier")
+        raise ValueError("primus.scorecards.delete requires id or scorecard identifier")
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.scorecards.delete: could not create dashboard client")
+        raise RuntimeError("primus.scorecards.delete: could not create dashboard client")
     scorecard_id = direct_resolve_scorecard_identifier(client, str(identifier))
     if not scorecard_id:
         raise ValueError(f"Scorecard not found: {identifier!r}")
@@ -1529,7 +1529,7 @@ def _default_scorecards_delete(args: dict[str, Any]) -> dict[str, Any]:
     )
     deleted = (response or {}).get("deleteScorecard") or {}
     if not deleted.get("id"):
-        raise RuntimeError("plexus.scorecards.delete returned no scorecard")
+        raise RuntimeError("primus.scorecards.delete returned no scorecard")
     return {
         "success": True,
         "id": deleted["id"],
@@ -1545,28 +1545,28 @@ def _default_score_search(args: dict[str, Any]) -> dict[str, Any]:
 
     from rapidfuzz import fuzz, process
 
-    from plexus.cli.report.utils import resolve_account_id_for_command
-    from plexus.cli.scorecard.scorecards import resolve_scorecard_identifier
-    from plexus.cli.shared.client_utils import create_client
+    from primus.cli.report.utils import resolve_account_id_for_command
+    from primus.cli.scorecard.scorecards import resolve_scorecard_identifier
+    from primus.cli.shared.client_utils import create_client
 
     query = _search_query_string(args)
     if not query:
-        raise ValueError("plexus.score.search requires query (or q / name)")
+        raise ValueError("primus.score.search requires query (or q / name)")
 
     try:
         result_limit = int(args.get("limit") or 30)
     except (TypeError, ValueError) as exc:
         raise ValueError(
-            f"plexus.score.search limit must be an integer, got {args.get('limit')!r}"
+            f"primus.score.search limit must be an integer, got {args.get('limit')!r}"
         ) from exc
     if result_limit < 1:
-        raise ValueError("plexus.score.search limit must be a positive integer")
+        raise ValueError("primus.score.search limit must be a positive integer")
 
     try:
         min_score = float(args.get("min_score") if args.get("min_score") is not None else 55.0)
     except (TypeError, ValueError) as exc:
         raise ValueError(
-            f"plexus.score.search min_score must be a number, got {args.get('min_score')!r}"
+            f"primus.score.search min_score must be a number, got {args.get('min_score')!r}"
         ) from exc
 
     try:
@@ -1575,11 +1575,11 @@ def _default_score_search(args: dict[str, Any]) -> dict[str, Any]:
         )
     except (TypeError, ValueError) as exc:
         raise ValueError(
-            "plexus.score.search scorecard_limit must be an integer"
+            "primus.score.search scorecard_limit must be an integer"
         ) from exc
     if scorecard_fetch_limit < 1:
         raise ValueError(
-            "plexus.score.search scorecard_limit must be a positive integer"
+            "primus.score.search scorecard_limit must be a positive integer"
         )
 
     scorecard_identifier = (
@@ -1591,14 +1591,14 @@ def _default_score_search(args: dict[str, Any]) -> dict[str, Any]:
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.score.search: could not create dashboard client")
+        raise RuntimeError("primus.score.search: could not create dashboard client")
 
     scorecards: list[dict[str, Any]] = []
     if scorecard_identifier:
         scorecard_id = resolve_scorecard_identifier(client, str(scorecard_identifier))
         if not scorecard_id:
             raise ValueError(
-                f"plexus.score.search: scorecard {scorecard_identifier!r} not found"
+                f"primus.score.search: scorecard {scorecard_identifier!r} not found"
             )
         result = client.execute(
             f"""query GetScorecardWithScores {{
@@ -1613,14 +1613,14 @@ def _default_score_search(args: dict[str, Any]) -> dict[str, Any]:
         )
         if "errors" in result:
             raise RuntimeError(
-                "plexus.score.search dashboard error: "
+                "primus.score.search dashboard error: "
                 + _json.dumps(result["errors"])
             )
         one = result.get("getScorecard")
         if one:
             scorecards = [one]
     else:
-        account_id = _resolve_runtime_account_id(client, args, "plexus.score.search")
+        account_id = _resolve_runtime_account_id(client, args, "primus.score.search")
         result = client.execute(
             f"""query ListScorecardsForScoreSearch {{
                 listScorecards(filter: {{ accountId: {{ eq: "{account_id}" }} }}, limit: {scorecard_fetch_limit}) {{
@@ -1636,7 +1636,7 @@ def _default_score_search(args: dict[str, Any]) -> dict[str, Any]:
         )
         if "errors" in result:
             raise RuntimeError(
-                "plexus.score.search dashboard error: "
+                "primus.score.search dashboard error: "
                 + _json.dumps(result["errors"])
             )
         scorecards = result.get("listScorecards", {}).get("items") or []
@@ -1717,13 +1717,13 @@ def _default_score_search(args: dict[str, Any]) -> dict[str, Any]:
 def _make_procedure_service():
     """Build a ProcedureService bound to a fresh dashboard client."""
 
-    from plexus.cli.procedure.service import ProcedureService
-    from plexus.cli.shared.client_utils import create_client
+    from primus.cli.procedure.service import ProcedureService
+    from primus.cli.shared.client_utils import create_client
 
     client = create_client()
     if not client:
         raise RuntimeError(
-            "plexus.procedure.*: could not create dashboard client"
+            "primus.procedure.*: could not create dashboard client"
         )
     return ProcedureService(client)
 
@@ -1766,19 +1766,19 @@ def _build_archived_metadata(
 
 
 def _default_procedure_list(args: dict[str, Any]) -> dict[str, Any]:
-    """Run plexus.procedure.list directly via ProcedureService."""
+    """Run primus.procedure.list directly via ProcedureService."""
 
     account_identifier = (
         args.get("account_identifier")
         or args.get("account")
         or args.get("account_id")
         or args.get("accountId")
-        or os.environ.get("PLEXUS_ACCOUNT_KEY")
+        or os.environ.get("PRIMUS_ACCOUNT_KEY")
     )
     if not account_identifier:
         raise ValueError(
-            "plexus.procedure.list requires account_identifier or "
-            "PLEXUS_ACCOUNT_KEY environment variable"
+            "primus.procedure.list requires account_identifier or "
+            "PRIMUS_ACCOUNT_KEY environment variable"
         )
 
     scorecard_identifier = args.get("scorecard_identifier") or args.get("scorecard")
@@ -1810,11 +1810,11 @@ def _default_procedure_list(args: dict[str, Any]) -> dict[str, Any]:
 
 
 def _default_procedure_info(args: dict[str, Any]) -> dict[str, Any]:
-    """Run plexus.procedure.info directly via ProcedureService."""
+    """Run primus.procedure.info directly via ProcedureService."""
 
     procedure_id = args.get("procedure_id") or args.get("id")
     if not procedure_id:
-        raise ValueError("plexus.procedure.info requires id or procedure_id")
+        raise ValueError("primus.procedure.info requires id or procedure_id")
     include_yaml = bool(args.get("include_yaml", False))
 
     service = _make_procedure_service()
@@ -1852,18 +1852,18 @@ def _default_procedure_info(args: dict[str, Any]) -> dict[str, Any]:
 def _default_procedure_archive(args: dict[str, Any]) -> dict[str, Any]:
     """Archive a procedure by setting status=ARCHIVED and recording archive metadata."""
 
-    from plexus.cli.shared.client_utils import create_client
+    from primus.cli.shared.client_utils import create_client
 
     procedure_id = args.get("procedure_id") or args.get("id")
     if not procedure_id:
-        raise ValueError("plexus.procedure.archive requires id or procedure_id")
+        raise ValueError("primus.procedure.archive requires id or procedure_id")
 
     reason = args.get("reason")
     archived_by = args.get("archived_by") or args.get("archivedBy")
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.procedure.archive: could not create dashboard client")
+        raise RuntimeError("primus.procedure.archive: could not create dashboard client")
 
     query = """
     query GetProcedureForArchive($id: ID!) {
@@ -1925,18 +1925,18 @@ def _default_procedure_archive(args: dict[str, Any]) -> dict[str, Any]:
 
 
 def _default_procedure_chat_sessions(args: dict[str, Any]) -> dict[str, Any]:
-    """Run plexus.procedure.chat_sessions directly via dashboard GraphQL."""
+    """Run primus.procedure.chat_sessions directly via dashboard GraphQL."""
 
-    from plexus.dashboard.api.client import PlexusDashboardClient
+    from primus.dashboard.api.client import PrimusDashboardClient
 
     procedure_id = args.get("procedure_id") or args.get("id")
     if not procedure_id:
         raise ValueError(
-            "plexus.procedure.chat_sessions requires id or procedure_id"
+            "primus.procedure.chat_sessions requires id or procedure_id"
         )
     limit = int(args.get("limit") or 10)
 
-    client = PlexusDashboardClient()
+    client = PrimusDashboardClient()
     query = """
     query ListChatSessionByProcedureId($procedureId: String!, $limit: Int!) {
         listChatSessionByProcedureIdAndCreatedAt(
@@ -1954,7 +1954,7 @@ def _default_procedure_chat_sessions(args: dict[str, Any]) -> dict[str, Any]:
     result = client.execute(query, {"procedureId": str(procedure_id), "limit": limit})
     if "errors" in result:
         raise RuntimeError(
-            f"plexus.procedure.chat_sessions GraphQL errors: {result['errors']}"
+            f"primus.procedure.chat_sessions GraphQL errors: {result['errors']}"
         )
 
     sessions: list = []
@@ -1994,23 +1994,23 @@ def _default_procedure_chat_sessions(args: dict[str, Any]) -> dict[str, Any]:
 
 
 def _default_procedure_chat_messages(args: dict[str, Any]) -> dict[str, Any]:
-    """Run plexus.procedure.chat_messages directly via dashboard GraphQL."""
+    """Run primus.procedure.chat_messages directly via dashboard GraphQL."""
 
     import json as _json
 
-    from plexus.dashboard.api.client import PlexusDashboardClient
+    from primus.dashboard.api.client import PrimusDashboardClient
 
     procedure_id = args.get("procedure_id") or args.get("id")
     session_id = args.get("session_id")
     if not procedure_id and not session_id:
         raise ValueError(
-            "plexus.procedure.chat_messages requires id (procedure_id) or session_id"
+            "primus.procedure.chat_messages requires id (procedure_id) or session_id"
         )
     limit = int(args.get("limit") or 50)
     show_tool_calls = bool(args.get("show_tool_calls", True))
     show_tool_responses = bool(args.get("show_tool_responses", True))
 
-    client = PlexusDashboardClient()
+    client = PrimusDashboardClient()
     if session_id:
         query = """
         query GetChatSession($id: ID!) {
@@ -2024,7 +2024,7 @@ def _default_procedure_chat_messages(args: dict[str, Any]) -> dict[str, Any]:
         result = client.execute(query, {"id": str(session_id)})
         if "errors" in result:
             raise RuntimeError(
-                f"plexus.procedure.chat_messages GraphQL errors: {result['errors']}"
+                f"primus.procedure.chat_messages GraphQL errors: {result['errors']}"
             )
         session = None
         if "data" in result:
@@ -2056,7 +2056,7 @@ def _default_procedure_chat_messages(args: dict[str, Any]) -> dict[str, Any]:
         )
         if "errors" in result:
             raise RuntimeError(
-                f"plexus.procedure.chat_messages GraphQL errors: {result['errors']}"
+                f"primus.procedure.chat_messages GraphQL errors: {result['errors']}"
             )
         sessions = []
         if "data" in result:
@@ -2192,14 +2192,14 @@ def _default_procedure_chat_messages(args: dict[str, Any]) -> dict[str, Any]:
 def _default_procedure_steering_messages(args: dict[str, Any]) -> dict[str, Any]:
     """Return flat procedure steering messages for runtime agent injection."""
 
-    from plexus.cli.procedure.chat_recorder import ProcedureChatRecorder
-    from plexus.dashboard.api.client import PlexusDashboardClient
+    from primus.cli.procedure.chat_recorder import ProcedureChatRecorder
+    from primus.dashboard.api.client import PrimusDashboardClient
 
     procedure_id = args.get("procedure_id") or args.get("id")
     if not procedure_id:
-        raise ValueError("plexus.procedure.steering_messages requires id or procedure_id")
+        raise ValueError("primus.procedure.steering_messages requires id or procedure_id")
 
-    recorder = ProcedureChatRecorder(PlexusDashboardClient(), str(procedure_id))
+    recorder = ProcedureChatRecorder(PrimusDashboardClient(), str(procedure_id))
     result = recorder.get_steering_messages(
         after=args.get("after"),
         agent_name=args.get("agent_name"),
@@ -2209,15 +2209,15 @@ def _default_procedure_steering_messages(args: dict[str, Any]) -> dict[str, Any]
 
 
 def _default_feedback_alignment(args: dict[str, Any]) -> dict[str, Any]:
-    """Run plexus.feedback.alignment directly via FeedbackService.
+    """Run primus.feedback.alignment directly via FeedbackService.
 
-    Mirrors the legacy plexus_feedback_alignment MCP tool but native Python,
+    Mirrors the legacy primus_feedback_alignment MCP tool but native Python,
     using memoized resolvers for scorecard/score lookup.
     """
 
-    from plexus.cli.feedback.feedback_service import FeedbackService
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.cli.shared.memoized_resolvers import (
+    from primus.cli.feedback.feedback_service import FeedbackService
+    from primus.cli.shared.client_utils import create_client
+    from primus.cli.shared.memoized_resolvers import (
         memoized_resolve_score_identifier,
         memoized_resolve_scorecard_identifier,
     )
@@ -2226,29 +2226,29 @@ def _default_feedback_alignment(args: dict[str, Any]) -> dict[str, Any]:
     score_name = args.get("score_name") or args.get("score")
     if not scorecard_name or not score_name:
         raise ValueError(
-            "plexus.feedback.alignment requires scorecard_name and score_name"
+            "primus.feedback.alignment requires scorecard_name and score_name"
         )
     days = int(float(args.get("days", 7)))
 
     client = create_client()
     if not client:
         raise RuntimeError(
-            "plexus.feedback.alignment: could not create dashboard client"
+            "primus.feedback.alignment: could not create dashboard client"
         )
     account_id = _resolve_runtime_account_id(
-        client, args, "plexus.feedback.alignment"
+        client, args, "primus.feedback.alignment"
     )
     scorecard_id = memoized_resolve_scorecard_identifier(client, str(scorecard_name))
     if not scorecard_id:
         raise ValueError(
-            f"plexus.feedback.alignment: scorecard {scorecard_name!r} not found"
+            f"primus.feedback.alignment: scorecard {scorecard_name!r} not found"
         )
     score_id = memoized_resolve_score_identifier(
         client, scorecard_id, str(score_name)
     )
     if not score_id:
         raise ValueError(
-            f"plexus.feedback.alignment: score {score_name!r} not found in "
+            f"primus.feedback.alignment: score {score_name!r} not found in "
             f"scorecard {scorecard_name!r}"
         )
 
@@ -2325,11 +2325,11 @@ def _load_feedback_alignment_window(
         response = client.execute(query, variables)
         if not isinstance(response, dict):
             raise TypeError(
-                "plexus.feedback.alignment_batch received an invalid feedback-window response"
+                "primus.feedback.alignment_batch received an invalid feedback-window response"
             )
         if response.get("errors"):
             raise RuntimeError(
-                "plexus.feedback.alignment_batch feedback-window query failed: "
+                "primus.feedback.alignment_batch feedback-window query failed: "
                 + json.dumps(response["errors"])
             )
         page = response.get("listFeedbackItemByAccountIdAndEditedAt")
@@ -2342,7 +2342,7 @@ def _load_feedback_alignment_window(
             )
         if not isinstance(page, dict):
             raise RuntimeError(
-                "plexus.feedback.alignment_batch feedback-window data was missing"
+                "primus.feedback.alignment_batch feedback-window data was missing"
             )
         page_items = page.get("items") or []
         if isinstance(page_items, list):
@@ -2404,7 +2404,7 @@ def _aggregate_feedback_alignment_window(
     """
     if bool(window_start) != bool(window_end):
         raise ValueError(
-            "plexus.feedback.alignment_batch requires both window_start and "
+            "primus.feedback.alignment_batch requires both window_start and "
             "window_end when either is supplied"
         )
     if window_start and window_end:
@@ -2428,11 +2428,11 @@ def _aggregate_feedback_alignment_window(
         response = client.execute(query, variables)
         if not isinstance(response, dict):
             raise TypeError(
-                "plexus.feedback.alignment_batch received an invalid feedback-window response"
+                "primus.feedback.alignment_batch received an invalid feedback-window response"
             )
         if response.get("errors"):
             raise RuntimeError(
-                "plexus.feedback.alignment_batch feedback-window query failed: "
+                "primus.feedback.alignment_batch feedback-window query failed: "
                 + json.dumps(response["errors"])
             )
         page = response.get("listFeedbackItemByAccountIdAndEditedAt")
@@ -2445,7 +2445,7 @@ def _aggregate_feedback_alignment_window(
             )
         if not isinstance(page, dict):
             raise RuntimeError(
-                "plexus.feedback.alignment_batch feedback-window data was missing"
+                "primus.feedback.alignment_batch feedback-window data was missing"
             )
         for item in page.get("items") or []:
             if not isinstance(item, dict):
@@ -2493,7 +2493,7 @@ def _default_feedback_alignment_batch(
     _prefetched_scorecard_data: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
-    Run plexus.feedback.alignment for all scores in one or more scorecards.
+    Run primus.feedback.alignment for all scores in one or more scorecards.
 
     Returns alignment metrics for each score in a single call, avoiding
     N separate API calls when analyzing scorecard-wide performance. An explicit
@@ -2565,11 +2565,11 @@ def _default_feedback_alignment_batch(
             scorecard_limit = int(raw_scorecard_limit)
         except (TypeError, ValueError) as exc:
             raise ValueError(
-                "plexus.feedback.alignment_batch scorecard_limit must be an integer"
+                "primus.feedback.alignment_batch scorecard_limit must be an integer"
             ) from exc
         if not 1 <= scorecard_limit <= 5:
             raise ValueError(
-                "plexus.feedback.alignment_batch scorecard_limit must be between 1 and 5"
+                "primus.feedback.alignment_batch scorecard_limit must be between 1 and 5"
             )
         inventory = _default_scorecards_list(
             {"limit": scorecard_limit, "_include_scores": True}
@@ -2588,21 +2588,21 @@ def _default_feedback_alignment_batch(
 
     if raw_scorecards is not None:
         from concurrent.futures import ThreadPoolExecutor
-        from plexus.cli.shared.client_utils import create_client
+        from primus.cli.shared.client_utils import create_client
 
         if not isinstance(raw_scorecards, (list, tuple)):
             raise ValueError(
-                "plexus.feedback.alignment_batch scorecards must be a list"
+                "primus.feedback.alignment_batch scorecards must be a list"
             )
         scorecard_identifiers: list[str] = []
         for identifier in raw_scorecards:
             if not isinstance(identifier, str):
                 raise ValueError(
-                    "plexus.feedback.alignment_batch scorecards entries must be strings"
+                    "primus.feedback.alignment_batch scorecards entries must be strings"
                 )
             if not identifier.strip():
                 raise ValueError(
-                    "plexus.feedback.alignment_batch scorecards entries must not be blank"
+                    "primus.feedback.alignment_batch scorecards entries must not be blank"
                 )
             scorecard_identifiers.append(identifier)
         if not scorecard_identifiers and portfolio_selection_rule is not None:
@@ -2621,7 +2621,7 @@ def _default_feedback_alignment_batch(
             }
         if not scorecard_identifiers:
             raise ValueError(
-                "plexus.feedback.alignment_batch scorecards must not be empty"
+                "primus.feedback.alignment_batch scorecards must not be empty"
             )
         single_args = dict(args)
         for key in (
@@ -2637,12 +2637,12 @@ def _default_feedback_alignment_batch(
         portfolio_client = create_client()
         if not portfolio_client:
             raise RuntimeError(
-                "plexus.feedback.alignment_batch: could not create dashboard client"
+                "primus.feedback.alignment_batch: could not create dashboard client"
             )
         portfolio_account_id = _resolve_runtime_account_id(
             portfolio_client,
             args,
-            "plexus.feedback.alignment_batch",
+            "primus.feedback.alignment_batch",
         )
         (
             portfolio_feedback_pair_counts,
@@ -2818,9 +2818,9 @@ def _default_feedback_alignment_batch(
             )
         return result
 
-    from plexus.cli.feedback.feedback_service import FeedbackService
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.cli.shared.memoized_resolvers import (
+    from primus.cli.feedback.feedback_service import FeedbackService
+    from primus.cli.shared.client_utils import create_client
+    from primus.cli.shared.memoized_resolvers import (
         memoized_resolve_scorecard_identifier,
     )
 
@@ -2830,7 +2830,7 @@ def _default_feedback_alignment_batch(
         or args.get("scorecard_id")
     )
     if not scorecard_name:
-        raise ValueError("plexus.feedback.alignment_batch requires scorecard")
+        raise ValueError("primus.feedback.alignment_batch requires scorecard")
 
     days = int(float(args.get("days", 7)))
     accuracy_threshold = args.get("accuracy_threshold")
@@ -2843,27 +2843,27 @@ def _default_feedback_alignment_batch(
         scorecard_id = str(data.get("id") or "").strip()
         if not scorecard_id:
             raise ValueError(
-                "plexus.feedback.alignment_batch prefetched scorecard data has no id"
+                "primus.feedback.alignment_batch prefetched scorecard data has no id"
             )
         account_id = _prefetched_account_id
         if not account_id:
             raise ValueError(
-                "plexus.feedback.alignment_batch prefetched scorecard data has no account"
+                "primus.feedback.alignment_batch prefetched scorecard data has no account"
             )
         scorecard_name = data.get("name") or scorecard_name
     else:
         client = create_client()
         if not client:
-            raise RuntimeError("plexus.feedback.alignment_batch: could not create dashboard client")
+            raise RuntimeError("primus.feedback.alignment_batch: could not create dashboard client")
 
         account_id = _prefetched_account_id or _resolve_runtime_account_id(
             client,
             args,
-            "plexus.feedback.alignment_batch",
+            "primus.feedback.alignment_batch",
         )
         scorecard_id = memoized_resolve_scorecard_identifier(client, str(scorecard_name))
         if not scorecard_id:
-            raise ValueError(f"plexus.feedback.alignment_batch: scorecard {scorecard_name!r} not found")
+            raise ValueError(f"primus.feedback.alignment_batch: scorecard {scorecard_name!r} not found")
 
         # Get all scores via the same GraphQL query pattern used by scorecards.info
         import json as _json
@@ -2876,12 +2876,12 @@ def _default_feedback_alignment_batch(
         response = client.execute(query)
         if "errors" in response:
             raise RuntimeError(
-                "plexus.feedback.alignment_batch dashboard error: "
+                "primus.feedback.alignment_batch dashboard error: "
                 + _json.dumps(response["errors"])
             )
         data = response.get("getScorecard")
         if not data:
-            raise ValueError(f"plexus.feedback.alignment_batch: scorecard {scorecard_name!r} not found after query")
+            raise ValueError(f"primus.feedback.alignment_batch: scorecard {scorecard_name!r} not found after query")
         scorecard_name = data.get("name") or scorecard_name
 
     # Flatten scores from all sections
@@ -2964,7 +2964,7 @@ def _default_feedback_alignment_batch(
 
             try:
                 if prefetched_pair_counts_by_score is not None:
-                    from plexus.analysis.feedback_analyzer import analyze_feedback_pair_counts
+                    from primus.analysis.feedback_analyzer import analyze_feedback_pair_counts
 
                     analysis = analyze_feedback_pair_counts(
                         prefetched_pair_counts_by_score.get(score_id, {})
@@ -3011,7 +3011,7 @@ def _default_feedback_alignment_batch(
                 weekly_detail: list[dict[str, Any]] = []
                 if prefetched_by_score is not None and args.get("window_end"):
                     from datetime import datetime, timezone
-                    from plexus.optimization.decision import weekly_buckets
+                    from primus.optimization.decision import weekly_buckets
 
                     pairs = prefetched_by_score.get(score_id, [])
                     timestamps = [pair.editedAt for pair in pairs if getattr(pair, "editedAt", None)]
@@ -3097,15 +3097,15 @@ def _default_feedback_alignment_batch(
 
 
 def _default_feedback_finder(args: dict[str, Any]) -> dict[str, Any]:
-    """Run the production plexus.feedback.find chain.
+    """Run the production primus.feedback.find chain.
 
     Lifted from MCP/tools/feedback/feedback.py so the Tactus host module no
     longer has to bounce back through FastMCP for this read-only call.
     """
 
-    from plexus.cli.feedback.feedback_service import FeedbackService
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.cli.shared.memoized_resolvers import (
+    from primus.cli.feedback.feedback_service import FeedbackService
+    from primus.cli.shared.client_utils import create_client
+    from primus.cli.shared.memoized_resolvers import (
         memoized_resolve_score_identifier,
         memoized_resolve_scorecard_identifier,
     )
@@ -3113,7 +3113,7 @@ def _default_feedback_finder(args: dict[str, Any]) -> dict[str, Any]:
     scorecard_name = args.get("scorecard_name") or args.get("scorecard")
     score_name = args.get("score_name") or args.get("score")
     if not scorecard_name or not score_name:
-        raise ValueError("plexus.feedback.find requires scorecard_name and score_name")
+        raise ValueError("primus.feedback.find requires scorecard_name and score_name")
 
     # A feedback lookup without an explicit window is typically initiated by a
     # conversational request for recent disagreements.  Seven days silently
@@ -3125,7 +3125,7 @@ def _default_feedback_finder(args: dict[str, Any]) -> dict[str, Any]:
     prioritize_edit_comments = bool(args.get("prioritize_edit_comments", True))
 
     client = create_client()
-    account_id = _resolve_runtime_account_id(client, args, "plexus.feedback.find")
+    account_id = _resolve_runtime_account_id(client, args, "primus.feedback.find")
     scorecard_id = memoized_resolve_scorecard_identifier(client, scorecard_name)
     score_id = memoized_resolve_score_identifier(client, scorecard_id, score_name)
 
@@ -3149,10 +3149,10 @@ def _default_feedback_finder(args: dict[str, Any]) -> dict[str, Any]:
 
 
 def _default_evaluation_info(args: dict[str, Any]) -> dict[str, Any]:
-    """Run the production plexus.evaluation.info chain directly.
+    """Run the production primus.evaluation.info chain directly.
 
     Bypasses MCP loopback by calling Evaluation.get_evaluation_info or
-    Evaluation.get_latest_evaluation in plexus/Evaluation.py. Returns a
+    Evaluation.get_latest_evaluation in primus/Evaluation.py. Returns a
     structured dict; callers that need a JSON string should serialize it.
 
     include_examples is intentionally not implemented in this slice; that
@@ -3160,7 +3160,7 @@ def _default_evaluation_info(args: dict[str, Any]) -> dict[str, Any]:
     and will be lifted in a follow-up so it remains unit-testable.
     """
 
-    from plexus.Evaluation import Evaluation
+    from primus.Evaluation import Evaluation
 
     raw_id = args.get("evaluation_id")
     evaluation_id = raw_id.strip() if isinstance(raw_id, str) else raw_id
@@ -3168,25 +3168,25 @@ def _default_evaluation_info(args: dict[str, Any]) -> dict[str, Any]:
 
     if bool(evaluation_id) == use_latest:
         raise ValueError(
-            "plexus.evaluation.info requires exactly one of evaluation_id or use_latest"
+            "primus.evaluation.info requires exactly one of evaluation_id or use_latest"
         )
 
     if args.get("include_examples"):
         raise ValueError(
-            "plexus.evaluation.info include_examples is not yet supported in the "
-            "Tactus runtime; use plexus.evaluation.info without include_examples or "
-            "the MCP plexus_evaluation_info tool until the example-fetching helper "
+            "primus.evaluation.info include_examples is not yet supported in the "
+            "Tactus runtime; use primus.evaluation.info without include_examples or "
+            "the MCP primus_evaluation_info tool until the example-fetching helper "
             "is lifted out of MCP/tools/evaluation/evaluations.py."
         )
 
     include_score_results = bool(args.get("include_score_results", False))
 
     if use_latest:
-        account_key = args.get("account_key") or os.environ.get("PLEXUS_ACCOUNT_KEY")
+        account_key = args.get("account_key") or os.environ.get("PRIMUS_ACCOUNT_KEY")
         if not account_key:
             raise ValueError(
-                "plexus.evaluation.info use_latest requires account_key or "
-                "PLEXUS_ACCOUNT_KEY environment variable"
+                "primus.evaluation.info use_latest requires account_key or "
+                "PRIMUS_ACCOUNT_KEY environment variable"
             )
         evaluation_type = args.get("evaluation_type")
         if isinstance(evaluation_type, str):
@@ -3198,13 +3198,13 @@ def _default_evaluation_info(args: dict[str, Any]) -> dict[str, Any]:
 
 def _default_optimization_persist(packet: dict[str, Any]) -> Any:
     """Persist one exact decision packet through artifact persistence."""
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.optimization.persistence import persist_decision_packet
+    from primus.cli.shared.client_utils import create_client
+    from primus.optimization.persistence import persist_decision_packet
 
     client = create_client()
     if client is None:
         raise RuntimeError(
-            "plexus.optimization persistence could not create a dashboard client"
+            "primus.optimization persistence could not create a dashboard client"
         )
     return persist_decision_packet(packet, client=client, persist=True)
 
@@ -3212,11 +3212,11 @@ def _default_optimization_persist(packet: dict[str, Any]) -> Any:
 def _default_evaluation_archive(args: dict[str, Any]) -> dict[str, Any]:
     """Archive an evaluation by setting status=ARCHIVED and recording archive metadata."""
 
-    from plexus.cli.shared.client_utils import create_client
+    from primus.cli.shared.client_utils import create_client
 
     evaluation_id = args.get("evaluation_id") or args.get("id")
     if not evaluation_id:
-        raise ValueError("plexus.evaluation.archive requires id or evaluation_id")
+        raise ValueError("primus.evaluation.archive requires id or evaluation_id")
 
     reason = args.get("reason")
     archived_by = args.get("archived_by") or args.get("archivedBy")
@@ -3224,7 +3224,7 @@ def _default_evaluation_archive(args: dict[str, Any]) -> dict[str, Any]:
     client = create_client()
     if not client:
         raise RuntimeError(
-            "plexus.evaluation.archive: could not create dashboard client"
+            "primus.evaluation.archive: could not create dashboard client"
         )
 
     query = """
@@ -3287,13 +3287,13 @@ def _default_evaluation_archive(args: dict[str, Any]) -> dict[str, Any]:
 
 
 def _default_score_info(args: dict[str, Any]) -> dict[str, Any]:
-    """Run plexus.score.info directly — mirrors plexus_score_info."""
+    """Run primus.score.info directly — mirrors primus_score_info."""
 
     import os as _os
 
-    from plexus.cli.report.utils import resolve_account_id_for_command
-    from plexus.cli.scorecard.scorecards import resolve_scorecard_identifier
-    from plexus.cli.shared.client_utils import create_client
+    from primus.cli.report.utils import resolve_account_id_for_command
+    from primus.cli.scorecard.scorecards import resolve_scorecard_identifier
+    from primus.cli.shared.client_utils import create_client
 
     score_identifier = (
         args.get("score_identifier")
@@ -3303,7 +3303,7 @@ def _default_score_info(args: dict[str, Any]) -> dict[str, Any]:
         or args.get("key")
     )
     if not score_identifier:
-        raise ValueError("plexus.score.info requires score_identifier (id/name/key)")
+        raise ValueError("primus.score.info requires score_identifier (id/name/key)")
 
     scorecard_identifier = (
         args.get("scorecard_identifier")
@@ -3317,14 +3317,14 @@ def _default_score_info(args: dict[str, Any]) -> dict[str, Any]:
         or args.get("scoreVersionId")
     )
 
-    plexus_url_base = _os.environ.get("PLEXUS_APP_URL", "https://capacity-plexus.anth.us").rstrip("/")
+    primus_url_base = _os.environ.get("PRIMUS_APP_URL", "https://capacity-primus.anth.us").rstrip("/")
 
-    def _plexus_url(path: str) -> str:
-        return f"{plexus_url_base}/{path.lstrip('/')}"
+    def _primus_url(path: str) -> str:
+        return f"{primus_url_base}/{path.lstrip('/')}"
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.score.info: could not create dashboard client")
+        raise RuntimeError("primus.score.info: could not create dashboard client")
 
     found_scores: list[dict] = []
 
@@ -3332,7 +3332,7 @@ def _default_score_info(args: dict[str, Any]) -> dict[str, Any]:
         scorecard_id = resolve_scorecard_identifier(client, str(scorecard_identifier))
         if not scorecard_id:
             raise ValueError(
-                f"plexus.score.info: scorecard {scorecard_identifier!r} not found"
+                f"primus.score.info: scorecard {scorecard_identifier!r} not found"
             )
         result = client.execute(
             f"""query GetScorecardWithScores {{
@@ -3362,7 +3362,7 @@ def _default_score_info(args: dict[str, Any]) -> dict[str, Any]:
         account_id = resolve_account_id_for_command(client, None)
         if not account_id:
             raise RuntimeError(
-                "plexus.score.info: no default account — is PLEXUS_ACCOUNT_KEY set?"
+                "primus.score.info: no default account — is PRIMUS_ACCOUNT_KEY set?"
             )
         result = client.execute(
             f"""query ListScorecardsForSearch {{
@@ -3393,7 +3393,7 @@ def _default_score_info(args: dict[str, Any]) -> dict[str, Any]:
     if not found_scores:
         scope = f" within scorecard {scorecard_identifier!r}" if scorecard_identifier else ""
         raise ValueError(
-            f"plexus.score.info: no scores found matching {score_identifier!r}{scope}"
+            f"primus.score.info: no scores found matching {score_identifier!r}{scope}"
         )
 
     if len(found_scores) > 1:
@@ -3408,7 +3408,7 @@ def _default_score_info(args: dict[str, Any]) -> dict[str, Any]:
                     "scorecardName": m["scorecard"]["name"],
                     "sectionName": m["section"]["name"],
                     "isDisabled": m["score"].get("isDisabled", False),
-                    "dashboardUrl": _plexus_url(
+                    "dashboardUrl": _primus_url(
                         f"lab/scorecards/{m['scorecard']['id']}/scores/{m['score']['id']}"
                     ),
                 }
@@ -3443,7 +3443,7 @@ def _default_score_info(args: dict[str, Any]) -> dict[str, Any]:
             "sectionId": section["id"],
             "sectionName": section["name"],
         },
-        "dashboardUrl": _plexus_url(f"lab/scorecards/{scorecard_id}/scores/{score_id}"),
+        "dashboardUrl": _primus_url(f"lab/scorecards/{scorecard_id}/scores/{score_id}"),
     }
 
     versions_result = client.execute(
@@ -3542,14 +3542,14 @@ _UUID_RE = re.compile(
 
 
 def _default_score_evaluations(args: dict[str, Any]) -> dict[str, Any]:
-    """Run plexus.score.evaluations directly via OptimizerResultsService.
+    """Run primus.score.evaluations directly via OptimizerResultsService.
 
     Accepts either:
       - { id = "<score-uuid>" }  — direct score ID, no scorecard lookup needed
       - { scorecard = "...", score = "..." }  — resolved via memoized resolvers
     """
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.cli.shared.optimizer_results import OptimizerResultsService
+    from primus.cli.shared.client_utils import create_client
+    from primus.cli.shared.optimizer_results import OptimizerResultsService
 
     version_id = args.get("version_id")
     sort_by = str(args.get("sort_by") or "updated")
@@ -3558,7 +3558,7 @@ def _default_score_evaluations(args: dict[str, Any]) -> dict[str, Any]:
     client = create_client()
     if not client:
         raise RuntimeError(
-            "plexus.score.evaluations: could not create dashboard client"
+            "primus.score.evaluations: could not create dashboard client"
         )
 
     # Fast path: direct UUID provided — no resolution needed.
@@ -3566,7 +3566,7 @@ def _default_score_evaluations(args: dict[str, Any]) -> dict[str, Any]:
     if direct_id and _UUID_RE.match(str(direct_id)):
         score_id = str(direct_id)
     else:
-        from plexus.cli.shared.memoized_resolvers import (
+        from primus.cli.shared.memoized_resolvers import (
             memoized_resolve_score_identifier,
             memoized_resolve_scorecard_identifier,
         )
@@ -3577,19 +3577,19 @@ def _default_score_evaluations(args: dict[str, Any]) -> dict[str, Any]:
         )
         if not scorecard_identifier or not score_identifier:
             raise ValueError(
-                "plexus.score.evaluations requires either { id = '<score-uuid>' } "
+                "primus.score.evaluations requires either { id = '<score-uuid>' } "
                 "or { scorecard = '...', score = '...' }"
             )
 
         scorecard_id = memoized_resolve_scorecard_identifier(client, str(scorecard_identifier))
         if not scorecard_id:
             raise ValueError(
-                f"plexus.score.evaluations: scorecard {scorecard_identifier!r} not found"
+                f"primus.score.evaluations: scorecard {scorecard_identifier!r} not found"
             )
         score_id = memoized_resolve_score_identifier(client, scorecard_id, str(score_identifier))
         if not score_id:
             raise ValueError(
-                f"plexus.score.evaluations: score {score_identifier!r} not found"
+                f"primus.score.evaluations: score {score_identifier!r} not found"
             )
 
     service = OptimizerResultsService(client)
@@ -3600,17 +3600,17 @@ def _default_score_evaluations(args: dict[str, Any]) -> dict[str, Any]:
 
 
 def _default_score_predict(args: dict[str, Any]) -> dict[str, Any]:
-    """Run plexus.score.predict directly — mirrors plexus_predict."""
+    """Run primus.score.predict directly — mirrors primus_predict."""
 
     import asyncio
     import json as _json
     import traceback as _traceback
     from decimal import Decimal
 
-    from plexus.cli.scorecard.scorecards import resolve_scorecard_identifier
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.dashboard.api.models.item import Item as PlexusItem
-    from plexus.scores.Score import Score
+    from primus.cli.scorecard.scorecards import resolve_scorecard_identifier
+    from primus.cli.shared.client_utils import create_client
+    from primus.dashboard.api.models.item import Item as PrimusItem
+    from primus.scores.Score import Score
 
     def _sanitize_dec(obj: Any) -> Any:
         if isinstance(obj, Decimal):
@@ -3625,7 +3625,7 @@ def _default_score_predict(args: dict[str, Any]) -> dict[str, Any]:
     score_identifier = args.get("score_identifier")
     if not scorecard_identifier or not score_identifier:
         raise ValueError(
-            "plexus.score.predict requires scorecard_identifier and score_identifier"
+            "primus.score.predict requires scorecard_identifier and score_identifier"
         )
 
     item_id = args.get("item_id") or args.get("id") or args.get("item")
@@ -3638,15 +3638,15 @@ def _default_score_predict(args: dict[str, Any]) -> dict[str, Any]:
     yaml_path = args.get("yaml_path")
 
     if not item_id and not item_ids_raw:
-        raise ValueError("plexus.score.predict requires item_id or item_ids")
+        raise ValueError("primus.score.predict requires item_id or item_ids")
     if item_id and item_ids_raw:
-        raise ValueError("plexus.score.predict: specify item_id or item_ids, not both")
+        raise ValueError("primus.score.predict: specify item_id or item_ids, not both")
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.score.predict: could not create dashboard client")
+        raise RuntimeError("primus.score.predict: could not create dashboard client")
     account_id = None if yaml_mode else _resolve_runtime_account_id(
-        client, args, "plexus.score.predict"
+        client, args, "primus.score.predict"
     )
 
     if yaml_mode:
@@ -3660,7 +3660,7 @@ def _default_score_predict(args: dict[str, Any]) -> dict[str, Any]:
         )
         if not scorecard_id_resolved:
             raise ValueError(
-                f"plexus.score.predict: scorecard {scorecard_identifier!r} not found"
+                f"primus.score.predict: scorecard {scorecard_identifier!r} not found"
             )
         scorecard_id = scorecard_id_resolved
         sc_result = client.execute(
@@ -3676,11 +3676,11 @@ def _default_score_predict(args: dict[str, Any]) -> dict[str, Any]:
         scorecard_data = sc_result.get("getScorecard")
         if not scorecard_data:
             raise ValueError(
-                f"plexus.score.predict: could not load scorecard {scorecard_identifier!r}"
+                f"primus.score.predict: could not load scorecard {scorecard_identifier!r}"
             )
 
         try:
-            from plexus.cli.shared.identifier_resolution import (
+            from primus.cli.shared.identifier_resolution import (
                 resolve_score_identifier as _rsi,
             )
             resolved_score_id = _rsi(client, scorecard_id, str(score_identifier))
@@ -3703,14 +3703,14 @@ def _default_score_predict(args: dict[str, Any]) -> dict[str, Any]:
                 break
         if not resolved_score:
             raise ValueError(
-                f"plexus.score.predict: score {score_identifier!r} not found in "
+                f"primus.score.predict: score {score_identifier!r} not found in "
                 f"scorecard {scorecard_identifier!r}"
             )
 
     resolved_version = version if not latest else None
     if latest and not yaml_mode:
         try:
-            from plexus.cli.evaluation.evaluations import get_latest_score_version
+            from primus.cli.evaluation.evaluations import get_latest_score_version
             v = get_latest_score_version(client, resolved_score["id"])
             if v:
                 resolved_version = v
@@ -3724,7 +3724,7 @@ def _default_score_predict(args: dict[str, Any]) -> dict[str, Any]:
 
     if not yaml_mode:
         try:
-            from plexus.cli.shared.identifier_resolution import (
+            from primus.cli.shared.identifier_resolution import (
                 resolve_item_identifier as _rii,
             )
             resolved_ids = []
@@ -3740,19 +3740,19 @@ def _default_score_predict(args: dict[str, Any]) -> dict[str, Any]:
 
     if yaml_mode and yaml_path:
         import yaml as _yaml
-        from plexus.scores.Scorecard import Scorecard
+        from primus.scores.Scorecard import Scorecard
         with open(yaml_path, "r") as f:
             sc_cfg = _yaml.safe_load(f.read())
         scorecard_instance = Scorecard({"name": scorecard_identifier, "sections": [{"name": "Custom", "scores": [sc_cfg]}]})
         scorecard_instance.yaml_only = True
     elif yaml_mode:
-        from plexus.cli.evaluation.evaluations import load_scorecard_from_yaml_files
+        from primus.cli.evaluation.evaluations import load_scorecard_from_yaml_files
         scorecard_instance = load_scorecard_from_yaml_files(
             str(scorecard_identifier), score_names=[str(score_identifier)]
         )
         scorecard_instance.yaml_only = True
     else:
-        from plexus.cli.evaluation.evaluations import load_scorecard_from_api
+        from primus.cli.evaluation.evaluations import load_scorecard_from_api
         scorecard_instance = load_scorecard_from_api(
             str(scorecard_identifier), score_names=[str(score_identifier)],
             use_cache=False, specific_version=resolved_version
@@ -3801,7 +3801,7 @@ def _default_score_predict(args: dict[str, Any]) -> dict[str, Any]:
                     pass
 
             try:
-                item_obj = PlexusItem.from_dict(item_data, client)
+                item_obj = PrimusItem.from_dict(item_data, client)
             except Exception:
                 item_obj = None
 
@@ -3889,8 +3889,8 @@ def _default_score_set_champion(args: dict[str, Any]) -> dict[str, Any]:
     import uuid as _uuid
     from datetime import datetime, timezone
 
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.cli.shared.optimizer_shadow_invalidation import (
+    from primus.cli.shared.client_utils import create_client
+    from primus.cli.shared.optimizer_shadow_invalidation import (
         extract_shadow_invalid_feedback_item_ids_from_yaml_text,
     )
 
@@ -3899,17 +3899,17 @@ def _default_score_set_champion(args: dict[str, Any]) -> dict[str, Any]:
     expected_champion_version_id = args.get("expected_champion_version_id")
     if not score_id or not version_id:
         raise ValueError(
-            "plexus.score.set_champion requires score_id and version_id"
+            "primus.score.set_champion requires score_id and version_id"
         )
     if expected_champion_version_id is not None and not str(expected_champion_version_id):
         raise ValueError(
-            "plexus.score.set_champion expected_champion_version_id must be non-empty when supplied"
+            "primus.score.set_champion expected_champion_version_id must be non-empty when supplied"
         )
 
     client = create_client()
     if not client:
         raise RuntimeError(
-            "plexus.score.set_champion: could not create dashboard client"
+            "primus.score.set_champion: could not create dashboard client"
         )
 
     check_result = client.execute(
@@ -4066,7 +4066,7 @@ def _default_score_set_champion(args: dict[str, Any]) -> dict[str, Any]:
         }
     if not promo_result or "updateScore" not in promo_result:
         raise RuntimeError(
-            f"plexus.score.set_champion: mutation failed: {promo_result}"
+            f"primus.score.set_champion: mutation failed: {promo_result}"
         )
 
     updated = promo_result["updateScore"]
@@ -4172,7 +4172,7 @@ def _default_score_set_champion(args: dict[str, Any]) -> dict[str, Any]:
 
 
 def _default_score_contradictions(args: dict[str, Any]) -> dict[str, Any]:
-    """Run plexus.score.contradictions — checks ScoreVersion code vs. rubric for consistency.
+    """Run primus.score.contradictions — checks ScoreVersion code vs. rubric for consistency.
 
     Required args:
         scorecard (str): Scorecard name, key, or ID.
@@ -4188,27 +4188,27 @@ def _default_score_contradictions(args: dict[str, Any]) -> dict[str, Any]:
     checked_at, model, diagnostics.
     """
 
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.cli.score.scores import (
+    from primus.cli.shared.client_utils import create_client
+    from primus.cli.score.scores import (
         memoized_resolve_scorecard_identifier,
         memoized_resolve_score_identifier,
     )
-    from plexus.score_rubric_consistency import ScoreRubricConsistencyService
+    from primus.score_rubric_consistency import ScoreRubricConsistencyService
 
     scorecard_identifier = args.get("scorecard") or args.get("scorecard_identifier") or args.get("scorecard_name")
     score_identifier = args.get("score") or args.get("score_identifier") or args.get("score_name")
     score_version_id = args.get("version") or args.get("version_id") or args.get("score_version_id")
 
     if not scorecard_identifier:
-        raise ValueError("plexus.score.contradictions requires 'scorecard'")
+        raise ValueError("primus.score.contradictions requires 'scorecard'")
     if not score_identifier:
-        raise ValueError("plexus.score.contradictions requires 'score'")
+        raise ValueError("primus.score.contradictions requires 'score'")
     if not score_version_id:
-        raise ValueError("plexus.score.contradictions requires 'version' (ScoreVersion UUID)")
+        raise ValueError("primus.score.contradictions requires 'version' (ScoreVersion UUID)")
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.score.contradictions: could not create dashboard client")
+        raise RuntimeError("primus.score.contradictions: could not create dashboard client")
 
     scorecard_id = memoized_resolve_scorecard_identifier(client, str(scorecard_identifier))
     if not scorecard_id:
@@ -4221,7 +4221,7 @@ def _default_score_contradictions(args: dict[str, Any]) -> dict[str, Any]:
     item_id = args.get("item_id") or args.get("item")
     if item_id:
         from MCP.tools.tactus_runtime._item_helpers import _get_identifiers_for_item
-        from plexus.cli.shared.client_utils import create_client as _cc
+        from primus.cli.shared.client_utils import create_client as _cc
 
         _client2 = _cc()
         try:
@@ -4245,12 +4245,12 @@ def _default_score_contradictions(args: dict[str, Any]) -> dict[str, Any]:
 
 def _semantic_diagnosis_must_fail_closed(exc: Exception) -> bool:
     """Return whether continuing could make another unauthorized model contact."""
-    from plexus.optimization.run_report import (
+    from primus.optimization.run_report import (
         OptimizationRunIntegrityError,
         OptimizationRunPublicationError,
     )
-    from plexus.optimization.semantic_authority import SemanticAuthorityError
-    from plexus.optimization.semantic_budget import SemanticBudgetError
+    from primus.optimization.semantic_authority import SemanticAuthorityError
+    from primus.optimization.semantic_budget import SemanticBudgetError
 
     fail_closed: tuple[type[BaseException], ...] = (
         SemanticAuthorityError,
@@ -4270,13 +4270,13 @@ def _semantic_diagnosis_must_fail_closed(exc: Exception) -> bool:
 
 
 def _default_item_last(args: dict[str, Any]) -> Any:
-    """Run plexus.item.last directly using Item dashboard API."""
+    """Run primus.item.last directly using Item dashboard API."""
 
     import asyncio
 
-    from plexus.cli.report.utils import resolve_account_id_for_command
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.dashboard.api.models.item import Item
+    from primus.cli.report.utils import resolve_account_id_for_command
+    from primus.cli.shared.client_utils import create_client
+    from primus.dashboard.api.models.item import Item
     from MCP.tools.tactus_runtime._item_helpers import (
         _get_feedback_items_for_item,
         _get_identifiers_for_item,
@@ -4289,12 +4289,12 @@ def _default_item_last(args: dict[str, Any]) -> Any:
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.item.last: could not create dashboard client")
+        raise RuntimeError("primus.item.last: could not create dashboard client")
 
     account_id = resolve_account_id_for_command(client, None)
     if not account_id:
         raise RuntimeError(
-            "plexus.item.last: could not resolve account ID — is PLEXUS_ACCOUNT_KEY set?"
+            "primus.item.last: could not resolve account ID — is PRIMUS_ACCOUNT_KEY set?"
         )
 
     query = f"""
@@ -4309,7 +4309,7 @@ def _default_item_last(args: dict[str, Any]) -> Any:
     response = client.execute(query, {"accountId": account_id, "limit": count})
     if "errors" in response:
         raise RuntimeError(
-            f"plexus.item.last dashboard error: {response['errors']}"
+            f"primus.item.last dashboard error: {response['errors']}"
         )
 
     items = (
@@ -4352,13 +4352,13 @@ def _default_item_last(args: dict[str, Any]) -> Any:
 
 
 def _default_item_info(args: dict[str, Any]) -> dict[str, Any]:
-    """Run plexus.item.info directly using Item dashboard API."""
+    """Run primus.item.info directly using Item dashboard API."""
 
     from datetime import datetime
 
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.dashboard.api.models.item import Item
-    from plexus.utils.identifier_search import find_item_by_identifier
+    from primus.cli.shared.client_utils import create_client
+    from primus.dashboard.api.models.item import Item
+    from primus.utils.identifier_search import find_item_by_identifier
     from MCP.tools.tactus_runtime._item_helpers import (
         _get_feedback_items_for_item,
         _get_identifiers_for_item,
@@ -4373,12 +4373,12 @@ def _default_item_info(args: dict[str, Any]) -> dict[str, Any]:
         or args.get("item")
     )
     if not item_id:
-        raise ValueError("plexus.item.info requires id or item_id")
+        raise ValueError("primus.item.info requires id or item_id")
     minimal = bool(args.get("minimal", False))
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.item.info: could not create dashboard client")
+        raise RuntimeError("primus.item.info: could not create dashboard client")
 
     item = None
     lookup_method = "unknown"
@@ -4448,7 +4448,7 @@ def _default_item_info(args: dict[str, Any]) -> dict[str, Any]:
 
     if not item:
         raise ValueError(
-            f"plexus.item.info: item {item_id!r} not found "
+            f"primus.item.info: item {item_id!r} not found "
             "(tried direct ID, identifier search, identifiers table GSI)"
         )
 
@@ -4498,14 +4498,14 @@ def _default_item_info(args: dict[str, Any]) -> dict[str, Any]:
 
 
 def _default_dataset_build_from_feedback_window(args: dict[str, Any]) -> dict[str, Any]:
-    """Run plexus.dataset.build_from_feedback_window directly via curation."""
+    """Run primus.dataset.build_from_feedback_window directly via curation."""
 
-    from plexus.cli.dataset.curation import (
+    from primus.cli.dataset.curation import (
         build_associated_dataset_from_feedback_window,
     )
-    from plexus.cli.dataset.datasets import create_client
-    from plexus.cli.evaluation.evaluations import validate_dataset_materialization
-    from plexus.cli.shared.identifier_resolution import (
+    from primus.cli.dataset.datasets import create_client
+    from primus.cli.evaluation.evaluations import validate_dataset_materialization
+    from primus.cli.shared.identifier_resolution import (
         resolve_score_identifier,
         resolve_scorecard_identifier,
     )
@@ -4514,7 +4514,7 @@ def _default_dataset_build_from_feedback_window(args: dict[str, Any]) -> dict[st
     score = args.get("score") or args.get("score_identifier")
     if not scorecard or not score:
         raise ValueError(
-            "plexus.dataset.build_from_feedback_window requires scorecard and score"
+            "primus.dataset.build_from_feedback_window requires scorecard and score"
         )
 
     max_items = int(args.get("max_items", 100))
@@ -4526,12 +4526,12 @@ def _default_dataset_build_from_feedback_window(args: dict[str, Any]) -> dict[st
     scorecard_id = resolve_scorecard_identifier(client, str(scorecard))
     if not scorecard_id:
         raise ValueError(
-            f"plexus.dataset.build_from_feedback_window: scorecard {scorecard!r} not found"
+            f"primus.dataset.build_from_feedback_window: scorecard {scorecard!r} not found"
         )
     score_id = resolve_score_identifier(client, scorecard_id, str(score))
     if not score_id:
         raise ValueError(
-            f"plexus.dataset.build_from_feedback_window: score {score!r} not found"
+            f"primus.dataset.build_from_feedback_window: score {score!r} not found"
         )
 
     result = build_associated_dataset_from_feedback_window(
@@ -4551,7 +4551,7 @@ def _default_dataset_build_from_feedback_window(args: dict[str, Any]) -> dict[st
     if not readiness.get("is_materialized"):
         reason = readiness.get("materialization_error") or "unknown"
         raise RuntimeError(
-            "plexus.dataset.build_from_feedback_window completed without a "
+            "primus.dataset.build_from_feedback_window completed without a "
             f"materialized file pointer. dataset_id={dataset_id} reason={reason}"
         )
 
@@ -4562,18 +4562,18 @@ def _default_dataset_build_from_feedback_window(args: dict[str, Any]) -> dict[st
 
 
 def _default_dataset_check_associated(args: dict[str, Any]) -> dict[str, Any]:
-    """Run plexus.dataset.check_associated directly."""
+    """Run primus.dataset.check_associated directly."""
 
-    from plexus.cli.dataset.datasets import create_client
-    from plexus.cli.evaluation.evaluations import (
+    from primus.cli.dataset.datasets import create_client
+    from primus.cli.evaluation.evaluations import (
         list_associated_datasets_for_score,
         validate_dataset_materialization,
     )
-    from plexus.cli.shared.identifier_resolution import (
+    from primus.cli.shared.identifier_resolution import (
         resolve_score_identifier,
         resolve_scorecard_identifier,
     )
-    from plexus.cli.shared.optimizer_shadow_invalidation import (
+    from primus.cli.shared.optimizer_shadow_invalidation import (
         resolve_score_version_shadow_invalidation_metadata,
     )
 
@@ -4581,7 +4581,7 @@ def _default_dataset_check_associated(args: dict[str, Any]) -> dict[str, Any]:
     score = args.get("score") or args.get("score_identifier")
     if not scorecard or not score:
         raise ValueError(
-            "plexus.dataset.check_associated requires scorecard and score"
+            "primus.dataset.check_associated requires scorecard and score"
         )
     score_version_id = args.get("score_version_id")
     days = args.get("days")
@@ -4590,12 +4590,12 @@ def _default_dataset_check_associated(args: dict[str, Any]) -> dict[str, Any]:
     scorecard_id = resolve_scorecard_identifier(client, str(scorecard))
     if not scorecard_id:
         raise ValueError(
-            f"plexus.dataset.check_associated: scorecard {scorecard!r} not found"
+            f"primus.dataset.check_associated: scorecard {scorecard!r} not found"
         )
     score_id = resolve_score_identifier(client, scorecard_id, str(score))
     if not score_id:
         raise ValueError(
-            f"plexus.dataset.check_associated: score {score!r} not found"
+            f"primus.dataset.check_associated: score {score!r} not found"
         )
 
     expected_feedback_target_hash: str | None = None
@@ -4736,18 +4736,18 @@ def _default_dataset_check_associated(args: dict[str, Any]) -> dict[str, Any]:
 
 
 def _default_report_configurations_list(args: dict[str, Any]) -> Any:
-    """Run plexus.report.configurations_list directly via dashboard GraphQL."""
+    """Run primus.report.configurations_list directly via dashboard GraphQL."""
 
-    from plexus.cli.shared.client_utils import create_client
+    from primus.cli.shared.client_utils import create_client
 
     client = create_client()
     if not client:
         raise RuntimeError(
-            "plexus.report.configurations_list: could not create dashboard client"
+            "primus.report.configurations_list: could not create dashboard client"
         )
 
     account_id = _resolve_runtime_account_id(
-        client, args, "plexus.report.configurations_list"
+        client, args, "primus.report.configurations_list"
     )
 
     query = (
@@ -4759,7 +4759,7 @@ def _default_report_configurations_list(args: dict[str, Any]) -> Any:
     response = client.execute(query)
     if "errors" in response:
         raise RuntimeError(
-            f"plexus.report.configurations_list dashboard error: {response['errors']}"
+            f"primus.report.configurations_list dashboard error: {response['errors']}"
         )
 
     configs = (
@@ -4894,7 +4894,7 @@ def _report_decision_summary(
     overview = revision.get("overview")
     if not isinstance(overview, Mapping):
         return None
-    from plexus.optimization.report_actions import build_decision_summary
+    from primus.optimization.report_actions import build_decision_summary
 
     raw_counts = overview.get("primary_disposition_counts")
     disposition_counts = raw_counts if isinstance(raw_counts, Mapping) else {}
@@ -4922,8 +4922,8 @@ def _load_report_for_runtime_account(
     args: dict[str, Any],
     api_name: str,
 ) -> tuple[Any, str, Any]:
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.dashboard.api.models.report import Report
+    from primus.cli.shared.client_utils import create_client
+    from primus.dashboard.api.models.report import Report
 
     report_id = str(args.get("report_id") or args.get("id") or "").strip()
     if not report_id:
@@ -4987,7 +4987,7 @@ def _download_report_artifact_bytes(
     *,
     artifact_store: Any = None,
 ) -> bytes:
-    from plexus.storage.graphql_artifact_store import (
+    from primus.storage.graphql_artifact_store import (
         ArtifactTransferRequest,
         GraphQLArtifactStore,
     )
@@ -5032,7 +5032,7 @@ def _report_artifact_index(
     loaded_report: tuple[Any, str, Any] | None = None,
 ) -> tuple[Any, str, Any, dict[str, Any], list[dict[str, Any]]]:
     client, account_id, report = loaded_report or _load_report_for_runtime_account(
-        args, "plexus.report.artifacts",
+        args, "primus.report.artifacts",
     )
     revision = _report_revision_record(report, args.get("revision"))
     if revision is None:
@@ -5164,14 +5164,14 @@ def _coerce_positive_int(value: Any, *, default: int, maximum: int) -> int:
 def _default_report_list(args: dict[str, Any]) -> dict[str, Any]:
     """List persisted reports for the runtime account."""
 
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.dashboard.api.models.report import Report
+    from primus.cli.shared.client_utils import create_client
+    from primus.dashboard.api.models.report import Report
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.report.list: could not create dashboard client")
+        raise RuntimeError("primus.report.list: could not create dashboard client")
 
-    account_id = _resolve_runtime_account_id(client, args, "plexus.report.list")
+    account_id = _resolve_runtime_account_id(client, args, "primus.report.list")
     limit = _coerce_positive_int(args.get("limit"), default=20, maximum=100)
     name_filter = str(args.get("name") or "").strip()
     configuration_id = str(
@@ -5203,7 +5203,7 @@ def _default_report_info(
 ) -> dict[str, Any]:
     """Return compact Report metadata plus the verified latest agent handoff."""
     client, account_id, report = _load_report_for_runtime_account(
-        args, "plexus.report.info",
+        args, "primus.report.info",
     )
     result = _serialize_report_model(report)
     result["agent_handoff"] = None
@@ -5263,9 +5263,9 @@ def _default_report_artifacts(
     try:
         offset = int(raw_cursor) if raw_cursor not in (None, "") else 0
     except (TypeError, ValueError) as exc:
-        raise ValueError("plexus.report.artifacts cursor is invalid") from exc
+        raise ValueError("primus.report.artifacts cursor is invalid") from exc
     if offset < 0 or offset > len(artifacts):
-        raise ValueError("plexus.report.artifacts cursor is out of range")
+        raise ValueError("primus.report.artifacts cursor is out of range")
     selected = artifacts[offset: offset + limit]
     next_offset = offset + len(selected)
     revision_number = int(revision.get("number") or 0)
@@ -5295,7 +5295,7 @@ def _default_report_artifact(
     )
     logical_id = str(args.get("logical_id") or "").strip()
     if not logical_id:
-        raise ValueError("plexus.report.artifact requires logical_id")
+        raise ValueError("primus.report.artifact requires logical_id")
     descriptor = next(
         (item for item in artifacts if str(item.get("logical_id") or "") == logical_id),
         None,
@@ -5336,19 +5336,19 @@ def _default_report_artifact(
 def _default_report_blocks(args: dict[str, Any]) -> dict[str, Any]:
     """List persisted blocks for one report after account ownership validation."""
 
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.dashboard.api.models.report import Report
-    from plexus.dashboard.api.models.report_block import ReportBlock
+    from primus.cli.shared.client_utils import create_client
+    from primus.dashboard.api.models.report import Report
+    from primus.dashboard.api.models.report_block import ReportBlock
 
     report_id = str(args.get("report_id") or args.get("id") or "").strip()
     if not report_id:
-        raise ValueError("plexus.report.blocks requires report_id or id")
+        raise ValueError("primus.report.blocks requires report_id or id")
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.report.blocks: could not create dashboard client")
+        raise RuntimeError("primus.report.blocks: could not create dashboard client")
 
-    account_id = _resolve_runtime_account_id(client, args, "plexus.report.blocks")
+    account_id = _resolve_runtime_account_id(client, args, "primus.report.blocks")
     report = Report.get_by_id(report_id, client)
     if report is None:
         raise ValueError(f"Report not found: {report_id}")
@@ -5373,19 +5373,19 @@ def _default_report_blocks(args: dict[str, Any]) -> dict[str, Any]:
 
 
 def _default_evaluation_compare(args: dict[str, Any]) -> dict[str, Any]:
-    """Run plexus.evaluation.compare directly via Evaluation.get_evaluation_info."""
+    """Run primus.evaluation.compare directly via Evaluation.get_evaluation_info."""
 
-    from plexus.Evaluation import Evaluation
+    from primus.Evaluation import Evaluation
 
     evaluation_id = args.get("evaluation_id")
     baseline_evaluation_id = (
         args.get("baseline_evaluation_id") or args.get("baseline_id")
     )
     if not evaluation_id or not str(evaluation_id).strip():
-        raise ValueError("plexus.evaluation.compare requires evaluation_id")
+        raise ValueError("primus.evaluation.compare requires evaluation_id")
     if not baseline_evaluation_id or not str(baseline_evaluation_id).strip():
         raise ValueError(
-            "plexus.evaluation.compare requires baseline_evaluation_id"
+            "primus.evaluation.compare requires baseline_evaluation_id"
         )
 
     current_eval = Evaluation.get_evaluation_info(
@@ -5435,12 +5435,12 @@ def _default_evaluation_compare(args: dict[str, Any]) -> dict[str, Any]:
 
 
 def _default_evaluation_find_recent(args: dict[str, Any]) -> dict[str, Any]:
-    """Run plexus.evaluation.find_recent directly against the dashboard."""
+    """Run primus.evaluation.find_recent directly against the dashboard."""
 
     from datetime import datetime, timedelta, timezone
 
-    from plexus.dashboard.api.client import PlexusDashboardClient
-    from plexus.Evaluation import Evaluation
+    from primus.dashboard.api.client import PrimusDashboardClient
+    from primus.Evaluation import Evaluation
 
     score_version_id = args.get("score_version_id")
     evaluation_type = args.get("evaluation_type")
@@ -5451,8 +5451,8 @@ def _default_evaluation_find_recent(args: dict[str, Any]) -> dict[str, Any]:
         score_id_or_name = args.get("score") or args.get("score_identifier") or args.get("id")
         if scorecard_id_or_name and score_id_or_name:
             try:
-                from plexus.cli.shared.client_utils import create_client as _cc
-                from plexus.cli.shared.memoized_resolvers import (
+                from primus.cli.shared.client_utils import create_client as _cc
+                from primus.cli.shared.memoized_resolvers import (
                     memoized_resolve_scorecard_identifier,
                 )
 
@@ -5490,11 +5490,11 @@ def _default_evaluation_find_recent(args: dict[str, Any]) -> dict[str, Any]:
 
     if not score_version_id:
         raise ValueError(
-            "plexus.evaluation.find_recent requires score_version_id "
+            "primus.evaluation.find_recent requires score_version_id "
             "(or { scorecard = '...', score = '...' } to auto-resolve it)"
         )
     if not evaluation_type:
-        raise ValueError("plexus.evaluation.find_recent requires evaluation_type")
+        raise ValueError("primus.evaluation.find_recent requires evaluation_type")
 
     max_age_hours = float(args.get("max_age_hours", 24.0))
     min_items = int(args.get("min_items", 0))
@@ -5506,7 +5506,7 @@ def _default_evaluation_find_recent(args: dict[str, Any]) -> dict[str, Any]:
     feedback_start_at = args.get("feedback_start_at")
     feedback_end_at = args.get("feedback_end_at")
 
-    client = PlexusDashboardClient()
+    client = PrimusDashboardClient()
     query = """
     query FindRecentEvalByVersion($scoreVersionId: String!, $limit: Int) {
       listEvaluationByScoreVersionIdAndCreatedAt(
@@ -5679,7 +5679,7 @@ def _default_evaluation_find_recent(args: dict[str, Any]) -> dict[str, Any]:
 
 
 def _default_evaluation_runner(args: dict[str, Any], mcp: "FastMCP | None") -> dict[str, Any]:
-    """Dispatch evaluation.run directly through the Plexus CLI in async mode.
+    """Dispatch evaluation.run directly through the Primus CLI in async mode.
 
     Uses --emit-id-file to capture the evaluation_id from the subprocess so the
     handle store can poll the evaluation status via the dashboard API once the
@@ -5692,14 +5692,14 @@ def _default_evaluation_runner(args: dict[str, Any], mcp: "FastMCP | None") -> d
 
     scorecard_name = args.get("scorecard_name") or args.get("scorecard")
     if not scorecard_name:
-        raise ValueError("plexus.evaluation.run requires scorecard_name")
+        raise ValueError("primus.evaluation.run requires scorecard_name")
 
     evaluation_type = str(args.get("evaluation_type") or "accuracy").strip().lower()
-    plexus_bin = shutil.which("plexus") or "plexus"
+    primus_bin = shutil.which("primus") or "primus"
 
     # Temp file for evaluation_id capture (read after process starts)
     id_tmpfile = tempfile.NamedTemporaryFile(
-        prefix="plexus_eval_id_", suffix=".txt", delete=False
+        prefix="primus_eval_id_", suffix=".txt", delete=False
     )
     id_tmpfile.close()
     id_file_path = id_tmpfile.name
@@ -5707,9 +5707,9 @@ def _default_evaluation_runner(args: dict[str, Any], mcp: "FastMCP | None") -> d
     if evaluation_type == "feedback":
         score_name = args.get("score_name") or args.get("score")
         if not score_name:
-            raise ValueError("plexus.evaluation.run feedback requires score_name")
+            raise ValueError("primus.evaluation.run feedback requires score_name")
         cmd = [
-            plexus_bin,
+            primus_bin,
             "evaluate",
             "feedback",
             "--scorecard",
@@ -5737,7 +5737,7 @@ def _default_evaluation_runner(args: dict[str, Any], mcp: "FastMCP | None") -> d
             cmd.append("--score-rubric-consistency-check")
     elif evaluation_type == "accuracy":
         cmd = [
-            plexus_bin,
+            primus_bin,
             "evaluate",
             "accuracy",
             "--scorecard",
@@ -5767,7 +5767,7 @@ def _default_evaluation_runner(args: dict[str, Any], mcp: "FastMCP | None") -> d
             cmd.append("--yaml")
     else:
         raise ValueError(
-            "plexus.evaluation.run evaluation_type must be 'accuracy' or 'feedback'"
+            "primus.evaluation.run evaluation_type must be 'accuracy' or 'feedback'"
         )
 
     _append_optional_cli_arg(cmd, "--baseline", args.get("baseline"))
@@ -5778,13 +5778,13 @@ def _default_evaluation_runner(args: dict[str, Any], mcp: "FastMCP | None") -> d
     child_budget = args.get("budget")
     env = apply_actor_context_to_env(os.environ.copy())
     if isinstance(child_budget, dict):
-        env["PLEXUS_CHILD_BUDGET"] = json.dumps(_jsonable(child_budget), sort_keys=True)
+        env["PRIMUS_CHILD_BUDGET"] = json.dumps(_jsonable(child_budget), sort_keys=True)
 
     stdout_tmp = tempfile.NamedTemporaryFile(
-        prefix="plexus_eval_stdout_", suffix=".log", delete=False
+        prefix="primus_eval_stdout_", suffix=".log", delete=False
     )
     stderr_tmp = tempfile.NamedTemporaryFile(
-        prefix="plexus_eval_stderr_", suffix=".log", delete=False
+        prefix="primus_eval_stderr_", suffix=".log", delete=False
     )
     stdout_log_path = stdout_tmp.name
     stderr_log_path = stderr_tmp.name
@@ -5877,10 +5877,10 @@ def _append_optional_cli_arg(cmd: list[str], flag: str, value: Any) -> None:
 
 
 def _resolve_report_dispatch_mode() -> str:
-    mode = os.environ.get("PLEXUS_DISPATCH_MODE", "celery").strip().lower()
+    mode = os.environ.get("PRIMUS_DISPATCH_MODE", "celery").strip().lower()
     if mode not in {"celery", "local"}:
         raise ValueError(
-            f"Invalid PLEXUS_DISPATCH_MODE={mode!r}. Valid values: celery, local."
+            f"Invalid PRIMUS_DISPATCH_MODE={mode!r}. Valid values: celery, local."
         )
     return mode
 
@@ -5902,27 +5902,27 @@ def _normalize_report_block_config(block_class: Any, block_config: dict[str, Any
 def _default_report_runner(args: dict[str, Any]) -> dict[str, Any]:
     """Dispatch report.run async.
 
-    PLEXUS_DISPATCH_MODE=celery (default) — enqueue via the remote task dispatcher.
-    PLEXUS_DISPATCH_MODE=local            — run directly in a local subprocess.
+    PRIMUS_DISPATCH_MODE=celery (default) — enqueue via the remote task dispatcher.
+    PRIMUS_DISPATCH_MODE=local            — run directly in a local subprocess.
     """
     import os
     import threading
 
     remote = _resolve_report_dispatch_mode() == "celery"
 
-    from plexus.cli.shared.client_utils import create_client as create_dashboard_client
+    from primus.cli.shared.client_utils import create_client as create_dashboard_client
 
     client = create_dashboard_client()
     if not client:
         raise ValueError("Could not create dashboard client")
-    account_id = _resolve_runtime_account_id(client, args, "plexus.report.run")
+    account_id = _resolve_runtime_account_id(client, args, "primus.report.run")
 
     configuration_id = args.get("configuration_id") or args.get("config_id")
     if configuration_id:
         parameters = args.get("parameters") or {}
 
         if remote:
-            from plexus.dashboard.api.models.task import Task
+            from primus.dashboard.api.models.task import Task
 
             command = _build_report_config_command(str(configuration_id), parameters)
             task = Task.create(
@@ -5952,7 +5952,7 @@ def _default_report_runner(args: dict[str, Any]) -> dict[str, Any]:
             import sys
 
             cmd = [
-                sys.executable, "-m", "plexus", "report", "run",
+                sys.executable, "-m", "primus", "report", "run",
                 "--config", configuration_id,
             ]
             for k, v in parameters.items():
@@ -5969,9 +5969,9 @@ def _default_report_runner(args: dict[str, Any]) -> dict[str, Any]:
 
     block_class = args.get("block_class")
     if not block_class:
-        raise ValueError("plexus.report.run async requires block_class or configuration_id")
+        raise ValueError("primus.report.run async requires block_class or configuration_id")
 
-    from plexus.reports.service import run_block_cached
+    from primus.reports.service import run_block_cached
 
     block_config = _normalize_report_block_config(block_class, args.get("block_config") or {})
     cache_key = args.get("cache_key")
@@ -6031,7 +6031,7 @@ def _default_report_runner(args: dict[str, Any]) -> dict[str, Any]:
         cmd = [
             sys.executable,
             "-m",
-            "plexus",
+            "primus",
             "feedback",
             "report",
             report_cli_subcommand,
@@ -6085,15 +6085,15 @@ def _default_report_runner_sync(args: dict[str, Any]) -> dict[str, Any]:
     """
     block_class = args.get("block_class")
     if not block_class:
-        raise ValueError("plexus.report.run sync requires block_class")
+        raise ValueError("primus.report.run sync requires block_class")
 
-    from plexus.cli.shared.client_utils import create_client as create_dashboard_client
-    from plexus.reports.service import run_block_cached
+    from primus.cli.shared.client_utils import create_client as create_dashboard_client
+    from primus.reports.service import run_block_cached
 
     client = create_dashboard_client()
     if not client:
         raise ValueError("Could not create dashboard client")
-    account_id = _resolve_runtime_account_id(client, args, "plexus.report.run")
+    account_id = _resolve_runtime_account_id(client, args, "primus.report.run")
 
     cache_key = args.get("cache_key")
     ttl_hours = args.get("ttl_hours")
@@ -6129,12 +6129,12 @@ def _default_procedure_runner(args: dict[str, Any]) -> dict[str, Any]:
 
     procedure_id = args.get("procedure_id") or args.get("id")
     if not procedure_id:
-        raise ValueError("plexus.procedure.run requires procedure_id")
+        raise ValueError("primus.procedure.run requires procedure_id")
 
     import sys
 
     cmd = [
-        sys.executable, "-m", "plexus", "procedure", "run",
+        sys.executable, "-m", "primus", "procedure", "run",
         str(procedure_id),
     ]
     if args.get("max_iterations") is not None:
@@ -6184,20 +6184,20 @@ def _default_procedure_optimize(args: dict[str, Any]) -> dict[str, Any]:
     import os
     import yaml as yaml_lib
 
-    from plexus.cli.procedure.service import ProcedureService
-    from plexus.cli.shared.client_utils import create_client
+    from primus.cli.procedure.service import ProcedureService
+    from primus.cli.shared.client_utils import create_client
 
     scorecard_identifier = args.get("scorecard") or args.get("scorecard_name") or args.get("scorecard_identifier")
     score_identifier = args.get("score") or args.get("score_name") or args.get("score_identifier")
     if not scorecard_identifier:
-        raise ValueError("plexus.procedure.optimize requires 'scorecard'")
+        raise ValueError("primus.procedure.optimize requires 'scorecard'")
     if not score_identifier:
-        raise ValueError("plexus.procedure.optimize requires 'score'")
+        raise ValueError("primus.procedure.optimize requires 'score'")
 
     # Load the built-in optimizer YAML from the installed package.
     optimizer_yaml_path = os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
-        "..", "..", "..", "plexus", "procedures", "feedback_alignment_optimizer.yaml",
+        "..", "..", "..", "primus", "procedures", "feedback_alignment_optimizer.yaml",
     )
     optimizer_yaml_path = os.path.normpath(optimizer_yaml_path)
     if not os.path.exists(optimizer_yaml_path):
@@ -6234,13 +6234,13 @@ def _default_procedure_optimize(args: dict[str, Any]) -> dict[str, Any]:
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.procedure.optimize: could not create dashboard client")
+        raise RuntimeError("primus.procedure.optimize: could not create dashboard client")
 
     service = ProcedureService(client)
-    account = os.environ.get("PLEXUS_ACCOUNT_KEY") or ""
+    account = os.environ.get("PRIMUS_ACCOUNT_KEY") or ""
     if not account:
         raise RuntimeError(
-            "plexus.procedure.optimize: PLEXUS_ACCOUNT_KEY environment variable is required"
+            "primus.procedure.optimize: PRIMUS_ACCOUNT_KEY environment variable is required"
         )
 
     dispatch_mode = _resolve_report_dispatch_mode()
@@ -6254,7 +6254,7 @@ def _default_procedure_optimize(args: dict[str, Any]) -> dict[str, Any]:
         dispatch_mode=dispatch_mode,
     )
     if not result.success:
-        raise RuntimeError(f"plexus.procedure.optimize: failed to create procedure — {result.message}")
+        raise RuntimeError(f"primus.procedure.optimize: failed to create procedure — {result.message}")
 
     procedure_id = result.procedure.id
     dashboard_url = f"https://lab.callcriteria.com/lab/procedures/{procedure_id}"
@@ -6274,7 +6274,7 @@ def _default_procedure_optimize(args: dict[str, Any]) -> dict[str, Any]:
         import sys
 
         cmd = [
-            sys.executable, "-m", "plexus", "procedure", "run",
+            sys.executable, "-m", "primus", "procedure", "run",
             procedure_id,
         ]
         if args.get("max_iterations") is not None:
@@ -6347,12 +6347,12 @@ def _default_procedure_optimize_batch(args: dict[str, Any]) -> dict[str, Any]:
     scores = args.get("scores") or []
 
     if not scorecard_identifier:
-        raise ValueError("plexus.procedure.optimize_batch requires 'scorecard'")
+        raise ValueError("primus.procedure.optimize_batch requires 'scorecard'")
     if not scores or not isinstance(scores, list):
-        raise ValueError("plexus.procedure.optimize_batch requires 'scores' as a non-empty array")
+        raise ValueError("primus.procedure.optimize_batch requires 'scores' as a non-empty array")
     if len(scores) > MAX_BATCH_SIZE:
         raise ValueError(
-            f"plexus.procedure.optimize_batch: batch size {len(scores)} exceeds maximum of {MAX_BATCH_SIZE}. "
+            f"primus.procedure.optimize_batch: batch size {len(scores)} exceeds maximum of {MAX_BATCH_SIZE}. "
             f"Each optimizer consumes 1-2GB RAM during execution. For larger batches, dispatch multiple "
             f"smaller batches sequentially."
         )
@@ -6416,7 +6416,7 @@ def _default_procedure_status_batch(args: dict[str, Any]) -> dict[str, Any]:
     """
     procedure_ids = args.get("procedure_ids") or []
     if not procedure_ids or not isinstance(procedure_ids, list):
-        raise ValueError("plexus.procedure.status_batch requires 'procedure_ids' as a non-empty array")
+        raise ValueError("primus.procedure.status_batch requires 'procedure_ids' as a non-empty array")
 
     procedures = []
     for proc_id in procedure_ids:
@@ -6448,12 +6448,12 @@ def _default_procedure_continue(args: dict[str, Any]) -> dict[str, Any]:
     """
     import sys
 
-    from plexus.cli.procedure.continuation_service import prepare_continuation
-    from plexus.cli.shared.client_utils import create_client
+    from primus.cli.procedure.continuation_service import prepare_continuation
+    from primus.cli.shared.client_utils import create_client
 
     procedure_id = args.get("procedure_id") or args.get("id")
     if not procedure_id:
-        raise ValueError("plexus.procedure.continue requires procedure_id")
+        raise ValueError("primus.procedure.continue requires procedure_id")
 
     additional_cycles = int(args.get("additional_cycles") or 3)
     hint = args.get("hint") or None
@@ -6463,12 +6463,12 @@ def _default_procedure_continue(args: dict[str, Any]) -> dict[str, Any]:
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.procedure.continue: could not create dashboard client")
+        raise RuntimeError("primus.procedure.continue: could not create dashboard client")
 
     info = prepare_continuation(client, str(procedure_id), additional_cycles, hint, target_accuracy)
 
     cmd = [
-        sys.executable, "-m", "plexus", "procedure", "run",
+        sys.executable, "-m", "primus", "procedure", "run",
         str(procedure_id),
         "--max-iterations", str(info["new_max_iterations"]),
     ]
@@ -6506,15 +6506,15 @@ def _default_procedure_branch(args: dict[str, Any]) -> dict[str, Any]:
     """
     import sys
 
-    from plexus.cli.procedure.continuation_service import prepare_branch
-    from plexus.cli.shared.client_utils import create_client
+    from primus.cli.procedure.continuation_service import prepare_branch
+    from primus.cli.shared.client_utils import create_client
 
     source_id = args.get("procedure_id") or args.get("source_id") or args.get("id")
     if not source_id:
-        raise ValueError("plexus.procedure.branch requires procedure_id")
+        raise ValueError("primus.procedure.branch requires procedure_id")
     cycle = args.get("cycle")
     if cycle is None:
-        raise ValueError("plexus.procedure.branch requires cycle")
+        raise ValueError("primus.procedure.branch requires cycle")
     cycle = int(cycle)
 
     additional_cycles = int(args.get("additional_cycles") or 3)
@@ -6526,13 +6526,13 @@ def _default_procedure_branch(args: dict[str, Any]) -> dict[str, Any]:
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.procedure.branch: could not create dashboard client")
+        raise RuntimeError("primus.procedure.branch: could not create dashboard client")
 
     info = prepare_branch(client, str(source_id), cycle, additional_cycles, hint, name, target_accuracy)
     target_id = info["target_id"]
 
     cmd = [
-        sys.executable, "-m", "plexus", "procedure", "run",
+        sys.executable, "-m", "primus", "procedure", "run",
         str(target_id),
         "--max-iterations", str(info["new_max_iterations"]),
     ]
@@ -6827,7 +6827,7 @@ DEFAULT_BUDGET_TOOL_CALLS = 50
 
 
 class BudgetExceeded(RuntimeError):
-    """Raised when a Plexus runtime API call would exceed the active budget."""
+    """Raised when a Primus runtime API call would exceed the active budget."""
 
 
 class ChildBudgetRequired(ValueError):
@@ -6862,7 +6862,7 @@ def _exception_error_code(exc: BaseException) -> str:
 
 
 def _runtime_api_error_value(namespace: str, method: str, exc: BaseException) -> dict[str, Any]:
-    api_call = f"plexus.{namespace}.{method}"
+    api_call = f"primus.{namespace}.{method}"
     message = str(exc) or f"{api_call} failed"
     return {
         _RUNTIME_API_ERROR_KEY: True,
@@ -6942,7 +6942,7 @@ def _resolve_runtime_account_id(
 
     account_identifier = args.get("account")
     if account_identifier:
-        from plexus.cli.report.utils import resolve_account_id_for_command
+        from primus.cli.report.utils import resolve_account_id_for_command
 
         return resolve_account_id_for_command(client, str(account_identifier))
 
@@ -6955,17 +6955,17 @@ def _resolve_runtime_account_id(
             raise AccountContextRequired(
                 f"{api_name} requires account context. Console calls must pass the "
                 "triggering ChatMessage accountId into execute_tactus, or local calls "
-                "must provide account/account_id or configure PLEXUS_ACCOUNT_KEY."
+                "must provide account/account_id or configure PRIMUS_ACCOUNT_KEY."
             )
 
-    from plexus.cli.report.utils import resolve_account_id_for_command
+    from primus.cli.report.utils import resolve_account_id_for_command
 
     try:
         return resolve_account_id_for_command(client, None)
     except Exception as exc:
         raise AccountContextRequired(
             f"{api_name} could not resolve an account from the current runtime context. "
-            "Pass account/account_id explicitly or configure PLEXUS_ACCOUNT_KEY."
+            "Pass account/account_id explicitly or configure PRIMUS_ACCOUNT_KEY."
         ) from exc
 
 
@@ -7007,7 +7007,7 @@ class BudgetSpec:
 
 
 class BudgetGate:
-    """Single choke point that enforces a BudgetSpec around every Plexus runtime API call."""
+    """Single choke point that enforces a BudgetSpec around every Primus runtime API call."""
 
     def __init__(
         self,
@@ -7042,18 +7042,18 @@ class BudgetGate:
         elapsed = self.elapsed_seconds()
         if elapsed + self.reserved_wallclock_seconds >= self.spec.wallclock_seconds:
             raise self._trip(
-                f"wallclock budget exceeded before plexus.{namespace}.{method}: "
+                f"wallclock budget exceeded before primus.{namespace}.{method}: "
                 f"{elapsed + self.reserved_wallclock_seconds:.3f}s >= "
                 f"{self.spec.wallclock_seconds:.3f}s"
             )
         if self.spent_usd + estimated_usd > self.spec.usd:
             raise self._trip(
-                f"USD budget exceeded before plexus.{namespace}.{method}: "
+                f"USD budget exceeded before primus.{namespace}.{method}: "
                 f"${self.spent_usd + estimated_usd:.4f} > ${self.spec.usd:.4f}"
             )
         if self.tool_calls + 1 > self.spec.tool_calls:
             raise self._trip(
-                f"tool_calls budget exceeded before plexus.{namespace}.{method}: "
+                f"tool_calls budget exceeded before primus.{namespace}.{method}: "
                 f"{self.tool_calls + 1} > {self.spec.tool_calls}"
             )
 
@@ -7082,7 +7082,7 @@ class BudgetGate:
                 }
             else:
                 self.child_budget_required_reason = (
-                    f"plexus.{namespace}.{method} async requires explicit budget"
+                    f"primus.{namespace}.{method} async requires explicit budget"
                 )
                 raise ChildBudgetRequired(self.child_budget_required_reason)
         child_spec = BudgetSpec.from_dict(budget_value)
@@ -7095,22 +7095,22 @@ class BudgetGate:
         remaining_tool_calls = max(self.spec.tool_calls - self.tool_calls - 1, 0)
         if child_spec.usd > remaining_usd:
             raise self._trip(
-                f"child USD budget exceeded before plexus.{namespace}.{method}: "
+                f"child USD budget exceeded before primus.{namespace}.{method}: "
                 f"${child_spec.usd:.4f} > ${remaining_usd:.4f}"
             )
         if child_spec.wallclock_seconds > remaining_seconds:
             raise self._trip(
-                f"child wallclock budget exceeded before plexus.{namespace}.{method}: "
+                f"child wallclock budget exceeded before primus.{namespace}.{method}: "
                 f"{child_spec.wallclock_seconds:.3f}s > {remaining_seconds:.3f}s"
             )
         if child_spec.tool_calls > remaining_tool_calls:
             raise self._trip(
-                f"child tool_calls budget exceeded before plexus.{namespace}.{method}: "
+                f"child tool_calls budget exceeded before primus.{namespace}.{method}: "
                 f"{child_spec.tool_calls} > {remaining_tool_calls}"
             )
         if child_spec.depth > max(self.spec.depth - 1, 0):
             raise self._trip(
-                f"child depth budget exceeded before plexus.{namespace}.{method}: "
+                f"child depth budget exceeded before primus.{namespace}.{method}: "
                 f"{child_spec.depth} > {max(self.spec.depth - 1, 0)}"
             )
         self.spent_usd += child_spec.usd
@@ -7358,7 +7358,7 @@ async def _send_mcp_stream_event(ctx: Context, event: dict[str, Any]) -> None:
         await _maybe_await(
             ctx.info(
                 str(event.get("message") or event.get("kind") or "execute_tactus update"),
-                logger_name="plexus.execute_tactus",
+                logger_name="primus.execute_tactus",
                 extra={"event": event},
             )
         )
@@ -7431,7 +7431,7 @@ def _score_edit_scorecard_candidates(client: Any, identifier: Any) -> list[dict[
     needle = str(identifier or "").strip()
     variants = _score_edit_identifier_variants(identifier)
     if not needle:
-        raise ValueError("plexus.score.edit requires scorecard_identifier")
+        raise ValueError("primus.score.edit requires scorecard_identifier")
 
     candidates: dict[str, dict[str, Any]] = {}
 
@@ -7497,12 +7497,12 @@ def _resolve_scorecard_for_score_edit(client: Any, identifier: Any) -> dict[str,
     resolved = _score_edit_scorecard_candidates(client, identifier)
     if not resolved:
         raise ValueError(
-            "plexus.score.edit could not resolve scorecard_identifier "
-            f"{needle!r}. Resolve it first with plexus.scorecards.search/info and retry."
+            "primus.score.edit could not resolve scorecard_identifier "
+            f"{needle!r}. Resolve it first with primus.scorecards.search/info and retry."
         )
     if len(resolved) > 1:
         raise ValueError(
-            "Clarification required before plexus.score.edit: scorecard_identifier is ambiguous for "
+            "Clarification required before primus.score.edit: scorecard_identifier is ambiguous for "
             f"{needle!r}. Reply with one exact target from candidates: "
             f"{_score_edit_format_candidates(resolved)}"
         )
@@ -7517,13 +7517,13 @@ def _resolve_score_for_score_edit(
     resolved = _score_edit_score_candidates(client, scorecard_id, score_identifier)
     if not resolved:
         raise ValueError(
-            "plexus.score.edit could not resolve score_identifier "
+            "primus.score.edit could not resolve score_identifier "
             f"{needle!r} in scorecard {scorecard_id!r}. Resolve it first with "
-            "plexus.score.info and retry."
+            "primus.score.info and retry."
         )
     if len(resolved) > 1:
         raise ValueError(
-            "Clarification required before plexus.score.edit: score_identifier is ambiguous for "
+            "Clarification required before primus.score.edit: score_identifier is ambiguous for "
             f"{needle!r} in scorecard {scorecard_id!r}. Reply with one exact target from candidates: "
             f"{_score_edit_format_candidates(resolved)}"
         )
@@ -7537,7 +7537,7 @@ def _score_edit_score_candidates(
     needle = str(score_identifier or "").strip()
     variants = _score_edit_identifier_variants(score_identifier)
     if not needle:
-        raise ValueError("plexus.score.edit requires score_identifier")
+        raise ValueError("primus.score.edit requires score_identifier")
 
     candidates: dict[str, dict[str, Any]] = {}
 
@@ -7648,14 +7648,14 @@ def _score_edit_score_candidates(
 
 def _default_score_resolve(args: dict[str, Any]) -> dict[str, Any]:
     """Resolve scorecard/score identifiers without mutating anything."""
-    from plexus.cli.shared.client_utils import create_client
+    from primus.cli.shared.client_utils import create_client
 
     scorecard_identifier = args.get("scorecard_identifier") or args.get("scorecard")
     score_identifier = args.get("score_identifier") or args.get("score")
     if not scorecard_identifier:
-        raise ValueError("plexus.score.resolve requires scorecard_identifier")
+        raise ValueError("primus.score.resolve requires scorecard_identifier")
     if not score_identifier:
-        raise ValueError("plexus.score.resolve requires score_identifier")
+        raise ValueError("primus.score.resolve requires score_identifier")
 
     client = create_client()
     scorecard_candidates = _score_edit_scorecard_candidates(client, scorecard_identifier)
@@ -7716,11 +7716,11 @@ def _default_score_resolve(args: dict[str, Any]) -> dict[str, Any]:
 def _default_score_pull(args: dict[str, Any]) -> dict[str, Any]:
     """Return the champion (or specific version) YAML for a score in-memory.
 
-    Unlike the old file-based plexus_score_pull, this returns the raw YAML
+    Unlike the old file-based primus_score_pull, this returns the raw YAML
     string so Lua code can inspect or pass it directly without file I/O.
     """
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.cli.shared.direct_identifier_resolution import (
+    from primus.cli.shared.client_utils import create_client
+    from primus.cli.shared.direct_identifier_resolution import (
         direct_resolve_score_identifier,
         direct_resolve_scorecard_identifier,
     )
@@ -7731,9 +7731,9 @@ def _default_score_pull(args: dict[str, Any]) -> dict[str, Any]:
     score_id = args.get("score_id")
     version_id = args.get("version_id") or args.get("version")
     if not scorecard_identifier and not scorecard_id:
-        raise ValueError("plexus.score.pull requires scorecard_identifier")
+        raise ValueError("primus.score.pull requires scorecard_identifier")
     if not score_identifier and not score_id:
-        raise ValueError("plexus.score.pull requires score_identifier")
+        raise ValueError("primus.score.pull requires score_identifier")
 
     client = create_client()
     if not scorecard_id:
@@ -7796,8 +7796,8 @@ def _default_score_pull(args: dict[str, Any]) -> dict[str, Any]:
     # Write to temp files so sandboxed Lua code can read them via File.read()
     # without needing the io library (which is not available in Tactus sandboxes).
     import tempfile, os as _os
-    code_path = _os.path.join(tempfile.gettempdir(), f"plexus_score_{resolved_version_id}.yaml")
-    guide_path = _os.path.join(tempfile.gettempdir(), f"plexus_guide_{resolved_version_id}.md")
+    code_path = _os.path.join(tempfile.gettempdir(), f"primus_score_{resolved_version_id}.yaml")
+    guide_path = _os.path.join(tempfile.gettempdir(), f"primus_guide_{resolved_version_id}.md")
     try:
         with open(code_path, "w", encoding="utf-8") as f:
             f.write(yaml_content)
@@ -7834,8 +7834,8 @@ def _default_score_update(args: dict[str, Any]) -> dict[str, Any]:
 
     Any combination is valid. If only metadata fields are provided, no version is created.
     """
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.cli.shared.direct_identifier_resolution import (
+    from primus.cli.shared.client_utils import create_client
+    from primus.cli.shared.direct_identifier_resolution import (
         direct_resolve_score_identifier,
         direct_resolve_scorecard_identifier,
     )
@@ -7846,19 +7846,19 @@ def _default_score_update(args: dict[str, Any]) -> dict[str, Any]:
     guidelines_provided = "guidelines" in args and args.get("guidelines") is not None
     guidelines = args.get("guidelines")
     parent_version_id = args.get("parent_version_id")
-    version_note = args.get("version_note") or args.get("note") or "Updated via plexus.score.update"
+    version_note = args.get("version_note") or args.get("note") or "Updated via primus.score.update"
 
     # Metadata fields that update the Score record (not a version)
     _META_FIELDS = ("description", "name", "key", "external_id", "ai_provider", "ai_model")
     metadata_updates = {f: args[f] for f in _META_FIELDS if f in args and args[f] is not None}
 
     if not scorecard_identifier:
-        raise ValueError("plexus.score.update requires scorecard_identifier")
+        raise ValueError("primus.score.update requires scorecard_identifier")
     if not score_identifier:
-        raise ValueError("plexus.score.update requires score_identifier")
+        raise ValueError("primus.score.update requires score_identifier")
     if not code and not guidelines_provided and not metadata_updates:
         raise ValueError(
-            "plexus.score.update requires at least one of: code, guidelines, or a metadata field "
+            "primus.score.update requires at least one of: code, guidelines, or a metadata field "
             "(description, name, key, external_id, ai_provider, ai_model)"
         )
 
@@ -7938,7 +7938,7 @@ def _default_score_update(args: dict[str, Any]) -> dict[str, Any]:
         # Validate YAML if code provided
         if code:
             try:
-                from plexus.linting.schemas import create_score_linter
+                from primus.linting.schemas import create_score_linter
                 linter = create_score_linter()
                 lint_result = linter.lint(code)
                 if not lint_result.is_valid:
@@ -8005,7 +8005,7 @@ def _default_score_update(args: dict[str, Any]) -> dict[str, Any]:
 
         # Validate guidelines only when caller explicitly provided new guidelines.
         if guidelines_provided and guidelines is not None:
-            from plexus.guidelines.validator import validate_guidelines_content
+            from primus.guidelines.validator import validate_guidelines_content
 
             guidelines_validation = validate_guidelines_content(str(guidelines)).to_dict()
             result["guidelines_validation"] = guidelines_validation
@@ -8121,7 +8121,7 @@ def _default_score_update(args: dict[str, Any]) -> dict[str, Any]:
                 # after persistence: the full candidate document remains
                 # syntactically valid and the stored configuration is exactly
                 # the parent configuration that the adapter preserved.
-                from plexus.guidelines.validator import validate_guidelines_content
+                from primus.guidelines.validator import validate_guidelines_content
 
                 persisted_guidelines = candidate_snapshot.get("guidelines") or ""
                 persisted_configuration = candidate_snapshot.get("configuration") or ""
@@ -8206,15 +8206,15 @@ def _score_edit_model_sequence(args: dict[str, Any]) -> list[str]:
         return str(value or "").strip()
 
     primary = _clean(args.get("model")) or _clean(
-        os.environ.get("PLEXUS_SCORE_EDIT_MODEL")
+        os.environ.get("PRIMUS_SCORE_EDIT_MODEL")
     ) or "gpt-5.3-codex"
     fallback = _clean(args.get("fallback_model")) or _clean(
-        os.environ.get("PLEXUS_SCORE_EDIT_FALLBACK_MODEL")
+        os.environ.get("PRIMUS_SCORE_EDIT_FALLBACK_MODEL")
     ) or "gpt-5.4"
 
     raw_max_attempts = args.get("max_attempts")
     if raw_max_attempts is None:
-        raw_max_attempts = os.environ.get("PLEXUS_SCORE_EDIT_MAX_ATTEMPTS")
+        raw_max_attempts = os.environ.get("PRIMUS_SCORE_EDIT_MAX_ATTEMPTS")
     try:
         max_attempts = int(raw_max_attempts) if raw_max_attempts is not None else 2
     except (TypeError, ValueError):
@@ -8332,8 +8332,8 @@ def _run_score_edit_job(args: dict[str, Any], result_path: str) -> None:
     output: dict[str, Any]
     try:
         from openai import OpenAI
-        from plexus.cli.shared.client_utils import create_client
-        from plexus.cli.procedure.tactus_adapters.score_editor_toolset import (
+        from primus.cli.shared.client_utils import create_client
+        from primus.cli.procedure.tactus_adapters.score_editor_toolset import (
             GUIDELINES_PATH,
             ScoreEditorToolset,
             VIRTUAL_PATH,
@@ -8343,11 +8343,11 @@ def _run_score_edit_job(args: dict[str, Any], result_path: str) -> None:
         score_identifier = args.get("score_identifier") or args.get("score")
         instruction = str(args.get("instruction") or "").strip()
         if not scorecard_identifier:
-            raise ValueError("plexus.score.edit requires scorecard_identifier")
+            raise ValueError("primus.score.edit requires scorecard_identifier")
         if not score_identifier:
-            raise ValueError("plexus.score.edit requires score_identifier")
+            raise ValueError("primus.score.edit requires score_identifier")
         if not instruction:
-            raise ValueError("plexus.score.edit requires instruction")
+            raise ValueError("primus.score.edit requires instruction")
 
         resolved_scorecard_id = str(args.get("scorecard_id") or "").strip()
         resolved_score_id = str(args.get("score_id") or "").strip()
@@ -8381,7 +8381,7 @@ def _run_score_edit_job(args: dict[str, Any], result_path: str) -> None:
         client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
         allow_guidelines_edit = bool(args.get("allow_guidelines_edit", False))
         prompt = (
-            "You are editing a Plexus score version.\n"
+            "You are editing a Primus score version.\n"
             "Apply the user instruction to the score YAML.\n"
             "Return ONLY JSON with keys: code, guidelines, note, summary.\n"
             "Keep YAML valid and preserve behavior unless the instruction requires change.\n"
@@ -8437,7 +8437,7 @@ def _run_score_edit_job(args: dict[str, Any], result_path: str) -> None:
             if not allow_guidelines_edit:
                 candidate_guidelines = base_guidelines
             note = str(
-                parsed.get("note") or f"Edited via plexus.score.edit: {instruction[:180]}"
+                parsed.get("note") or f"Edited via primus.score.edit: {instruction[:180]}"
             )
             summary = str(parsed.get("summary") or "")
 
@@ -8704,21 +8704,21 @@ def _run_score_edit_job(args: dict[str, Any], result_path: str) -> None:
 
 def _default_score_delete(args: dict[str, Any]) -> dict[str, Any]:
     """Delete an explicitly confirmed score by its unambiguous ID."""
-    from plexus.cli.shared.client_utils import create_client
+    from primus.cli.shared.client_utils import create_client
 
     if args.get("confirmed") is not True:
         raise ValueError(
-            "plexus.score.delete is destructive and requires confirmed = true"
+            "primus.score.delete is destructive and requires confirmed = true"
         )
     score_id = str(args.get("id") or args.get("score_id") or "").strip()
     if not score_id:
         raise ValueError(
-            "plexus.score.delete requires the exact score id; resolve the score before deleting"
+            "primus.score.delete requires the exact score id; resolve the score before deleting"
         )
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.score.delete: could not create dashboard client")
+        raise RuntimeError("primus.score.delete: could not create dashboard client")
     mutation = """
     mutation DeleteScore($input: DeleteScoreInput!) {
       deleteScore(input: $input) { id }
@@ -8730,14 +8730,14 @@ def _default_score_delete(args: dict[str, Any]) -> dict[str, Any]:
     )
     deleted = (response or {}).get("deleteScore") or {}
     if not deleted.get("id"):
-        raise RuntimeError("plexus.score.delete returned no score")
+        raise RuntimeError("primus.score.delete returned no score")
     return {"success": True, "id": deleted["id"]}
 
 
 def _default_score_edit_runner(args: dict[str, Any]) -> dict[str, Any]:
     import tempfile
 
-    run_dir = tempfile.mkdtemp(prefix="plexus_score_edit_")
+    run_dir = tempfile.mkdtemp(prefix="primus_score_edit_")
     run_id = str(uuid.uuid4())
     result_path = os.path.join(run_dir, f"{run_id}.json")
 
@@ -8785,9 +8785,9 @@ def _cleanup_score_edit_artifacts(dispatch_result: dict[str, Any]) -> None:
 
 def _default_score_create(args: dict[str, Any]) -> dict[str, Any]:
     """Create a score under a scorecard section."""
-    from plexus.attribution.actor_context import apply_actor_attribution
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.cli.shared.direct_identifier_resolution import (
+    from primus.attribution.actor_context import apply_actor_attribution
+    from primus.cli.shared.client_utils import create_client
+    from primus.cli.shared.direct_identifier_resolution import (
         direct_resolve_scorecard_identifier,
     )
 
@@ -8799,11 +8799,11 @@ def _default_score_create(args: dict[str, Any]) -> dict[str, Any]:
         args.get("scorecard_identifier") or args.get("scorecard") or args.get("scorecard_id")
     )
     if not scorecard_identifier:
-        raise ValueError("plexus.score.create requires scorecard_identifier")
+        raise ValueError("primus.score.create requires scorecard_identifier")
 
     name = str(args.get("name") or "").strip()
     if not name:
-        raise ValueError("plexus.score.create requires name")
+        raise ValueError("primus.score.create requires name")
 
     key = str(args.get("key") or "").strip() or _slugify(name)
     external_id = (
@@ -8815,11 +8815,11 @@ def _default_score_create(args: dict[str, Any]) -> dict[str, Any]:
     try:
         order = int(args.get("order") or 1)
     except (TypeError, ValueError) as exc:
-        raise ValueError("plexus.score.create order must be an integer") from exc
+        raise ValueError("primus.score.create order must be an integer") from exc
 
     client = create_client()
     if not client:
-        raise RuntimeError("plexus.score.create: could not create dashboard client")
+        raise RuntimeError("primus.score.create: could not create dashboard client")
 
     scorecard_id = direct_resolve_scorecard_identifier(client, scorecard_identifier)
     if not scorecard_id:
@@ -8898,7 +8898,7 @@ def _default_score_create(args: dict[str, Any]) -> dict[str, Any]:
                     )
             if not section_id:
                 raise RuntimeError(
-                    "plexus.score.create failed to create section: "
+                    "primus.score.create failed to create section: "
                     + " | ".join(section_errors)
                 )
 
@@ -8954,7 +8954,7 @@ def _default_score_create(args: dict[str, Any]) -> dict[str, Any]:
             )
     if not score_id:
         raise RuntimeError(
-            "plexus.score.create failed after compatibility attempts: "
+            "primus.score.create failed after compatibility attempts: "
             + " | ".join(score_errors)
         )
 
@@ -8974,8 +8974,8 @@ def _default_score_create(args: dict[str, Any]) -> dict[str, Any]:
 
 def _default_score_test(args: dict[str, Any]) -> dict[str, Any]:
     """Run a mechanical smoke-test on a score version against sampled items."""
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.cli.shared.score_version_test import run_score_version_test
+    from primus.cli.shared.client_utils import create_client
+    from primus.cli.shared.score_version_test import run_score_version_test
 
     scorecard_identifier = args.get("scorecard_identifier") or args.get("scorecard")
     score_identifier = args.get("score_identifier") or args.get("score")
@@ -8990,9 +8990,9 @@ def _default_score_test(args: dict[str, Any]) -> dict[str, Any]:
     days = int(args.get("days") or 90)
 
     if not scorecard_identifier:
-        raise ValueError("plexus.score.test requires scorecard_identifier")
+        raise ValueError("primus.score.test requires scorecard_identifier")
     if not score_identifier:
-        raise ValueError("plexus.score.test requires score_identifier")
+        raise ValueError("primus.score.test requires score_identifier")
 
     parsed_item_ids = None
     if item_ids:
@@ -9033,20 +9033,20 @@ def _default_feedback_latest_update(args: dict[str, Any]) -> dict[str, Any]:
     """Return the latest feedback updatedAt watermark for a score."""
     import asyncio
     from datetime import datetime, timedelta, timezone
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.cli.shared.memoized_resolvers import (
+    from primus.cli.shared.client_utils import create_client
+    from primus.cli.shared.memoized_resolvers import (
         memoized_resolve_scorecard_identifier,
         memoized_resolve_score_identifier,
     )
-    from plexus.cli.report.utils import resolve_account_id_for_command
+    from primus.cli.report.utils import resolve_account_id_for_command
 
     scorecard_name = args.get("scorecard_name") or args.get("scorecard")
     score_name = args.get("score_name") or args.get("score")
     days = args.get("days")
     if not scorecard_name:
-        raise ValueError("plexus.feedback.latest_update requires scorecard_name")
+        raise ValueError("primus.feedback.latest_update requires scorecard_name")
     if not score_name:
-        raise ValueError("plexus.feedback.latest_update requires score_name")
+        raise ValueError("primus.feedback.latest_update requires score_name")
 
     days_int = int(float(str(days))) if days is not None else None
     client = create_client()
@@ -9160,7 +9160,7 @@ def _resolve_rubric_memory_score_id(
 ) -> str:
     if score_id:
         return score_id
-    from plexus.cli.shared.direct_identifier_resolution import (
+    from primus.cli.shared.direct_identifier_resolution import (
         direct_resolve_score_identifier,
         direct_resolve_scorecard_identifier,
     )
@@ -9177,8 +9177,8 @@ def _default_rubric_memory_recent_entries(args: dict[str, Any]) -> dict[str, Any
     """Retrieve recent rubric-memory citation context for one score."""
     import asyncio
 
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.rubric_memory import RubricMemoryRecentBriefingProvider
+    from primus.cli.shared.client_utils import create_client
+    from primus.rubric_memory import RubricMemoryRecentBriefingProvider
 
     scorecard_identifier = args.get("scorecard_identifier") or args.get("scorecard")
     score_identifier = args.get("score_identifier") or args.get("score")
@@ -9190,9 +9190,9 @@ def _default_rubric_memory_recent_entries(args: dict[str, Any]) -> dict[str, Any
     limit = int(args.get("limit") or 16)
 
     if not scorecard_identifier:
-        raise ValueError("plexus.rubric_memory.recent_entries requires scorecard_identifier")
+        raise ValueError("primus.rubric_memory.recent_entries requires scorecard_identifier")
     if not score_identifier:
-        raise ValueError("plexus.rubric_memory.recent_entries requires score_identifier")
+        raise ValueError("primus.rubric_memory.recent_entries requires score_identifier")
 
     client = create_client()
     resolved_score_id = _resolve_rubric_memory_score_id(
@@ -9228,7 +9228,7 @@ def _default_optimization_diagnosis_preflight(
     s3_client: Any | None = None,
 ) -> dict[str, Any]:
     """Prove rubric-memory storage authority before any semantic model spend."""
-    from plexus.rubric_memory.s3_corpus import RUBRIC_MEMORY_BUCKET_ENV_VAR
+    from primus.rubric_memory.s3_corpus import RUBRIC_MEMORY_BUCKET_ENV_VAR
 
     bucket_name = str(os.environ.get(RUBRIC_MEMORY_BUCKET_ENV_VAR) or "").strip()
     if not bucket_name:
@@ -9260,8 +9260,8 @@ def _default_optimization_diagnosis_preflight(
 
 def _default_rubric_memory_evidence_pack(args: dict[str, Any]) -> dict[str, Any]:
     """Generate rubric-memory citation context for a disputed score item."""
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.rubric_memory import RubricMemoryContextProvider
+    from primus.cli.shared.client_utils import create_client
+    from primus.rubric_memory import RubricMemoryContextProvider
 
     scorecard_identifier = args.get("scorecard_identifier") or args.get("scorecard")
     score_identifier = args.get("score_identifier") or args.get("score")
@@ -9276,9 +9276,9 @@ def _default_rubric_memory_evidence_pack(args: dict[str, Any]) -> dict[str, Any]
     synthesize = bool(args.get("synthesize", False))
 
     if not scorecard_identifier:
-        raise ValueError("plexus.rubric_memory.evidence_pack requires scorecard_identifier")
+        raise ValueError("primus.rubric_memory.evidence_pack requires scorecard_identifier")
     if not score_identifier:
-        raise ValueError("plexus.rubric_memory.evidence_pack requires score_identifier")
+        raise ValueError("primus.rubric_memory.evidence_pack requires score_identifier")
 
     client = create_client()
     resolved_score_id = _resolve_rubric_memory_score_id(
@@ -9319,7 +9319,7 @@ def _default_rubric_memory_evidence_pack(args: dict[str, Any]) -> dict[str, Any]
 
 def _default_rubric_memory_sme_question_gate(args: dict[str, Any]) -> dict[str, Any]:
     """Gate proposed SME agenda questions against rubric-memory citations."""
-    from plexus.rubric_memory import (
+    from primus.rubric_memory import (
         RubricMemoryCitationContext,
         RubricMemorySMEQuestionGateRequest,
         RubricMemorySMEQuestionGateService,
@@ -9335,9 +9335,9 @@ def _default_rubric_memory_sme_question_gate(args: dict[str, Any]) -> dict[str, 
     optimizer_context = args.get("optimizer_context") or ""
 
     if not scorecard_identifier:
-        raise ValueError("plexus.rubric_memory.sme_question_gate requires scorecard_identifier")
+        raise ValueError("primus.rubric_memory.sme_question_gate requires scorecard_identifier")
     if not score_identifier:
-        raise ValueError("plexus.rubric_memory.sme_question_gate requires score_identifier")
+        raise ValueError("primus.rubric_memory.sme_question_gate requires score_identifier")
 
     if isinstance(rubric_memory_context, str):
         import json as _json
@@ -9406,8 +9406,8 @@ class _PortfolioAssessmentContext:
         self.client: Any | None = None
 
 
-class PlexusRuntimeModule:
-    """Tactus host module exposing curated Plexus runtime namespaces.
+class PrimusRuntimeModule:
+    """Tactus host module exposing curated Primus runtime namespaces.
 
     All namespaces use native Python implementations (no MCP loopback).
     """
@@ -9476,8 +9476,8 @@ class PlexusRuntimeModule:
     ) -> None:
         self._mcp = mcp
         self._trace_id = trace_id or str(uuid.uuid4())
-        self._docs_dir = docs_dir if docs_dir is not None else PLEXUS_DOCS_DIR
-        self._skills_dir = skills_dir if skills_dir is not None else PLEXUS_SKILLS_DIR
+        self._docs_dir = docs_dir if docs_dir is not None else PRIMUS_DOCS_DIR
+        self._skills_dir = skills_dir if skills_dir is not None else PRIMUS_SKILLS_DIR
         self._budget = budget if budget is not None else BudgetGate()
         self._shared_runtime_context = (
             runtime_context if isinstance(runtime_context, dict) else None
@@ -9743,7 +9743,7 @@ class PlexusRuntimeModule:
         return self._budget
 
     def _record_api_call(self, namespace: str, method: str) -> None:
-        api_call = f"plexus.{namespace}.{method}"
+        api_call = f"primus.{namespace}.{method}"
         self._api_calls.append(api_call)
         if self._stream_handler is not None:
             self._stream_handler.api_call(api_call)
@@ -9790,7 +9790,7 @@ class PlexusRuntimeModule:
         scorecard_arg_names: tuple[str, ...],
         score_arg_names: tuple[str, ...],
     ) -> tuple[str, str]:
-        from plexus.cli.shared.client_utils import create_client
+        from primus.cli.shared.client_utils import create_client
 
         scorecard_id = str(parsed.get("scorecard_id") or "").strip()
         score_id = str(parsed.get("score_id") or "").strip()
@@ -10154,7 +10154,7 @@ class PlexusRuntimeModule:
         tool_name = MCP_TOOL_MAP.get((namespace, method))
         if tool_name is None:
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         if (namespace, method) in LONG_RUNNING_METHODS:
             self._record_api_call(namespace, method)
@@ -10190,7 +10190,7 @@ class PlexusRuntimeModule:
             "set_champion",
         }:
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         self._budget.check_before("score", method)
         self._record_api_call("score", method)
@@ -10293,7 +10293,7 @@ class PlexusRuntimeModule:
             if method == "delete":
                 if parsed.get("confirmed") is not True:
                     raise ValueError(
-                        "plexus.score.delete is destructive and requires confirmed = true"
+                        "primus.score.delete is destructive and requires confirmed = true"
                     )
                 return self._score_delete(parsed)
             if method == "edit":
@@ -10309,7 +10309,7 @@ class PlexusRuntimeModule:
                     raise RequiresHandleProtocol("score", "edit")
                 # Hard orchestration gate: resolve targets before dispatch so
                 # ambiguous/non-resolved identifiers fail deterministically.
-                from plexus.cli.shared.client_utils import create_client
+                from primus.cli.shared.client_utils import create_client
 
                 scorecard_identifier = parsed.get("scorecard_identifier") or parsed.get("scorecard")
                 score_identifier = parsed.get("score_identifier") or parsed.get("score")
@@ -10334,7 +10334,7 @@ class PlexusRuntimeModule:
                 handle = self._handle_store.create(
                     kind="score_edit",
                     parent_trace_id=self._trace_id,
-                    api_call="plexus.score.edit",
+                    api_call="primus.score.edit",
                     args=parsed,
                     dispatch_result=dispatch_result,
                     child_budget=child_budget,
@@ -10399,7 +10399,7 @@ class PlexusRuntimeModule:
             if method == "set_champion":
                 return self._score_set_champion(parsed)
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         finally:
             self._budget.record_after("score", method)
@@ -10407,7 +10407,7 @@ class PlexusRuntimeModule:
     def _call_item(self, namespace: str, method: str, args: Any = None) -> Any:
         if namespace != "item" or method not in {"info", "last"}:
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         self._budget.check_before("item", method)
         self._record_api_call("item", method)
@@ -10424,7 +10424,7 @@ class PlexusRuntimeModule:
     ) -> Any:
         if namespace != "procedure" or method not in self._procedure_readers:
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         self._budget.check_before("procedure", method)
         self._record_api_call("procedure", method)
@@ -10439,7 +10439,7 @@ class PlexusRuntimeModule:
     ) -> Any:
         if (namespace, method) != ("procedure", "archive"):
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         self._budget.check_before("procedure", method)
         self._record_api_call("procedure", method)
@@ -10454,7 +10454,7 @@ class PlexusRuntimeModule:
             "list", "info", "search", "create", "update", "delete"
         }:
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         self._budget.check_before("scorecards", method)
         self._record_api_call("scorecards", method)
@@ -10469,7 +10469,7 @@ class PlexusRuntimeModule:
             if method == "delete":
                 if parsed.get("confirmed") is not True:
                     raise ValueError(
-                        "plexus.scorecards.delete is destructive and requires confirmed = true"
+                        "primus.scorecards.delete is destructive and requires confirmed = true"
                     )
                 return self._scorecards_deleter(parsed)
             if method == "search":
@@ -10481,7 +10481,7 @@ class PlexusRuntimeModule:
     def _call_feedback(self, namespace: str, method: str, args: Any = None) -> Any:
         if namespace != "feedback" or method not in {"find", "alignment", "alignment_batch", "latest_update"}:
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         self._budget.check_before("feedback", method)
         self._record_api_call("feedback", method)
@@ -10646,7 +10646,7 @@ class PlexusRuntimeModule:
             "failures": failures,
             "scorecards_discovered": len(cards),
         }
-        from plexus.optimization.decision import (
+        from primus.optimization.decision import (
             evaluate_score_activity,
             frozen_utc_window,
             normalize_rank_scope,
@@ -10971,7 +10971,7 @@ class PlexusRuntimeModule:
                     "score_name": score_id,
                     "days": 90,
                 })
-                from plexus.optimization.decision import evaluate_score_activity
+                from primus.optimization.decision import evaluate_score_activity
 
                 activity = evaluate_score_activity(info or {}, as_of=as_of)
                 if activity.get("complete") is not True:
@@ -11024,7 +11024,7 @@ class PlexusRuntimeModule:
         evidence = assessment.get("evidence")
         if not isinstance(evidence, Mapping):
             return None
-        from plexus.optimization.decision import evidence_fingerprint
+        from primus.optimization.decision import evidence_fingerprint
 
         return evidence_fingerprint({
             "account_id": assessment.get("account_id"),
@@ -11061,7 +11061,7 @@ class PlexusRuntimeModule:
         rather than data that an assessment may silently accept.
         """
         if context.client is None:
-            from plexus.cli.shared.client_utils import create_client
+            from primus.cli.shared.client_utils import create_client
 
             context.client = create_client()
         client = context.client
@@ -11170,7 +11170,7 @@ class PlexusRuntimeModule:
         scorecard_id = str(args.get("scorecard_id") or "")
         score_id = str(args.get("score_id") or "")
         if not scorecard_id or not score_id:
-            raise ValueError("plexus.optimization.assess requires exact scorecard_id and score_id")
+            raise ValueError("primus.optimization.assess requires exact scorecard_id and score_id")
         # Assessment composes a frozen rank row with configuration facts.  If
         # a caller already has that row/packet, reuse it exactly; otherwise an
         # exact-ID request builds the canonical account-wide frozen rank input
@@ -11293,7 +11293,7 @@ class PlexusRuntimeModule:
             try:
                 resolver = self._terminal_class_resolver
                 if resolver is None:
-                    from plexus.rca_analysis import resolve_final_output_classes_from_yaml_text
+                    from primus.rca_analysis import resolve_final_output_classes_from_yaml_text
                     resolver = resolve_final_output_classes_from_yaml_text
                 resolved = resolver(str(code))
                 terminal_classes = list((resolved or {}).get("classes") or resolved or [])
@@ -11305,7 +11305,7 @@ class PlexusRuntimeModule:
             try:
                 validator = self._guidelines_validator
                 if validator is None:
-                    from plexus.guidelines.validator import validate_guidelines_content
+                    from primus.guidelines.validator import validate_guidelines_content
                     validation = validate_guidelines_content(str(guidelines)).to_dict()
                 else:
                     validation = validator(str(guidelines))
@@ -11322,7 +11322,7 @@ class PlexusRuntimeModule:
             counts.setdefault(str(label), 0)
         if evidence.get("feedback_timestamps") and (evidence.get("window") or args.get("window")):
             try:
-                from plexus.optimization.decision import weekly_buckets
+                from primus.optimization.decision import weekly_buckets
                 weekly = weekly_buckets(
                     evidence["feedback_timestamps"],
                     window_end=(evidence.get("window") or args["window"])["end"],
@@ -11357,7 +11357,7 @@ class PlexusRuntimeModule:
     def _optimization_diagnosis_payload(self, args: dict[str, Any]) -> dict[str, Any]:
         scorecard_id, score_id = str(args.get("scorecard_id") or ""), str(args.get("score_id") or "")
         if not scorecard_id or not score_id:
-            raise ValueError("plexus.optimization.diagnose requires exact scorecard_id and score_id")
+            raise ValueError("primus.optimization.diagnose requires exact scorecard_id and score_id")
         failures: list[str] = []
         info: dict[str, Any] = {}
         try:
@@ -11493,10 +11493,10 @@ class PlexusRuntimeModule:
             if self._review_evidence_loader is not None:
                 manifest = self._review_evidence_loader(procedure_id)
             else:
-                from plexus.cli.shared.client_utils import create_client
-                from plexus.cli.shared.optimizer_results import OptimizerResultsService
+                from primus.cli.shared.client_utils import create_client
+                from primus.cli.shared.optimizer_results import OptimizerResultsService
                 manifest = OptimizerResultsService(create_client()).summarize_optimizer_procedure(procedure_id)
-            from plexus.optimization.orchestration import (
+            from primus.optimization.orchestration import (
                 build_indexed_optimizer_review_evidence,
             )
 
@@ -11524,15 +11524,15 @@ class PlexusRuntimeModule:
         """
         def invoke(args: dict[str, Any]) -> Any:
             try:
-                from plexus.optimization import decision
+                from primus.optimization import decision
             except ImportError as exc:
                 raise RuntimeError(
-                    "plexus.optimization decision service is unavailable"
+                    "primus.optimization decision service is unavailable"
                 ) from exc
             helper = getattr(decision, "dispatch_optimization_operation", None)
             if not callable(helper):
                 raise RuntimeError(
-                    "plexus.optimization.decision.dispatch_optimization_operation is unavailable"
+                    "primus.optimization.decision.dispatch_optimization_operation is unavailable"
                 )
             dependencies = self._optimization_dependencies()
             if method == "rank":
@@ -11699,19 +11699,19 @@ class PlexusRuntimeModule:
         returns the next pending review; it never creates a score version
         merely to make progress.
         """
-        from plexus.chat import ChatMessageActionService
-        from plexus.cli.shared.client_utils import create_client
-        from plexus.dashboard.api.models.account import Account
-        from plexus.dashboard.api.models.task import Task
-        from plexus.optimization.portfolio_run import (
+        from primus.chat import ChatMessageActionService
+        from primus.cli.shared.client_utils import create_client
+        from primus.dashboard.api.models.account import Account
+        from primus.dashboard.api.models.task import Task
+        from primus.optimization.portfolio_run import (
             OptimizationPortfolioRunner,
             PortfolioRunDependencies,
         )
-        from plexus.optimization.optimizer_dispatch import OptimizerTaskDispatchService
-        from plexus.optimization.optimizer_dispatch_backend import (
+        from primus.optimization.optimizer_dispatch import OptimizerTaskDispatchService
+        from primus.optimization.optimizer_dispatch_backend import (
             GraphQLOptimizerDispatchBackend,
         )
-        from plexus.optimization.run_report import (
+        from primus.optimization.run_report import (
             OptimizationRunReportService,
             dashboard_base_url_from_account_settings,
         )
@@ -11785,8 +11785,8 @@ class PlexusRuntimeModule:
                         "for durable optimizer child dispatch"
                     )
                 optimizer_source_path = os.path.join(
-                    PLEXUS_PROJECT_ROOT,
-                    "plexus",
+                    PRIMUS_PROJECT_ROOT,
+                    "primus",
                     "procedures",
                     "feedback_alignment_optimizer.yaml",
                 )
@@ -11935,7 +11935,7 @@ class PlexusRuntimeModule:
     ) -> Any:
         if namespace != "optimization" or method not in self._optimization_handlers:
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         self._budget.check_before("optimization", method)
         self._record_api_call("optimization", method)
@@ -11945,7 +11945,7 @@ class PlexusRuntimeModule:
             if parsed.get("persist") is True and method != "portfolio_run":
                 if self._optimization_persister is None:
                     raise RuntimeError(
-                        "plexus.optimization persistence requires a configured "
+                        "primus.optimization persistence requires a configured "
                         "artifact persistence handler"
                     )
                 # The persistence path receives precisely the caller-visible
@@ -11961,7 +11961,7 @@ class PlexusRuntimeModule:
             "recent_entries", "evidence_pack", "sme_question_gate"
         }:
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         self._budget.check_before("rubric_memory", method)
         self._record_api_call("rubric_memory", method)
@@ -11984,7 +11984,7 @@ class PlexusRuntimeModule:
             "find_recent",
         }:
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         self._budget.check_before("evaluation", method)
         self._record_api_call("evaluation", method)
@@ -12003,7 +12003,7 @@ class PlexusRuntimeModule:
     ) -> Any:
         if (namespace, method) != ("evaluation", "archive"):
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         self._budget.check_before("evaluation", method)
         self._record_api_call("evaluation", method)
@@ -12018,7 +12018,7 @@ class PlexusRuntimeModule:
     ) -> Any:
         if (namespace, method) != ("evaluation", "run"):
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         parsed = _merge_runtime_context_args(_args(args), self._runtime_context)
         if not parsed.get("procedure_id") and self._trace_id:
@@ -12036,7 +12036,7 @@ class PlexusRuntimeModule:
             return self._handle_store.create(
                 kind="evaluation",
                 parent_trace_id=self._trace_id,
-                api_call="plexus.evaluation.run",
+                api_call="primus.evaluation.run",
                 args=parsed,
                 dispatch_result=dispatch_result,
                 child_budget=child_budget,
@@ -12047,7 +12047,7 @@ class PlexusRuntimeModule:
     def _call_dataset(self, namespace: str, method: str, args: Any = None) -> Any:
         if namespace != "dataset" or method not in self._dataset_handlers:
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         self._budget.check_before("dataset", method)
         self._record_api_call("dataset", method)
@@ -12065,13 +12065,13 @@ class PlexusRuntimeModule:
             "finalize",
         }:
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         self._budget.check_before("model_frontier", method)
         self._record_api_call("model_frontier", method)
         try:
             parsed = _args(args)
-            from plexus.cli.procedure.model_performance_frontier import (
+            from primus.cli.procedure.model_performance_frontier import (
                 build_result_row,
                 build_variants,
                 compact_report_envelope,
@@ -12099,8 +12099,8 @@ class PlexusRuntimeModule:
             artifact_paths: list[str] = []
             report_block_id = parsed.get("report_block_id")
             if report_block_id:
-                from plexus.cli.shared.client_utils import create_client
-                from plexus.reports.s3_utils import add_file_to_report_block
+                from primus.cli.shared.client_utils import create_client
+                from primus.reports.s3_utils import add_file_to_report_block
 
                 client = create_client()
                 content_types = {
@@ -12140,13 +12140,13 @@ class PlexusRuntimeModule:
     ) -> Any:
         if namespace != "scorecard_retarget" or method != "plan_score":
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         self._budget.check_before("scorecard_retarget", method)
         self._record_api_call("scorecard_retarget", method)
         try:
             parsed = _args(args)
-            from plexus.cli.procedure.scorecard_model_retarget import (
+            from primus.cli.procedure.scorecard_model_retarget import (
                 plan_score_retarget,
             )
 
@@ -12162,7 +12162,7 @@ class PlexusRuntimeModule:
     ) -> Any:
         if namespace != "report" or method not in self._report_readers:
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         self._budget.check_before("report", method)
         self._record_api_call("report", method)
@@ -12212,11 +12212,11 @@ class PlexusRuntimeModule:
     def _call_report_run(self, namespace: str, method: str, args: Any = None) -> Any:
         if namespace != "report" or method not in {"run", "acceptance_rate", "score_champion_version_timeline"}:
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         parsed = _merge_runtime_context_args(_args(args), self._runtime_context)
 
-        # Convenience shorthand: plexus.report.acceptance_rate{...} pre-fills block_class.
+        # Convenience shorthand: primus.report.acceptance_rate{...} pre-fills block_class.
         if method == "acceptance_rate":
             parsed = {**parsed, "block_class": "AcceptanceRate",
                       "block_config": {**parsed.get("block_config", {}), **{
@@ -12265,7 +12265,7 @@ class PlexusRuntimeModule:
             return self._handle_store.create(
                 kind="report",
                 parent_trace_id=self._trace_id,
-                api_call="plexus.report.run",
+                api_call="primus.report.run",
                 args=parsed,
                 dispatch_result=dispatch_result,
                 child_budget=child_budget,
@@ -12276,17 +12276,17 @@ class PlexusRuntimeModule:
     def _call_procedure_run(self, namespace: str, method: str, args: Any = None) -> Any:
         if namespace != "procedure" or method not in {"run", "optimize", "optimize_batch", "continue", "branch"}:
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         parsed = _args(args)
 
         if method == "optimize":
-            # plexus.procedure.optimize always runs asynchronously — no handle protocol needed.
+            # primus.procedure.optimize always runs asynchronously — no handle protocol needed.
             self._record_api_call("procedure", "optimize")
             return self._procedure_optimize(parsed)
 
         if method == "optimize_batch":
-            # plexus.procedure.optimize_batch dispatches multiple optimizers.
+            # primus.procedure.optimize_batch dispatches multiple optimizers.
             self._record_api_call("procedure", "optimize_batch")
             return self._procedure_optimize_batch(parsed)
 
@@ -12310,7 +12310,7 @@ class PlexusRuntimeModule:
             return self._handle_store.create(
                 kind="procedure",
                 parent_trace_id=self._trace_id,
-                api_call="plexus.procedure.run",
+                api_call="primus.procedure.run",
                 args=parsed,
                 dispatch_result=dispatch_result,
                 child_budget=child_budget,
@@ -12321,13 +12321,13 @@ class PlexusRuntimeModule:
     def _call_handle(self, namespace: str, method: str, args: Any = None) -> Any:
         if namespace != "handle":
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         parsed = _args(args)
         handle_id = parsed.get("id")
         task_id = parsed.get("task_id") or parsed.get("taskId")
         if not handle_id and not task_id:
-            raise ValueError(f"plexus.handle.{method} requires id or task_id")
+            raise ValueError(f"primus.handle.{method} requires id or task_id")
 
         self._budget.check_before("handle", method)
         self._record_api_call("handle", method)
@@ -12338,7 +12338,7 @@ class PlexusRuntimeModule:
             if task_id:
                 if method not in {"peek", "status", "await"}:
                     raise ValueError(
-                        f"plexus.handle.{method} requires an ephemeral handle id"
+                        f"primus.handle.{method} requires an ephemeral handle id"
                     )
                 return self._refresh_task_handle(str(task_id))
             if method in {"peek", "status"}:
@@ -12361,7 +12361,7 @@ class PlexusRuntimeModule:
                     if remaining <= 0:
                         return record
                     time.sleep(min(max(poll_interval, 0.1), remaining))
-            raise ValueError(f"Unsupported Plexus runtime API: plexus.handle.{method}")
+            raise ValueError(f"Unsupported Primus runtime API: primus.handle.{method}")
         finally:
             self._budget.record_after("handle", method)
 
@@ -12369,8 +12369,8 @@ class PlexusRuntimeModule:
     def _refresh_task_handle(task_id: str) -> dict[str, Any]:
         """Return a stable handle-shaped status for a persisted dashboard task."""
         try:
-            from plexus.cli.shared.client_utils import create_client
-            from plexus.dashboard.api.models.task import Task
+            from primus.cli.shared.client_utils import create_client
+            from primus.dashboard.api.models.task import Task
 
             task = Task.get_by_id(task_id, create_client())
         except Exception as exc:  # noqa: BLE001
@@ -12460,8 +12460,8 @@ class PlexusRuntimeModule:
 
     def _cancel_dashboard_task(self, task_id: str) -> dict[str, Any]:
         try:
-            from plexus.cli.shared.client_utils import create_client
-            from plexus.dashboard.api.models.task import Task
+            from primus.cli.shared.client_utils import create_client
+            from primus.dashboard.api.models.task import Task
 
             client = create_client()
             task = Task.get_by_id(task_id, client)
@@ -12478,8 +12478,8 @@ class PlexusRuntimeModule:
 
     def _cancel_evaluation_record(self, evaluation_id: str) -> dict[str, Any]:
         try:
-            from plexus.cli.shared.client_utils import create_client
-            from plexus.dashboard.api.models.evaluation import (
+            from primus.cli.shared.client_utils import create_client
+            from primus.dashboard.api.models.evaluation import (
                 Evaluation as DashboardEvaluation,
             )
 
@@ -12655,7 +12655,7 @@ class PlexusRuntimeModule:
             parsed = _args(args)
             key = parsed.get("key") or parsed.get("id") or parsed.get("name") or parsed.get("filename")
             if not key:
-                raise ValueError("plexus.docs.get requires key, id, name, or filename")
+                raise ValueError("primus.docs.get requires key, id, name, or filename")
             self._budget.check_before("docs", "get")
             self._record_api_call("docs", "get")
             try:
@@ -12668,7 +12668,7 @@ class PlexusRuntimeModule:
                 "metadata": metadata,
                 "content": body,
             }
-        raise ValueError(f"Unsupported Plexus runtime API: plexus.docs.{method}")
+        raise ValueError(f"Unsupported Primus runtime API: primus.docs.{method}")
 
     def _call_skills(self, namespace: str, method: str, args: Any = None) -> Any:
         if method == "list":
@@ -12694,7 +12694,7 @@ class PlexusRuntimeModule:
             parsed = _args(args)
             skill_id = parsed.get("id") or parsed.get("key") or parsed.get("name")
             if not skill_id:
-                raise ValueError("plexus.skills.get requires id, key, or name")
+                raise ValueError("primus.skills.get requires id, key, or name")
             mode = parsed.get("mode")
             self._budget.check_before("skills", "get")
             self._record_api_call("skills", "get")
@@ -12708,23 +12708,23 @@ class PlexusRuntimeModule:
                 "content": body,
                 "resources": resources,
             }
-        raise ValueError(f"Unsupported Plexus runtime API: plexus.skills.{method}")
+        raise ValueError(f"Unsupported Primus runtime API: primus.skills.{method}")
 
     def _call_guidelines(self, namespace: str, method: str, args: Any = None) -> Any:
         if namespace != "guidelines" or method != "validate":
             raise ValueError(
-                f"Unsupported Plexus runtime API: plexus.{namespace}.{method}"
+                f"Unsupported Primus runtime API: primus.{namespace}.{method}"
             )
         parsed = _args(args)
         guidelines = parsed.get("guidelines")
         if guidelines is None:
             guidelines = parsed.get("content")
         if not isinstance(guidelines, str):
-            raise ValueError("plexus.guidelines.validate requires guidelines markdown text")
+            raise ValueError("primus.guidelines.validate requires guidelines markdown text")
         self._budget.check_before("guidelines", "validate")
         self._record_api_call("guidelines", "validate")
         try:
-            from plexus.guidelines.validator import validate_guidelines_content
+            from primus.guidelines.validator import validate_guidelines_content
 
             return validate_guidelines_content(guidelines).to_dict()
         finally:
@@ -12732,35 +12732,35 @@ class PlexusRuntimeModule:
 
     def _call_api(self, namespace: str, method: str, args: Any = None) -> Any:
         if method != "list":
-            raise ValueError(f"Unsupported Plexus runtime API: plexus.api.{method}")
+            raise ValueError(f"Unsupported Primus runtime API: primus.api.{method}")
         self._budget.check_before("api", "list")
         self._record_api_call("api", "list")
         try:
             api: dict[str, list[str]] = {}
             for namespace_name, method_name in MCP_TOOL_MAP:
-                api.setdefault(f"plexus.{namespace_name}", []).append(method_name)
+                api.setdefault(f"primus.{namespace_name}", []).append(method_name)
             for namespace_name, method_name in DIRECT_HANDLERS:
-                api.setdefault(f"plexus.{namespace_name}", []).append(method_name)
-            api.setdefault("plexus.docs", []).extend(["list", "get"])
-            api.setdefault("plexus.skills", []).extend(["list", "get"])
-            api.setdefault("plexus.api", []).append("list")
+                api.setdefault(f"primus.{namespace_name}", []).append(method_name)
+            api.setdefault("primus.docs", []).extend(["list", "get"])
+            api.setdefault("primus.skills", []).extend(["list", "get"])
+            api.setdefault("primus.api", []).append("list")
             return {key: sorted(set(values)) for key, values in sorted(api.items())}
         finally:
             self._budget.record_after("api", "list")
 
     def _docs_list(self, namespace: str | None = None) -> list[dict[str, Any]]:
-        from plexus.documentation.repository import DocumentationRepository
+        from primus.documentation.repository import DocumentationRepository
 
         if not os.path.isdir(self._docs_dir):
             raise FileNotFoundError(
-                f"Plexus docs directory not found: {self._docs_dir}"
+                f"Primus docs directory not found: {self._docs_dir}"
             )
         repo = DocumentationRepository(self._docs_dir)
         result = repo.list_docs(namespace=namespace)
         return list(result.entries)
 
     def _docs_read(self, key: str) -> tuple[dict[str, Any], str]:
-        from plexus.documentation.repository import (
+        from primus.documentation.repository import (
             DocumentationRepository,
             InvalidDocumentationKeyError,
         )
@@ -12772,7 +12772,7 @@ class PlexusRuntimeModule:
             message = str(exc)
             if "Unknown" in message:
                 raise FileNotFoundError(message) from exc
-            raise ValueError(f"Invalid plexus.docs key: {key!r}") from exc
+            raise ValueError(f"Invalid primus.docs key: {key!r}") from exc
         return doc.metadata, doc.body
 
     def _skills_list(
@@ -12782,11 +12782,11 @@ class PlexusRuntimeModule:
         tags: list[Any] | None = None,
         mode: str | None = None,
     ) -> list[dict[str, Any]]:
-        from plexus.skills.repository import SkillRepository
+        from primus.skills.repository import SkillRepository
 
         if not os.path.isdir(self._skills_dir):
             raise FileNotFoundError(
-                f"Plexus skills directory not found: {self._skills_dir}"
+                f"Primus skills directory not found: {self._skills_dir}"
             )
         repo = SkillRepository(self._skills_dir)
         result = repo.list_skills(query=query, tags=tags or [], mode=mode)
@@ -12798,7 +12798,7 @@ class PlexusRuntimeModule:
         *,
         mode: str | None = None,
     ) -> tuple[dict[str, Any], str, list[str]]:
-        from plexus.skills.repository import InvalidSkillKeyError, SkillRepository
+        from primus.skills.repository import InvalidSkillKeyError, SkillRepository
 
         repo = SkillRepository(self._skills_dir)
         try:
@@ -12807,16 +12807,16 @@ class PlexusRuntimeModule:
             message = str(exc)
             if "Unknown" in message:
                 raise FileNotFoundError(message) from exc
-            raise ValueError(f"Invalid plexus.skills id: {skill_id!r}") from exc
+            raise ValueError(f"Invalid primus.skills id: {skill_id!r}") from exc
         return skill.metadata, skill.body, skill.resources
 
 
 def _wrap_tactus_snippet(tactus: str) -> str:
     helper_lines = [
-        'local plexus = require("plexus")',
-        "local __plexus_last_result = nil",
-        "local function __plexus_capture(value)",
-        "  __plexus_last_result = value",
+        'local primus = require("primus")',
+        "local __primus_last_result = nil",
+        "local function __primus_capture(value)",
+        "  __primus_last_result = value",
         "  return value",
         "end",
     ]
@@ -12824,7 +12824,7 @@ def _wrap_tactus_snippet(tactus: str) -> str:
         helper_lines.extend(
             [
                 f"function {helper_name}(args)",
-                f"  return __plexus_capture(plexus.{namespace}.{method}(args))",
+                f"  return __primus_capture(primus.{namespace}.{method}(args))",
                 "end",
             ]
         )
@@ -12834,11 +12834,11 @@ def _wrap_tactus_snippet(tactus: str) -> str:
             "local function __execute_tactus_user_snippet()",
             tactus,
             "end",
-            "local __plexus_explicit_result = __execute_tactus_user_snippet()",
-            "if __plexus_explicit_result ~= nil then",
-            "  return __plexus_explicit_result",
+            "local __primus_explicit_result = __execute_tactus_user_snippet()",
+            "if __primus_explicit_result ~= nil then",
+            "  return __primus_explicit_result",
             "end",
-            "return __plexus_last_result",
+            "return __primus_last_result",
             "",
         ]
     )
@@ -12884,7 +12884,7 @@ def _run_tactus_sync(
                     "execute_tactus requires TactusRuntime.register_python_module; "
                     "update the installed tactus package to the version specified by pyproject.toml."
                 )
-            plexus = PlexusRuntimeModule(
+            primus = PrimusRuntimeModule(
                 mcp,
                 trace_id=trace_id,
                 budget=gate,
@@ -12899,7 +12899,7 @@ def _run_tactus_sync(
                 runtime_context=runtime_context,
                 catch_runtime_errors=True,
             )
-            runtime.register_python_module("plexus", plexus)
+            runtime.register_python_module("primus", primus)
             if stream_handler is not None:
                 stream_handler.emit(
                     kind="execution",
@@ -12909,9 +12909,9 @@ def _run_tactus_sync(
                     total=1,
                 )
             runtime_result = await runtime.execute(wrapped, context={}, format="lua")
-            api_calls = plexus.api_calls
-            if plexus.handle_protocol_required is not None:
-                ns, mt = plexus.handle_protocol_required
+            api_calls = primus.api_calls
+            if primus.handle_protocol_required is not None:
+                ns, mt = primus.handle_protocol_required
                 envelope = _response_envelope(
                     ok=False,
                     value=None,
@@ -12920,7 +12920,7 @@ def _run_tactus_sync(
                     started_at=started_mono,
                     error=_structured_error(
                         "requires_handle_protocol",
-                        f"plexus.{ns}.{mt} requires the long-running handle/streaming "
+                        f"primus.{ns}.{mt} requires the long-running handle/streaming "
                         "protocol from Kanbus epic plx-247588 and is not enabled in "
                         "this execute_tactus build.",
                     ),
@@ -13002,7 +13002,7 @@ def _run_tactus_sync(
                 (
                     runtime_context
                     if isinstance(runtime_context, dict)
-                    else getattr(plexus, "_runtime_context", None)
+                    else getattr(primus, "_runtime_context", None)
                 ),
                 score_edit_events=_extract_score_edit_audit_events_from_value(
                     envelope.get("value")
@@ -13270,27 +13270,27 @@ async def _execute_tactus_tool(
 
 
 EXECUTE_TACTUS_DESCRIPTION = """\
-Execute a short Tactus (Lua) snippet inside the Plexus runtime. Use it for
-Plexus work.
+Execute a short Tactus (Lua) snippet inside the Primus runtime. Use it for
+Primus work.
 
 Runtime ground rules:
-- `plexus` is a global. Do NOT write `local plexus = require("plexus")`.
-- The runtime captures the result of the last Plexus operation your snippet
+- `primus` is a global. Do NOT write `local primus = require("primus")`.
+- The runtime captures the result of the last Primus operation your snippet
   calls and returns it as the value of this tool call. Use an explicit
   `return` only when you want a custom output shape.
-- Always use table arguments: `plexus.score.info{ id = "..." }`.
+- Always use table arguments: `primus.score.info{ id = "..." }`.
 - Errors are structured (`error.code`, `error.message`, `error.retryable`).
 - Destructive ops require `Human.approve`; use `no_confirm = true` only after
   explicit approval. `set_champion` accepts `expected_champion_version_id`.
-- Long-running calls (`plexus.evaluation.run`, `plexus.report.run`,
-  `plexus.procedure.run`) must use `async = true`. They dispatch immediately
+- Long-running calls (`primus.evaluation.run`, `primus.report.run`,
+  `primus.procedure.run`) must use `async = true`. They dispatch immediately
   and return a handle — no `budget` table needed.
 
 Complete coverage contract:
 - Never silently reduce complete requested coverage to a sample.
 - Exhaust canonical collection metadata pagination (for example,
-  `plexus.scorecards.list`), keep IDs opaque, and pass every target to one
-  bounded `plexus.feedback.alignment_batch` call.
+  `primus.scorecards.list`), keep IDs opaque, and pass every target to one
+  bounded `primus.feedback.alignment_batch` call.
 - Return collection and downstream coverage; incomplete is never exact.
 - Never return the unaggregated alignment batch payload for complete research.
   Aggregate every row in Lua into compact totals, all failures, and bounded
@@ -13300,10 +13300,10 @@ Complete coverage contract:
   `total_items * disagreement_rate`. Rank it descending first; report class
   coverage, drift, rubric clarity, and fixability separately.
 
-Optimization: `plexus.optimization.rank/assess/diagnose/review/summary` plan;
-`plexus.optimization.run` needs `approved = true`, <=5 exact targets, and never promotes a champion.
+Optimization: `primus.optimization.rank/assess/diagnose/review/summary` plan;
+`primus.optimization.run` needs `approved = true`, <=5 exact targets, and never promotes a champion.
 `persist = true` has no inline output fallback.
-`plexus.optimization.portfolio_run` owns one Report, returns
+`primus.optimization.portfolio_run` owns one Report, returns
 `Human.review` approval, then dispatches individually approved exact targets.
 Rank scope: opaque `scorecard_ids` or literal case-insensitive
 `scorecard_name_prefixes`; empty arrays are invalid.
@@ -13320,7 +13320,7 @@ not misreported as missing cooldown evidence.
 Helper aliases are injected before the snippet: high-frequency short names and
 canonical `namespace_method` forms, including `docs_list/docs_get`,
 `skills_list/skills_get`, handle operations, and one helper per advertised API.
-- Fall back to `plexus.<namespace>.<method>{...}` for anything else.
+- Fall back to `primus.<namespace>.<method>{...}` for anything else.
 
 Load `evaluation-feedback.batch-operations-cookbook` for the
 account-wide pagination and aggregation example.
@@ -13378,7 +13378,7 @@ The docs knowledge base is split into two cheap calls.
 does NOT return markdown bodies, so it is safe to call freely. Pick the
 right `id` from those summaries, then call `docs_get{ id = "..." }` to
 load that one topic's full body. Filter by namespace once you know the
-area. Pair with `api_list()` to see which `plexus.<namespace>.<method>`
+area. Pair with `api_list()` to see which `primus.<namespace>.<method>`
 calls exist. Always start a new investigation at the canonical overview:
 ```tactus
 local apis     = api_list()
@@ -13403,7 +13403,7 @@ return { index = skill_index, skill_id = skill.id, body = skill.content }
 
 6c) Guidelines validation before guidelines-only updates:
 ```tactus
-local pulled = plexus.score.pull{
+local pulled = primus.score.pull{
   scorecard_identifier = "<scorecard-id>",
   score_identifier = "<score-id>",
   version = "<version-id>",
@@ -13427,7 +13427,7 @@ return {
 
 7) Dispatch a long-running report (fire-and-forget, returns a handle immediately):
 ```tactus
-local handle = plexus.report.run{
+local handle = primus.report.run{
   configuration_id = "44c97c07-...",
   parameters = { days = 60 },
   async = true,
@@ -13442,24 +13442,24 @@ Then poll, await, or cancel from a later `execute_tactus` call:
 `handle_cancel{ id = "<id>" }`.
 
 Documentation research uses PROGRESSIVE DISCLOSURE in two steps:
-1. `plexus.docs.list{}` (or `docs_list{}`) is cheap and returns only
+1. `primus.docs.list{}` (or `docs_list{}`) is cheap and returns only
    metadata summaries (`id`, `title`, `summary`, `namespace`, `status`,
    `disclosure`, `tags`, `related`). Browse this first to find the
    right topic by reading the summaries.
-2. `plexus.docs.get{ id = "<canonical-id>" }` (or
+2. `primus.docs.get{ id = "<canonical-id>" }` (or
    `docs_get{ id = "..." }`) then loads the full markdown body for one
    topic. Use the `id` from step 1 - never invent ids.
 Start every investigation at `mcp.execute-tactus-overview`. Filter the
-index with `plexus.docs.list{ namespace = "<name>" }`. Available
+index with `primus.docs.list{ namespace = "<name>" }`. Available
 namespaces: `mcp`, `score-authoring`, `evaluation-feedback`,
 `procedures`, `reports`, `optimizer`, `repo-workflows`. Cite the topic
 ids you used in your reply so the user can re-fetch them.
 
 Operational skills also use PROGRESSIVE DISCLOSURE:
-1. `plexus.skills.list{}` (or `skills_list{}`) returns only skill metadata:
+1. `primus.skills.list{}` (or `skills_list{}`) returns only skill metadata:
    `id`, `name`, `description`, `tags`, `applies_to`, `console_supported`,
    `requires_subagent`, and `allowed_modes`.
-2. `plexus.skills.get{ id = "<skill-id>" }` (or `skills_get{ id = "..." }`)
+2. `primus.skills.get{ id = "<skill-id>" }` (or `skills_get{ id = "..." }`)
    loads one full skill body plus resource references. Cite the skill id(s)
    you used. Do not preload every skill.
 
@@ -13475,7 +13475,7 @@ def register_tactus_tools(mcp: FastMCP) -> None:
         str,
         Field(
             description=(
-                "Tactus (Lua) snippet to execute. `plexus` is global; helper "
+                "Tactus (Lua) snippet to execute. `primus` is global; helper "
                 "aliases like `evaluate`, `predict`, `score`, `item`, "
                 "`scorecards`, `api_list`, `docs_list`, `docs_get`, "
                 "`skills_list`, `skills_get`, `handle_status` are injected. "
@@ -13483,7 +13483,7 @@ def register_tactus_tools(mcp: FastMCP) -> None:
                 "(`evaluation.run`, `report.run`, `procedure.run` with "
                 "`async = true`) require an explicit child `budget = { usd, "
                 "wallclock_seconds, depth, tool_calls }`. Read "
-                "`plexus.docs.get{ key = \"mcp.execute-tactus-overview\" }` for the full guide."
+                "`primus.docs.get{ key = \"mcp.execute-tactus-overview\" }` for the full guide."
             )
         ),
     ]

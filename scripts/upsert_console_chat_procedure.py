@@ -21,7 +21,7 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from plexus.dashboard.api.client import ClientContext, PlexusDashboardClient
+from primus.dashboard.api.client import ClientContext, PrimusDashboardClient
 
 
 LIST_PROCEDURES_QUERY = """
@@ -91,12 +91,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--account-key",
-        default=os.getenv("PLEXUS_ACCOUNT_KEY"),
-        help="Account key (defaults to PLEXUS_ACCOUNT_KEY).",
+        default=os.getenv("PRIMUS_ACCOUNT_KEY"),
+        help="Account key (defaults to PRIMUS_ACCOUNT_KEY).",
     )
     parser.add_argument(
         "--yaml",
-        default="plexus/procedures/console_chat_agent.yaml",
+        default="primus/procedures/console_chat_agent.yaml",
         help="Path to Console procedure YAML source.",
     )
     parser.add_argument(
@@ -151,7 +151,7 @@ def pick_existing_procedure(
 def main() -> int:
     args = parse_args()
     if not args.account_key:
-        print("Missing account key. Set PLEXUS_ACCOUNT_KEY or pass --account-key.", file=sys.stderr)
+        print("Missing account key. Set PRIMUS_ACCOUNT_KEY or pass --account-key.", file=sys.stderr)
         return 1
 
     yaml_path = pathlib.Path(args.yaml)
@@ -165,7 +165,7 @@ def main() -> int:
     version = parsed.get("version")
     category = parsed.get("category") or args.category
 
-    client = PlexusDashboardClient(context=ClientContext(account_key=args.account_key))
+    client = PrimusDashboardClient(context=ClientContext(account_key=args.account_key))
     account_id = client._resolve_account_id()
 
     update_input: Dict[str, Any] = {

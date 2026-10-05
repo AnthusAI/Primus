@@ -3,7 +3,7 @@ export default function AddEditScorePage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Add/Edit a Score</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Learn how to create and manage individual scores within scorecards using the Plexus dashboard interface.
+        Learn how to create and manage individual scores within scorecards using the Primus dashboard interface.
       </p>
 
       <div className="space-y-8">
@@ -80,7 +80,7 @@ export default function AddEditScorePage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Score Version Management</h2>
           <p className="text-muted-foreground mb-4">
-            Scores in Plexus support versioning, allowing you to track changes and manage different implementations:
+            Scores in Primus support versioning, allowing you to track changes and manage different implementations:
           </p>
           
           <div className="space-y-4">
@@ -138,35 +138,35 @@ export default function AddEditScorePage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Using the CLI</h2>
           <p className="text-muted-foreground mb-4">
-            For automated score management, you can use the Plexus CLI:
+            For automated score management, you can use the Primus CLI:
           </p>
           
           <pre className="bg-muted p-4 rounded-lg mb-4">
             <code>{`# View detailed information about a score
-plexus scorecards score "Score Name" --account "account-name"
-plexus scorecards score "score-key" --account "account-name"
+primus scorecards score "Score Name" --account "account-name"
+primus scorecards score "score-key" --account "account-name"
 
 # Show version history and configuration
-plexus scorecards score "Score Name" --account "account-name" --show-versions --show-config
+primus scorecards score "Score Name" --account "account-name" --show-versions --show-config
 
 # List all scores for a specific scorecard
-plexus scorecards list-scores --scorecard-id "scorecard-id"
+primus scorecards list-scores --scorecard-id "scorecard-id"
 
 # Coming soon:
 # View version history for a score
-plexus scorecards history --account-key "account-key" --score-key "score-key"
+primus scorecards history --account-key "account-key" --score-key "score-key"
 
 # Promote a version to champion
-plexus scorecards promote --account-key "account-key" --score-id "score-id" --version-id "version-id"
+primus scorecards promote --account-key "account-key" --score-id "score-id" --version-id "version-id"
 
 # Add a new score to a scorecard
-plexus scores add --scorecard-id "card-id" --name "Quality Score" --type quality --weight 0.5
+primus scores add --scorecard-id "card-id" --name "Quality Score" --type quality --weight 0.5
 
 # List all scores in a scorecard
-plexus scores list --scorecard "Quality Assurance"
+primus scores list --scorecard "Quality Assurance"
 
 # View score configuration
-plexus scores info --score "Grammar Check"`}</code>
+primus scores info --score "Grammar Check"`}</code>
           </pre>
           
           <div className="mt-4 space-y-4">
@@ -176,10 +176,10 @@ plexus scores info --score "Grammar Check"`}</code>
                 The <code>score</code> command supports multiple lookup methods:
               </p>
               <ul className="list-disc pl-6 mt-2 space-y-2 text-muted-foreground">
-                <li>By ID: <code>plexus scorecards score "score-id"</code></li>
-                <li>By key: <code>plexus scorecards score "score-key"</code></li>
-                <li>By name: <code>plexus scorecards score "Score Name"</code></li>
-                <li>By external ID: <code>plexus scorecards score "external-id"</code></li>
+                <li>By ID: <code>primus scorecards score "score-id"</code></li>
+                <li>By key: <code>primus scorecards score "score-key"</code></li>
+                <li>By name: <code>primus scorecards score "Score Name"</code></li>
+                <li>By external ID: <code>primus scorecards score "external-id"</code></li>
               </ul>
               <p className="text-muted-foreground mt-2">
                 You can scope the search to a specific account or scorecard for faster results.
@@ -195,15 +195,15 @@ plexus scores info --score "Grammar Check"`}</code>
           </p>
           
           <pre className="bg-muted p-4 rounded-lg mb-4">
-            <code>{`from plexus import Plexus
+            <code>{`from primus import Primus
 
-plexus = Plexus(api_key="your-api-key")
+primus = Primus(api_key="your-api-key")
 
 # Get a scorecard using any identifier (name, key, ID, or external ID)
-scorecard = plexus.scorecards.get("Quality Assurance")
+scorecard = primus.scorecards.get("Quality Assurance")
 
 # Get a score using any identifier
-score = plexus.scores.get("Grammar Check")
+score = primus.scores.get("Grammar Check")
 
 # Get all scores in a scorecard
 scores = scorecard.get_scores()

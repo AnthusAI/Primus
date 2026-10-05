@@ -479,7 +479,7 @@ export function ScoreOptimizerWorkbench({
                       size="sm"
                       onClick={() =>
                         void copyText(
-                          `plexus procedure index-optimizer-run ${run.procedureId}`,
+                          `primus procedure index-optimizer-run ${run.procedureId}`,
                           'Index command copied'
                         )
                       }

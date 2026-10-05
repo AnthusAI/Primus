@@ -5,7 +5,7 @@
 set -e
 
 ENVIRONMENT="production"
-SECRET_NAME="plexus/$ENVIRONMENT/config"
+SECRET_NAME="primus/$ENVIRONMENT/config"
 
 # Load environment variables from root .env file
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -30,10 +30,10 @@ echo ""
 SECRET_VALUE=$(cat <<EOF
 {
   "environment": "${ENVIRONMENT}",
-  "account-key": "${PLEXUS_ACCOUNT_KEY}",
-  "api-key": "${PLEXUS_API_KEY}",
-  "api-url": "${PLEXUS_API_URL}",
-  "postgres-uri": "${PLEXUS_LANGGRAPH_CHECKPOINTER_POSTGRES_URI}",
+  "account-key": "${PRIMUS_ACCOUNT_KEY}",
+  "api-key": "${PRIMUS_API_KEY}",
+  "api-url": "${PRIMUS_API_URL}",
+  "postgres-uri": "${PRIMUS_LANGGRAPH_CHECKPOINTER_POSTGRES_URI}",
   "openai-api-key": "${OPENAI_API_KEY}",
   "score-result-attachments-bucket": "${AMPLIFY_STORAGE_SCORERESULTATTACHMENTS_BUCKET_NAME}",
   "report-block-details-bucket": "${AMPLIFY_STORAGE_REPORTBLOCKDETAILS_BUCKET_NAME}",
@@ -62,7 +62,7 @@ EOF
 # Try to create the secret (will fail if it already exists)
 if aws secretsmanager create-secret \
     --name "$SECRET_NAME" \
-    --description "Plexus configuration for $ENVIRONMENT environment" \
+    --description "Primus configuration for $ENVIRONMENT environment" \
     --secret-string "$SECRET_VALUE" \
     2>/dev/null; then
     echo "✅ Secret created successfully: $SECRET_NAME"

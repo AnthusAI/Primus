@@ -1,13 +1,13 @@
-# Plexus Kubernetes Deployment
+# Primus Kubernetes Deployment
 
-Production-ready Kubernetes deployment for Plexus workers using Helm charts and Octopus Deploy.
+Production-ready Kubernetes deployment for Primus workers using Helm charts and Octopus Deploy.
 
 ## Overview
 
-This directory contains everything needed to deploy Plexus workers to Kubernetes:
+This directory contains everything needed to deploy Primus workers to Kubernetes:
 
 - **Dockerfile** - Multi-worker container image (score-processor, celery, scoring-api, console-worker)
-- **helm/plexus-worker/** - Helm chart for Kubernetes deployment
+- **helm/primus-worker/** - Helm chart for Kubernetes deployment
 - **scripts/** - Kubernetes image build, Envoy setup, and scoring smoke-test helpers
 - **SECURITY.md** - Security best practices and hardening guide
 
@@ -18,8 +18,8 @@ This directory contains everything needed to deploy Plexus workers to Kubernetes
 For the Docker-backed Kubernetes proof of concept, use the umbrella stack and Envoy Gateway bootstrap script:
 
 ```bash
-cp docker/helm/plexus-stack/values-local.yaml.example \
-   docker/helm/plexus-stack/values-local.yaml
+cp docker/helm/primus-stack/values-local.yaml.example \
+   docker/helm/primus-stack/values-local.yaml
 
 # Edit values-local.yaml with API and LLM keys, then run:
 docker/scripts/setup_envoy_gateway_poc.sh
@@ -35,7 +35,7 @@ In kind, the Envoy data-plane Service usually remains `EXTERNAL-IP <pending>` be
 
 ```bash
 kubectl get svc -A \
-  -l gateway.envoyproxy.io/owning-gateway-name=plexus-plexus-worker-gateway
+  -l gateway.envoyproxy.io/owning-gateway-name=primus-primus-worker-gateway
 ```
 
 Then port-forward that Envoy Service and smoke test the route:
@@ -63,8 +63,8 @@ curl -X POST http://localhost:8080/v1/score \
 ```
 
 For exposed environments, configure a separate inbound scoring API key with
-`plexus-worker.scoringApi.auth.enabled=true` and send it as
-`x-plexus-scoring-api-key`. Do not reuse the worker's backend `PLEXUS_API_KEY`
+`primus-worker.scoringApi.auth.enabled=true` and send it as
+`x-primus-scoring-api-key`. Do not reuse the worker's backend `PRIMUS_API_KEY`
 for external callers.
 
 ### 1. Configure Environment
@@ -73,11 +73,11 @@ Create your environment-specific values file:
 
 ```bash
 # Copy example template
-cp docker/helm/plexus-worker/values-dev.yaml.example \
-   docker/helm/plexus-worker/values-dev.yaml
+cp docker/helm/primus-worker/values-dev.yaml.example \
+   docker/helm/primus-worker/values-dev.yaml
 
 # Edit with your credentials
-vim docker/helm/plexus-worker/values-dev.yaml
+vim docker/helm/primus-worker/values-dev.yaml
 ```
 
 **⚠️ Important**: Values files contain credentials and are git-ignored. Never commit them!
@@ -106,15 +106,15 @@ docker/scripts/build_k8s_images.sh
 
 ```bash
 # Package the chart
-helm package docker/helm/plexus-worker
+helm package docker/helm/primus-worker
 
 # Install to Kubernetes
-helm install plexus-worker docker/helm/plexus-worker \
-  -f docker/helm/plexus-worker/values-prod.yaml \
-  --set image.repository=your-registry/plexus-worker \
+helm install primus-worker docker/helm/primus-worker \
+  -f docker/helm/primus-worker/values-prod.yaml \
+  --set image.repository=your-registry/primus-worker \
   --set image.tag=1.52.0 \
-  --set plexus.api.key=your-api-key \
-  --namespace plexus-prod \
+  --set primus.api.key=your-api-key \
+  --namespace primus-prod \
   --create-namespace
 ```
 
@@ -128,23 +128,23 @@ Octopus Deploy has native Helm chart support for Kubernetes deployments.
 
 ```bash
 cd docker/helm
-helm package plexus-worker
-# Creates: plexus-worker-1.0.0.tgz
+helm package primus-worker
+# Creates: primus-worker-1.0.0.tgz
 ```
 
 #### 2. Upload to Octopus
 
 1. Go to **Library** → **Packages** → **Upload Package**
-2. Upload `plexus-worker-1.0.0.tgz`
+2. Upload `primus-worker-1.0.0.tgz`
 
 #### 3. Create Octopus Project
 
-1. **Projects** → **Add Project**: "Plexus Worker Deployment"
+1. **Projects** → **Add Project**: "Primus Worker Deployment"
 2. **Process** → **Add Step** → **Deploy Helm Chart**
 
 **Step Configuration**:
-- **Package ID**: `plexus-worker`
-- **Release Name**: `plexus-worker-#{Octopus.Environment.Name | ToLower}`
+- **Package ID**: `primus-worker`
+- **Release Name**: `primus-worker-#{Octopus.Environment.Name | ToLower}`
 - **Namespace**: `#{Kubernetes.Namespace}`
 - **Reset Values**: ✅ Checked
 
@@ -156,15 +156,15 @@ helm package plexus-worker
 **Explicit Key Values** (Raw YAML):
 ```yaml
 image:
-  repository: "#{Docker.Registry}/plexus-worker"
+  repository: "#{Docker.Registry}/primus-worker"
   tag: "#{Docker.Image.Tag}"
 
-plexus:
+primus:
   api:
-    url: "#{Plexus.ApiUrl}"
-    key: "#{Plexus.ApiKey}"
+    url: "#{Primus.ApiUrl}"
+    key: "#{Primus.ApiKey}"
   account:
-    key: "#{Plexus.AccountKey}"
+    key: "#{Primus.AccountKey}"
 
 scoreProcessor:
   aws:
@@ -182,10 +182,10 @@ scoreProcessor:
 |----------|---------|-------|-----------|
 | `Docker.Registry` | `123456.dkr.ecr.us-west-2.amazonaws.com` | All | No |
 | `Docker.Image.Tag` | `1.52.0` | Per Release | No |
-| `Kubernetes.Namespace` | `plexus-prod` | Per Environment | No |
-| `Plexus.ApiUrl` | `https://api.plexus.example.com` | Per Environment | No |
-| `Plexus.ApiKey` | `***` | Per Environment | **Yes** |
-| `Plexus.AccountKey` | `***` | Per Environment | **Yes** |
+| `Kubernetes.Namespace` | `primus-prod` | Per Environment | No |
+| `Primus.ApiUrl` | `https://api.primus.example.com` | Per Environment | No |
+| `Primus.ApiKey` | `***` | Per Environment | **Yes** |
+| `Primus.AccountKey` | `***` | Per Environment | **Yes** |
 | `AWS.Region` | `us-west-2` | Per Environment | No |
 | `AWS.AccessKeyId` | `***` | Per Environment | **Yes** |
 | `AWS.SecretAccessKey` | `***` | Per Environment | **Yes** |
@@ -209,7 +209,7 @@ Integrate with GitHub Actions:
   with:
     api_key: ${{ secrets.OCTOPUS_API_KEY }}
     server: ${{ secrets.OCTOPUS_SERVER_URL }}
-    project: "Plexus Worker Deployment"
+    project: "Primus Worker Deployment"
     release_number: ${{ steps.version.outputs.VERSION }}
 
 - name: Deploy to Dev
@@ -217,7 +217,7 @@ Integrate with GitHub Actions:
   with:
     api_key: ${{ secrets.OCTOPUS_API_KEY }}
     server: ${{ secrets.OCTOPUS_SERVER_URL }}
-    project: "Plexus Worker Deployment"
+    project: "Primus Worker Deployment"
     release_number: ${{ steps.version.outputs.VERSION }}
     environment: "Development"
 ```
@@ -230,9 +230,9 @@ The image supports four worker modes via `workerType` value:
 Exposes synchronous HTTP scoring for Envoy Gateway deployments.
 
 **Required Config**:
-- `PLEXUS_API_URL`
-- `PLEXUS_API_KEY`
-- `PLEXUS_ACCOUNT_KEY`
+- `PRIMUS_API_URL`
+- `PRIMUS_API_KEY`
+- `PRIMUS_ACCOUNT_KEY`
 - Optional: `SCORING_API_HOST`, `SCORING_API_PORT`
 
 **Endpoint**:
@@ -242,8 +242,8 @@ Exposes synchronous HTTP scoring for Envoy Gateway deployments.
 Polls SQS queues and processes scoring jobs.
 
 **Required Config**:
-- `PLEXUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL`
-- `PLEXUS_RESPONSE_WORKER_QUEUE_URL`
+- `PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL`
+- `PRIMUS_RESPONSE_WORKER_QUEUE_URL`
 - AWS credentials (or IRSA)
 
 ### 3. Celery Worker (`celery`)
@@ -266,7 +266,7 @@ Polls for console chat messages.
 Environment-specific configuration is managed through values files:
 
 ```
-helm/plexus-worker/
+helm/primus-worker/
 ├── values.yaml                    # Base configuration (committed to git)
 ├── values-dev.yaml.example        # Dev template (committed)
 ├── values-staging.yaml.example    # Staging template (committed)
@@ -312,7 +312,7 @@ workerType: score-processor
 
 # Image
 image:
-  repository: your-registry/plexus-worker
+  repository: your-registry/primus-worker
   tag: "1.52.0"
 
 # Resources
@@ -336,7 +336,7 @@ networkPolicy:
 
 serviceAccount:
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/PlexusWorkerRole
+    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/PrimusWorkerRole
 ```
 
 ## Local Testing
@@ -344,8 +344,8 @@ serviceAccount:
 Use the kind/Envoy Gateway path for local Kubernetes validation:
 
 ```bash
-cp docker/helm/plexus-stack/values-local.yaml.example \
-   docker/helm/plexus-stack/values-local.yaml
+cp docker/helm/primus-stack/values-local.yaml.example \
+   docker/helm/primus-stack/values-local.yaml
 
 # Edit values-local.yaml with API/account/LLM keys, then run:
 docker/scripts/setup_envoy_gateway_poc.sh
@@ -375,16 +375,16 @@ See [SECURITY.md](SECURITY.md) for detailed security documentation and hardening
 
 ```bash
 # Pods
-kubectl get pods -l app.kubernetes.io/name=plexus-worker -n plexus-prod
+kubectl get pods -l app.kubernetes.io/name=primus-worker -n primus-prod
 
 # Deployment
-kubectl get deployment -n plexus-prod
+kubectl get deployment -n primus-prod
 
 # HPA
-kubectl get hpa -n plexus-prod
+kubectl get hpa -n primus-prod
 
 # Logs
-kubectl logs -f deployment/plexus-worker-score-processor -n plexus-prod
+kubectl logs -f deployment/primus-worker-score-processor -n primus-prod
 ```
 
 ### Key Metrics
@@ -400,7 +400,7 @@ kubectl logs -f deployment/plexus-worker-score-processor -n plexus-prod
 ### Manual Scaling
 
 ```bash
-kubectl scale deployment plexus-worker-score-processor --replicas=10 -n plexus-prod
+kubectl scale deployment primus-worker-score-processor --replicas=10 -n primus-prod
 ```
 
 ### Automatic Scaling (HPA)
@@ -419,10 +419,10 @@ Use [KEDA](https://keda.sh/) for SQS queue depth-based scaling in the `score-pro
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: plexus-score-processor-scaler
+  name: primus-score-processor-scaler
 spec:
   scaleTargetRef:
-    name: plexus-worker-score-processor
+    name: primus-worker-score-processor
   minReplicaCount: 5
   maxReplicaCount: 50
   triggers:
@@ -438,8 +438,8 @@ spec:
 ### Pods CrashLoopBackOff
 
 ```bash
-kubectl logs <pod-name> -n plexus-prod
-kubectl describe pod <pod-name> -n plexus-prod
+kubectl logs <pod-name> -n primus-prod
+kubectl describe pod <pod-name> -n primus-prod
 
 # Common causes:
 # - Missing environment variables
@@ -452,18 +452,18 @@ kubectl describe pod <pod-name> -n plexus-prod
 
 ```bash
 # Check worker logs
-kubectl logs -f deployment/plexus-worker -n plexus-prod | grep ERROR
+kubectl logs -f deployment/primus-worker -n primus-prod | grep ERROR
 
 # Verify Service and Gateway API resources
-kubectl get svc,gateway,httproute -n plexus-prod
+kubectl get svc,gateway,httproute -n primus-prod
 
 # Bypass Envoy to isolate worker health
-kubectl port-forward -n plexus-prod svc/plexus-worker 8000:8000
+kubectl port-forward -n primus-prod svc/primus-worker 8000:8000
 curl http://localhost:8000/readyz
 
 # For local kind POCs, find and port-forward the Envoy data-plane Service.
 kubectl get svc -A \
-  -l gateway.envoyproxy.io/owning-gateway-name=plexus-plexus-worker-gateway
+  -l gateway.envoyproxy.io/owning-gateway-name=primus-primus-worker-gateway
 kubectl port-forward -n <envoy-service-namespace> svc/<envoy-service-name> 8080:80
 ```
 
@@ -471,10 +471,10 @@ kubectl port-forward -n <envoy-service-namespace> svc/<envoy-service-name> 8080:
 
 ```bash
 # Check worker logs
-kubectl logs -f deployment/plexus-worker-score-processor -n plexus-prod | grep ERROR
+kubectl logs -f deployment/primus-worker-score-processor -n primus-prod | grep ERROR
 
 # Verify environment variables
-kubectl exec -it <pod-name> -n plexus-prod -- env | grep PLEXUS
+kubectl exec -it <pod-name> -n primus-prod -- env | grep PRIMUS
 
 # Check SQS queue
 aws sqs get-queue-attributes \
@@ -493,14 +493,14 @@ aws sqs get-queue-attributes \
 
 ```bash
 # Dry run to check for errors
-helm install plexus-worker docker/helm/plexus-worker --dry-run --debug
+helm install primus-worker docker/helm/primus-worker --dry-run --debug
 
 # Validate templates
-helm template plexus-worker docker/helm/plexus-worker \
-  -f docker/helm/plexus-worker/values-prod.yaml
+helm template primus-worker docker/helm/primus-worker \
+  -f docker/helm/primus-worker/values-prod.yaml
 
 # Check for missing values
-helm lint docker/helm/plexus-worker
+helm lint docker/helm/primus-worker
 ```
 
 ## Production Checklist
@@ -556,7 +556,7 @@ docker/
 ├── .gitignore                    # Protect secrets
 ├── README.md                     # This file
 ├── SECURITY.md                   # Security guide
-└── helm/plexus-worker/          # Helm chart
+└── helm/primus-worker/          # Helm chart
     ├── Chart.yaml
     ├── values.yaml              # Default config
     ├── values-dev.yaml          # Dev overrides
@@ -574,7 +574,7 @@ docker/
 
 ## Support
 
-- **Helm Chart**: See `helm/plexus-worker/README.md`
+- **Helm Chart**: See `helm/primus-worker/README.md`
 - **Security**: See `SECURITY.md`
 - **Kubernetes Issues**: Check pod logs and events
 - **Octopus Deploy**: Check Octopus logs and deployment history

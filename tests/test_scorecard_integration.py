@@ -1,10 +1,10 @@
 import pytest
 import os
 from unittest.mock import patch
-from plexus.Scorecard import Scorecard
-from plexus.scores.LangGraphScore import LangGraphScore
-from plexus.scores.Score import Score
-from plexus.Registries import scorecard_registry
+from primus.Scorecard import Scorecard
+from primus.scores.LangGraphScore import LangGraphScore
+from primus.scores.Score import Score
+from primus.Registries import scorecard_registry
 from decimal import Decimal
 
 class TestLangGraphScore(LangGraphScore):
@@ -74,7 +74,7 @@ def test_scorecard():
 async def test_scorecard_langgraph_interface(test_scorecard):
     """Test that Scorecard correctly interfaces with LangGraphScore."""
     # Set required environment variables
-    with patch.dict(os.environ, {'PLEXUS_ACCOUNT_KEY': 'test-key', 'environment': 'test'}):
+    with patch.dict(os.environ, {'PRIMUS_ACCOUNT_KEY': 'test-key', 'environment': 'test'}):
         # Test scoring
         result = await test_scorecard.get_score_result(
             scorecard='test-scorecard-1',
@@ -96,7 +96,7 @@ async def test_scorecard_langgraph_interface(test_scorecard):
 async def test_scorecard_cost_tracking(test_scorecard):
     """Test that Scorecard retains costs without an application-owned log sink."""
     # Set required environment variables
-    with patch.dict(os.environ, {'PLEXUS_ACCOUNT_KEY': 'test-key', 'environment': 'test'}):
+    with patch.dict(os.environ, {'PRIMUS_ACCOUNT_KEY': 'test-key', 'environment': 'test'}):
         await test_scorecard.get_score_result(
             scorecard='test-scorecard-1',
             score='TestScore',
@@ -129,7 +129,7 @@ async def test_scorecard_error_handling(test_scorecard):
     )
 
     # Test error handling
-    with patch.dict(os.environ, {'PLEXUS_ACCOUNT_KEY': 'test-key', 'environment': 'test'}):
+    with patch.dict(os.environ, {'PRIMUS_ACCOUNT_KEY': 'test-key', 'environment': 'test'}):
         with pytest.raises(ValueError, match="Test error"):
             await test_scorecard.get_score_result(
                 scorecard='test-scorecard-1',

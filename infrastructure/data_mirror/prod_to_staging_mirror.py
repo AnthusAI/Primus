@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Mirror Plexus Amplify production data into staging inside one AWS account.
+"""Mirror Primus Amplify production data into staging inside one AWS account.
 
 The destructive modes intentionally require CONFIRM_DESTRUCTIVE to be set to
 "mirror-main-to-staging". Preflight mode performs discovery only.

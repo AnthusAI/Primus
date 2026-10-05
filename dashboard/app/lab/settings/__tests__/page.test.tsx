@@ -42,6 +42,6 @@ describe("LabSettings", () => {
 
     expect(screen.getByText("user-1")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /copy user id/i })).toBeEnabled()
-    expect(screen.getByText(/PLEXUS_ACTOR_USER_ID/i)).toBeInTheDocument()
+    expect(screen.getByText(/PRIMUS_ACTOR_USER_ID/i)).toBeInTheDocument()
   })
 })

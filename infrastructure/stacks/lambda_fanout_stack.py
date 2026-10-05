@@ -107,7 +107,7 @@ class LambdaFanoutStack(Stack):
             environment={
                 "FANOUT_BATCH_SIZE": "10",  # Default batch size
                 "SCORE_PROCESSOR_LAMBDA_ARN": score_processor_lambda_arn,
-                "PLEXUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL": request_queue.queue_url,
+                "PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL": request_queue.queue_url,
             },
             description="Fan-out controller for score processor Lambda invocations",
         )

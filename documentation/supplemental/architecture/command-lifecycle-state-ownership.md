@@ -2,12 +2,12 @@
 
 ## Decision
 
-Plexus command execution has one authoritative lifecycle model and one
+Primus command execution has one authoritative lifecycle model and one
 dashboard-facing task view. They are separate logical models. A deployment may
 store them in the same database, but a dashboard task is not the authority for
 lease ownership, idempotency, retry, or cancellation.
 
-The command lifecycle is portable Plexus domain state. The dashboard task is a
+The command lifecycle is portable Primus domain state. The dashboard task is a
 projection for user-facing stages, output, subscriptions, and navigation.
 
 ## Why this decision is needed

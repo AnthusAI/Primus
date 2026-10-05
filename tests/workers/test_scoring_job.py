@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from plexus.workers.scoring_job import ScoringJobError, process_scoring_job_sync
+from primus.workers.scoring_job import ScoringJobError, process_scoring_job_sync
 
 
 class FakeScoreInstance:
@@ -13,7 +13,7 @@ class FakeScoreInstance:
 
 
 def test_process_scoring_job_sync_persists_result(monkeypatch):
-    monkeypatch.setenv("PLEXUS_ACCOUNT_KEY", "acct-1")
+    monkeypatch.setenv("PRIMUS_ACCOUNT_KEY", "acct-1")
 
     fake_client = Mock()
     fake_client.execute.side_effect = [
@@ -35,24 +35,24 @@ def test_process_scoring_job_sync_persists_result(monkeypatch):
     fake_score_instance = FakeScoreInstance(fake_result)
 
     with patch(
-        "plexus.dashboard.api.client.PlexusDashboardClient",
+        "primus.dashboard.api.client.PrimusDashboardClient",
         return_value=fake_client,
     ):
-        with patch("plexus.dashboard.api.models.item.Item.get_by_id", return_value=fake_item):
+        with patch("primus.dashboard.api.models.item.Item.get_by_id", return_value=fake_item):
             with patch(
-                "plexus.cli.shared.direct_memoized_resolvers.direct_memoized_resolve_scorecard_identifier",
+                "primus.cli.shared.direct_memoized_resolvers.direct_memoized_resolve_scorecard_identifier",
                 return_value="scorecard-1",
             ):
                 with patch(
-                    "plexus.cli.shared.direct_memoized_resolvers.direct_memoized_resolve_score_identifier",
+                    "primus.cli.shared.direct_memoized_resolvers.direct_memoized_resolve_score_identifier",
                     return_value="score-1",
                 ):
                     with patch(
-                        "plexus.dashboard.api.models.scorecard.Scorecard.get_by_id",
+                        "primus.dashboard.api.models.scorecard.Scorecard.get_by_id",
                         return_value=SimpleNamespace(id="scorecard-1"),
                     ):
                         with patch(
-                            "plexus.scores.Score.Score.load",
+                            "primus.scores.Score.Score.load",
                             return_value=fake_score_instance,
                         ) as load_score:
                             result = process_scoring_job_sync(
@@ -80,7 +80,7 @@ def test_process_scoring_job_sync_persists_result(monkeypatch):
 
 
 def test_process_scoring_job_sync_falls_back_for_empty_item_account_id(monkeypatch):
-    monkeypatch.delenv("PLEXUS_ACCOUNT_KEY", raising=False)
+    monkeypatch.delenv("PRIMUS_ACCOUNT_KEY", raising=False)
 
     fake_client = Mock()
     fake_client.execute.side_effect = [
@@ -98,24 +98,24 @@ def test_process_scoring_job_sync_falls_back_for_empty_item_account_id(monkeypat
     fake_score_instance = FakeScoreInstance(fake_result)
 
     with patch(
-        "plexus.dashboard.api.client.PlexusDashboardClient",
+        "primus.dashboard.api.client.PrimusDashboardClient",
         return_value=fake_client,
     ):
-        with patch("plexus.dashboard.api.models.item.Item.get_by_id", return_value=fake_item):
+        with patch("primus.dashboard.api.models.item.Item.get_by_id", return_value=fake_item):
             with patch(
-                "plexus.cli.shared.direct_memoized_resolvers.direct_memoized_resolve_scorecard_identifier",
+                "primus.cli.shared.direct_memoized_resolvers.direct_memoized_resolve_scorecard_identifier",
                 return_value="scorecard-1",
             ):
                 with patch(
-                    "plexus.cli.shared.direct_memoized_resolvers.direct_memoized_resolve_score_identifier",
+                    "primus.cli.shared.direct_memoized_resolvers.direct_memoized_resolve_score_identifier",
                     return_value="score-1",
                 ):
                     with patch(
-                        "plexus.dashboard.api.models.scorecard.Scorecard.get_by_id",
+                        "primus.dashboard.api.models.scorecard.Scorecard.get_by_id",
                         return_value=SimpleNamespace(id="scorecard-1"),
                     ):
                         with patch(
-                            "plexus.scores.Score.Score.load",
+                            "primus.scores.Score.Score.load",
                             return_value=fake_score_instance,
                         ):
                             process_scoring_job_sync(
@@ -133,7 +133,7 @@ def test_process_scoring_job_sync_falls_back_for_empty_item_account_id(monkeypat
 
 
 def test_process_scoring_job_sync_missing_account_key_is_server_error(monkeypatch):
-    monkeypatch.delenv("PLEXUS_ACCOUNT_KEY", raising=False)
+    monkeypatch.delenv("PRIMUS_ACCOUNT_KEY", raising=False)
 
     with pytest.raises(ScoringJobError) as exc_info:
         process_scoring_job_sync(
@@ -148,10 +148,10 @@ def test_process_scoring_job_sync_missing_account_key_is_server_error(monkeypatc
 
 
 def test_process_scoring_job_sync_raises_404_for_missing_item(monkeypatch):
-    monkeypatch.setenv("PLEXUS_ACCOUNT_KEY", "acct-1")
+    monkeypatch.setenv("PRIMUS_ACCOUNT_KEY", "acct-1")
 
-    with patch("plexus.dashboard.api.client.PlexusDashboardClient", return_value=Mock()):
-        with patch("plexus.dashboard.api.models.item.Item.get_by_id", return_value=None):
+    with patch("primus.dashboard.api.client.PrimusDashboardClient", return_value=Mock()):
+        with patch("primus.dashboard.api.models.item.Item.get_by_id", return_value=None):
             try:
                 process_scoring_job_sync(
                     scoring_job_id="job-1",

@@ -67,22 +67,22 @@ class ArtifactTicketConfiguration:
     @classmethod
     def from_env(cls) -> "ArtifactTicketConfiguration":
         return cls(
-            enabled=os.getenv("PLEXUS_ARTIFACT_TICKETS_ENABLED", "false").lower()
+            enabled=os.getenv("PRIMUS_ARTIFACT_TICKETS_ENABLED", "false").lower()
             in {"1", "true", "yes"},
-            endpoint=os.getenv("PLEXUS_ARTIFACT_STORE_ENDPOINT"),
-            region=os.getenv("PLEXUS_ARTIFACT_STORE_REGION", "us-east-1"),
-            access_key_id=os.getenv("PLEXUS_ARTIFACT_STORE_ACCESS_KEY_ID"),
-            secret_access_key=os.getenv("PLEXUS_ARTIFACT_STORE_SECRET_ACCESS_KEY"),
-            account_id=os.getenv("PLEXUS_ARTIFACT_ACCOUNT_ID"),
+            endpoint=os.getenv("PRIMUS_ARTIFACT_STORE_ENDPOINT"),
+            region=os.getenv("PRIMUS_ARTIFACT_STORE_REGION", "us-east-1"),
+            access_key_id=os.getenv("PRIMUS_ARTIFACT_STORE_ACCESS_KEY_ID"),
+            secret_access_key=os.getenv("PRIMUS_ARTIFACT_STORE_SECRET_ACCESS_KEY"),
+            account_id=os.getenv("PRIMUS_ARTIFACT_ACCOUNT_ID"),
             buckets={
-                "datasets": os.getenv("PLEXUS_ARTIFACT_BUCKET_DATASETS", ""),
-                "reportBlockDetails": os.getenv("PLEXUS_ARTIFACT_BUCKET_REPORT_BLOCK_DETAILS", ""),
-                "taskAttachments": os.getenv("PLEXUS_ARTIFACT_BUCKET_TASK_ATTACHMENTS", ""),
+                "datasets": os.getenv("PRIMUS_ARTIFACT_BUCKET_DATASETS", ""),
+                "reportBlockDetails": os.getenv("PRIMUS_ARTIFACT_BUCKET_REPORT_BLOCK_DETAILS", ""),
+                "taskAttachments": os.getenv("PRIMUS_ARTIFACT_BUCKET_TASK_ATTACHMENTS", ""),
                 "scoreResultAttachments": os.getenv(
-                    "PLEXUS_ARTIFACT_BUCKET_SCORE_RESULT_ATTACHMENTS", ""
+                    "PRIMUS_ARTIFACT_BUCKET_SCORE_RESULT_ATTACHMENTS", ""
                 ),
             },
-            url_ttl_seconds=int(os.getenv("PLEXUS_ARTIFACT_TICKET_TTL_SECONDS", "300")),
+            url_ttl_seconds=int(os.getenv("PRIMUS_ARTIFACT_TICKET_TTL_SECONDS", "300")),
         )
 
     def validate(self) -> None:
@@ -92,9 +92,9 @@ class ArtifactTicketConfiguration:
         if endpoint.scheme.lower() != "https" or not endpoint.netloc:
             raise ValueError("local artifact ticket endpoint must use HTTPS")
         required = {
-            "PLEXUS_ARTIFACT_STORE_ACCESS_KEY_ID": self.access_key_id,
-            "PLEXUS_ARTIFACT_STORE_SECRET_ACCESS_KEY": self.secret_access_key,
-            "PLEXUS_ARTIFACT_ACCOUNT_ID": self.account_id,
+            "PRIMUS_ARTIFACT_STORE_ACCESS_KEY_ID": self.access_key_id,
+            "PRIMUS_ARTIFACT_STORE_SECRET_ACCESS_KEY": self.secret_access_key,
+            "PRIMUS_ARTIFACT_ACCOUNT_ID": self.account_id,
             **{f"artifact bucket {name}": value for name, value in self.buckets.items()},
         }
         missing = [name for name, value in required.items() if not value]

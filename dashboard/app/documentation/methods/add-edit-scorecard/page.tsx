@@ -3,7 +3,7 @@ export default function AddEditScorecardPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Add/Edit a Scorecard</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Learn how to create and manage scorecards using the Plexus dashboard interface.
+        Learn how to create and manage scorecards using the Primus dashboard interface.
       </p>
 
       <div className="space-y-8">
@@ -104,34 +104,34 @@ export default function AddEditScorecardPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Using the CLI</h2>
           <p className="text-muted-foreground mb-4">
-            For automated scorecard management, you can use the Plexus CLI:
+            For automated scorecard management, you can use the Primus CLI:
           </p>
           
           <pre className="bg-muted p-4 rounded-lg mb-4">
             <code>{`# List scorecards with optimized performance
-plexus scorecards list "account-name" --fast
+primus scorecards list "account-name" --fast
 
 # View a specific scorecard by filtering
-plexus scorecards list "account-name" --name "Content Quality"
+primus scorecards list "account-name" --name "Content Quality"
 
 # View detailed information about a score
-plexus scorecards score "score-name" --account "account-name" --show-versions
+primus scorecards score "score-name" --account "account-name" --show-versions
 
 # Coming soon:
 # Create a new scorecard
-plexus scorecards create --name "Content Quality" --description "Evaluates content quality"
+primus scorecards create --name "Content Quality" --description "Evaluates content quality"
 
 # Get detailed information about a specific scorecard
-plexus scorecards info --scorecard "Content Quality"
+primus scorecards info --scorecard "Content Quality"
 
 # List all scores in a scorecard
-plexus scorecards list-scores --scorecard "Content Quality"
+primus scorecards list-scores --scorecard "Content Quality"
 
 # Pull scorecard configuration to YAML
-plexus scorecards pull --scorecard "Content Quality" --output ./my-scorecards
+primus scorecards pull --scorecard "Content Quality" --output ./my-scorecards
 
 # Delete a scorecard
-plexus scorecards delete --scorecard "Content Quality"`}</code>
+primus scorecards delete --scorecard "Content Quality"`}</code>
           </pre>
           
           <div className="mt-4 space-y-4">
@@ -163,15 +163,15 @@ plexus scorecards delete --scorecard "Content Quality"`}</code>
           </p>
           
           <pre className="bg-muted p-4 rounded-lg mb-4">
-            <code>{`from plexus import Plexus
+            <code>{`from primus import Primus
 
-plexus = Plexus(api_key="your-api-key")
+primus = Primus(api_key="your-api-key")
 
 # Get a scorecard using any identifier (name, key, ID, or external ID)
-scorecard = plexus.scorecards.get("Content Quality")
+scorecard = primus.scorecards.get("Content Quality")
 
 # List all scorecards
-scorecards = plexus.scorecards.list()
+scorecards = primus.scorecards.list()
 
 # Get all scores in a scorecard
 scores = scorecard.get_scores()
@@ -185,7 +185,7 @@ with open("scorecard.yaml", "w") as f:
 with open("scorecard.yaml", "r") as f:
     yaml_content = f.read()
     
-new_scorecard = plexus.scorecards.from_yaml(yaml_content)`}</code>
+new_scorecard = primus.scorecards.from_yaml(yaml_content)`}</code>
           </pre>
           
           <p className="text-muted-foreground mb-4">

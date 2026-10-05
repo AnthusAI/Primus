@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Plexus MCP Server Test Harness
+Primus MCP Server Test Harness
 
 Starts the MCP server as a subprocess (same way Claude Code does) and sends
 JSON-RPC messages over stdio to test tools end-to-end without needing to
@@ -26,12 +26,12 @@ from typing import Optional
 
 # ── Server configuration (mirrors ~/.cursor/mcp.json) ──────────────────────
 PYTHON = "/home/ryan/miniconda3/envs/py311/bin/python"
-WRAPPER = "/home/ryan/projects/Plexus/MCP/plexus_fastmcp_wrapper.py"
-TARGET_CWD = "/home/ryan/projects/Plexus/"
+WRAPPER = "/home/ryan/projects/Primus/MCP/primus_fastmcp_wrapper.py"
+TARGET_CWD = "/home/ryan/projects/Primus/"
 SERVER_ENV = {
     **os.environ,
     "PYTHONUNBUFFERED": "1",
-    "PYTHONPATH": "/home/ryan/projects/Plexus",
+    "PYTHONPATH": "/home/ryan/projects/Primus",
 }
 
 # ── Colours ─────────────────────────────────────────────────────────────────
@@ -241,15 +241,15 @@ def test_list_tools(server: MCPServer, result: TestResult):
     """tools/list should return a non-empty list including key tools."""
     tools = server.list_tools()
     tool_names = {t["name"] for t in tools}
-    required = {"plexus_evaluation_run", "plexus_evaluation_info", "plexus_scorecards_list"}
+    required = {"primus_evaluation_run", "primus_evaluation_info", "primus_scorecards_list"}
     missing = required - tool_names
     assert not missing, f"Missing tools: {missing}"
     result.message = f"{len(tools)} tools registered"
 
 
 def test_evaluation_info_latest(server: MCPServer, result: TestResult):
-    """plexus_evaluation_info with use_latest=True should return evaluation data."""
-    resp = server.call_tool("plexus_evaluation_info", {
+    """primus_evaluation_info with use_latest=True should return evaluation data."""
+    resp = server.call_tool("primus_evaluation_info", {
         "use_latest": True,
         "output_format": "json",
     }, timeout=30)
@@ -264,8 +264,8 @@ def test_evaluation_info_latest(server: MCPServer, result: TestResult):
 
 
 def test_scorecards_list(server: MCPServer, result: TestResult):
-    """plexus_scorecards_list should return scorecards."""
-    resp = server.call_tool("plexus_scorecards_list", {}, timeout=30)
+    """primus_scorecards_list should return scorecards."""
+    resp = server.call_tool("primus_scorecards_list", {}, timeout=30)
     content = resp.get("result", {}).get("content", [])
     assert content, f"Empty content: {resp}"
     text = content[0].get("text", "")
@@ -274,7 +274,7 @@ def test_scorecards_list(server: MCPServer, result: TestResult):
 
 
 def test_evaluation_run_dispatches(server: MCPServer, result: TestResult):
-    """plexus_evaluation_run feedback should dispatch without timing out.
+    """primus_evaluation_run feedback should dispatch without timing out.
 
     This is the core test for the timeout bug. Currently the tool blocks until
     the evaluation completes (~5 min), causing AbortError in Claude Code.
@@ -282,7 +282,7 @@ def test_evaluation_run_dispatches(server: MCPServer, result: TestResult):
     """
     # Use a small evaluation to keep test fast; once fix is in, this should
     # return quickly even for large evaluations.
-    resp = server.call_tool("plexus_evaluation_run", {
+    resp = server.call_tool("primus_evaluation_run", {
         "scorecard_name": "Example Scorecard",
         "score_name": "Shipping Address",
         "evaluation_type": "feedback",
@@ -365,7 +365,7 @@ def interactive(server: MCPServer):
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser(description="Plexus MCP Server Test Harness")
+    parser = argparse.ArgumentParser(description="Primus MCP Server Test Harness")
     parser.add_argument("--list", action="store_true", help="List available tests")
     parser.add_argument("--tool", metavar="NAME", help="Run only tests matching name")
     parser.add_argument("--fast", action="store_true", help="Run only fast (sub-second) tests")

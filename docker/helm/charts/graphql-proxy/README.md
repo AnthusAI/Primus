@@ -1,10 +1,10 @@
 # GraphQL Proxy Helm Chart
 
-Helm chart for deploying the Plexus GraphQL Proxy service that routes between PostgreSQL (private data) and AWS AppSync (control plane).
+Helm chart for deploying the Primus GraphQL Proxy service that routes between PostgreSQL (private data) and AWS AppSync (control plane).
 
 ## Overview
 
-The GraphQL Proxy acts as "The Adapter" in the Plexus architecture, providing:
+The GraphQL Proxy acts as "The Adapter" in the Primus architecture, providing:
 - Connection pooling and caching for AWS AppSync queries
 - Storage of private data (Items, ScoreResults, FeedbackItems) in PostgreSQL
 - API key authentication for workers
@@ -41,7 +41,7 @@ postgresql:
 
 ## Deployment
 
-When deployed as part of the plexus-stack umbrella chart, the PostgreSQL connection details are automatically configured from global values.
+When deployed as part of the primus-stack umbrella chart, the PostgreSQL connection details are automatically configured from global values.
 
 For standalone deployment:
 

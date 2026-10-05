@@ -228,7 +228,7 @@ const SquareLogo = ({
         }}
       >
         {variant === LogoVariant.Wide || variant === LogoVariant.Square ? (
-          ['P', 'L', 'E', 'X', 'U', 'S'].map((letter, index) => (
+          ['P', 'R', 'I', 'M', 'U', 'S'].map((letter, index) => (
             <span
               key={letter}
               style={{

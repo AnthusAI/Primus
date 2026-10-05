@@ -14,19 +14,19 @@ related:
 ---
 # `execute_tactus` Overview
 
-`execute_tactus` is the single Plexus MCP tool. You submit a short Tactus
-(Lua) snippet; the runtime executes it inside the Plexus sandbox and
-returns a structured envelope. Use this as the only Plexus tool.
+`execute_tactus` is the single Primus MCP tool. You submit a short Tactus
+(Lua) snippet; the runtime executes it inside the Primus sandbox and
+returns a structured envelope. Use this as the only Primus tool.
 
 ## Runtime ground rules
 
-- `plexus` is a global. You do **not** need to import it yourself.
-- The runtime captures the result of the **last** Plexus operation your
+- `primus` is a global. You do **not** need to import it yourself.
+- The runtime captures the result of the **last** Primus operation your
   snippet calls and returns it as the value of this tool call. You only
   need to write an explicit `return` when you want a custom output shape.
 - Always use **table** arguments, never positional arguments:
-  `plexus.score.info{ id = "..." }` not `plexus.score.info("...")`.
-- Errors are structured. If a Plexus call fails, return the error code,
+  `primus.score.info{ id = "..." }` not `primus.score.info("...")`.
+- Errors are structured. If a Primus call fails, return the error code,
   message, and retryability. Do not retry forever; missing data is
   usually not retryable.
 - Destructive operations (champion promotion, score updates, deletes,
@@ -36,9 +36,9 @@ returns a structured envelope. Use this as the only Plexus tool.
   it.
 - Budget caps, streaming events, API call accounting, and HITL approval
   are enforced by the runtime. You do not need to call
-  `plexus.budget.remaining()` or build approval flow yourself.
-- Long-running async calls (`plexus.evaluation.run`, `plexus.report.run`,
-  `plexus.procedure.run` with `async = true`) **must** include an
+  `primus.budget.remaining()` or build approval flow yourself.
+- Long-running async calls (`primus.evaluation.run`, `primus.report.run`,
+  `primus.procedure.run` with `async = true`) **must** include an
   explicit child budget table:
   `budget = { usd = <number>, wallclock_seconds = <number>, depth = <int>, tool_calls = <int> }`.
   See `long-running-apis` and `handles-and-budgets`.
@@ -57,7 +57,7 @@ Every advertised API also has a canonical `namespace_method` helper such
 as `scorecards_list`, `score_info`, `evaluation_info`, `evaluation_run`,
 `handle_status`, `handle_await`, `handle_cancel`, `docs_list`,
 `docs_get`, `api_list`. Use helpers when they fit; fall back to
-`plexus.<namespace>.<method>{...}` for anything else.
+`primus.<namespace>.<method>{...}` for anything else.
 
 ## Discovery
 
@@ -65,14 +65,14 @@ Discover what's available instead of guessing API details from memory.
 Two discovery primitives are always free of cost:
 
 ```tactus
-local apis = plexus.api.list()
-local topics = plexus.docs.list()
-local overview = plexus.docs.get({ key = "mcp.execute-tactus-overview" })
+local apis = primus.api.list()
+local topics = primus.docs.list()
+local overview = primus.docs.get({ key = "mcp.execute-tactus-overview" })
 ```
 
-`plexus.api.list({})` returns the catalog of every namespace and method.
-`plexus.docs.list({})` returns metadata summaries for every indexed
-topic. `plexus.docs.get({ key = "<id>" })` returns the markdown body
+`primus.api.list({})` returns the catalog of every namespace and method.
+`primus.docs.list({})` returns metadata summaries for every indexed
+topic. `primus.docs.get({ key = "<id>" })` returns the markdown body
 plus the parsed metadata for one topic.
 
 The agent KB lives under `documentation/agent/`, organized by
@@ -86,8 +86,8 @@ namespace:
   scorecard processors, rubric memory and consistency.
 - `evaluation-feedback` — feedback and evaluation alignment, acceptance
   rate, optimizer cookbook and procedures, optimizer objectives.
-- `procedures` — Plexus Procedures runtime APIs.
-- `reports` — Plexus Reports authoring and persistence.
+- `procedures` — Primus Procedures runtime APIs.
+- `reports` — Primus Reports authoring and persistence.
 - `optimizer` — direct CLI optimizer workflows.
 - `repo-workflows` — Kanbus, Git Flow, and local environment.
 
@@ -184,7 +184,7 @@ local handle = evaluate{
 return {
   handle_id = handle.id,
   status = handle.status,
-  check_later_with = "plexus.handle.status",
+  check_later_with = "primus.handle.status",
 }
 ```
 
@@ -207,5 +207,5 @@ Every `execute_tactus` call returns:
   workers, depth_max_observed, budget_remaining_* }`.
 - `trace_id` — opaque ID for the full run trace.
 - `partial` — true when streaming was cut off.
-- `api_calls` — list of every Plexus API the snippet invoked
-  (e.g. `["plexus.scorecards.list", "plexus.score.info"]`).
+- `api_calls` — list of every Primus API the snippet invoked
+  (e.g. `["primus.scorecards.list", "primus.score.info"]`).

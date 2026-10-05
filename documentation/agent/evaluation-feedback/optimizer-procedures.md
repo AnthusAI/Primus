@@ -26,7 +26,7 @@ reference, see the lane-specific `optimizer-cookbook-*` docs.
 
 **CLI:**
 ```bash
-plexus procedure run -y plexus/procedures/feedback_alignment_optimizer.yaml \
+primus procedure run -y primus/procedures/feedback_alignment_optimizer.yaml \
   -s scorecard="<scorecard name>" \
   -s score="<score name>" \
   -s max_iterations=10 \
@@ -37,7 +37,7 @@ plexus procedure run -y plexus/procedures/feedback_alignment_optimizer.yaml \
 **MCP (via `execute_tactus`):**
 ```lua
 -- Single score
-plexus.procedure.optimize({
+primus.procedure.optimize({
   scorecard = "<scorecard name>",
   score = "<score name>",
   max_iterations = 10,
@@ -46,7 +46,7 @@ plexus.procedure.optimize({
 })
 
 -- Multiple scores at once (see evaluation-feedback.batch-optimizer-dispatch)
-plexus.procedure.optimize_batch({
+primus.procedure.optimize_batch({
   scorecard = "<scorecard name>",
   scores = {"Score A", "Score B", "Score C"},
   max_iterations = 10,
@@ -74,7 +74,7 @@ plexus.procedure.optimize_batch({
 
 ### Monitoring Progress
 
-Use `plexus_task_info` or `plexus_procedure_info` to check status.
+Use `primus_task_info` or `primus_procedure_info` to check status.
 The procedure emits NOTIFICATION-class chat messages at key milestones:
 - Cycle start/end
 - Hypothesis submission results
@@ -216,12 +216,12 @@ where fixing one set of items breaks another.
 
 **CLI:**
 ```bash
-plexus procedure continue <PROCEDURE_ID> --additional-cycles 5 --hint "focus on false positives"
+primus procedure continue <PROCEDURE_ID> --additional-cycles 5 --hint "focus on false positives"
 ```
 
 **MCP:**
 ```json
-plexus_procedure_continue(procedure_id="...", additional_cycles=5, hint="...")
+primus_procedure_continue(procedure_id="...", additional_cycles=5, hint="...")
 ```
 
 Continuation preserves ALL accumulated state: iterations, RCA, item recurrence,
@@ -235,12 +235,12 @@ baselines, lessons learned. No re-baselining occurs.
 
 **CLI:**
 ```bash
-plexus procedure branch <SOURCE_ID> --cycle 5 --additional-cycles 5 --hint "try structural changes"
+primus procedure branch <SOURCE_ID> --cycle 5 --additional-cycles 5 --hint "try structural changes"
 ```
 
 **MCP:**
 ```json
-plexus_procedure_branch(source_procedure_id="...", cycle=5, additional_cycles=5, hint="...")
+primus_procedure_branch(source_procedure_id="...", cycle=5, additional_cycles=5, hint="...")
 ```
 
 Branching creates a new procedure with state truncated to the specified cycle.
@@ -329,7 +329,7 @@ After reviewing an optimizer run's output:
 **Use the Lab Report for technical next steps:**
 
 1. **If lab report flags "review labels":**
-   - Use `plexus_feedback_find` to locate flagged items
+   - Use `primus_feedback_find` to locate flagged items
    - Review with domain expert
    - Invalidate or correct labels
    - Re-run optimizer with clean feedback
@@ -350,7 +350,7 @@ After reviewing an optimizer run's output:
    - Or accept current accuracy as near-ceiling
 
 5. **If lab report says "update guidelines":**
-   - Use `plexus-score-guidelines-updater` agent
+   - Use `primus-score-guidelines-updater` agent
    - Incorporate findings into score guidelines
    - Then re-run optimizer with updated guidelines context
 
@@ -361,7 +361,7 @@ After reviewing an optimizer run's output:
    The output of the meeting feeds back as a `hint` or guideline update for the next run.
 
 7. **If run succeeded and promoted champion:**
-   - Verify in production via `plexus_feedback_alignment`
+   - Verify in production via `primus_feedback_alignment`
    - Monitor for regression over next few days
    - Use findings to inform future runs on related scores
 
@@ -369,7 +369,7 @@ After reviewing an optimizer run's output:
 
 The `prior_run_prescription` parameter enables learning across runs:
 ```bash
-plexus procedure run -y ... -s prior_run_prescription="From prior run: broad STT rescue always regresses. Focus only on narrow transcript-anchored evidence rules."
+primus procedure run -y ... -s prior_run_prescription="From prior run: broad STT rescue always regresses. Focus only on narrow transcript-anchored evidence rules."
 ```
 
 This injects the prior run's key findings into the planning context so the

@@ -1,12 +1,12 @@
-# Plexus Score Chat - Celery Edition
+# Primus Score Chat - Celery Edition
 
-This documentation explains how to use the Celery-based Score Chat system in Plexus.
+This documentation explains how to use the Celery-based Score Chat system in Primus.
 
 ## Overview
 
-The Plexus Score Chat system provides an AI assistant that helps users view and modify scorecard score configurations through natural language. It operates in two modes:
+The Primus Score Chat system provides an AI assistant that helps users view and modify scorecard score configurations through natural language. It operates in two modes:
 
-1. **CLI REPL Mode**: Interactive terminal-based chat interface (`plexus score-chat repl`)
+1. **CLI REPL Mode**: Interactive terminal-based chat interface (`primus score-chat repl`)
 2. **Celery API Mode**: Message-based API for integration with other services
 
 Both modes use the same core AI agent and file handling capabilities, allowing for a consistent experience regardless of the interface. For detailed implementation plans and technical architecture, see `plans/score-chat-command.md`.
@@ -42,7 +42,7 @@ The system consists of these key components:
 To start an interactive chat session:
 
 ```bash
-plexus score-chat repl --scorecard <scorecard_id> --score <score_id>
+primus score-chat repl --scorecard <scorecard_id> --score <score_id>
 ```
 
 This opens a REPL where you can chat with the AI assistant about the score configuration.
@@ -51,16 +51,16 @@ This opens a REPL where you can chat with the AI assistant about the score confi
 
 The Celery API provides two main tasks:
 
-1. `plexus.score_chat.message`: Process a chat message
-2. `plexus.score_chat.end_session`: End a chat session
+1. `primus.score_chat.message`: Process a chat message
+2. `primus.score_chat.end_session`: End a chat session
 
 ### Creating a Chat Session
 
 To create a new chat session:
 
 ```python
-from plexus.cli.score_chat_celery import generate_chat_id
-from plexus.cli.CommandDispatch import create_celery_app
+from primus.cli.score_chat_celery import generate_chat_id
+from primus.cli.CommandDispatch import create_celery_app
 
 # Create a Celery app
 celery_app = create_celery_app()
@@ -70,7 +70,7 @@ chat_id = generate_chat_id()
 
 # Start a new chat session
 result = celery_app.send_task(
-    'plexus.score_chat.message',
+    'primus.score_chat.message',
     kwargs={
         'chat_id': chat_id,
         'message': 'Hello, I want to modify this score.',
@@ -87,7 +87,7 @@ Once you have a chat session, you can send more messages to it:
 ```python
 # Send a follow-up message
 result = celery_app.send_task(
-    'plexus.score_chat.message',
+    'primus.score_chat.message',
     kwargs={
         'chat_id': chat_id,
         'message': 'Can you change the LLM model to GPT-4?'
@@ -102,7 +102,7 @@ When you're done with a chat session, you should end it to free up resources:
 ```python
 # End the chat session
 result = celery_app.send_task(
-    'plexus.score_chat.end_session',
+    'primus.score_chat.end_session',
     kwargs={
         'chat_id': chat_id
     }
@@ -144,13 +144,13 @@ The response from the chat API includes:
 You can use the test script to test the chat functionality without a full Celery setup:
 
 ```bash
-python -m plexus.cli.score_chat_celery_test run-test --scorecard <id> --score <id> --local
+python -m primus.cli.score_chat_celery_test run-test --scorecard <id> --score <id> --local
 ```
 
 Or to test a single message:
 
 ```bash
-python -m plexus.cli.score_chat_celery_test send-message --scorecard <id> --score <id> --message "Hello" --local
+python -m primus.cli.score_chat_celery_test send-message --scorecard <id> --score <id> --message "Hello" --local
 ```
 
 ## Integration with Dashboard Tasks
@@ -159,7 +159,7 @@ To integrate with the Dashboard task system, include the `task_id` parameter:
 
 ```python
 result = celery_app.send_task(
-    'plexus.score_chat.message',
+    'primus.score_chat.message',
     kwargs={
         'chat_id': chat_id,
         'message': 'Hello',
@@ -174,11 +174,11 @@ This will automatically update the Dashboard task with the chat response.
 
 ## Deployment
 
-The chat Celery tasks are automatically registered when the Plexus worker starts.
+The chat Celery tasks are automatically registered when the Primus worker starts.
 To ensure your workers process these tasks, update your worker start command:
 
 ```bash
-plexus command worker --concurrency 4
+primus command worker --concurrency 4
 ```
 
 ## Error Handling

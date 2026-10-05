@@ -1,0 +1,1066 @@
+#!/usr/bin/env python3
+"""
+Tests for FeedbackItems data cache.
+This module validates that the class can be instantiated and parameters are validated correctly.
+"""
+
+import pytest
+import logging
+import pandas as pd
+import json
+import asyncio
+from pydantic import ValidationError
+from unittest.mock import patch, Mock
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+
+from primus.data.FeedbackItems import FeedbackItems
+
+
+def test_parameter_validation():
+    """Test parameter validation."""
+    
+    # Mock the network calls to avoid actual API requests
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        
+        # Mock client and account resolution
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+        
+        # Test valid parameters
+        valid_params = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14,
+            'limit': 100
+        }
+        feedback_items = FeedbackItems(**valid_params)
+        assert feedback_items is not None
+    
+    # Test invalid days (negative)
+    with pytest.raises(ValidationError):
+        invalid_days = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': -5,
+            'limit': 100
+        }
+        FeedbackItems(**invalid_days)
+    
+    # Test invalid limit (zero)
+    with pytest.raises(ValidationError):
+        invalid_limit = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14,
+            'limit': 0
+        }
+        FeedbackItems(**invalid_limit)
+
+
+def test_cache_directory_uses_runtime_environment(monkeypatch):
+    monkeypatch.setenv("PRIMUS_DATA_CACHE_DIRECTORY", "/tmp/primus-feedback-cache")
+
+    parameters = FeedbackItems.Parameters(scorecard="test_scorecard", score="test_score")
+
+    assert parameters.local_cache_directory == "/tmp/primus-feedback-cache"
+
+
+def test_exact_feedback_item_ids_are_unique_and_preserve_requested_order():
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        mock_create_client.return_value = Mock()
+        mock_resolve_account.return_value = 'test-account-id'
+        dataset = FeedbackItems(
+            scorecard='scorecard-1',
+            score='score-1',
+            feedback_item_ids=['opaque-B', 'opaque-A'],
+        )
+
+    item_a = Mock(id='opaque-A', scorecardId='scorecard-1', scoreId='score-1', isInvalid=False)
+    item_b = Mock(id='opaque-B', scorecardId='scorecard-1', scoreId='score-1', isInvalid=False)
+
+    async def fetch_specific(_ids):
+        return [item_a, item_b]
+
+    dataset._fetch_specific_feedback_items = fetch_specific
+    result = asyncio.run(
+        dataset._fetch_feedback_items_for_scores('scorecard-1', [('score-1', 'Score')])
+    )
+
+    assert [item.id for item in result['score-1']] == ['opaque-B', 'opaque-A']
+
+    with pytest.raises(ValidationError, match='must not contain duplicates'):
+        FeedbackItems.Parameters(
+            scorecard='scorecard-1',
+            score='score-1',
+            feedback_item_ids=['opaque-A', 'opaque-A'],
+        )
+
+
+def test_exact_feedback_item_ids_fail_closed_when_membership_cannot_be_materialized():
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        mock_create_client.return_value = Mock()
+        mock_resolve_account.return_value = 'test-account-id'
+        dataset = FeedbackItems(
+            scorecard='scorecard-1',
+            score='score-1',
+            feedback_item_ids=['opaque-A', 'opaque-missing'],
+        )
+
+    item_a = Mock(id='opaque-A', scorecardId='scorecard-1', scoreId='score-1', isInvalid=False)
+
+    async def fetch_specific(_ids):
+        return [item_a]
+
+    dataset._fetch_specific_feedback_items = fetch_specific
+    with pytest.raises(ValueError, match='missing=1'):
+        asyncio.run(
+            dataset._fetch_feedback_items_for_scores('scorecard-1', [('score-1', 'Score')])
+        )
+
+
+def test_initial_value_and_final_value_parameters():
+    """Test the new initial_value and final_value parameters."""
+    
+    # Mock the network calls to avoid actual API requests
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        
+        # Mock client and account resolution
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+        
+        # Test with initial_value and final_value parameters
+        params_with_values = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14,
+            'initial_value': 'No',
+            'final_value': 'Yes'
+        }
+        feedback_items = FeedbackItems(**params_with_values)
+        assert feedback_items is not None
+        assert feedback_items.parameters.initial_value == 'No'
+        assert feedback_items.parameters.final_value == 'Yes'
+        
+        # Test with None values (should be allowed)
+        params_none_values = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14,
+            'initial_value': None,
+            'final_value': None
+        }
+        feedback_items_none = FeedbackItems(**params_none_values)
+        assert feedback_items_none is not None
+        assert feedback_items_none.parameters.initial_value is None
+        assert feedback_items_none.parameters.final_value is None
+
+
+def test_case_insensitive_normalization():
+    """Test case-insensitive normalization of filter values."""
+    
+    # Mock the network calls to avoid actual API requests
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        
+        # Mock client and account resolution
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+        
+        # Test case normalization with various cases and whitespace
+        test_cases = [
+            ('Yes', 'yes'),
+            ('NO', 'no'),
+            (' Maybe ', 'maybe'),
+            ('  YES  ', 'yes'),
+            ('nO', 'no')
+        ]
+        
+        for input_value, expected_normalized in test_cases:
+            params = {
+                'scorecard': 'test_scorecard',
+                'score': 'test_score',
+                'days': 14,
+                'initial_value': input_value
+            }
+            feedback_items = FeedbackItems(**params)
+            assert feedback_items.normalized_initial_value == expected_normalized
+        
+        # Test _normalize_value method directly
+        params = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score', 
+            'days': 14
+        }
+        feedback_items = FeedbackItems(**params)
+        
+        # Test normalization method
+        assert feedback_items._normalize_value('Yes') == 'yes'
+        assert feedback_items._normalize_value('NO') == 'no'
+        assert feedback_items._normalize_value(' Maybe ') == 'maybe'
+        assert feedback_items._normalize_value(None) is None
+        
+        # Test _normalize_item_value method (should work the same)
+        assert feedback_items._normalize_item_value('Yes') == 'yes'
+        assert feedback_items._normalize_item_value('NO') == 'no'
+        assert feedback_items._normalize_item_value(' Maybe ') == 'maybe'
+        assert feedback_items._normalize_item_value(None) is None
+
+
+def test_cache_identifier_with_filter_values():
+    """Test cache identifier generation includes filter values."""
+    
+    # Mock the network calls to avoid actual API requests
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        
+        # Mock client and account resolution
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+        
+        # Test cache identifier with filter values
+        params_with_filters = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14,
+            'initial_value': 'No',
+            'final_value': 'Yes'
+        }
+        feedback_items = FeedbackItems(**params_with_filters)
+        
+        mock_scorecard_id = 'scorecard-123'
+        mock_score_id = 'score-456'
+        identifier_with_filters = feedback_items._generate_cache_identifier(mock_scorecard_id, mock_score_id)
+        
+        # Test cache identifier without filter values
+        params_no_filters = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14
+        }
+        feedback_items_no_filters = FeedbackItems(**params_no_filters)
+        identifier_no_filters = feedback_items_no_filters._generate_cache_identifier(mock_scorecard_id, mock_score_id)
+        
+        # Identifiers should be different when filters are applied
+        assert identifier_with_filters != identifier_no_filters
+        
+        # Test that case variations produce the same cache identifier
+        params_upper = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14,
+            'initial_value': 'NO',  # Different case
+            'final_value': 'YES'    # Different case
+        }
+        feedback_items_upper = FeedbackItems(**params_upper)
+        identifier_upper = feedback_items_upper._generate_cache_identifier(mock_scorecard_id, mock_score_id)
+        
+        # Should be the same as lowercase version due to normalization
+        assert identifier_with_filters == identifier_upper
+
+
+def test_parameter_defaults():
+    """Test that new parameters have correct defaults."""
+    
+    # Mock the network calls to avoid actual API requests
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        
+        # Mock client and account resolution
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+        
+        # Test minimal parameters (new fields should default to None)
+        minimal_params = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14
+        }
+        feedback_items = FeedbackItems(**minimal_params)
+        assert feedback_items.parameters.initial_value is None
+        assert feedback_items.parameters.final_value is None
+        assert feedback_items.normalized_initial_value is None
+        assert feedback_items.normalized_final_value is None
+
+
+def test_cache_methods():
+    """Test cache-related methods."""
+    
+    # Mock the network calls to avoid actual API requests
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        
+        # Mock client and account resolution
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+        
+        params = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14,
+            'limit': 100
+        }
+        feedback_items = FeedbackItems(**params)
+        
+        # Test identifier generation with mock IDs to avoid API calls
+        mock_scorecard_id = 'scorecard-123'
+        mock_score_id = 'score-456'
+        identifier = feedback_items._generate_cache_identifier(mock_scorecard_id, mock_score_id)
+        assert identifier is not None
+        assert isinstance(identifier, str)
+        assert 'scorecard-123' in identifier
+        assert 'score-456' in identifier
+        
+        # Test cache existence check (should be False for new identifier)
+        exists = feedback_items._cache_exists(identifier)
+        assert isinstance(exists, bool)
+
+
+def test_create_dataset_rows_structure():
+    """Test that _create_dataset_rows creates the correct column structure."""
+    
+    # Mock the network calls to avoid actual API requests
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        
+        # Mock client and account resolution
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+        
+        params = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14,
+            'limit': 100
+        }
+        feedback_items = FeedbackItems(**params)
+        
+        # Create mock feedback items
+        mock_feedback_items = []
+        
+        # Test with empty list
+        df_empty = feedback_items._create_dataset_rows(mock_feedback_items, "Test Score")
+        
+        # Verify empty DataFrame has correct columns
+        expected_columns = [
+            'content_id',
+            'feedback_item_id',
+            'item_id',
+            'IDs',
+            'metadata',
+            'text',
+            'call_date',
+            'Test Score',
+            'Test Score comment',
+            'Test Score edit comment'
+        ]
+        assert list(df_empty.columns) == expected_columns
+        assert len(df_empty) == 0
+
+
+def test_create_dataset_rows_with_data():
+    """Test that _create_dataset_rows creates correct data with actual feedback items."""
+
+    # Mock the network calls to avoid actual API requests
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+
+        # Mock client and account resolution
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+
+        params = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14,
+            'limit': 100
+        }
+        feedback_items = FeedbackItems(**params)
+
+        # Create mock feedback item
+        mock_item = Mock()
+        mock_item.id = 'item-123'
+        mock_item.text = 'This is a test transcript'
+        mock_item.externalId = 'ext-456'
+        mock_item.createdAt = '2024-01-01T00:00:00Z'
+        mock_item.updatedAt = '2024-01-01T00:00:00Z'
+        mock_item.metadata = {
+            'client_payload': {'client_field': 'value'},
+            'source': 'test-item-metadata',
+        }
+        mock_item.identifiers = None
+
+        mock_feedback_item = Mock()
+        mock_feedback_item.id = 'feedback-789'
+        mock_feedback_item.itemId = 'item-123'
+        mock_feedback_item.item = mock_item
+        mock_feedback_item.initialAnswerValue = 'No'
+        mock_feedback_item.finalAnswerValue = 'Yes'
+        mock_feedback_item.editCommentValue = 'This is an edit comment'
+        mock_feedback_item.initialCommentValue = 'Initial comment'
+        mock_feedback_item.finalCommentValue = 'Final comment'
+        mock_feedback_item.scorecardId = 'scorecard-123'
+        mock_feedback_item.scoreId = 'score-456'
+        mock_feedback_item.accountId = 'account-789'
+        mock_feedback_item.createdAt = '2024-01-01T00:00:00Z'
+        mock_feedback_item.updatedAt = '2024-01-01T00:00:00Z'
+        mock_feedback_item.editedAt = '2024-01-01T01:00:00Z'
+        mock_feedback_item.editorName = 'Test Editor'
+        mock_feedback_item.isAgreement = False
+        mock_feedback_item.cacheKey = 'cache-key-123'
+        
+        mock_feedback_items = [mock_feedback_item]
+        
+        # Create dataset
+        df = feedback_items._create_dataset_rows(mock_feedback_items, "Test Score")
+        
+        # Verify DataFrame structure
+        expected_columns = [
+            'content_id',
+            'feedback_item_id',
+            'item_id',
+            'IDs',
+            'metadata',
+            'text',
+            'call_date',
+            'Test Score',
+            'Test Score comment',
+            'Test Score edit comment'
+        ]
+        assert list(df.columns) == expected_columns
+        assert len(df) == 1
+        
+        # Verify data content
+        row = df.iloc[0]
+        assert row['content_id'] == 'item-123'
+        assert row['feedback_item_id'] == 'feedback-789'
+        assert row['text'] == 'This is a test transcript'
+        assert row['Test Score'] == 'Yes'
+        assert row['Test Score edit comment'] == 'This is an edit comment'
+        
+        # Verify metadata is JSON string
+        metadata = json.loads(row['metadata'])
+        assert metadata['feedback_item_id'] == 'feedback-789'
+        assert metadata['scorecard_id'] == 'scorecard-123'
+        assert metadata['score_id'] == 'score-456'
+        assert metadata['source'] == 'test-item-metadata'
+        assert metadata['client_payload']['client_field'] == 'value'
+        
+        # Verify IDs is JSON string
+        ids = json.loads(row['IDs'])
+        assert isinstance(ids, list)
+
+
+def test_create_dataset_rows_fails_when_item_metadata_missing():
+    """Feedback-backed evaluation rows must fail fast if related item metadata is missing."""
+
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+
+        feedback_items = FeedbackItems(
+            scorecard='test_scorecard',
+            score='test_score',
+            days=14,
+            limit=100,
+        )
+
+        mock_item = Mock()
+        mock_item.id = 'item-123'
+        mock_item.text = 'This is a test transcript'
+        mock_item.externalId = 'ext-456'
+        mock_item.createdAt = '2024-01-01T00:00:00Z'
+        mock_item.updatedAt = '2024-01-01T00:00:00Z'
+        mock_item.metadata = None
+        mock_item.identifiers = None
+
+        mock_feedback_item = Mock()
+        mock_feedback_item.id = 'feedback-789'
+        mock_feedback_item.itemId = 'item-123'
+        mock_feedback_item.item = mock_item
+        mock_feedback_item.initialAnswerValue = 'No'
+        mock_feedback_item.finalAnswerValue = 'Yes'
+        mock_feedback_item.editCommentValue = 'This is an edit comment'
+        mock_feedback_item.initialCommentValue = 'Initial comment'
+        mock_feedback_item.finalCommentValue = 'Final comment'
+        mock_feedback_item.scorecardId = 'scorecard-123'
+        mock_feedback_item.scoreId = 'score-456'
+        mock_feedback_item.accountId = 'account-789'
+        mock_feedback_item.createdAt = '2024-01-01T00:00:00Z'
+        mock_feedback_item.updatedAt = '2024-01-01T00:00:00Z'
+        mock_feedback_item.editedAt = '2024-01-01T01:00:00Z'
+        mock_feedback_item.editorName = 'Test Editor'
+        mock_feedback_item.isAgreement = False
+        mock_feedback_item.cacheKey = 'cache-key-123'
+
+        with pytest.raises(ValueError, match="feedback item feedback-789 item item-123 had no metadata"):
+            feedback_items._create_dataset_rows([mock_feedback_item], "Test Score")
+
+
+def test_reference_label_resolution_priority():
+    """Test deterministic label-source priority for reference dataset builds."""
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+
+        feedback_items = FeedbackItems(
+            scorecard='test_scorecard',
+            score='test_score',
+            days=14,
+            limit=100
+        )
+
+        # Vetted final feedback wins over other sources.
+        vetted_item = Mock()
+        vetted_item.finalAnswerValue = 'Yes'
+        vetted_item.initialAnswerValue = 'No'
+        vetted_item.item = None
+        vetted_item._raw_data = {'isVetted': True}
+        label, source = feedback_items._resolve_label_for_reference_dataset(vetted_item, "Test Score")
+        assert label == 'Yes'
+        assert source == FeedbackItems.LABEL_SOURCE_VETTED
+
+        # Regular final feedback is second priority.
+        regular_item = Mock()
+        regular_item.finalAnswerValue = 'No'
+        regular_item.initialAnswerValue = 'Yes'
+        regular_item.item = None
+        regular_item._raw_data = {}
+        label, source = feedback_items._resolve_label_for_reference_dataset(regular_item, "Test Score")
+        assert label == 'No'
+        assert source == FeedbackItems.LABEL_SOURCE_FINAL
+
+        # Third priority falls back to initial (score-result style) or imported label.
+        third_item = Mock()
+        third_item.finalAnswerValue = None
+        third_item.initialAnswerValue = 'Yes'
+        third_item.item = None
+        third_item._raw_data = {}
+        label, source = feedback_items._resolve_label_for_reference_dataset(third_item, "Test Score")
+        assert label == 'Yes'
+        assert source == FeedbackItems.LABEL_SOURCE_SCORE_RESULT_OR_IMPORTED
+
+
+def test_reference_label_resolution_imported_and_unresolved():
+    """Test imported example label usage and unresolved outcomes."""
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+
+        feedback_items = FeedbackItems(
+            scorecard='test_scorecard',
+            score='test_score',
+            days=14,
+            limit=100
+        )
+
+        imported_item = Mock()
+        imported_item.finalAnswerValue = None
+        imported_item.initialAnswerValue = None
+        imported_item._raw_data = {}
+        imported_item.item = Mock()
+        imported_item.item.metadata = {'label': 'No'}
+        label, source = feedback_items._resolve_label_for_reference_dataset(imported_item, "Test Score")
+        assert label == 'No'
+        assert source == FeedbackItems.LABEL_SOURCE_SCORE_RESULT_OR_IMPORTED
+
+        unresolved_item = Mock()
+        unresolved_item.finalAnswerValue = None
+        unresolved_item.initialAnswerValue = None
+        unresolved_item._raw_data = {}
+        unresolved_item.item = Mock()
+        unresolved_item.item.metadata = {}
+        label, source = feedback_items._resolve_label_for_reference_dataset(unresolved_item, "Test Score")
+        assert label is None
+        assert source == FeedbackItems.LABEL_SOURCE_UNRESOLVED
+
+
+def test_create_dataset_rows_skips_unresolved_labels_and_reports_ids():
+    """Test unresolved feedback items are skipped with deterministic skip reporting."""
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+
+        feedback_items = FeedbackItems(
+            scorecard='test_scorecard',
+            score='test_score',
+            days=14,
+            limit=100
+        )
+
+        resolvable_item_ref = Mock()
+        resolvable_item_ref.id = 'item-1'
+        resolvable_item_ref.text = 'Resolvable text'
+        resolvable_item_ref.externalId = 'ext-1'
+        resolvable_item_ref.createdAt = '2024-01-01T00:00:00Z'
+        resolvable_item_ref.updatedAt = '2024-01-01T00:00:00Z'
+        resolvable_item_ref.metadata = {'source': 'resolvable'}
+        resolvable_item_ref.identifiers = None
+
+        resolvable_feedback = Mock()
+        resolvable_feedback.id = 'feedback-resolvable'
+        resolvable_feedback.itemId = 'item-1'
+        resolvable_feedback.item = resolvable_item_ref
+        resolvable_feedback.initialAnswerValue = 'No'
+        resolvable_feedback.finalAnswerValue = 'Yes'
+        resolvable_feedback.editCommentValue = 'resolved'
+        resolvable_feedback.initialCommentValue = 'initial'
+        resolvable_feedback.finalCommentValue = 'final'
+        resolvable_feedback.scorecardId = 'scorecard-123'
+        resolvable_feedback.scoreId = 'score-456'
+        resolvable_feedback.accountId = 'account-789'
+        resolvable_feedback.createdAt = '2024-01-01T00:00:00Z'
+        resolvable_feedback.updatedAt = '2024-01-01T00:00:00Z'
+        resolvable_feedback.editedAt = '2024-01-01T01:00:00Z'
+        resolvable_feedback.editorName = 'Editor'
+        resolvable_feedback.isAgreement = False
+        resolvable_feedback.cacheKey = 'cache-key-1'
+        resolvable_feedback._raw_data = {}
+
+        unresolved_item_ref = Mock()
+        unresolved_item_ref.id = 'item-2'
+        unresolved_item_ref.text = 'Unresolved text'
+        unresolved_item_ref.externalId = 'ext-2'
+        unresolved_item_ref.createdAt = '2024-01-01T00:00:00Z'
+        unresolved_item_ref.updatedAt = '2024-01-01T00:00:00Z'
+        unresolved_item_ref.metadata = {'source': 'unresolved'}
+        unresolved_item_ref.identifiers = None
+
+        unresolved_feedback = Mock()
+        unresolved_feedback.id = 'feedback-unresolved'
+        unresolved_feedback.itemId = 'item-2'
+        unresolved_feedback.item = unresolved_item_ref
+        unresolved_feedback.initialAnswerValue = None
+        unresolved_feedback.finalAnswerValue = None
+        unresolved_feedback.editCommentValue = ''
+        unresolved_feedback.initialCommentValue = ''
+        unresolved_feedback.finalCommentValue = ''
+        unresolved_feedback.scorecardId = 'scorecard-123'
+        unresolved_feedback.scoreId = 'score-456'
+        unresolved_feedback.accountId = 'account-789'
+        unresolved_feedback.createdAt = '2024-01-01T00:00:00Z'
+        unresolved_feedback.updatedAt = '2024-01-01T00:00:00Z'
+        unresolved_feedback.editedAt = '2024-01-01T01:00:00Z'
+        unresolved_feedback.editorName = 'Editor'
+        unresolved_feedback.isAgreement = False
+        unresolved_feedback.cacheKey = 'cache-key-2'
+        unresolved_feedback._raw_data = {}
+
+        df = feedback_items._create_dataset_rows([resolvable_feedback, unresolved_feedback], "Test Score")
+        assert len(df) == 1
+        assert df.iloc[0]['feedback_item_id'] == 'feedback-resolvable'
+        assert df.attrs["label_resolution_report"]["skipped_count"] == 1
+        assert df.attrs["label_resolution_report"]["skipped_feedback_item_ids"] == ['feedback-unresolved']
+
+
+def test_create_dataset_rows_comment_logic():
+    """Test the comment logic in _create_dataset_rows."""
+    
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+        
+        params = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14,
+            'limit': 100
+        }
+        feedback_items = FeedbackItems(**params)
+        
+        # Test case 1: Edit comment is 'agree' with no final comment
+        mock_item1 = Mock()
+        mock_item1.id = 'item-1'
+        mock_item1.text = 'Test text 1'
+        mock_item1.externalId = 'ext-1'
+        mock_item1.createdAt = '2024-01-01T00:00:00Z'
+        mock_item1.updatedAt = '2024-01-01T00:00:00Z'
+        mock_item1.metadata = {'source': 'case-1'}
+        mock_item1.identifiers = None
+        
+        mock_feedback_item1 = Mock()
+        mock_feedback_item1.id = 'feedback-1'
+        mock_feedback_item1.itemId = 'item-1'
+        mock_feedback_item1.item = mock_item1
+        mock_feedback_item1.initialAnswerValue = 'Yes'
+        mock_feedback_item1.finalAnswerValue = 'Yes'
+        mock_feedback_item1.editCommentValue = 'agree'
+        mock_feedback_item1.initialCommentValue = 'Original explanation'
+        mock_feedback_item1.finalCommentValue = ''
+        # Add required attributes
+        for attr in ['scorecardId', 'scoreId', 'accountId', 'createdAt', 'updatedAt', 'editedAt', 'editorName', 'isAgreement', 'cacheKey']:
+            setattr(mock_feedback_item1, attr, f'test-{attr}')
+        
+        df1 = feedback_items._create_dataset_rows([mock_feedback_item1], "Test Score")
+        row1 = df1.iloc[0]
+        
+        # Should use initial comment when edit is 'agree' and no final comment
+        assert row1['Test Score comment'] == 'Original explanation'
+        assert row1['Test Score edit comment'] == 'agree'
+        
+        # Test case 2: Edit comment has meaningful content
+        mock_item2 = Mock()
+        mock_item2.id = 'item-2'
+        mock_item2.text = 'Test text 2'
+        mock_item2.externalId = 'ext-2'
+        mock_item2.createdAt = '2024-01-01T00:00:00Z'
+        mock_item2.updatedAt = '2024-01-01T00:00:00Z'
+        mock_item2.metadata = {'source': 'case-2'}
+        mock_item2.identifiers = None
+        
+        mock_feedback_item2 = Mock()
+        mock_feedback_item2.id = 'feedback-2'
+        mock_feedback_item2.itemId = 'item-2'
+        mock_feedback_item2.item = mock_item2
+        mock_feedback_item2.initialAnswerValue = 'Yes'
+        mock_feedback_item2.finalAnswerValue = 'No'
+        mock_feedback_item2.editCommentValue = 'Actually this should be No'
+        mock_feedback_item2.initialCommentValue = 'Original explanation'
+        mock_feedback_item2.finalCommentValue = 'Final explanation'
+        # Add required attributes
+        for attr in ['scorecardId', 'scoreId', 'accountId', 'createdAt', 'updatedAt', 'editedAt', 'editorName', 'isAgreement', 'cacheKey']:
+            setattr(mock_feedback_item2, attr, f'test-{attr}')
+        
+        df2 = feedback_items._create_dataset_rows([mock_feedback_item2], "Test Score")
+        row2 = df2.iloc[0]
+        
+        # Should use edit comment when it has meaningful content
+        assert row2['Test Score comment'] == 'Actually this should be No'
+        assert row2['Test Score edit comment'] == 'Actually this should be No'
+
+
+def test_create_dataset_rows_handles_missing_edit_comment():
+    """Test that _create_dataset_rows handles missing edit comments correctly."""
+    
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+        
+        params = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14,
+            'limit': 100
+        }
+        feedback_items = FeedbackItems(**params)
+        
+        # Create mock feedback item with no edit comment
+        mock_item = Mock()
+        mock_item.id = 'item-123'
+        mock_item.text = 'Test text'
+        mock_item.externalId = 'ext-123'
+        mock_item.createdAt = '2024-01-01T00:00:00Z'
+        mock_item.updatedAt = '2024-01-01T00:00:00Z'
+        mock_item.metadata = {'source': 'missing-edit-comment'}
+        mock_item.identifiers = None
+        
+        mock_feedback_item = Mock()
+        mock_feedback_item.id = 'feedback-123'
+        mock_feedback_item.itemId = 'item-123'
+        mock_feedback_item.item = mock_item
+        mock_feedback_item.initialAnswerValue = 'No'
+        mock_feedback_item.finalAnswerValue = 'Yes'
+        mock_feedback_item.editCommentValue = None  # No edit comment
+        mock_feedback_item.initialCommentValue = 'Initial comment'
+        mock_feedback_item.finalCommentValue = 'Final comment'
+        # Add required attributes
+        for attr in ['scorecardId', 'scoreId', 'accountId', 'createdAt', 'updatedAt', 'editedAt', 'editorName', 'isAgreement', 'cacheKey']:
+            setattr(mock_feedback_item, attr, f'test-{attr}')
+        
+        df = feedback_items._create_dataset_rows([mock_feedback_item], "Test Score")
+        row = df.iloc[0]
+        
+        # Edit comment column should be empty string when None
+        assert row['Test Score edit comment'] == ''
+        # Should fall back to final comment when no edit comment
+        assert row['Test Score comment'] == 'Final comment'
+
+
+def test_column_mappings_parameter():
+    """Test the column_mappings parameter validation and usage."""
+    
+    # Mock the network calls to avoid actual API requests
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        
+        # Mock client and account resolution
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+        
+        # Test valid column mappings
+        valid_params = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14,
+            'column_mappings': {
+                'Original Score': 'New Score Name',
+                'Another Score': 'Another New Name'
+            }
+        }
+        feedback_items = FeedbackItems(**valid_params)
+        assert feedback_items is not None
+        assert feedback_items.parameters.column_mappings == {
+            'Original Score': 'New Score Name',
+            'Another Score': 'Another New Name'
+        }
+        
+        # Test None column mappings (should be allowed)
+        params_none_mappings = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14,
+            'column_mappings': None
+        }
+        feedback_items_none = FeedbackItems(**params_none_mappings)
+        assert feedback_items_none is not None
+        assert feedback_items_none.parameters.column_mappings is None
+        
+        # Test empty column mappings (should be allowed)
+        params_empty_mappings = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14,
+            'column_mappings': {}
+        }
+        feedback_items_empty = FeedbackItems(**params_empty_mappings)
+        assert feedback_items_empty is not None
+        assert feedback_items_empty.parameters.column_mappings == {}
+
+
+def test_column_mappings_applied_to_dataset():
+    """Test that column mappings are correctly applied when creating dataset rows."""
+    
+    # Mock the network calls to avoid actual API requests
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        
+        # Mock client and account resolution
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+        
+        # Test with column mapping
+        params_with_mapping = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14,
+            'column_mappings': {
+                'Original Score': 'Mapped Score Name'
+            }
+        }
+        feedback_items = FeedbackItems(**params_with_mapping)
+        
+        # Create mock feedback item
+        mock_item = Mock()
+        mock_item.id = 'item-123'
+        mock_item.text = 'This is a test transcript'
+        mock_item.externalId = 'ext-456'
+        mock_item.createdAt = '2024-01-01T00:00:00Z'
+        mock_item.updatedAt = '2024-01-01T00:00:00Z'
+        mock_item.metadata = {'source': 'column-mapping'}
+        mock_item.identifiers = None
+        
+        mock_feedback_item = Mock()
+        mock_feedback_item.id = 'feedback-789'
+        mock_feedback_item.itemId = 'item-123'
+        mock_feedback_item.item = mock_item
+        mock_feedback_item.initialAnswerValue = 'No'
+        mock_feedback_item.finalAnswerValue = 'Yes'
+        mock_feedback_item.editCommentValue = 'This is an edit comment'
+        mock_feedback_item.initialCommentValue = 'Initial comment'
+        mock_feedback_item.finalCommentValue = 'Final comment'
+        mock_feedback_item.scorecardId = 'scorecard-123'
+        mock_feedback_item.scoreId = 'score-456'
+        mock_feedback_item.accountId = 'account-789'
+        mock_feedback_item.createdAt = '2024-01-01T00:00:00Z'
+        mock_feedback_item.updatedAt = '2024-01-01T00:00:00Z'
+        mock_feedback_item.editedAt = '2024-01-01T01:00:00Z'
+        mock_feedback_item.editorName = 'Test Editor'
+        mock_feedback_item.isAgreement = False
+        mock_feedback_item.cacheKey = 'cache-key-123'
+
+        # Test mapping applied when score name matches
+        df_mapped = feedback_items._create_dataset_rows([mock_feedback_item], "Original Score")
+        
+        # Verify mapped column names are used
+        expected_columns_mapped = [
+            'content_id',
+            'feedback_item_id',
+            'item_id',
+            'IDs',
+            'metadata',
+            'text',
+            'call_date',
+            'Mapped Score Name',  # Should be mapped
+            'Mapped Score Name comment',  # Should be mapped
+            'Mapped Score Name edit comment'  # Should be mapped
+        ]
+        assert list(df_mapped.columns) == expected_columns_mapped
+        
+        # Verify data is still correct
+        row_mapped = df_mapped.iloc[0]
+        assert row_mapped['Mapped Score Name'] == 'Yes'
+        assert row_mapped['Mapped Score Name comment'] == 'This is an edit comment'
+        assert row_mapped['Mapped Score Name edit comment'] == 'This is an edit comment'
+        
+        # Test no mapping applied when score name doesn't match
+        df_unmapped = feedback_items._create_dataset_rows([mock_feedback_item], "Different Score")
+        
+        # Verify original column names are used when no mapping exists
+        expected_columns_unmapped = [
+            'content_id',
+            'feedback_item_id',
+            'item_id',
+            'IDs',
+            'metadata',
+            'text',
+            'call_date',
+            'Different Score',  # Should NOT be mapped
+            'Different Score comment',  # Should NOT be mapped
+            'Different Score edit comment'  # Should NOT be mapped
+        ]
+        assert list(df_unmapped.columns) == expected_columns_unmapped
+
+
+def test_column_mappings_with_empty_dataset():
+    """Test that column mappings work correctly with empty datasets."""
+    
+    # Mock the network calls to avoid actual API requests
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        
+        # Mock client and account resolution
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+        
+        # Test with column mapping
+        params_with_mapping = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14,
+            'column_mappings': {
+                'Test Score': 'Mapped Test Score'
+            }
+        }
+        feedback_items = FeedbackItems(**params_with_mapping)
+        
+        # Test with empty feedback items list
+        df_empty = feedback_items._create_dataset_rows([], "Test Score")
+        
+        # Verify mapped column names are used even with empty dataset
+        expected_columns = [
+            'content_id',
+            'feedback_item_id',
+            'item_id',
+            'IDs',
+            'metadata',
+            'text',
+            'call_date',
+            'Mapped Test Score',
+            'Mapped Test Score comment',
+            'Mapped Test Score edit comment'
+        ]
+        assert list(df_empty.columns) == expected_columns
+        assert len(df_empty) == 0
+
+
+def test_column_mappings_case_sensitivity():
+    """Test that column mappings are case-sensitive."""
+    
+    # Mock the network calls to avoid actual API requests
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+        
+        # Mock client and account resolution
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+        
+        # Test with case-sensitive mapping
+        params_with_mapping = {
+            'scorecard': 'test_scorecard',
+            'score': 'test_score',
+            'days': 14,
+            'column_mappings': {
+                'Test Score': 'Mapped Score'  # Exact case match
+            }
+        }
+        feedback_items = FeedbackItems(**params_with_mapping)
+        
+        # Test exact case match - should apply mapping
+        df_exact = feedback_items._create_dataset_rows([], "Test Score")
+        assert 'Mapped Score' in df_exact.columns
+        
+        # Test different case - should NOT apply mapping
+        df_different_case = feedback_items._create_dataset_rows([], "test score")
+        assert 'test score' in df_different_case.columns
+        assert 'Mapped Score' not in df_different_case.columns
+
+
+def test_fetch_feedback_items_for_scores_excludes_invalid_items(caplog):
+    """Ensure invalidated feedback items are excluded without logging item content."""
+    with patch('primus.data.FeedbackItems.create_client') as mock_create_client, \
+         patch('primus.data.FeedbackItems.resolve_account_id_for_command') as mock_resolve_account:
+
+        mock_client = Mock()
+        mock_create_client.return_value = mock_client
+        mock_resolve_account.return_value = 'test-account-id'
+
+        feedback_items = FeedbackItems(
+            scorecard='test_scorecard',
+            score='test_score',
+            days=14,
+        )
+
+        valid_item = Mock()
+        valid_item.id = "valid-1"
+        valid_item.isInvalid = False
+        valid_item.item.metadata = {"transcript": "must not reach error logs"}
+        invalid_item = Mock()
+        invalid_item.id = "invalid-1"
+        invalid_item.isInvalid = True
+
+        with caplog.at_level(logging.ERROR), patch(
+            'primus.data.FeedbackItems.FeedbackService.find_feedback_items',
+            return_value=[valid_item, invalid_item],
+        ):
+            result = asyncio.run(
+                feedback_items._fetch_feedback_items_for_scores(
+                    scorecard_id="scorecard-1",
+                    resolved_scores=[("score-1", "test_score")],
+                )
+            )
+
+        assert "score-1" in result
+        assert [item.id for item in result["score-1"]] == ["valid-1"]
+        assert "must not reach error logs" not in caplog.text

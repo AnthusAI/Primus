@@ -51,7 +51,7 @@ dashboard/
 The dashboard implements a multi-stage progress tracking system for long-running Python tasks.
 
 ### Key Implementation Files
-- **`plexus/cli/task_progress_tracker.py`** - Core progress tracking (Python backend)
+- **`primus/cli/task_progress_tracker.py`** - Core progress tracking (Python backend)
 - **`components/Task.tsx`** - Task display component (React)
 - **`components/ui/task-status.tsx`** - Progress bar UI implementation
 

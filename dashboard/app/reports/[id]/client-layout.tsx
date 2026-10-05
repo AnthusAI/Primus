@@ -32,7 +32,7 @@ export default function ReportClientLayout({
         <div className="flex items-center justify-end">
           <span className="text-sm text-muted-foreground mr-2">powered by</span>
           <a 
-            href="https://plexus.anth.us" 
+            href="https://primus.anth.us" 
             target="_blank" 
             rel="noopener noreferrer"
             className="relative w-24 h-8"

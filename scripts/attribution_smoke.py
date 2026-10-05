@@ -22,10 +22,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from plexus.cli.shared.client_utils import create_client
-from plexus.dashboard.api.models.evaluation import Evaluation
-from plexus.dashboard.api.models.procedure import Procedure
-from plexus.dashboard.api.models.score import Score
+from primus.cli.shared.client_utils import create_client
+from primus.dashboard.api.models.evaluation import Evaluation
+from primus.dashboard.api.models.procedure import Procedure
+from primus.dashboard.api.models.score import Score
 
 
 def _iso_now() -> str:
@@ -141,7 +141,7 @@ def run(args: argparse.Namespace) -> Dict[str, Any]:
             "scoreVersion": score_version_payload,
         },
         "env": {
-            "PLEXUS_ACTOR_USER_ID": args.actor_user_id,
+            "PRIMUS_ACTOR_USER_ID": args.actor_user_id,
         },
     }
 

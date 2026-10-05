@@ -11,7 +11,7 @@ import { Construct } from "constructs";
 
 interface ConsoleChatResponderStackProps extends NestedStackProps {
   chatMessageTable: ITable;
-  plexusApiUrl?: string;
+  primusApiUrl?: string;
   environmentName?: string;
   asyncTasksAvailable?: boolean;
   responderParameterName: string;
@@ -30,16 +30,16 @@ export class ConsoleChatResponderStack extends NestedStack {
     const environmentName = props.environmentName || "staging";
     const configSecretName = (
       props.configSecretName ||
-      process.env.PLEXUS_CONFIG_SECRET_NAME ||
-      `plexus/${environmentName}/config`
+      process.env.PRIMUS_CONFIG_SECRET_NAME ||
+      `primus/${environmentName}/config`
     ).trim();
 
     if (!configSecretName) {
-      throw new Error("PLEXUS_CONFIG_SECRET_NAME must be set for ConsoleRunWorkerStack deployment");
+      throw new Error("PRIMUS_CONFIG_SECRET_NAME must be set for ConsoleRunWorkerStack deployment");
     }
     const configSecret = secretsmanager.Secret.fromSecretNameV2(
       this,
-      "PlexusConfigSecret",
+      "PrimusConfigSecret",
       configSecretName,
     );
     const workerImage = new ecr_assets.DockerImageAsset(this, "ConsoleChatResponderImage", {
@@ -48,21 +48,21 @@ export class ConsoleChatResponderStack extends NestedStack {
       platform: ecr_assets.Platform.LINUX_AMD64,
     });
     const lambdaEnvironment: Record<string, string> = {
-      PLEXUS_API_URL: props.plexusApiUrl || process.env.PLEXUS_API_URL || "",
-      PLEXUS_FETCH_SCHEMA_FROM_TRANSPORT: "false",
-      PLEXUS_GRAPHQL_AUTH_MODE: "iam",
-      PLEXUS_CONFIG_SECRET_NAME: configSecretName,
+      PRIMUS_API_URL: props.primusApiUrl || process.env.PRIMUS_API_URL || "",
+      PRIMUS_FETCH_SCHEMA_FROM_TRANSPORT: "false",
+      PRIMUS_GRAPHQL_AUTH_MODE: "iam",
+      PRIMUS_CONFIG_SECRET_NAME: configSecretName,
       PYTHONUNBUFFERED: "1",
       CONSOLE_RESPONSE_TARGET: "cloud",
       DSPY_DISABLE_DISK_CACHE: "true",
       DSPY_CACHEDIR: "/tmp/.dspy_cache",
-      PLEXUS_DISABLE_BACKGROUND_LOGGING: "true",
-      PLEXUS_CONSOLE_ASYNC_TASKS_AVAILABLE: props.asyncTasksAvailable === false ? "false" : "true",
+      PRIMUS_DISABLE_BACKGROUND_LOGGING: "true",
+      PRIMUS_CONSOLE_ASYNC_TASKS_AVAILABLE: props.asyncTasksAvailable === false ? "false" : "true",
       // Provisioned concurrency initializes the alias before it receives
       // traffic. Move the Console's expensive reusable imports and tool
       // registration into that initialization window instead of charging the
       // first chat request for them.
-      PLEXUS_EAGER_CONSOLE_RUNTIME: "true",
+      PRIMUS_EAGER_CONSOLE_RUNTIME: "true",
       // DockerImageCode.fromImageAsset rewrites the image URI only after CDK
       // hashes the enclosing nested template. Keep the image content hash in
       // the template itself so a worker-only change produces a new nested
@@ -121,10 +121,10 @@ export class ConsoleChatResponderStack extends NestedStack {
           "logs:PutDataProtectionPolicy",
         ],
         resources: [
-          "arn:aws:logs:*:*:log-group:/plexus/procedures/*",
-          "arn:aws:logs:*:*:log-group:/plexus/procedures/*:*",
-          "arn:aws:logs:*:*:log-group:/plexus/console/*",
-          "arn:aws:logs:*:*:log-group:/plexus/console/*:*",
+          "arn:aws:logs:*:*:log-group:/primus/procedures/*",
+          "arn:aws:logs:*:*:log-group:/primus/procedures/*:*",
+          "arn:aws:logs:*:*:log-group:/primus/console/*",
+          "arn:aws:logs:*:*:log-group:/primus/console/*:*",
         ],
       }),
     );
@@ -149,7 +149,7 @@ export class ConsoleChatResponderStack extends NestedStack {
           "ssm:GetParameters",
         ],
         resources: [
-          `arn:aws:ssm:*:*:parameter/plexus/*`,
+          `arn:aws:ssm:*:*:parameter/primus/*`,
           `arn:aws:ssm:*:*:parameter/amplify/*`,
         ],
       }),

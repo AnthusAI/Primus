@@ -1,6 +1,6 @@
-# Plexus Kubernetes Demo Acceptance Suite
+# Primus Kubernetes Demo Acceptance Suite
 
-This suite is the canonical, executable demonstration of Plexus on Docker
+This suite is the canonical, executable demonstration of Primus on Docker
 Desktop Kubernetes. It verifies the platform by running real product paths:
 score configuration, synchronous prediction, feedback and regression
 evaluations, OpenAI RCA, persisted reports, guarded prompt optimization,
@@ -26,11 +26,11 @@ poetry run python -m docker.demo.runner run \
 `--deploy` exports committed `HEAD` into a temporary directory, builds native
 worker and proxy images from that snapshot, installs pinned Envoy Gateway
 `1.8.1`, packages the snapshot Helm chart outside the checkout, and installs or
-upgrades `plexus` in `plexus-local`. Dirty worktree files are never copied into
+upgrades `primus` in `primus-local`. Dirty worktree files are never copied into
 the images. The temporary source tree is deleted after deployment.
 
-The OpenAI key is read from the existing `plexus-local-llm-keys` Secret. If the
-Secret does not exist, the runner loads the approved local Plexus configuration
+The OpenAI key is read from the existing `primus-local-llm-keys` Secret. If the
+Secret does not exist, the runner loads the approved local Primus configuration
 and creates the Secret through stdin. The key is never written to Helm values,
 the command log, or result artifacts.
 
@@ -74,7 +74,7 @@ the CSV at the immutable source commit and refuses a checksum mismatch.
 BANKING77 does not contain a class named `cash_withdrawal`. The executable
 fixture uses the actual class names:
 
-| Source class | Count | Plexus label |
+| Source class | Count | Primus label |
 | --- | ---: | --- |
 | `declined_cash_withdrawal` | 100 | `Yes` |
 | `cash_withdrawal_charge` | 50 | `No` |
@@ -130,18 +130,18 @@ procedures are linked to the run-scoped score.
 # Continue the first incomplete phase.
 poetry run python -m docker.demo.runner resume \
   --run-id 20260723T163000Z-a1b2c3 \
-  --output-dir /tmp/plexus-k8s-demo/20260723T163000Z-a1b2c3 \
+  --output-dir /tmp/primus-k8s-demo/20260723T163000Z-a1b2c3 \
   --promote
 
 # Verify persisted state without creating application records.
 poetry run python -m docker.demo.runner verify \
   --run-id 20260723T163000Z-a1b2c3 \
-  --output-dir /tmp/plexus-k8s-demo/20260723T163000Z-a1b2c3
+  --output-dir /tmp/primus-k8s-demo/20260723T163000Z-a1b2c3
 
 # Explicitly remove only records owned by this exact run.
 poetry run python -m docker.demo.runner cleanup \
   --run-id 20260723T163000Z-a1b2c3 \
-  --output-dir /tmp/plexus-k8s-demo/20260723T163000Z-a1b2c3 \
+  --output-dir /tmp/primus-k8s-demo/20260723T163000Z-a1b2c3 \
   --confirm
 ```
 
@@ -167,19 +167,19 @@ poetry run python -m docker.demo.runner run \
 # and its output artifact complete. Resume consumes that artifact through a
 # GraphQL ticket and asserts the optimizer dispatch count remains exactly one.
 poetry run python -m docker.demo.runner resume \
-  --run-id "$RUN_ID" --output-dir "/tmp/plexus-k8s-demo/$RUN_ID" --promote
+  --run-id "$RUN_ID" --output-dir "/tmp/primus-k8s-demo/$RUN_ID" --promote
 ```
 
 ## Evidence
 
-Artifacts default to `/tmp/plexus-k8s-demo/<run-id>/`:
+Artifacts default to `/tmp/primus-k8s-demo/<run-id>/`:
 
 - `junit.xml` — pytest phase results for CI and test viewers
 - `results.json` — aggregate pass/fail result
 - `report.md` — human-readable phase and metric summary
 - `manifest.json` — run identity, resource ownership, checkpoints, and safe IDs
 - `events.jsonl` — command, exit status, and elapsed time without command output
-- `plexus-stack-1.0.0.tgz` — immutable chart used for deployment and the repeat
+- `primus-stack-1.0.0.tgz` — immutable chart used for deployment and the repeat
   Helm upgrade
 - `values-local.yaml` — sanitized, exact non-secret values used for both Helm
   operations

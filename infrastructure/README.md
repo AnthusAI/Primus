@@ -1,6 +1,6 @@
-# Plexus Infrastructure
+# Primus Infrastructure
 
-CDK-based infrastructure for Plexus custom AWS resources with automated deployment pipelines.
+CDK-based infrastructure for Primus custom AWS resources with automated deployment pipelines.
 
 ## Structure
 
@@ -55,7 +55,7 @@ infrastructure/
      ```bash
      aws secretsmanager create-secret --name github-token --secret-string "YOUR_GITHUB_PAT"
      ```
-   - The token needs repo access to AnthusAI/Plexus
+   - The token needs repo access to AnthusAI/Primus
 
 3. **Bootstrap CDK** (one-time per account/region):
    ```bash
@@ -71,8 +71,8 @@ infrastructure/
    cdk deploy --all
 
    # Or deploy individually (use the stack construct IDs, not pipeline names)
-   cdk deploy plexus-infrastructure-staging-pipeline
-   cdk deploy plexus-infrastructure-production-pipeline
+   cdk deploy primus-infrastructure-staging-pipeline
+   cdk deploy primus-infrastructure-production-pipeline
    ```
 
    **Note**: The pipelines are self-mutating. After the initial deployment:
@@ -101,23 +101,23 @@ infrastructure/
        self,
        "Monitoring",
        environment=environment,
-       stack_name=f"plexus-monitoring-{environment}",
+       stack_name=f"primus-monitoring-{environment}",
        env=kwargs.get("env")
    )
    ```
 
 3. **Commit and push** to appropriate branch - pipeline will automatically deploy
 
-**Note**: Always use `stack_name` parameter to get clean CloudFormation stack names following the `plexus-{service}-{environment}` pattern.
+**Note**: Always use `stack_name` parameter to get clean CloudFormation stack names following the `primus-{service}-{environment}` pattern.
 
 ## Naming Convention
 
-All resources follow: `plexus-{service}-{environment}-{resource}`
+All resources follow: `primus-{service}-{environment}-{resource}`
 
 Examples:
-- `plexus-scoring-staging-queue`
-- `plexus-scoring-production-dlq`
-- `plexus-monitoring-staging-dashboard`
+- `primus-scoring-staging-queue`
+- `primus-scoring-production-dlq`
+- `primus-monitoring-staging-dashboard`
 
 Use the `get_resource_name()` helper from `stacks.shared.naming`:
 ```python
@@ -160,10 +160,10 @@ The pipelines are self-mutating - when you push changes to pipeline code, they w
 ### Deployed Resources (per environment)
 
 **SQS Queues** (in `scoring_worker_stack.py`):
-- `plexus-scoring-{env}-standard-request-queue` - Main scoring requests
-- `plexus-scoring-{env}-standard-request-dlq` - Failed requests after 3 retries
-- `plexus-scoring-{env}-response-queue` - Scoring responses
-- `plexus-scoring-{env}-response-dlq` - Failed responses after 3 retries
+- `primus-scoring-{env}-standard-request-queue` - Main scoring requests
+- `primus-scoring-{env}-standard-request-dlq` - Failed requests after 3 retries
+- `primus-scoring-{env}-response-queue` - Scoring responses
+- `primus-scoring-{env}-response-dlq` - Failed responses after 3 retries
 
 **Future Resources** (commented out, ready to enable):
 - GPU request queue with DLQ
@@ -171,5 +171,5 @@ The pipelines are self-mutating - when you push changes to pipeline code, they w
 ## Environment-Specific Resources
 
 After deployment, you'll have two complete sets of resources:
-- **Staging**: `plexus-scoring-staging-*`
-- **Production**: `plexus-scoring-production-*`
+- **Staging**: `primus-scoring-staging-*`
+- **Production**: `primus-scoring-production-*`

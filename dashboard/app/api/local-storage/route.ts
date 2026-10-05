@@ -3,12 +3,12 @@ import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-const DEFAULT_BUCKET = "plexus-local-report-block-details"
+const DEFAULT_BUCKET = "primus-local-report-block-details"
 
 function localBackendEnabled() {
   return (
-    process.env.NEXT_PUBLIC_PLEXUS_BACKEND === "local" ||
-    process.env.PLEXUS_BACKEND_MODE === "local"
+    process.env.NEXT_PUBLIC_PRIMUS_BACKEND === "local" ||
+    process.env.PRIMUS_BACKEND_MODE === "local"
   )
 }
 
@@ -26,21 +26,21 @@ function objectKey(request: Request) {
 }
 
 function s3Client() {
-  const endpoint = process.env.PLEXUS_OBJECT_STORE_ENDPOINT
+  const endpoint = process.env.PRIMUS_OBJECT_STORE_ENDPOINT
   if (!endpoint) {
-    throw new Error("PLEXUS_OBJECT_STORE_ENDPOINT is required in local storage mode")
+    throw new Error("PRIMUS_OBJECT_STORE_ENDPOINT is required in local storage mode")
   }
 
-  const accessKeyId = process.env.PLEXUS_OBJECT_STORE_ACCESS_KEY_ID
-  const secretAccessKey = process.env.PLEXUS_OBJECT_STORE_SECRET_ACCESS_KEY
+  const accessKeyId = process.env.PRIMUS_OBJECT_STORE_ACCESS_KEY_ID
+  const secretAccessKey = process.env.PRIMUS_OBJECT_STORE_SECRET_ACCESS_KEY
   if (!accessKeyId || !secretAccessKey) {
-    throw new Error("PLEXUS_OBJECT_STORE_ACCESS_KEY_ID and PLEXUS_OBJECT_STORE_SECRET_ACCESS_KEY are required")
+    throw new Error("PRIMUS_OBJECT_STORE_ACCESS_KEY_ID and PRIMUS_OBJECT_STORE_SECRET_ACCESS_KEY are required")
   }
 
   return new S3Client({
     endpoint,
-    region: process.env.PLEXUS_OBJECT_STORE_REGION || "us-east-1",
-    forcePathStyle: String(process.env.PLEXUS_OBJECT_STORE_FORCE_PATH_STYLE || "true").toLowerCase() === "true",
+    region: process.env.PRIMUS_OBJECT_STORE_REGION || "us-east-1",
+    forcePathStyle: String(process.env.PRIMUS_OBJECT_STORE_FORCE_PATH_STYLE || "true").toLowerCase() === "true",
     credentials: {
       accessKeyId,
       secretAccessKey,

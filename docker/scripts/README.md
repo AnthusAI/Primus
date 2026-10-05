@@ -7,7 +7,7 @@ new one-off variants here without updating this inventory.
 
 | Script | Purpose |
 | --- | --- |
-| `setup_envoy_gateway_poc.sh` | Create or reuse a local kind cluster, install Envoy Gateway, build/load local images, and deploy the Plexus stack in `scoring-api` mode. |
+| `setup_envoy_gateway_poc.sh` | Create or reuse a local kind cluster, install Envoy Gateway, build/load local images, and deploy the Primus stack in `scoring-api` mode. |
 | `test_envoy_scoring_api.sh` | Send a real `POST /v1/score` request through the Envoy listener. Use after port-forwarding the Envoy data-plane Service. |
 | `smoke_test_k8s_logging.sh` | End-to-end smoke test: auto-discovers Envoy service, port-forwards, fires a scoring request, and verifies structured logs appear in `kubectl logs`. |
 | `build_k8s_images.sh` | Build publishable `linux/amd64` or multi-arch worker and GraphQL proxy images for registry-backed cluster deployments. |
@@ -37,7 +37,7 @@ port-forwarding the Envoy data-plane Service yourself:
 
 ```bash
 kubectl get svc -A \
-  -l gateway.envoyproxy.io/owning-gateway-name=plexus-plexus-worker-gateway
+  -l gateway.envoyproxy.io/owning-gateway-name=primus-primus-worker-gateway
 
 kubectl port-forward -n <envoy-service-namespace> svc/<envoy-service-name> 8080:80
 

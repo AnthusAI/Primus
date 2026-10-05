@@ -3,7 +3,7 @@
 from pathlib import Path
 import tomllib
 
-from plexus.command_worker import smoke
+from primus.command_worker import smoke
 
 
 def test_container_smoke_covers_each_enabled_structured_action() -> None:

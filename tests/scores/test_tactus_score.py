@@ -1,5 +1,5 @@
 """
-Comprehensive tests for TactusScore - Tactus DSL integration with Plexus scoring.
+Comprehensive tests for TactusScore - Tactus DSL integration with Primus scoring.
 
 Tests cover:
 1. Basic Tactus code execution and result mapping
@@ -16,7 +16,7 @@ NOTE: All test data is generic and does not contain any client-specific informat
 import pytest
 from contextlib import contextmanager
 from unittest.mock import Mock, AsyncMock, patch, MagicMock
-from plexus.scores.Score import Score
+from primus.scores.Score import Score
 
 
 # ============================================================================
@@ -26,7 +26,7 @@ from plexus.scores.Score import Score
 @pytest.fixture(autouse=True)
 def mock_langchain_model():
     """Mock LangChainUser model initialization to avoid API key requirements."""
-    with patch('plexus.LangChainUser.LangChainUser._initialize_model') as mock_init:
+    with patch('primus.LangChainUser.LangChainUser._initialize_model') as mock_init:
         mock_model = MagicMock()
         mock_init.return_value = mock_model
         yield mock_model
@@ -49,7 +49,7 @@ def patch_tactus_runtime_class():
     """Patch the lazy Tactus runtime loader while preserving class-call assertions."""
     runtime_class = MagicMock(name="TactusRuntime")
     with patch(
-        "plexus.scores.TactusScore._load_tactus_runtime_class",
+        "primus.scores.TactusScore._load_tactus_runtime_class",
         return_value=runtime_class,
     ):
         yield runtime_class
@@ -254,7 +254,7 @@ class TestTactusScoreBasicExecution:
     async def test_tactus_score_initialization(self):
         """Test that TactusScore initializes with required parameters."""
         with patch_tactus_runtime_class():
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -269,7 +269,7 @@ class TestTactusScoreBasicExecution:
     def test_tactus_code_fallback(self):
         """Test that 'tactus_code' YAML key still works as fallback for 'code'."""
         with patch_tactus_runtime_class():
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -280,7 +280,7 @@ class TestTactusScoreBasicExecution:
     def test_code_preferred_over_tactus_code(self):
         """Test that 'code' takes precedence when both 'code' and 'tactus_code' are provided."""
         with patch_tactus_runtime_class():
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -300,7 +300,7 @@ class TestTactusScoreBasicExecution:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -328,7 +328,7 @@ class TestTactusScoreBasicExecution:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -368,7 +368,7 @@ class TestClassificationParsing:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -388,7 +388,7 @@ class TestClassificationParsing:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -408,7 +408,7 @@ class TestClassificationParsing:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -429,7 +429,7 @@ class TestClassificationParsing:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -450,7 +450,7 @@ class TestClassificationParsing:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -478,7 +478,7 @@ class TestMultiEntityAggregation:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -506,7 +506,7 @@ class TestMultiEntityAggregation:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -534,7 +534,7 @@ class TestMultiEntityAggregation:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -557,7 +557,7 @@ class TestMultiEntityAggregation:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -588,7 +588,7 @@ class TestPrerequisiteChecking:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -616,7 +616,7 @@ class TestPrerequisiteChecking:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -646,7 +646,7 @@ class TestPrerequisiteChecking:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -681,7 +681,7 @@ class TestErrorHandling:
             )
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -705,7 +705,7 @@ class TestErrorHandling:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -727,9 +727,9 @@ class TestErrorHandling:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
-            with patch('plexus.scores.TactusScore.logger') as mock_logger:
+            with patch('primus.scores.TactusScore.logger') as mock_logger:
                 score = TactusScore(
                     name="test_score",
                     code=basic_code,
@@ -752,7 +752,7 @@ class TestErrorHandling:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -774,7 +774,7 @@ class TestErrorHandling:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -798,21 +798,21 @@ class TestConfidenceConversion:
     def test_none_confidence_returns_none(self, basic_code):
         """Test that None confidence remains None."""
         with patch_tactus_runtime_class():
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
             score = TactusScore(name="test", code=basic_code)
             assert score._convert_confidence(None) is None
 
     def test_float_confidence_passed_through(self, basic_code):
         """Test that float confidence is passed through."""
         with patch_tactus_runtime_class():
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
             score = TactusScore(name="test", code=basic_code)
             assert score._convert_confidence(0.75) == 0.75
 
     def test_int_confidence_converted_to_float(self, basic_code):
         """Test that int confidence is converted to float."""
         with patch_tactus_runtime_class():
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
             score = TactusScore(name="test", code=basic_code)
             assert score._convert_confidence(1) == 1.0
             assert isinstance(score._convert_confidence(1), float)
@@ -820,7 +820,7 @@ class TestConfidenceConversion:
     def test_confidence_clamped_to_valid_range(self, basic_code):
         """Test that confidence values are clamped between 0.0 and 1.0."""
         with patch_tactus_runtime_class():
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
             score = TactusScore(name="test", code=basic_code)
             assert score._convert_confidence(1.5) == 1.0
             assert score._convert_confidence(-0.5) == 0.0
@@ -828,14 +828,14 @@ class TestConfidenceConversion:
     def test_string_numeric_confidence_converted(self, basic_code):
         """Test that numeric strings are converted to float."""
         with patch_tactus_runtime_class():
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
             score = TactusScore(name="test", code=basic_code)
             assert score._convert_confidence("0.85") == 0.85
 
     def test_string_label_high_converted(self, basic_code):
         """Test that 'high' confidence is converted to 0.9."""
         with patch_tactus_runtime_class():
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
             score = TactusScore(name="test", code=basic_code)
             assert score._convert_confidence("high") == 0.9
             assert score._convert_confidence("HIGH") == 0.9
@@ -844,7 +844,7 @@ class TestConfidenceConversion:
     def test_string_label_medium_converted(self, basic_code):
         """Test that 'medium' confidence is converted to 0.6."""
         with patch_tactus_runtime_class():
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
             score = TactusScore(name="test", code=basic_code)
             assert score._convert_confidence("medium") == 0.6
             assert score._convert_confidence("med") == 0.6
@@ -852,28 +852,28 @@ class TestConfidenceConversion:
     def test_string_label_low_converted(self, basic_code):
         """Test that 'low' confidence is converted to 0.3."""
         with patch_tactus_runtime_class():
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
             score = TactusScore(name="test", code=basic_code)
             assert score._convert_confidence("low") == 0.3
 
     def test_string_label_very_high_converted(self, basic_code):
         """Test that 'very high' confidence is converted to 0.95."""
         with patch_tactus_runtime_class():
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
             score = TactusScore(name="test", code=basic_code)
             assert score._convert_confidence("very high") == 0.95
 
     def test_string_label_very_low_converted(self, basic_code):
         """Test that 'very low' confidence is converted to 0.1."""
         with patch_tactus_runtime_class():
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
             score = TactusScore(name="test", code=basic_code)
             assert score._convert_confidence("very low") == 0.1
 
     def test_unknown_string_returns_none(self, basic_code):
         """Test that unknown string confidence returns None."""
         with patch_tactus_runtime_class():
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
             score = TactusScore(name="test", code=basic_code)
             assert score._convert_confidence("unknown") is None
             assert score._convert_confidence("maybe") is None
@@ -896,7 +896,7 @@ class TestResultConversion:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -947,7 +947,7 @@ class TestComplexWorkflows:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -995,7 +995,7 @@ class TestComplexWorkflows:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -1033,7 +1033,7 @@ class TestComplexWorkflows:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(
                 name="test_score",
@@ -1060,7 +1060,7 @@ class TestComplexWorkflows:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(name="test_score", code=basic_code)
             result = await score.predict(Score.Input(text="Test"))
@@ -1083,7 +1083,7 @@ class TestComplexWorkflows:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(name="test_score", code=basic_code)
             result = await score.predict(Score.Input(text="Test"))
@@ -1104,7 +1104,7 @@ class TestComplexWorkflows:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(name="test_score", code=basic_code)
             result = await score.predict(Score.Input(text="Test"))
@@ -1128,7 +1128,7 @@ class TestComplexWorkflows:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             score = TactusScore(name="test_score", code=basic_code)
             result = await score.predict(Score.Input(text="Test"))
@@ -1161,7 +1161,7 @@ class TestIntegrationPatterns:
             })
             MockRuntime.return_value = mock_runtime_instance
 
-            from plexus.scores.TactusScore import TactusScore
+            from primus.scores.TactusScore import TactusScore
 
             # Full configuration like a real score
             score = TactusScore(
@@ -1215,7 +1215,7 @@ class TestRealTactusRuntime:
     @pytest.mark.asyncio
     async def test_simple_lua_logic_execution(self):
         """Test that simple Lua logic executes correctly in real Tactus runtime."""
-        from plexus.scores.TactusScore import TactusScore
+        from primus.scores.TactusScore import TactusScore
 
         simple_code = '''
         Procedure {
@@ -1259,7 +1259,7 @@ class TestRealTactusRuntime:
     @pytest.mark.asyncio
     async def test_metadata_access_in_lua(self):
         """Test that Lua code can access metadata correctly."""
-        from plexus.scores.TactusScore import TactusScore
+        from primus.scores.TactusScore import TactusScore
 
         metadata_code = '''
         Procedure {
@@ -1331,7 +1331,7 @@ class TestRealTactusRuntime:
     @pytest.mark.asyncio
     async def test_multi_entity_aggregation_logic(self):
         """Test aggregation logic: any No -> No, all Yes -> Yes."""
-        from plexus.scores.TactusScore import TactusScore
+        from primus.scores.TactusScore import TactusScore
 
         aggregation_code = '''
         Procedure {
@@ -1411,7 +1411,7 @@ class TestRealTactusRuntime:
     @pytest.mark.asyncio
     async def test_prerequisite_checking_pattern(self):
         """Test prerequisite checking pattern from real-world scores."""
-        from plexus.scores.TactusScore import TactusScore
+        from primus.scores.TactusScore import TactusScore
 
         prereq_code = '''
         Procedure {
@@ -1475,7 +1475,7 @@ class TestRealTactusRuntime:
     @pytest.mark.asyncio
     async def test_confidence_output_handling(self):
         """Test that confidence values are properly passed through from Lua."""
-        from plexus.scores.TactusScore import TactusScore
+        from primus.scores.TactusScore import TactusScore
 
         confidence_code = '''
         Procedure {
@@ -1508,7 +1508,7 @@ class TestRealTactusRuntime:
     @pytest.mark.asyncio
     async def test_valid_classes_validation(self):
         """Test that valid_classes constraint is checked."""
-        from plexus.scores.TactusScore import TactusScore
+        from primus.scores.TactusScore import TactusScore
 
         # Code that returns a value not in valid_classes
         code = '''

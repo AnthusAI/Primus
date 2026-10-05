@@ -3,10 +3,10 @@ description: Understanding the overall structure of the project.
 globs: 
 alwaysApply: false
 ---
-# Plexus Project Structure
+# Primus Project Structure
 
 ## Overall Structure
-Plexus is a documentation and evaluation platform for AI/ML systems with:
+Primus is a documentation and evaluation platform for AI/ML systems with:
 - A Next.js/React dashboard app using AWS Amplify Gen2
 - Python backend code for AI/ML functionality
 - Celery with AWS SQS and DynamoDB for remote task dispatch
@@ -16,7 +16,7 @@ The project is here at GitHub: https://github.com/orgs/AnthusAI
 Use that with the GitHub MCP.
 
 ## Key Directories
-- `plexus/`: Python modules for AI/ML, CLI, and other core functionality
+- `primus/`: Python modules for AI/ML, CLI, and other core functionality
 - `dashboard/app/`: Next.js routes and pages
 - `dashboard/components/`: React components
 - `dashboard/amplify/`: AWS configuration and resources
@@ -39,7 +39,7 @@ Use that with the GitHub MCP.
 
 ## Task Progress Tracking System
 The system uses multi-stage progress tracking for long-running tasks with key files:
-- `plexus/cli/task_progress_tracker.py`: Core tracking implementation
+- `primus/cli/task_progress_tracker.py`: Core tracking implementation
 - `dashboard/components/Task.tsx`: UI component for task display
 - `dashboard/components/ui/task-status.tsx`: Progress bar implementation
 

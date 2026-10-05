@@ -12,7 +12,7 @@ WORKDIR /var/task
 # Copy only the package and runtime support code so repository-only content can
 # never inflate the published image.
 COPY pyproject.toml README.md /workspace/
-COPY plexus /workspace/plexus
+COPY primus /workspace/primus
 COPY MCP /workspace/MCP
 
 RUN python -m pip install --upgrade pip && \

@@ -2,9 +2,9 @@ import pandas as pd
 import pytest
 from unittest.mock import AsyncMock, Mock, patch
 
-from plexus.Evaluation import AccuracyEvaluation
-from plexus.Scorecard import Scorecard
-from plexus.scores.Score import Score
+from primus.Evaluation import AccuracyEvaluation
+from primus.Scorecard import Scorecard
+from primus.scores.Score import Score
 
 
 @pytest.mark.asyncio
@@ -28,7 +28,7 @@ async def test_score_text_prefers_dashboard_client_for_item_lookup():
 
     row = pd.Series({"text": "hi", "item_id": "item-123"})
 
-    with patch("plexus.dashboard.api.models.item.Item.get_by_id") as get_by_id:
+    with patch("primus.dashboard.api.models.item.Item.get_by_id") as get_by_id:
         await evaluation.score_text(row)
 
     assert get_by_id.call_args[0][1] is evaluation.dashboard_client
@@ -59,7 +59,7 @@ async def test_score_text_passes_item_to_scorecard():
     row = pd.Series({"text": "hi", "item_id": "item-123"})
     fake_item = Mock()
 
-    with patch("plexus.dashboard.api.models.item.Item.get_by_id", return_value=fake_item):
+    with patch("primus.dashboard.api.models.item.Item.get_by_id", return_value=fake_item):
         await evaluation.score_text(row)
 
     assert evaluation.scorecard.kwargs["item"] is fake_item
@@ -94,7 +94,7 @@ scores:
                 parameters=self.parameters,
             )
 
-    with patch("plexus.Scorecard.resolve_score_class", return_value=DummyScore):
+    with patch("primus.Scorecard.resolve_score_class", return_value=DummyScore):
         scorecard_class = Scorecard.create_from_yaml(str(yaml_path))
     scorecard_instance = scorecard_class(scorecard=scorecard_class.name)
 
@@ -117,11 +117,11 @@ scores:
 
     class DummyInputSource:
         def extract(self, item):
-            from plexus.core.ScoreInput import ScoreInput
+            from primus.core.ScoreInput import ScoreInput
             return ScoreInput(text="hello from source", metadata={"input_source": "Dummy"})
 
-    with patch("plexus.input_sources.InputSourceFactory.InputSourceFactory.create_input_source", return_value=DummyInputSource()):
-        with patch("plexus.dashboard.api.models.item.Item.get_by_id", return_value=Mock()):
+    with patch("primus.input_sources.InputSourceFactory.InputSourceFactory.create_input_source", return_value=DummyInputSource()):
+        with patch("primus.dashboard.api.models.item.Item.get_by_id", return_value=Mock()):
             result = await evaluation.score_text(row, score_name="KeywordScore")
 
     score_result = result["results"]["test-score-id"]
@@ -157,7 +157,7 @@ scores:
                 parameters=self.parameters,
             )
 
-    with patch("plexus.Scorecard.resolve_score_class", return_value=DummyScore):
+    with patch("primus.Scorecard.resolve_score_class", return_value=DummyScore):
         scorecard_class = Scorecard.create_from_yaml(str(yaml_path))
     scorecard_instance = scorecard_class(scorecard=scorecard_class.name)
 

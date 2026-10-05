@@ -17,7 +17,7 @@ lambda_client = boto3.client('lambda')
 # Configuration from environment variables
 FANOUT_BATCH_SIZE = int(os.environ.get('FANOUT_BATCH_SIZE', '10'))
 SCORE_PROCESSOR_LAMBDA_ARN = os.environ['SCORE_PROCESSOR_LAMBDA_ARN']
-REQUEST_QUEUE_URL = os.environ['PLEXUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL']
+REQUEST_QUEUE_URL = os.environ['PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL']
 
 # Extended visibility timeout to prevent re-processing during Lambda execution
 # Score processor has 300s timeout, add buffer

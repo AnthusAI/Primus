@@ -1,19 +1,19 @@
 # `execute_tactus`
 
-Run a short Tactus snippet inside the Plexus runtime. Use this as the only
-tool for Plexus work. The runtime injects everything you need before your
+Run a short Tactus snippet inside the Primus runtime. Use this as the only
+tool for Primus work. The runtime injects everything you need before your
 snippet runs:
 
-- `plexus` is already a global. You do **not** need
-  `local plexus = require("plexus")`.
-- The runtime captures the result of the **last** Plexus operation your
+- `primus` is already a global. You do **not** need
+  `local primus = require("primus")`.
+- The runtime captures the result of the **last** Primus operation your
   snippet calls and returns it as the value of this tool call. You only need
   to write an explicit `return` when the task asks for a custom output shape.
 - Budget, streaming events, API call accounting, and HITL approval prompts
   are enforced by the runtime. You do not need to call
-  `plexus.budget.remaining()` or build approval flow yourself.
-- Any long-running async call (`plexus.evaluation.run`, `plexus.report.run`,
-  `plexus.procedure.run` with `async = true`) must include an explicit child
+  `primus.budget.remaining()` or build approval flow yourself.
+- Any long-running async call (`primus.evaluation.run`, `primus.report.run`,
+  `primus.procedure.run` with `async = true`) must include an explicit child
   budget table:
   `budget = { usd = <number>, wallclock_seconds = <number>, depth = <int>, tool_calls = <int> }`.
 
@@ -25,15 +25,15 @@ helper, such as `scorecards_list`, `score_info`, `score_set_champion`,
 `dataset_check_associated`, `report_configurations_list`, `procedure_run`,
 `handle_status`, `docs_get`, and `api_list`.
 
-Use helpers when they fit. Fall back to `plexus.<namespace>.<method>{...}` for
+Use helpers when they fit. Fall back to `primus.<namespace>.<method>{...}` for
 anything else.
 
 Discover what you need instead of guessing API details from memory:
 
 ```tactus
-local docs = plexus.docs.list()
-local scoring = plexus.docs.get{ key = "score" }
-local api = plexus.api.list()
+local docs = primus.docs.list()
+local scoring = primus.docs.get{ key = "score" }
+local api = primus.api.list()
 ```
 
 Prefer the cheapest reliable primitive. Use deterministic scores and aggregate
@@ -45,7 +45,7 @@ choosing cheap primitives is still your job.
 Always use table arguments, not positional arguments:
 
 ```tactus
-local info = plexus.score.info{ id = "score_compliance_tone" }
+local info = primus.score.info{ id = "score_compliance_tone" }
 ```
 
 Destructive operations such as champion promotion, score updates, deletes, and
@@ -53,7 +53,7 @@ feedback invalidation request `Human.approve` automatically before mutating.
 Only pass `no_confirm = true` when the user explicitly asked to bypass approval
 or a higher-level approved workflow already handled it.
 
-Errors are structured. If a Plexus call fails, return the error code, message,
+Errors are structured. If a Primus call fails, return the error code, message,
 and retryability. Do not retry forever. Missing data is usually not retryable.
 
 ## Examples
@@ -61,9 +61,9 @@ and retryability. Do not retry forever. Missing data is usually not retryable.
 Find a score and inspect its champion (explicit return shapes the result):
 
 ```tactus
-local cards = plexus.scorecards.list{ account = "Acme Health" }
+local cards = primus.scorecards.list{ account = "Acme Health" }
 for _, card in ipairs(cards) do
-  local detail = plexus.scorecards.info{ id = card.id }
+  local detail = primus.scorecards.info{ id = card.id }
   for _, s in ipairs(detail.scores) do
     if s.name == "Compliance Tone" then
       return {
@@ -127,6 +127,6 @@ local handle = evaluate{
 return {
   handle_id = handle.id,
   status = handle.status,
-  check_later_with = "plexus.handle.status",
+  check_later_with = "primus.handle.status",
 }
 ```

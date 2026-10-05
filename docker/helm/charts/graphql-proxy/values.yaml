@@ -3,7 +3,7 @@
 replicaCount: 2
 
 image:
-  repository: plexus-graphql-proxy
+  repository: primus-graphql-proxy
   pullPolicy: IfNotPresent
   tag: ""  # Defaults to chart appVersion if not set
 

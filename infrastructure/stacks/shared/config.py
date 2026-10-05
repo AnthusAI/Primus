@@ -1,5 +1,5 @@
 """
-Shared configuration management for Plexus infrastructure.
+Shared configuration management for Primus infrastructure.
 
 This module provides utilities for loading environment-specific configuration
 from AWS Secrets Manager.
@@ -16,11 +16,11 @@ class EnvironmentConfig:
     Environment-specific configuration loaded from AWS Secrets Manager.
 
     All configuration (both sensitive and non-sensitive) is stored in a single
-    JSON secret with the naming pattern: plexus/{environment}/config
+    JSON secret with the naming pattern: primus/{environment}/config
 
     Example secret names:
-    - plexus/staging/config
-    - plexus/production/config
+    - primus/staging/config
+    - primus/production/config
 
     Example secret structure:
     {
@@ -44,12 +44,12 @@ class EnvironmentConfig:
         """
         self.scope = scope
         self.environment = environment
-        self.secret_name = f"plexus/{environment}/config"
+        self.secret_name = f"primus/{environment}/config"
 
         # Look up the secret (must exist before deployment)
         self.secret = secretsmanager.Secret.from_secret_name_v2(
             scope,
-            "PlexusConfig",
+            "PrimusConfig",
             secret_name=self.secret_name
         )
 

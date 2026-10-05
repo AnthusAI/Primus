@@ -321,10 +321,10 @@ export const AssistantMessage: Story = {
 
 export const ToolCall: Story = {
   args: {
-    content: 'plexus_feedback_alignment(scorecard_name="Example Scorecard", score_name="Example Score", days=30, output_format="json")',
+    content: 'primus_feedback_alignment(scorecard_name="Example Scorecard", score_name="Example Score", days=30, output_format="json")',
     role: 'ASSISTANT',
     messageType: 'TOOL_CALL',
-    toolName: 'plexus_feedback_alignment',
+    toolName: 'primus_feedback_alignment',
     toolParameters: {
       scorecard_name: "Example Scorecard",
       score_name: "Example Score", 
@@ -360,7 +360,7 @@ export const ToolResponse: Story = {
 }`,
     role: 'TOOL',
     messageType: 'TOOL_RESPONSE',
-    toolName: 'plexus_feedback_alignment',
+    toolName: 'primus_feedback_alignment',
     toolResponse: {
       context: {
         scorecard_name: "Example Scorecard",

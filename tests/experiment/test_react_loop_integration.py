@@ -60,7 +60,7 @@ class ReActTestFramework:
         
         # Available tools by phase
         self.tool_scopes = {
-            "exploration": ["plexus_feedback_analysis", "plexus_feedback_find", "plexus_item_info", "think"],
+            "exploration": ["primus_feedback_analysis", "primus_feedback_find", "primus_item_info", "think"],
             "synthesis": ["think"],
             "hypothesis_generation": ["create_experiment_node", "update_node_content", "think"]
         }
@@ -72,9 +72,9 @@ class ReActTestFramework:
     def _setup_mock_tools(self):
         """Set up mock tools for testing."""
         tool_behaviors = {
-            "plexus_feedback_analysis": "Found 15 feedback items with scoring issues over the last 7 days",
-            "plexus_feedback_find": "Retrieved 10 specific feedback items showing threshold sensitivity problems",
-            "plexus_item_info": "Item shows AI prediction: 0.8, Human correction: 0.3, indicating over-confidence",
+            "primus_feedback_analysis": "Found 15 feedback items with scoring issues over the last 7 days",
+            "primus_feedback_find": "Retrieved 10 specific feedback items showing threshold sensitivity problems",
+            "primus_item_info": "Item shows AI prediction: 0.8, Human correction: 0.3, indicating over-confidence",
             "think": "Reasoning: Based on the data, the main issue is threshold calibration",
             "create_experiment_node": "Successfully created experiment node with ID: exp_node_123",
             "update_node_content": "Successfully updated node configuration with new parameters"
@@ -118,9 +118,9 @@ class ReActTestFramework:
         # Manager's reasoning logic based on SOP
         if self.current_phase == "exploration":
             if len(self.tools_used) == 0:
-                guidance = "Begin by analyzing the feedback data to understand scoring patterns using plexus_feedback_analysis."
-            elif "plexus_feedback_analysis" in self.tools_used and "plexus_feedback_find" not in self.tools_used:
-                guidance = "Good analysis. Now examine specific feedback items using plexus_feedback_find to see examples."
+                guidance = "Begin by analyzing the feedback data to understand scoring patterns using primus_feedback_analysis."
+            elif "primus_feedback_analysis" in self.tools_used and "primus_feedback_find" not in self.tools_used:
+                guidance = "Good analysis. Now examine specific feedback items using primus_feedback_find to see examples."
             elif len(self.tools_used) >= 2:
                 self._transition_phase("synthesis")
                 guidance = "You have sufficient data. Now synthesize your findings to identify root causes."
@@ -178,9 +178,9 @@ class ReActTestFramework:
         """
         # Worker interprets guidance to select tool
         tool_selection_logic = {
-            "analyzing the feedback data": "plexus_feedback_analysis",
-            "examine specific feedback items": "plexus_feedback_find", 
-            "detailed information": "plexus_item_info",
+            "analyzing the feedback data": "primus_feedback_analysis",
+            "examine specific feedback items": "primus_feedback_find", 
+            "detailed information": "primus_item_info",
             "synthesize": "think",
             "identify root causes": "think",
             "create experiment": "create_experiment_node",
@@ -201,7 +201,7 @@ class ReActTestFramework:
             if "create" in guidance.lower() and "experiment" in guidance.lower():
                 selected_tool = "create_experiment_node"
             elif "analyze" in guidance.lower() or "feedback" in guidance.lower():
-                selected_tool = "plexus_feedback_analysis"
+                selected_tool = "primus_feedback_analysis"
             else:
                 selected_tool = "think"  # Default fallback
         
@@ -271,7 +271,7 @@ class ReActTestFramework:
         """Assess progress within current phase."""
         if self.current_phase == "exploration":
             analysis_tools_used = len([tool for tool in self.tools_used 
-                                     if tool in ["plexus_feedback_analysis", "plexus_feedback_find", "plexus_item_info"]])
+                                     if tool in ["primus_feedback_analysis", "primus_feedback_find", "primus_item_info"]])
             if analysis_tools_used >= 2:
                 return "sufficient_data_gathered"
             elif analysis_tools_used >= 1:
@@ -389,7 +389,7 @@ class TestReActLoopIntegration:
         # Verify worker actions
         assert len(framework.worker_action_log) == len([h for h in conversation_history if h["action"]["success"]]), "Worker should act successfully in each successful cycle"
         tools_executed = [log["tool"] for log in framework.worker_action_log]
-        assert "plexus_feedback_analysis" in tools_executed, "Should execute analysis tools"
+        assert "primus_feedback_analysis" in tools_executed, "Should execute analysis tools"
         assert "create_experiment_node" in tools_executed, "Should create experiment nodes"
         print(f"    ✓ Worker executed tools: {set(tools_executed)}")
         
@@ -459,7 +459,7 @@ class TestToolScopingEnforcement:
         framework.current_phase = "synthesis"
         
         # Try to use analysis tool during synthesis (should be blocked)
-        tool_name, success, result = framework.worker_act("Analyze more feedback data using plexus_feedback_analysis")
+        tool_name, success, result = framework.worker_act("Analyze more feedback data using primus_feedback_analysis")
         
         assert not success, "Analysis tool should be blocked during synthesis"
         assert "not available" in result, "Should provide clear scoping error message"
@@ -518,13 +518,13 @@ class TestConversationStateManagement:
         assert initial_state["phase_progress"] == "analysis_needed", "Should need analysis initially"
         
         # Execute analysis tools to trigger transition
-        framework.worker_act("Start by analyzing the feedback data using plexus_feedback_analysis")
-        framework.worker_act("Examine specific feedback items using plexus_feedback_find")
+        framework.worker_act("Start by analyzing the feedback data using primus_feedback_analysis")
+        framework.worker_act("Examine specific feedback items using primus_feedback_find")
         
         # Check state after sufficient analysis
         post_analysis_state = framework.get_system_state()
         analysis_tools_used = len([tool for tool in framework.tools_used 
-                                  if tool in ["plexus_feedback_analysis", "plexus_feedback_find"]])
+                                  if tool in ["primus_feedback_analysis", "primus_feedback_find"]])
         assert analysis_tools_used >= 2, "Should have used multiple analysis tools"
         
         # Trigger transition to synthesis

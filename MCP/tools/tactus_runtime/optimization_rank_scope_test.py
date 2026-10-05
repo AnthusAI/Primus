@@ -45,7 +45,7 @@ def _card(
 
 def test_rank_scope_classifies_a_dangling_champion_as_structurally_unranked() -> None:
     """A dead scalar pointer is not missing cooldown metadata for an eligible score."""
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-rank-dangling-champion"),
         scorecards_lister=lambda _args: {
             "items": [_card("card-a", "Alpha", champion_resolves=False)],
@@ -94,7 +94,7 @@ def _complete_alignment(rows: list[dict[str, Any]], target_count: int) -> dict[s
 def test_rank_scope_exact_opaque_ids_are_forwarded_unchanged_and_exclude_other_rows() -> None:
     opaque_id = "A-awkward_UUID:with/slashes+punctuation"
     batch_calls: list[dict[str, Any]] = []
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-scoped-rank-opaque-id"),
         scorecards_lister=lambda _args: {
             "items": [
@@ -135,7 +135,7 @@ def test_rank_scope_prefixes_are_literal_case_insensitive_and_use_union_deduplic
         _card("card-beta", "Beta Team"),
         _card("card-noise", "Unrelated Team"),
     ]
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-scoped-rank-prefixes"),
         scorecards_lister=lambda _args: {"items": cards, "nextToken": None},
     )
@@ -172,7 +172,7 @@ def test_rank_scope_reports_unmatched_selectors_after_full_pagination() -> None:
             return {"items": [_card("card-a", "Alpha")], "nextToken": "page-2"}
         return {"items": [_card("card-b", "Beta")], "nextToken": None}
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-scoped-rank-unmatched"), scorecards_lister=list_cards
     )
     module._feedback_aligner_batch = lambda args: batch_calls.append(args) or _complete_alignment(
@@ -198,14 +198,14 @@ def test_rank_scope_reports_unmatched_selectors_after_full_pagination() -> None:
     {"scorecard_ids": [], "scorecard_name_prefixes": []},
 ])
 def test_rank_scope_rejects_explicit_empty_selectors(args: dict[str, list[str]]) -> None:
-    module = execute.PlexusRuntimeModule(FastMCP("test-scoped-rank-empty"))
+    module = execute.PrimusRuntimeModule(FastMCP("test-scoped-rank-empty"))
 
     with pytest.raises(ValueError, match="empty.*selector|selector.*empty"):
         module.optimization.rank(args)
 
 
 def test_rank_scope_rejects_an_explicit_empty_selector_before_the_scores_bypass() -> None:
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-scoped-rank-empty-scores"),
         scorecards_lister=lambda _args: pytest.fail("selector validation must precede discovery"),
     )
@@ -228,7 +228,7 @@ def test_rank_scope_rejects_an_explicit_empty_selector_before_the_scores_bypass(
     ("scorecard_name_prefixes", None),
 ])
 def test_rank_scope_rejects_non_array_selector_values(field: str, value: Any) -> None:
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-scoped-rank-non-array"),
         scorecards_lister=lambda _args: pytest.fail("selector validation must precede discovery"),
     )
@@ -244,7 +244,7 @@ def test_rank_scope_rejects_non_array_selector_values(field: str, value: Any) ->
     ("scorecard_name_prefixes", [""]),
 ])
 def test_rank_scope_rejects_non_string_or_blank_selector_entries(field: str, value: list[Any]) -> None:
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-scoped-rank-invalid-entry"),
         scorecards_lister=lambda _args: pytest.fail("selector validation must precede discovery"),
     )
@@ -255,7 +255,7 @@ def test_rank_scope_rejects_non_string_or_blank_selector_entries(field: str, val
 
 def test_rank_scope_zero_exact_matches_is_complete_and_skips_feedback_batch() -> None:
     batch_calls: list[dict[str, Any]] = []
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-scoped-rank-zero"),
         scorecards_lister=lambda _args: {
             "items": [_card("card-a", "Alpha")], "nextToken": None,
@@ -294,7 +294,7 @@ def test_rank_scope_uses_one_frozen_as_of_and_returns_inventory_activity_evidenc
             "nextToken": None,
         }
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-scoped-rank-activity-evidence"), scorecards_lister=list_cards
     )
     module._feedback_aligner_batch = lambda args: alignment_calls.append(args) or _complete_alignment(
@@ -340,7 +340,7 @@ def test_rank_scope_missing_or_malformed_inventory_activity_fails_closed(
     card = _card("card-a", "Alpha")
     score = card["sections"]["items"][0]["scores"]["items"][0]
     score.update(broken_inventory)
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-scoped-rank-invalid-activity"),
         scorecards_lister=lambda _args: {"items": [card], "nextToken": None},
     )
@@ -371,7 +371,7 @@ def test_rank_scope_failed_continuation_does_not_analyze_partial_scope_or_claim_
             return {"items": [_card("card-a", "Alpha")], "nextToken": "page-2"}
         raise RuntimeError("continuation unavailable")
 
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-scoped-rank-page-failure"), scorecards_lister=list_cards
     )
     module._feedback_aligner_batch = lambda args: batch_calls.append(args) or _complete_alignment(
@@ -388,7 +388,7 @@ def test_rank_scope_failed_continuation_does_not_analyze_partial_scope_or_claim_
 
 
 def test_rank_scope_requires_downstream_coverage_for_the_scoped_targets() -> None:
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-scoped-rank-coverage"),
         scorecards_lister=lambda _args: {
             "items": [_card("card-a", "Alpha"), _card("card-b", "Beta")],
@@ -418,7 +418,7 @@ def test_rank_scope_deduplicates_duplicate_discovered_ids_in_enumeration_order()
         _card("card-b", "Beta"),
         _card("card-a", "Alpha duplicate"),
     ]
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-scoped-rank-deduplicate"),
         scorecards_lister=lambda _args: {"items": cards, "nextToken": None},
     )
@@ -433,7 +433,7 @@ def test_rank_scope_deduplicates_duplicate_discovered_ids_in_enumeration_order()
 
 
 def test_rank_scope_marks_unexpected_batch_rows_incomplete_and_excludes_them() -> None:
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-scoped-rank-unexpected-row"),
         scorecards_lister=lambda _args: {
             "items": [_card("card-a", "Alpha"), _card("card-b", "Beta")],
@@ -459,7 +459,7 @@ def test_rank_scope_fingerprint_binds_normalized_scope_even_with_supplied_scores
         "score_name": "One", "champion_version": "version-a", "total_items": 10,
         "disagreements": 2,
     }]
-    module = execute.PlexusRuntimeModule(FastMCP("test-scoped-rank-fingerprint"))
+    module = execute.PrimusRuntimeModule(FastMCP("test-scoped-rank-fingerprint"))
 
     exact_id_scope = module.optimization.rank({
         "scores": scores,
@@ -482,7 +482,7 @@ def test_rank_scope_casefolds_equivalent_prefixes_for_one_fingerprint() -> None:
         "score_name": "One", "champion_version": "version-a", "total_items": 10,
         "disagreements": 2,
     }]
-    module = execute.PlexusRuntimeModule(FastMCP("test-scoped-rank-prefix-fingerprint"))
+    module = execute.PrimusRuntimeModule(FastMCP("test-scoped-rank-prefix-fingerprint"))
 
     upper = module.optimization.rank({
         "scores": scores, "coverage": {"complete": True},
@@ -504,7 +504,7 @@ def test_rank_scope_casefolds_equivalent_prefixes_for_one_fingerprint() -> None:
 def test_rank_scope_rejects_cross_attributed_or_unknown_nested_rows(
     bad_score: dict[str, str],
 ) -> None:
-    module = execute.PlexusRuntimeModule(
+    module = execute.PrimusRuntimeModule(
         FastMCP("test-scoped-rank-corrupt-nested-row"),
         scorecards_lister=lambda _args: {
             "items": [_card("card-a", "Alpha"), _card("card-b", "Beta")],

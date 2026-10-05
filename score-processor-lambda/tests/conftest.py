@@ -13,11 +13,11 @@ os.environ.setdefault('NLTK_DATA', '/usr/local/share/nltk_data:/tmp/nltk_data')
 os.environ['AWS_ACCESS_KEY_ID'] = 'test-access-key'
 os.environ['AWS_SECRET_ACCESS_KEY'] = 'test-secret-key'
 os.environ['AWS_DEFAULT_REGION'] = 'us-west-2'
-os.environ['PLEXUS_API_KEY'] = 'test-key'
-os.environ['PLEXUS_API_URL'] = 'https://test.example.com/graphql'
-os.environ['PLEXUS_ACCOUNT_KEY'] = 'test-account'
-os.environ['PLEXUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL'] = 'https://sqs.us-west-2.amazonaws.com/123456789/test-queue'
-os.environ['PLEXUS_RESPONSE_WORKER_QUEUE_URL'] = 'https://sqs.us-west-2.amazonaws.com/123456789/test-response-queue'
+os.environ['PRIMUS_API_KEY'] = 'test-key'
+os.environ['PRIMUS_API_URL'] = 'https://test.example.com/graphql'
+os.environ['PRIMUS_ACCOUNT_KEY'] = 'test-account'
+os.environ['PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL'] = 'https://sqs.us-west-2.amazonaws.com/123456789/test-queue'
+os.environ['PRIMUS_RESPONSE_WORKER_QUEUE_URL'] = 'https://sqs.us-west-2.amazonaws.com/123456789/test-response-queue'
 
 
 @pytest.fixture
@@ -30,9 +30,9 @@ def mock_boto3_client():
 
 
 @pytest.fixture
-def mock_plexus_client():
-    """Mock PlexusDashboardClient"""
-    with patch('plexus.dashboard.api.client.PlexusDashboardClient') as mock:
+def mock_primus_client():
+    """Mock PrimusDashboardClient"""
+    with patch('primus.dashboard.api.client.PrimusDashboardClient') as mock:
         client = MagicMock()
         mock.return_value = client
         yield client

@@ -612,7 +612,7 @@ export const WithAttachmentsAndOutput: Story = {
     variant: 'detail',
     task: createTask('with-attachments-output', {
       type: 'Evaluation Report',
-      command: 'plexus evaluate accuracy --scorecard "example-scorecard" --number-of-samples 100',
+      command: 'primus evaluate accuracy --scorecard "example-scorecard" --number-of-samples 100',
       status: 'COMPLETED',
       stages: sampleStages.map(stage => ({ ...stage, status: 'COMPLETED' as const })),
       output: `# ====================================
@@ -756,7 +756,7 @@ export const AttachmentsOnly: Story = {
     variant: 'detail',
     task: createTask('attachments-only', {
       type: 'Report Generation',
-      command: 'plexus report run --config "Monthly Report"',
+      command: 'primus report run --config "Monthly Report"',
       status: 'COMPLETED',
       stages: sampleStages.map(stage => ({ ...stage, status: 'COMPLETED' as const })),
       attachedFiles: [

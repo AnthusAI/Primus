@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 
-from plexus.command_worker import (
+from primus.command_worker import (
     ClaimStatus,
     CommandEnvelope,
     CommandRecord,
@@ -13,8 +13,8 @@ from plexus.command_worker import (
     ProgressUpdate,
     request_digest,
 )
-from plexus.command_worker.adapters.task_store import TaskBackedCommandStore
-from plexus.command_worker.models import (
+from primus.command_worker.adapters.task_store import TaskBackedCommandStore
+from primus.command_worker.models import (
     AnnouncementDisposition,
     AnnouncementResult,
     CancellationResult,
@@ -152,7 +152,7 @@ class TaskGateway:
         )
 
     def _claim(self, task):
-        return __import__("plexus.command_worker", fromlist=["Claim"]).Claim(
+        return __import__("primus.command_worker", fromlist=["Claim"]).Claim(
             str(task["fencingToken"]),
             task["leaseOwner"],
             task["leaseExpiresAt"],

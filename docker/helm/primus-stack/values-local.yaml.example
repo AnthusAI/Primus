@@ -1,0 +1,187 @@
+# Example values for Docker Desktop Kubernetes (local development)
+# Copy this to values-local.yaml and fill in your actual API keys
+
+global:
+  namespace: primus-local
+  environment: local
+
+  services:
+    postgresql:
+      host: "{{ .Release.Name }}-postgresql"
+      port: 5432
+      database: primus_proxy
+
+    graphqlProxy:
+      host: "{{ .Release.Name }}-graphql-proxy"
+      port: 8000
+      path: "/graphql"
+
+localObjectStore:
+  enabled: true
+  tls:
+    enabled: true
+    existingSecret: "primus-local-object-store-tls"
+  persistence:
+    enabled: true
+    size: 2Gi
+
+postgresql:
+  enabled: true
+  image:
+    tag: "latest"
+  auth:
+    username: primus_proxy
+    password: "primus-local-dev"
+    database: primus_proxy
+  primary:
+    persistence:
+      enabled: true
+      size: 5Gi
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+    initdb:
+      scripts:
+        init.sql: |
+          CREATE SCHEMA IF NOT EXISTS private_data;
+          CREATE SCHEMA IF NOT EXISTS control_cache;
+          CREATE SCHEMA IF NOT EXISTS proxy_debug;
+
+graphql-proxy:
+  enabled: true
+  replicaCount: 1
+  # A one-proxy Docker Desktop deployment cannot satisfy minAvailable: 1
+  # during a voluntary disruption. Disable the production PDB locally so
+  # routine restarts and upgrades remain possible.
+  podDisruptionBudget:
+    enabled: false
+  image:
+    repository: primus-graphql-proxy
+    tag: "local"
+    pullPolicy: IfNotPresent
+  config:
+    # Local API-key mode is explicit so workers cannot fall back to Cognito or IAM.
+    backendMode: "local"
+    authMode: "api_key"
+    proxyApiKey: "local-dev-key"
+    upstreamApiUrl: ""
+    upstreamApiKey: ""
+    upstreamDisabled: true
+    enableDebug: true
+    # Faster retry recovery after a locally interrupted score request.
+    scoringJobClaimLeaseSeconds: 15
+  artifactStore:
+    enabled: true
+    endpoint: "https://primus-local-object-store:9000"
+    region: "us-east-1"
+    accountId: "local-demo-account"
+    existingSecret: "primus-local-object-store"
+    buckets:
+      datasets: "primus-local-datasets"
+      reportBlockDetails: "primus-local-report-block-details"
+      taskAttachments: "primus-local-task-attachments"
+      scoreResultAttachments: "primus-local-score-result-attachments"
+  createSecrets: true
+  postgresql:
+    username: "primus_proxy"  # Set username explicitly
+
+primus-worker:
+  enabled: true
+  workerType: scoring-api
+  replicaCount: 1
+  # A one-worker Docker Desktop deployment cannot satisfy the worker chart's
+  # production PDB default (minAvailable: 2). Disable it locally so normal
+  # voluntary restarts and upgrades are not blocked.
+  podDisruptionBudget:
+    enabled: false
+  image:
+    repository: primus-worker
+    tag: "local"
+    pullPolicy: IfNotPresent
+  env:
+    LOG_LEVEL: DEBUG
+    MAX_JOBS_PER_WORKER: "2"
+    # The worker image is unprivileged; keep package caches on its writable
+    # tmp volume so evaluation startup does not silently degrade to memory-only.
+    HOME: /app/tmp
+    XDG_CACHE_HOME: /app/tmp/cache
+    MPLCONFIGDIR: /app/tmp/matplotlib
+    PRIMUS_DATA_CACHE_DIRECTORY: /app/tmp/training-data-cache
+    # Do not accept scoring traffic while the local GraphQL proxy is unready.
+    PRIMUS_SCORING_REQUIRE_PROXY_READY: "1"
+    PRIMUS_DISABLE_CLOUDWATCH_LOGS: "1"
+
+  # The demo optimizer evaluates two candidates concurrently in-process.
+  # These measured limits prevent the Linux OOM killer from terminating the
+  # worker during the candidate-evaluation phase on Docker Desktop.
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "4Gi"
+      cpu: 2
+  objectStore:
+    enabled: true
+    endpoint: "https://primus-local-object-store:9000"
+    existingSecret: "primus-local-object-store"
+    caBundle:
+      enabled: true
+      existingSecret: "primus-local-object-store-tls"
+      secretKey: ca.crt
+      mountPath: /app/certs/minio-ca.crt
+    buckets:
+      datasets: "primus-local-datasets"
+      reportBlockDetails: "primus-local-report-block-details"
+      rubricMemory: "primus-local-rubric-memory"
+      taskAttachments: "primus-local-task-attachments"
+      scoreResultAttachments: "primus-local-score-result-attachments"
+  primus:
+    createSecrets: true
+    api:
+      key: "local-dev-key"
+    account:
+      key: "local-demo"
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 8000
+  scoringApi:
+    enabled: true
+    port: 8000
+    gateway:
+      enabled: true
+      createGateway: true
+      gatewayClassName: envoy-gateway
+      listenerName: http
+      port: 80
+      pathPrefix: /v1/score
+      # Real LLM scoring can exceed Envoy Gateway's implicit timeout under
+      # concurrent local use. Keep the route budgets explicit.
+      requestTimeout: "120s"
+      backendRequestTimeout: "120s"
+  celery:
+    enabled: false
+    app: primus.workers.celery_app
+    queue: scoring-requests
+    concurrency: 2
+    broker:
+      createSecrets: true
+      url: "amqp://primus:primus@host.docker.internal:5672/"
+  llm:
+    # Create this secret before Helm install; do not put an API key or a
+    # placeholder into a values file that Helm will persist in release history.
+    createSecrets: false
+    existingSecret: "primus-local-llm-keys"
+    openai: true
+    anthropic: false
+  procedureRecovery:
+    # Mark interrupted procedure runs STALLED promptly after Docker Desktop
+    # replaces a worker pod. Recovery remains an explicit operator rerun.
+    enabled: true
+    schedule: "*/1 * * * *"
+    thresholdSeconds: 120

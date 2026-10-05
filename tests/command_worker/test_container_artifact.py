@@ -3,7 +3,7 @@ from pathlib import Path
 
 def test_portable_command_worker_container_artifact_uses_the_package_runtime() -> None:
     dockerfile = (
-        Path(__file__).parents[2] / "plexus" / "command_worker" / "Dockerfile"
+        Path(__file__).parents[2] / "primus" / "command_worker" / "Dockerfile"
     ).read_text(encoding="utf-8")
 
     assert "python:3.12-slim" in dockerfile
@@ -15,7 +15,7 @@ def test_portable_command_worker_container_artifact_uses_the_package_runtime() -
     assert "--extras scoring" not in dockerfile
     assert "--extras evaluation" not in dockerfile
     assert "POETRY_VIRTUALENVS_CREATE=false" in dockerfile
-    assert "from plexus.command_worker.executors.plexus_cli import create_executor" in dockerfile
-    assert "python -m plexus.command_worker.smoke" in dockerfile
-    assert 'ENTRYPOINT ["plexus-command-worker"]' in dockerfile
+    assert "from primus.command_worker.executors.primus_cli import create_executor" in dockerfile
+    assert "python -m primus.command_worker.smoke" in dockerfile
+    assert 'ENTRYPOINT ["primus-command-worker"]' in dockerfile
     assert "COMMAND_WORKER_EXECUTOR_FACTORY" in dockerfile

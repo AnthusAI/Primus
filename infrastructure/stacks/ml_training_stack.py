@@ -6,7 +6,7 @@ This stack provisions resources needed for ML model training:
 - IAM roles and policies for SageMaker training jobs
 - Lifecycle policies for artifact retention
 
-The bucket name follows the pattern: plexus-ml-{environment}-training
+The bucket name follows the pattern: primus-ml-{environment}-training
 For local development, use environment='development'
 """
 

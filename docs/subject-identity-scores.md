@@ -1,8 +1,8 @@
 # Subject-identity scores
 
 This file marks the addition of two Score classes for scanner
-evaluation grades (see plexus/scores/SubjectIdentityScore.py and
-plexus/scores/SubjectSpanOverlapScore.py).
+evaluation grades (see primus/scores/SubjectIdentityScore.py and
+primus/scores/SubjectSpanOverlapScore.py).
 
 - SubjectIdentityScore: match Items by metadata.subjectKey, span-independent.
 - SubjectSpanOverlapScore: match when both subjectKey and span overlap.

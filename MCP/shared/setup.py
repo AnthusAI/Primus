@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Shared setup and initialization code for Plexus MCP server
+Shared setup and initialization code for Primus MCP server
 """
 import os
 import sys
@@ -38,7 +38,7 @@ def redirect_stdout_to_stderr():
             print(f"Error redirecting stdout: {e}", file=sys.stderr)
 
 # Configure logging to both stderr and file
-log_file = os.path.join(os.path.expanduser('~'), '.plexus', 'mcp-server.log')
+log_file = os.path.join(os.path.expanduser('~'), '.primus', 'mcp-server.log')
 os.makedirs(os.path.dirname(log_file), exist_ok=True)
 
 handlers = [
@@ -69,7 +69,7 @@ DEFAULT_ACCOUNT_KEY = None
 ACCOUNT_CACHE = {}  # Maps account keys/names to resolved IDs
 
 # Initialize Global flags and dummy functions first
-"""Setup utilities for MCP server to import Plexus core and configure logging.
+"""Setup utilities for MCP server to import Primus core and configure logging.
 
 This module raises on failure to import core modules; there is no partial mode.
 """
@@ -77,8 +77,8 @@ def create_dashboard_client(): return None
 def resolve_account_identifier(client, identifier): return None
 def resolve_scorecard_identifier(client, identifier): return None
 
-def setup_plexus_imports():
-    """Setup Plexus imports and path configuration. Raises on failure."""
+def setup_primus_imports():
+    """Setup Primus imports and path configuration. Raises on failure."""
     global create_dashboard_client, resolve_account_identifier, resolve_scorecard_identifier
     
     # Temporarily redirect stdout during initialization to prevent any accidental writing to stdout
@@ -91,8 +91,8 @@ def setup_plexus_imports():
         path_stdout = StringIO()
         sys.stdout = path_stdout
         
-        # Add Plexus project root to Python path if necessary
-        # The MCP server is in MCP/ directory, but plexus package is in the parent directory
+        # Add Primus project root to Python path if necessary
+        # The MCP server is in MCP/ directory, but primus package is in the parent directory
         mcp_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         project_root = os.path.dirname(mcp_dir)  # Go up one level to project root
         if project_root not in sys.path:
@@ -102,8 +102,8 @@ def setup_plexus_imports():
         # Log the paths for debugging
         logger.info(f"MCP directory: {mcp_dir}")
         logger.info(f"Project root: {project_root}")
-        logger.info(f"Looking for plexus package at: {os.path.join(project_root, 'plexus')}")
-        logger.info(f"Plexus package exists: {os.path.exists(os.path.join(project_root, 'plexus'))}")
+        logger.info(f"Looking for primus package at: {os.path.join(project_root, 'primus')}")
+        logger.info(f"Primus package exists: {os.path.exists(os.path.join(project_root, 'primus'))}")
         
         # Check if anything was written during path setup
         path_output = path_stdout.getvalue()
@@ -112,27 +112,27 @@ def setup_plexus_imports():
         # Restore to our main capture buffer
         sys.stdout = temp_stdout
         
-        # Load YAML configuration first (before importing Plexus modules)
+        # Load YAML configuration first (before importing Primus modules)
         try:
-            from plexus.config import load_config
+            from primus.config import load_config
             load_config()  # This will set environment variables from YAML config
             logger.info("YAML configuration loaded successfully")
         except Exception as e:
             logger.warning(f"Failed to load YAML configuration: {e}")
         
-        # Try to import the Plexus core modules
+        # Try to import the Primus core modules
         try:
-            # Attempt to import Plexus modules for core functionality
-            logger.info("Importing PlexusDashboardClient...")
-            from plexus.dashboard.api.client import PlexusDashboardClient
+            # Attempt to import Primus modules for core functionality
+            logger.info("Importing PrimusDashboardClient...")
+            from primus.dashboard.api.client import PrimusDashboardClient
             logger.info("Importing create_client...")
             # Assign imported functions to pre-defined names
             # Prefer minimal-dependency resolution path to avoid importing heavy CLI groups
-            from plexus.cli.shared.client_utils import create_client as _create_dashboard_client
+            from primus.cli.shared.client_utils import create_client as _create_dashboard_client
             logger.info("Importing resolve_account_identifier...")
-            from plexus.cli.scorecard.scorecards import resolve_account_identifier as _resolve_account_identifier
+            from primus.cli.scorecard.scorecards import resolve_account_identifier as _resolve_account_identifier
             logger.info("Importing resolve_scorecard_identifier...")
-            from plexus.cli.shared.identifier_resolution import resolve_scorecard_identifier as _resolve_scorecard_identifier
+            from primus.cli.shared.identifier_resolution import resolve_scorecard_identifier as _resolve_scorecard_identifier
             logger.info("All core imports completed.")
             
             # Create a wrapper around create_dashboard_client to add better error logging
@@ -144,7 +144,7 @@ def setup_plexus_imports():
                 
                 try:
                     # Always delegate to the CLI's client factory, which itself loads
-                    # .plexus/config.yaml and falls back to .env when present.
+                    # .primus/config.yaml and falls back to .env when present.
                     client = _create_dashboard_client()
                     
                     if client:
@@ -199,13 +199,13 @@ def setup_plexus_imports():
             create_dashboard_client = enhanced_create_dashboard_client
             resolve_account_identifier = wrapped_resolve_account_identifier
             resolve_scorecard_identifier = wrapped_resolve_scorecard_identifier
-            logger.info("Plexus core modules imported successfully.")
+            logger.info("Primus core modules imported successfully.")
         except ImportError as e:
-            logger.error(f"Could not import core Plexus modules: {e}.")
+            logger.error(f"Could not import core Primus modules: {e}.")
             raise
         except Exception as import_err:
             # Catch other potential errors during import/setup
-            logger.error(f"Error during Plexus core module import/setup: {import_err}", exc_info=True)
+            logger.error(f"Error during Primus core module import/setup: {import_err}", exc_info=True)
         
         # Check for and log any accidental stdout output from imports
         stdout_captured = temp_stdout.getvalue()

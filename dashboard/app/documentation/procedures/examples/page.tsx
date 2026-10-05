@@ -3,8 +3,8 @@ import Link from "next/link"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Examples & Patterns - Procedures - Plexus Documentation",
-  description: "Real-world examples of Plexus Procedures from simple to complex"
+  title: "Examples & Patterns - Procedures - Primus Documentation",
+  description: "Real-world examples of Primus Procedures from simple to complex"
 }
 
 export default function ProceduresExamplesPage() {
@@ -338,7 +338,7 @@ workflow: |
             Complete HTML documentation with 8 detailed examples is available at:
           </p>
           <code className="block bg-background px-4 py-2 rounded text-sm mb-4">
-            /plexus/procedures/docs/examples.html
+            /primus/procedures/docs/examples.html
           </code>
           <p className="text-muted-foreground">
             Includes examples for: data processing, recursive task decomposition,

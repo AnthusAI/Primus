@@ -199,9 +199,9 @@ class MockMCPAdapter:
         
         # Only provide tools that are in scope for current phase
         all_tools = {
-            'plexus_feedback_analysis': 'Analyze feedback data',
-            'plexus_feedback_find': 'Find specific feedback items',
-            'plexus_item_info': 'Get item information',
+            'primus_feedback_analysis': 'Analyze feedback data',
+            'primus_feedback_find': 'Find specific feedback items',
+            'primus_item_info': 'Get item information',
             'create_experiment_node': 'Create hypothesis node',
             'update_node_content': 'Update node configuration',
             'think': 'Internal reasoning tool'
@@ -237,7 +237,7 @@ conversation_flow:
   initial_state: "exploration"
   states:
     exploration:
-      tools: ["plexus_feedback_analysis", "plexus_feedback_find", "think"]
+      tools: ["primus_feedback_analysis", "primus_feedback_find", "think"]
     synthesis:
       tools: ["think"]
     hypothesis_generation:
@@ -276,19 +276,19 @@ class TestManagerOrchestratorAgent:
             },
             {
                 'current_state': 'exploration', 
-                'tools_used': ['plexus_feedback_analysis'],
+                'tools_used': ['primus_feedback_analysis'],
                 'nodes_created': 0,
                 'round_in_stage': 2
             },
             {
                 'current_state': 'synthesis',
-                'tools_used': ['plexus_feedback_analysis', 'plexus_feedback_find'],
+                'tools_used': ['primus_feedback_analysis', 'primus_feedback_find'],
                 'nodes_created': 0,
                 'round_in_stage': 1
             },
             {
                 'current_state': 'hypothesis_generation',
-                'tools_used': ['plexus_feedback_analysis', 'plexus_feedback_find'],
+                'tools_used': ['primus_feedback_analysis', 'primus_feedback_find'],
                 'nodes_created': 0,
                 'round_in_stage': 1
             }
@@ -296,8 +296,8 @@ class TestManagerOrchestratorAgent:
         
         # Manager provides SOP-guided responses
         manager.queue_orchestration_responses([
-            "Start by analyzing the feedback data using plexus_feedback_analysis tool.",
-            "Good analysis. Now examine specific feedback items with plexus_feedback_find.",
+            "Start by analyzing the feedback data using primus_feedback_analysis tool.",
+            "Good analysis. Now examine specific feedback items with primus_feedback_find.",
             "Synthesize your findings to identify the root causes of scoring errors.",
             "Create your first experiment node to test a hypothesis."
         ])
@@ -348,23 +348,23 @@ class TestWorkerCodingAgent:
         mcp_adapter = mock_experiment_setup['mcp_adapter']
         
         # Test exploration phase tools
-        exploration_tools = ['plexus_feedback_analysis', 'plexus_feedback_find', 'think']
+        exploration_tools = ['primus_feedback_analysis', 'primus_feedback_find', 'think']
         mcp_adapter.set_tool_scope(exploration_tools)
         worker.set_available_tools(exploration_tools)
         
         # Worker receives guidance and makes tool calls
         worker.queue_responses([
-            '{"tool":"plexus_feedback_analysis","arguments":{"scorecard_name":"TestCard","score_name":"TestScore"}}',
+            '{"tool":"primus_feedback_analysis","arguments":{"scorecard_name":"TestCard","score_name":"TestScore"}}',
             'Based on the analysis, I found several scoring patterns. Let me examine specific items.',
-            '{"tool":"plexus_feedback_find","arguments":{"scorecard_name":"TestCard","score_name":"TestScore","limit":10}}'
+            '{"tool":"primus_feedback_find","arguments":{"scorecard_name":"TestCard","score_name":"TestScore","limit":10}}'
         ])
         
         # Simulate worker executing tools
         asyncio.run(self._test_worker_tool_execution(worker, mcp_adapter, exploration_tools))
         
         # Verify worker made appropriate tool calls
-        assert 'plexus_feedback_analysis' in worker.tool_calls_made
-        assert 'plexus_feedback_find' in worker.tool_calls_made
+        assert 'primus_feedback_analysis' in worker.tool_calls_made
+        assert 'primus_feedback_find' in worker.tool_calls_made
         assert len(worker.tool_calls_made) == 2
         
         print("✅ Worker agent successfully executed tools based on guidance")
@@ -403,7 +403,7 @@ class TestWorkerCodingAgent:
         worker = mock_experiment_setup['worker']
         
         # Test exploration phase - should block hypothesis tools
-        exploration_tools = ['plexus_feedback_analysis', 'think']
+        exploration_tools = ['primus_feedback_analysis', 'think']
         worker.set_available_tools(exploration_tools)
         worker.queue_responses([
             '{"tool":"create_experiment_node","arguments":{"experiment_id":"test"}}'  # Should be blocked
@@ -454,16 +454,16 @@ class TestReActLoopIntegration:
         react_steps = [
             {
                 'phase': 'exploration',
-                'tools': ['plexus_feedback_analysis', 'think'],
+                'tools': ['primus_feedback_analysis', 'think'],
                 'manager_guidance': 'Analyze the feedback data to understand scoring patterns.',
-                'worker_action': '{"tool":"plexus_feedback_analysis","arguments":{"scorecard_name":"TestCard"}}',
+                'worker_action': '{"tool":"primus_feedback_analysis","arguments":{"scorecard_name":"TestCard"}}',
                 'worker_reflection': 'I analyzed the feedback and found several scoring issues.'
             },
             {
                 'phase': 'exploration',
-                'tools': ['plexus_feedback_analysis', 'plexus_feedback_find', 'think'],
+                'tools': ['primus_feedback_analysis', 'primus_feedback_find', 'think'],
                 'manager_guidance': 'Examine specific feedback items to understand the problems.',
-                'worker_action': '{"tool":"plexus_feedback_find","arguments":{"scorecard_name":"TestCard","limit":5}}',
+                'worker_action': '{"tool":"primus_feedback_find","arguments":{"scorecard_name":"TestCard","limit":5}}',
                 'worker_reflection': 'I found specific examples of scoring errors.'
             },
             {
@@ -528,7 +528,7 @@ class TestReActLoopIntegration:
         assert manager.guidance_calls == 4  # Manager provided guidance 4 times
         assert len(conversation_state['tools_used']) >= 3  # Worker used multiple tools
         assert conversation_state['nodes_created'] == 1  # Worker created hypothesis
-        assert 'plexus_feedback_analysis' in conversation_state['tools_used']
+        assert 'primus_feedback_analysis' in conversation_state['tools_used']
         assert 'create_experiment_node' in conversation_state['tools_used']
         
         print("✅ Complete ReAct loop executed successfully with manager-worker collaboration")
@@ -681,15 +681,15 @@ class TestMultiAgentReActStory:
         ])
         
         # Set exploration tools for worker
-        exploration_tools = ['plexus_feedback_analysis', 'plexus_feedback_find', 'think']
+        exploration_tools = ['primus_feedback_analysis', 'primus_feedback_find', 'think']
         mcp_adapter.set_tool_scope(exploration_tools)
         worker.set_available_tools(exploration_tools)
         
         # Worker performs exploration actions
         worker.queue_responses([
-            '{"tool":"plexus_feedback_analysis","arguments":{"scorecard_name":"TestCard","score_name":"TestScore","days":7}}',
+            '{"tool":"primus_feedback_analysis","arguments":{"scorecard_name":"TestCard","score_name":"TestScore","days":7}}',
             'I found significant patterns in the feedback showing threshold sensitivity issues.',
-            '{"tool":"plexus_feedback_find","arguments":{"scorecard_name":"TestCard","score_name":"TestScore","limit":10}}',
+            '{"tool":"primus_feedback_find","arguments":{"scorecard_name":"TestCard","score_name":"TestScore","limit":10}}',
             'Examining specific cases reveals the AI is being too strict in certain scenarios.'
         ])
         
@@ -755,7 +755,7 @@ class TestMultiAgentReActStory:
         
         # Verify worker tool execution
         tools_used = set(worker.tool_calls_made)
-        expected_tools = {'plexus_feedback_analysis', 'plexus_feedback_find', 'create_experiment_node'}
+        expected_tools = {'primus_feedback_analysis', 'primus_feedback_find', 'create_experiment_node'}
         assert expected_tools.issubset(tools_used), f"Worker should have used analysis and creation tools. Used: {tools_used}"
         print(f"✓ Worker used appropriate tools: {tools_used}")
         

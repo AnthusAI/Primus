@@ -65,7 +65,7 @@ def test_given_large_score_when_editing_then_complete_configuration_has_output_b
     monkeypatch.setitem(sys.modules, "openai", SimpleNamespace(OpenAI=FakeOpenAI))
     monkeypatch.setitem(
         sys.modules,
-        "plexus.cli.procedure.tactus_adapters.score_editor_toolset",
+        "primus.cli.procedure.tactus_adapters.score_editor_toolset",
         SimpleNamespace(
             GUIDELINES_PATH="score_guidelines.md",
             ScoreEditorToolset=FakeToolset,

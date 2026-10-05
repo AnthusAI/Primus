@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ASGI application wrapper for Plexus FastMCP Server with AWS Cognito OAuth
+ASGI application wrapper for Primus FastMCP Server with AWS Cognito OAuth
 Enables remote access via uvicorn with enterprise-grade authentication
 """
 import os
@@ -30,12 +30,12 @@ try:
 except ImportError:
     print("python-dotenv not available - install with: pip install python-dotenv", file=sys.stderr)
 
-# Load Plexus configuration
+# Load Primus configuration
 try:
-    from plexus.config.loader import load_config
+    from primus.config.loader import load_config
     load_config()
 except Exception as e:
-    print(f"Warning: Failed to load Plexus configuration: {e}", file=sys.stderr)
+    print(f"Warning: Failed to load Primus configuration: {e}", file=sys.stderr)
 
 # Cognito configuration from environment variables
 COGNITO_USER_POOL_ID = os.environ.get("COGNITO_USER_POOL_ID")  # e.g., "us-west-2_AbCdEf123"
@@ -98,11 +98,11 @@ print(f"Server base URL: {MCP_SERVER_BASE_URL}", file=sys.stderr)
 print(f"Callback URL: {MCP_SERVER_BASE_URL}/auth/callback", file=sys.stderr)
 
 # Import the original MCP to get its configuration
-from plexus_fastmcp_server import mcp as original_mcp
+from primus_fastmcp_server import mcp as original_mcp
 
 # Create new authenticated FastMCP with Cognito OAuth
 mcp = FastMCP(
-    name="Plexus MCP Server (Cognito OAuth)",
+    name="Primus MCP Server (Cognito OAuth)",
     instructions=original_mcp.instructions,
     auth=auth,
     stateless_http=True

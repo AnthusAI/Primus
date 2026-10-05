@@ -39,7 +39,7 @@ return acceptance_rate{
 }
 ```
 
-`acceptance_rate` is a pre-wired alias for `plexus.report.acceptance_rate`.
+`acceptance_rate` is a pre-wired alias for `primus.report.acceptance_rate`.
 `sync = true` runs the block inline and returns the result immediately.
 Drop `sync = true` and add `async = true` to fire-and-forget and get a handle back.
 
@@ -65,7 +65,7 @@ Drop `sync = true` and add `async = true` to fire-and-forget and get a handle ba
 
 ```tactus
 -- Via the full namespace (equivalent to the alias above)
-return plexus.report.acceptance_rate{
+return primus.report.acceptance_rate{
   scorecard = "My Scorecard",
   score     = "My Score",
   days      = 30,
@@ -131,4 +131,4 @@ return acceptance_rate{
 1. Run `acceptance_rate` to get the aggregate `score_result_acceptance_rate`.
 2. Compare across recent windows (`days = 7` vs `days = 30`) to spot trends.
 3. If acceptance is low, run `feedback_alignment` to see *which* classes the AI is getting wrong.
-4. Use the optimizer (`plexus.procedure.optimize`) to improve alignment.
+4. Use the optimizer (`primus.procedure.optimize`) to improve alignment.

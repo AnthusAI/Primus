@@ -41,41 +41,41 @@ instructions).
 | `optimizer_diag.log`, `optimizer_diag_smoke.log`, `dosage_optimizer.log` | GEN | Optimizer logs. Remove from root, ignore pattern. |
 | `test_180_days*.log`, `test_prime_edu.log`, `test_run.log`, `test_small_clusters.log`, `test_umap.log` | GEN | Test run logs. Remove from root. |
 
-## `plexus/docs/` (current Tactus docs root)
+## `primus/docs/` (current Tactus docs root)
 
 The canonical agent-facing KB content already lives here. It is exposed
-through `plexus.docs.*` in `MCP/tools/tactus_runtime/execute.py` rooted at
-`plexus/docs/`. The migration moves this content to `documentation/agent/`
+through `primus.docs.*` in `MCP/tools/tactus_runtime/execute.py` rooted at
+`primus/docs/`. The migration moves this content to `documentation/agent/`
 and points the runtime at the new root.
 
 | File | Class | Notes |
 |------|-------|-------|
-| `plexus/docs/README.md` | SUPPL | Folder index for humans; rewrite for new location. |
-| `plexus/docs/overview.md` | KB | `mcp.execute-tactus.overview`. |
-| `plexus/docs/discovery.md` | KB | `mcp.discovery`. |
-| `plexus/docs/read-apis.md` | KB | `mcp.read-apis`. |
-| `plexus/docs/long-running-apis.md` | KB | `mcp.long-running-apis`. |
-| `plexus/docs/handles-and-budgets.md` | KB | `mcp.handles-and-budgets`. |
-| `plexus/docs/score-and-dataset-authoring/README.md` | SUPPL | Theme index; replace with `_index.md` or namespace README. |
-| `plexus/docs/score-and-dataset-authoring/score-yaml-format.md` | KB | `score-authoring.score-yaml-format`. |
-| `plexus/docs/score-and-dataset-authoring/score-concepts.md` | OBSOLETE | 3-line stub. |
-| `plexus/docs/score-and-dataset-authoring/score-yaml-langgraph.md` | OBSOLETE | 3-line stub. |
-| `plexus/docs/score-and-dataset-authoring/score-yaml-tactusscore.md` | OBSOLETE | 3-line stub. |
-| `plexus/docs/score-and-dataset-authoring/dataset-yaml-format.md` | KB | `score-authoring.dataset-yaml-format`. |
-| `plexus/docs/score-and-dataset-authoring/rubric-memory.md` | KB | `score-authoring.rubric-memory`. |
-| `plexus/docs/score-and-dataset-authoring/score-rubric-consistency.md` | KB | `score-authoring.rubric-consistency`. |
-| `plexus/docs/evaluation-and-feedback/README.md` | SUPPL | Theme index. |
-| `plexus/docs/evaluation-and-feedback/feedback-alignment.md` | KB | `evaluation-feedback.feedback-alignment`. |
-| `plexus/docs/evaluation-and-feedback/evaluation-alignment.md` | KB | `evaluation-feedback.evaluation-alignment`. |
-| `plexus/docs/evaluation-and-feedback/acceptance-rate.md` | KB | `evaluation-feedback.acceptance-rate`. |
-| `plexus/docs/evaluation-and-feedback/optimizer-cookbook.md` | KB | `evaluation-feedback.optimizer-cookbook`. |
-| `plexus/docs/evaluation-and-feedback/optimizer-cookbook-normal.md` | KB | `evaluation-feedback.optimizer-cookbook-normal`. |
-| `plexus/docs/evaluation-and-feedback/optimizer-cookbook-creative.md` | KB | `evaluation-feedback.optimizer-cookbook-creative`. |
-| `plexus/docs/evaluation-and-feedback/optimizer-cookbook-structural.md` | KB | `evaluation-feedback.optimizer-cookbook-structural`. |
-| `plexus/docs/evaluation-and-feedback/optimizer-procedures.md` | KB | `evaluation-feedback.optimizer-procedures`. |
-| `plexus/docs/evaluation-and-feedback/optimizer-objective-{alignment,cost,precision,recall}.md` | KB | One key each. |
-| `plexus/docs/procedures/README.md` | SUPPL | Theme index. |
-| `plexus/docs/reports/README.md` | SUPPL | Theme index. |
+| `primus/docs/README.md` | SUPPL | Folder index for humans; rewrite for new location. |
+| `primus/docs/overview.md` | KB | `mcp.execute-tactus.overview`. |
+| `primus/docs/discovery.md` | KB | `mcp.discovery`. |
+| `primus/docs/read-apis.md` | KB | `mcp.read-apis`. |
+| `primus/docs/long-running-apis.md` | KB | `mcp.long-running-apis`. |
+| `primus/docs/handles-and-budgets.md` | KB | `mcp.handles-and-budgets`. |
+| `primus/docs/score-and-dataset-authoring/README.md` | SUPPL | Theme index; replace with `_index.md` or namespace README. |
+| `primus/docs/score-and-dataset-authoring/score-yaml-format.md` | KB | `score-authoring.score-yaml-format`. |
+| `primus/docs/score-and-dataset-authoring/score-concepts.md` | OBSOLETE | 3-line stub. |
+| `primus/docs/score-and-dataset-authoring/score-yaml-langgraph.md` | OBSOLETE | 3-line stub. |
+| `primus/docs/score-and-dataset-authoring/score-yaml-tactusscore.md` | OBSOLETE | 3-line stub. |
+| `primus/docs/score-and-dataset-authoring/dataset-yaml-format.md` | KB | `score-authoring.dataset-yaml-format`. |
+| `primus/docs/score-and-dataset-authoring/rubric-memory.md` | KB | `score-authoring.rubric-memory`. |
+| `primus/docs/score-and-dataset-authoring/score-rubric-consistency.md` | KB | `score-authoring.rubric-consistency`. |
+| `primus/docs/evaluation-and-feedback/README.md` | SUPPL | Theme index. |
+| `primus/docs/evaluation-and-feedback/feedback-alignment.md` | KB | `evaluation-feedback.feedback-alignment`. |
+| `primus/docs/evaluation-and-feedback/evaluation-alignment.md` | KB | `evaluation-feedback.evaluation-alignment`. |
+| `primus/docs/evaluation-and-feedback/acceptance-rate.md` | KB | `evaluation-feedback.acceptance-rate`. |
+| `primus/docs/evaluation-and-feedback/optimizer-cookbook.md` | KB | `evaluation-feedback.optimizer-cookbook`. |
+| `primus/docs/evaluation-and-feedback/optimizer-cookbook-normal.md` | KB | `evaluation-feedback.optimizer-cookbook-normal`. |
+| `primus/docs/evaluation-and-feedback/optimizer-cookbook-creative.md` | KB | `evaluation-feedback.optimizer-cookbook-creative`. |
+| `primus/docs/evaluation-and-feedback/optimizer-cookbook-structural.md` | KB | `evaluation-feedback.optimizer-cookbook-structural`. |
+| `primus/docs/evaluation-and-feedback/optimizer-procedures.md` | KB | `evaluation-feedback.optimizer-procedures`. |
+| `primus/docs/evaluation-and-feedback/optimizer-objective-{alignment,cost,precision,recall}.md` | KB | One key each. |
+| `primus/docs/procedures/README.md` | SUPPL | Theme index. |
+| `primus/docs/reports/README.md` | SUPPL | Theme index. |
 
 Total ~5,300 lines. Most content is already structured for agents; the
 gap is metadata and the canonical home, not the prose.
@@ -113,7 +113,7 @@ This shadow folder is a third docs root that should be reconciled with
 | File | Class | Action |
 |------|-------|--------|
 | `MCP/README.md` | KEEP / POINTER | Keep developer-facing overview but slim it; link to canonical KB topics for agents. |
-| `MCP/plexus-mcp.md` | OBSOLETE | Describes the pre-`execute_tactus` multi-tool MCP surface and "FastMCP server" with non-existent tool catalog. Remove. |
+| `MCP/primus-mcp.md` | OBSOLETE | Describes the pre-`execute_tactus` multi-tool MCP surface and "FastMCP server" with non-existent tool catalog. Remove. |
 | `MCP/TEST_COVERAGE_SUMMARY.md` | OBSOLETE | One-time test coverage snapshot referencing renamed tools. Remove. |
 | `MCP/tests/README.md` | SUPPL | Test how-to. Keep co-located. |
 | `MCP/tools/tactus_runtime/HANDLE_PROTOCOL.md` | KB | Move to `documentation/agent/mcp/handle-protocol.md`. |
@@ -127,22 +127,22 @@ prose, and stale tool names removed.
 
 | File | Class | Notes |
 |------|-------|-------|
-| `.claude/agents/plexus-score-config-updater.md` | POINTER | Currently lists deprecated `mcp__Plexus__*` tools and `get_plexus_documentation`. Rewrite around `execute_tactus` and KB topic keys. |
-| `.claude/agents/plexus-score-guidelines-updater.md` | POINTER | Same stale tool catalog. Rewrite. |
-| `.claude/agents/plexus-alignment-analyzer.md` | POINTER | References `plexus_feedback_find` style names. Rewrite around current API. |
-| `.claude/agents/evaluation-analyzer.md` | POINTER | References `mcp__plexus__plexus_evaluation_*` tools. Rewrite. |
-| `.claude/agents/evaluation-score-result-analyzer.md` | POINTER | References `plexus_evaluation_score_result_find`. Rewrite. |
+| `.claude/agents/primus-score-config-updater.md` | POINTER | Currently lists deprecated `mcp__Primus__*` tools and `get_primus_documentation`. Rewrite around `execute_tactus` and KB topic keys. |
+| `.claude/agents/primus-score-guidelines-updater.md` | POINTER | Same stale tool catalog. Rewrite. |
+| `.claude/agents/primus-alignment-analyzer.md` | POINTER | References `primus_feedback_find` style names. Rewrite around current API. |
+| `.claude/agents/evaluation-analyzer.md` | POINTER | References `mcp__primus__primus_evaluation_*` tools. Rewrite. |
+| `.claude/agents/evaluation-score-result-analyzer.md` | POINTER | References `primus_evaluation_score_result_find`. Rewrite. |
 | `.claude/agents/development-environment.md` | KEEP | Local-environment instructions; keep but trim. |
-| `skills/score-setup/SKILL.md` | POINTER | References `mcp__Plexus__*` tools throughout. Rewrite around `execute_tactus`. |
+| `skills/score-setup/SKILL.md` | POINTER | References `mcp__Primus__*` tools throughout. Rewrite around `execute_tactus`. |
 | `skills/guidelines/SKILL.md` | POINTER | Mostly current; trim duplication and link to KB. |
-| `skills/score-code-editor/SKILL.md` | POINTER | References `get_plexus_documentation` and per-tool MCP names. Rewrite. |
+| `skills/score-code-editor/SKILL.md` | POINTER | References `get_primus_documentation` and per-tool MCP names. Rewrite. |
 | `skills/score-optimizer/SKILL.md` | KB-source | The largest single agent doc (751 lines). Most content belongs in `documentation/agent/optimizer/` and the SKILL collapses to a thin pointer. |
 
 ## `.cursor/rules/`
 
 | File | Class | Notes |
 |------|-------|-------|
-| `.cursor/rules/plexus-mcp.mdc` | OBSOLETE | Describes deprecated multi-tool MCP server. Replace with thin rule pointing at `documentation/agent/mcp/`. |
+| `.cursor/rules/primus-mcp.mdc` | OBSOLETE | Describes deprecated multi-tool MCP server. Replace with thin rule pointing at `documentation/agent/mcp/`. |
 | `.cursor/rules/project-structure.mdc` | KEEP | Useful short rule. Trim. |
 | `.cursor/rules/task-dispatch-system.mdc` | KEEP | Cursor-specific orientation rule. |
 | `.cursor/rules/reports-feature.mdc` | KEEP | Cursor-specific orientation rule. |
@@ -174,8 +174,8 @@ the canonical agent KB instead of duplicating it.
   `infrastructure/scripts/README.md` — `KEEP`.
 - `examples/INPUT_SOURCES_README.md`, `tests/**/README.md`,
   `score-processor-lambda/README.md` — `KEEP`.
-- `plexus/cli/metrics/README.md`, `plexus/data/FeedbackItems_README.md`,
-  `plexus/procedures/{README.md,AGENTS.md,IMPLEMENTATION.md,DSL_SPECIFICATION.md,README_ALIGNMENT_OPTIMIZER.md}` —
+- `primus/cli/metrics/README.md`, `primus/data/FeedbackItems_README.md`,
+  `primus/procedures/{README.md,AGENTS.md,IMPLEMENTATION.md,DSL_SPECIFICATION.md,README_ALIGNMENT_OPTIMIZER.md}` —
   `KEEP` for now; rationalize in a follow-up if they grow.
 
 ## Target layout
@@ -246,9 +246,9 @@ All files under `documentation/agent/` MUST start with YAML frontmatter:
 
 ```yaml
 ---
-id: mcp.execute-tactus.overview          # canonical key consumed by plexus.docs.get
+id: mcp.execute-tactus.overview          # canonical key consumed by primus.docs.get
 title: execute_tactus Overview
-summary: How agents interact with Plexus through the single execute_tactus MCP tool.
+summary: How agents interact with Primus through the single execute_tactus MCP tool.
 namespace: mcp
 status: canonical                         # canonical | draft | deprecated
 disclosure: overview                      # overview | reference | cookbook | deep-dive
@@ -261,5 +261,5 @@ related:
 ```
 
 `_index.md` files use the same frontmatter and act as namespace landing
-pages for both humans and agents (returned by `plexus.docs.list` filtered
+pages for both humans and agents (returned by `primus.docs.list` filtered
 to namespace).

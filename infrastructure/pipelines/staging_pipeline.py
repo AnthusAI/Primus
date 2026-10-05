@@ -1,5 +1,5 @@
 """
-Staging deployment pipeline for Plexus infrastructure.
+Staging deployment pipeline for Primus infrastructure.
 
 This pipeline watches the 'staging' branch and automatically deploys
 infrastructure changes to the staging environment.
@@ -22,7 +22,7 @@ class StagingPipelineStack(BasePipelineStack):
         scope: Construct,
         construct_id: str,
         github_owner: str = "AnthusAI",
-        github_repo: str = "Plexus",
+        github_repo: str = "Primus",
         **kwargs
     ) -> None:
         """

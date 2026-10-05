@@ -1,20 +1,20 @@
-# Plexus Dashboard White-Labeling
+# Primus Dashboard White-Labeling
 
-This document explains how to white-label the Plexus dashboard with custom branding without modifying the core Plexus codebase.
+This document explains how to white-label the Primus dashboard with custom branding without modifying the core Primus codebase.
 
 ## Overview
 
 The white-labeling system allows you to:
-- Replace the Plexus logo with your own static logo assets
+- Replace the Primus logo with your own static logo assets
 - Override CSS variables (colors, fonts, etc.)
 - Keep branding assets in a separate Git repository
-- Deploy custom branding alongside the Plexus application
+- Deploy custom branding alongside the Primus application
 
 ## Architecture
 
 ### Separate Branding Repository
 
-Brand assets are stored in a **separate Git repository** (not in the Plexus repo). This keeps the core Plexus codebase clean and allows different deployments to use different branding.
+Brand assets are stored in a **separate Git repository** (not in the Primus repo). This keeps the core Primus codebase clean and allows different deployments to use different branding.
 
 ### Configuration Loading
 
@@ -24,10 +24,10 @@ The dashboard loads brand configuration from a URL specified by the environment 
 NEXT_PUBLIC_BRAND_CONFIG_URL=/brands/example/brand.json
 ```
 
-- If the environment variable is not set, the dashboard uses default Plexus branding
+- If the environment variable is not set, the dashboard uses default Primus branding
 - The URL must be same-origin (browser security)
 - Configuration is loaded client-side on app startup
-- All errors gracefully fall back to default Plexus branding
+- All errors gracefully fall back to default Primus branding
 
 ## Brand Package Structure
 
@@ -153,8 +153,8 @@ See `dashboard/app/globals.css` for the complete list of CSS variables you can o
 
 ```bash
 # Create a new directory for your brand
-mkdir -p ~/Projects/YourBrand-plexus-branding
-cd ~/Projects/YourBrand-plexus-branding
+mkdir -p ~/Projects/YourBrand-primus-branding
+cd ~/Projects/YourBrand-primus-branding
 
 # Initialize Git
 git init
@@ -167,12 +167,12 @@ cd your-brand
 touch brand.json logo-square.svg logo-wide.svg logo-narrow.svg styles.css
 ```
 
-### 2. Symlink to Plexus Public Directory
+### 2. Symlink to Primus Public Directory
 
-For local development, symlink your branding repo into the Plexus dashboard's public directory:
+For local development, symlink your branding repo into the Primus dashboard's public directory:
 
 ```bash
-ln -s ~/Projects/YourBrand-plexus-branding ~/Projects/Plexus/dashboard/public/brands
+ln -s ~/Projects/YourBrand-primus-branding ~/Projects/Primus/dashboard/public/brands
 ```
 
 This allows the Next.js dev server to serve your brand files.
@@ -182,7 +182,7 @@ This allows the Next.js dev server to serve your brand files.
 Create or edit `.env.local` in the dashboard directory:
 
 ```bash
-cd ~/Projects/Plexus/dashboard
+cd ~/Projects/Primus/dashboard
 echo 'NEXT_PUBLIC_BRAND_CONFIG_URL=/brands/your-brand/brand.json' >> .env.local
 ```
 
@@ -291,7 +291,7 @@ If you're not using AWS Amplify, deploy your branding repository contents to you
 
 ```bash
 # Example: Copy to web server
-scp -r ~/Projects/YourBrand-plexus-branding/* user@server:/var/www/plexus/brands/
+scp -r ~/Projects/YourBrand-primus-branding/* user@server:/var/www/primus/brands/
 
 # Or use your deployment pipeline
 ```
@@ -313,14 +313,14 @@ The white-labeling system is designed to gracefully handle all errors:
 
 If `brand.json` fails to load or is invalid:
 - Console error is logged
-- Dashboard uses default Plexus branding
+- Dashboard uses default Primus branding
 - Application continues to function normally
 
 ### CSS Loading Errors
 
 If `styles.css` fails to load:
 - Console error is logged
-- Dashboard uses default Plexus styles
+- Dashboard uses default Primus styles
 - Application continues to function normally
 
 ### Logo Asset Errors
@@ -361,7 +361,7 @@ If a configured logo asset path is missing:
 ## Example Brand Package
 
 See the example brand in the separate branding repository:
-- Repository: `~/Projects/Plexus-branding`
+- Repository: `~/Projects/Primus-branding`
 - Example package: `example/`
 
 The example demonstrates:
@@ -410,7 +410,7 @@ Failed to fetch brand config: 404 Not Found
 
 ### Same-Origin Policy
 
-Brand assets must be served from the same origin as the Plexus dashboard. This is enforced by browser security (CORS).
+Brand assets must be served from the same origin as the Primus dashboard. This is enforced by browser security (CORS).
 
 **Good:**
 - `NEXT_PUBLIC_BRAND_CONFIG_URL=/brands/acme/brand.json`
@@ -428,4 +428,4 @@ For questions or issues:
 1. Check this documentation
 2. Review the example brand package
 3. Check browser console for error messages
-4. Contact the Plexus team
+4. Contact the Primus team

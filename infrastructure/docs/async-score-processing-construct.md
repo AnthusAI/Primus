@@ -1,6 +1,6 @@
 # Async Score Processing Construct
 
-`plexus.infrastructure.constructs.AsyncScoreProcessing` defines the reusable infrastructure pattern for async score processing.
+`primus.infrastructure.constructs.AsyncScoreProcessing` defines the reusable infrastructure pattern for async score processing.
 
 It is intentionally deployment-owner agnostic. It does not choose account IDs, deployment pipelines, source branches, secret names, or downstream environment names.
 
@@ -25,21 +25,21 @@ Deployment owners can pass existing request/response queues instead of letting t
 ```python
 from aws_cdk import aws_ecr as ecr
 from aws_cdk import aws_secretsmanager as secretsmanager
-from plexus.infrastructure.constructs import AsyncScoreProcessing
-from plexus.infrastructure.constructs.async_score_processing import (
+from primus.infrastructure.constructs import AsyncScoreProcessing
+from primus.infrastructure.constructs.async_score_processing import (
     AsyncScoreProcessingProps,
 )
 
 repository = ecr.Repository.from_repository_name(
     self,
     "ScoreProcessorRepository",
-    repository_name="plexus/score-processor-artifacts-development",
+    repository_name="primus/score-processor-artifacts-development",
 )
 
 runtime_config = secretsmanager.Secret.from_secret_name_v2(
     self,
     "RuntimeConfig",
-    secret_name="plexus/development/config",
+    secret_name="primus/development/config",
 )
 
 score_processing = AsyncScoreProcessing(
@@ -63,9 +63,9 @@ The default JSON secret mapping is:
 
 | Lambda environment variable | Secret JSON key |
 | --- | --- |
-| `PLEXUS_ACCOUNT_KEY` | `account-key` |
-| `PLEXUS_API_KEY` | `api-key` |
-| `PLEXUS_API_URL` | `api-url` |
+| `PRIMUS_ACCOUNT_KEY` | `account-key` |
+| `PRIMUS_API_KEY` | `api-key` |
+| `PRIMUS_API_URL` | `api-url` |
 | `OPENAI_API_KEY` | `openai-api-key` |
 | `AMPLIFY_STORAGE_SCORERESULTATTACHMENTS_BUCKET_NAME` | `score-result-attachments-bucket` |
 | `AMPLIFY_STORAGE_REPORTBLOCKDETAILS_BUCKET_NAME` | `report-block-details-bucket` |
@@ -97,7 +97,7 @@ rejects configurations where visibility is less than six times the Lambda
 timeout, following the Lambda SQS event-source requirement.
 
 The score processor writes to an explicit log group named
-`/plexus/score-processor/<resource-prefix>`. It retains logs for 30 days and
+`/primus/score-processor/<resource-prefix>`. It retains logs for 30 days and
 retains the log group when the stack is deleted by default. Deployment owners can
 override queue removal, log removal, and log retention through the corresponding
 properties.

@@ -150,13 +150,13 @@ class LambdaScoreProcessorStack(Stack):
         lambda_environment = {
             "environment": self.env_name,
             # SQS Queue URLs
-            "PLEXUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL": standard_request_queue.queue_url,
-            "PLEXUS_RESPONSE_WORKER_QUEUE_URL": response_queue_url,
+            "PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL": standard_request_queue.queue_url,
+            "PRIMUS_RESPONSE_WORKER_QUEUE_URL": response_queue_url,
 
-            # Plexus API Configuration (from Secrets Manager)
-            "PLEXUS_ACCOUNT_KEY": config.get_value("account-key"),
-            "PLEXUS_API_KEY": config.get_value("api-key"),
-            "PLEXUS_API_URL": config.get_value("api-url"),
+            # Primus API Configuration (from Secrets Manager)
+            "PRIMUS_ACCOUNT_KEY": config.get_value("account-key"),
+            "PRIMUS_API_KEY": config.get_value("api-key"),
+            "PRIMUS_API_URL": config.get_value("api-url"),
 
             # S3 Bucket Names (from Secrets Manager)
             "AMPLIFY_STORAGE_SCORERESULTATTACHMENTS_BUCKET_NAME": config.get_value("score-result-attachments-bucket"),
@@ -167,7 +167,7 @@ class LambdaScoreProcessorStack(Stack):
 
             # GraphQL Schema Configuration (hardcoded - not environment-specific)
             "FETCH_SCHEMA_FROM_TRANSPORT": "false",
-            "PLEXUS_FETCH_SCHEMA_FROM_TRANSPORT": "0",
+            "PRIMUS_FETCH_SCHEMA_FROM_TRANSPORT": "0",
             "GQL_FETCH_SCHEMA_FROM_TRANSPORT": "0",
 
             # Prevent native libraries from exhausting Lambda thread limits under high concurrency.

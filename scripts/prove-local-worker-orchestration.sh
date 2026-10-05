@@ -3,11 +3,11 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-export PLEXUS_BACKEND_MODE="${PLEXUS_BACKEND_MODE:-local}"
-export PLEXUS_PROXY_UPSTREAM_DISABLED="${PLEXUS_PROXY_UPSTREAM_DISABLED:-true}"
-export PLEXUS_API_URL="${PLEXUS_API_URL:-http://localhost:18080/graphql}"
-export PLEXUS_API_KEY="${PLEXUS_API_KEY:-local-smoke-key}"
-export PLEXUS_ACCOUNT_KEY="${PLEXUS_ACCOUNT_KEY:-local-demo}"
+export PRIMUS_BACKEND_MODE="${PRIMUS_BACKEND_MODE:-local}"
+export PRIMUS_PROXY_UPSTREAM_DISABLED="${PRIMUS_PROXY_UPSTREAM_DISABLED:-true}"
+export PRIMUS_API_URL="${PRIMUS_API_URL:-http://localhost:18080/graphql}"
+export PRIMUS_API_KEY="${PRIMUS_API_KEY:-local-smoke-key}"
+export PRIMUS_ACCOUNT_KEY="${PRIMUS_ACCOUNT_KEY:-local-demo}"
 export SMOKE_PROOF_DIR="${SMOKE_PROOF_DIR:-$ROOT_DIR/tmp/local-control-plane-proof}"
 export SMOKE_TASK_DISPATCH_PROOF_FILE="${SMOKE_TASK_DISPATCH_PROOF_FILE:-$SMOKE_PROOF_DIR/task-dispatch.json}"
 export SMOKE_CHAT_WORKER_PROOF_FILE="${SMOKE_CHAT_WORKER_PROOF_FILE:-$SMOKE_PROOF_DIR/chat-worker.json}"
@@ -19,12 +19,12 @@ log() {
 }
 
 assert_local_mode() {
-  if [[ "$PLEXUS_BACKEND_MODE" != "local" ]]; then
-    log "PLEXUS_BACKEND_MODE must be local for this proof harness."
+  if [[ "$PRIMUS_BACKEND_MODE" != "local" ]]; then
+    log "PRIMUS_BACKEND_MODE must be local for this proof harness."
     exit 1
   fi
-  if [[ "$PLEXUS_PROXY_UPSTREAM_DISABLED" != "true" ]]; then
-    log "PLEXUS_PROXY_UPSTREAM_DISABLED must be true for this proof harness."
+  if [[ "$PRIMUS_PROXY_UPSTREAM_DISABLED" != "true" ]]; then
+    log "PRIMUS_PROXY_UPSTREAM_DISABLED must be true for this proof harness."
     exit 1
   fi
 }
@@ -70,9 +70,9 @@ chat = json.loads(chat_file.read_text())
 
 artifact = {
     "timestamp": datetime.now(timezone.utc).isoformat(),
-    "backend_mode": os.environ.get("PLEXUS_BACKEND_MODE"),
-    "upstream_disabled": os.environ.get("PLEXUS_PROXY_UPSTREAM_DISABLED"),
-    "account_key": os.environ.get("PLEXUS_ACCOUNT_KEY"),
+    "backend_mode": os.environ.get("PRIMUS_BACKEND_MODE"),
+    "upstream_disabled": os.environ.get("PRIMUS_PROXY_UPSTREAM_DISABLED"),
+    "account_key": os.environ.get("PRIMUS_ACCOUNT_KEY"),
     "checks": {
         "task_dispatch": {
             "status": task.get("status"),

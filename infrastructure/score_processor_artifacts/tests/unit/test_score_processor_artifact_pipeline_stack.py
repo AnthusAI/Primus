@@ -21,7 +21,7 @@ def _build_template():
         channel="development",
         branch="develop",
         github_owner="AnthusAI",
-        github_repo="Plexus",
+        github_repo="Primus",
         trigger_on_push=True,
         env=cdk.Environment(account="123456789012", region="us-east-1"),
     )
@@ -38,7 +38,7 @@ def test_artifact_pipeline_creates_private_ecr_repository():
     template.has_resource_properties(
         "AWS::ECR::Repository",
         {
-            "RepositoryName": "plexus/score-processor-artifacts-development",
+            "RepositoryName": "primus/score-processor-artifacts-development",
             "ImageScanningConfiguration": {"ScanOnPush": True},
             "LifecyclePolicy": assertions.Match.object_like(
                 {
@@ -73,14 +73,14 @@ def test_artifact_pipeline_uses_v2_pipeline_and_configured_source():
     template_text = json.dumps(template_json)
 
     assert "AnthusAI" in template_text
-    assert "Plexus" in template_text
+    assert "Primus" in template_text
     assert "develop" in template_text
-    assert "/plexus/github-connection-arn" in template_text
+    assert "/primus/github-connection-arn" in template_text
     template = assertions.Template.from_json(template_json)
     template.has_resource_properties(
         "AWS::CodePipeline::Pipeline",
         {
-            "Name": "plexus-score-processor-artifacts-development-pipeline",
+            "Name": "primus-score-processor-artifacts-development-pipeline",
             "PipelineType": "V2",
         },
     )
@@ -115,7 +115,7 @@ def test_scoring_runtime_dockerfile_is_isolated_from_legacy_build():
     assert '"/workspace[all]"' in legacy_dockerfile
     assert '"/workspace[scoring]"' in scoring_dockerfile
     assert "COPY . /workspace" not in scoring_dockerfile
-    assert "!plexus/**" in scoring_dockerignore
+    assert "!primus/**" in scoring_dockerignore
     assert "!MCP/**" in scoring_dockerignore
     assert "!score-processor-lambda/handler.py" in scoring_dockerignore
 
@@ -146,14 +146,14 @@ def test_scoring_runtime_avoids_unnecessary_system_packages():
     assert "openai-cost-calculator" in pyproject["tool"]["poetry"]["extras"]["all"]
 
 
-def test_build_writes_generic_plexus_metadata_parameters():
+def test_build_writes_generic_primus_metadata_parameters():
     template_text = json.dumps(_template_json())
 
-    assert "/plexus/score-processor-artifacts/development/image-uri" in template_text
-    assert "/plexus/score-processor-artifacts/development/image-digest" in template_text
-    assert "/plexus/score-processor-artifacts/development/image-tag" in template_text
+    assert "/primus/score-processor-artifacts/development/image-uri" in template_text
+    assert "/primus/score-processor-artifacts/development/image-digest" in template_text
+    assert "/primus/score-processor-artifacts/development/image-tag" in template_text
     assert (
-        "/plexus/score-processor-artifacts/development/source-revision" in template_text
+        "/primus/score-processor-artifacts/development/source-revision" in template_text
     )
     assert "aws ssm put-parameter" in template_text
     assert "capacity" not in template_text.lower()
@@ -176,7 +176,7 @@ def test_build_role_can_only_write_score_processor_artifact_parameters():
                                 "Action": "ssm:PutParameter",
                                 "Resource": (
                                     "arn:aws:ssm:us-east-1:123456789012:"
-                                    "parameter/plexus/score-processor-artifacts/"
+                                    "parameter/primus/score-processor-artifacts/"
                                     "development/*"
                                 ),
                             }

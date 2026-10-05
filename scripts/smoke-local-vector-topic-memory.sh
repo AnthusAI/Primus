@@ -2,23 +2,23 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-export PLEXUS_API_URL="${PLEXUS_API_URL:-http://localhost:18080/graphql}"
-export PLEXUS_API_KEY="${PLEXUS_API_KEY:-local-smoke-key}"
-export PLEXUS_ACCOUNT_KEY="${PLEXUS_ACCOUNT_KEY:-local-demo}"
+export PRIMUS_API_URL="${PRIMUS_API_URL:-http://localhost:18080/graphql}"
+export PRIMUS_API_KEY="${PRIMUS_API_KEY:-local-smoke-key}"
+export PRIMUS_ACCOUNT_KEY="${PRIMUS_ACCOUNT_KEY:-local-demo}"
 export SMOKE_PROOF_DIR="${SMOKE_PROOF_DIR:-$ROOT_DIR/tmp/local-control-plane-proof}"
 export SMOKE_VECTOR_TOPIC_MEMORY_PROOF_FILE="${SMOKE_VECTOR_TOPIC_MEMORY_PROOF_FILE:-$SMOKE_PROOF_DIR/vector-topic-memory.json}"
 export SMOKE_VECTOR_TOPIC_MEMORY_SCORECARD="${SMOKE_VECTOR_TOPIC_MEMORY_SCORECARD:-nira-call-center-qa}"
 export SMOKE_VECTOR_TOPIC_MEMORY_DAYS="${SMOKE_VECTOR_TOPIC_MEMORY_DAYS:-30}"
-export AMPLIFY_STORAGE_REPORTBLOCKDETAILS_BUCKET_NAME="${AMPLIFY_STORAGE_REPORTBLOCKDETAILS_BUCKET_NAME:-plexus-local-report-block-details}"
-export EMBEDDING_CACHE_BUCKET="${EMBEDDING_CACHE_BUCKET:-plexus-embeddings}"
-export PLEXUS_OBJECT_STORE_ENDPOINT="${PLEXUS_OBJECT_STORE_ENDPOINT:-http://localhost:19000}"
-export PLEXUS_OBJECT_STORE_REGION="${PLEXUS_OBJECT_STORE_REGION:-us-east-1}"
-export PLEXUS_OBJECT_STORE_FORCE_PATH_STYLE="${PLEXUS_OBJECT_STORE_FORCE_PATH_STYLE:-true}"
-export PLEXUS_OBJECT_STORE_ACCESS_KEY_ID="${PLEXUS_OBJECT_STORE_ACCESS_KEY_ID:-plexus-local}"
-export PLEXUS_OBJECT_STORE_SECRET_ACCESS_KEY="${PLEXUS_OBJECT_STORE_SECRET_ACCESS_KEY:-plexus-local-secret}"
-export PLEXUS_VECTOR_STORE_PROVIDER="${PLEXUS_VECTOR_STORE_PROVIDER:-qdrant}"
-export PLEXUS_VECTOR_STORE_URL="${PLEXUS_VECTOR_STORE_URL:-http://localhost:19002}"
-export PLEXUS_VECTOR_STORE_COLLECTION="${PLEXUS_VECTOR_STORE_COLLECTION:-topic-memory-local}"
+export AMPLIFY_STORAGE_REPORTBLOCKDETAILS_BUCKET_NAME="${AMPLIFY_STORAGE_REPORTBLOCKDETAILS_BUCKET_NAME:-primus-local-report-block-details}"
+export EMBEDDING_CACHE_BUCKET="${EMBEDDING_CACHE_BUCKET:-primus-embeddings}"
+export PRIMUS_OBJECT_STORE_ENDPOINT="${PRIMUS_OBJECT_STORE_ENDPOINT:-http://localhost:19000}"
+export PRIMUS_OBJECT_STORE_REGION="${PRIMUS_OBJECT_STORE_REGION:-us-east-1}"
+export PRIMUS_OBJECT_STORE_FORCE_PATH_STYLE="${PRIMUS_OBJECT_STORE_FORCE_PATH_STYLE:-true}"
+export PRIMUS_OBJECT_STORE_ACCESS_KEY_ID="${PRIMUS_OBJECT_STORE_ACCESS_KEY_ID:-primus-local}"
+export PRIMUS_OBJECT_STORE_SECRET_ACCESS_KEY="${PRIMUS_OBJECT_STORE_SECRET_ACCESS_KEY:-primus-local-secret}"
+export PRIMUS_VECTOR_STORE_PROVIDER="${PRIMUS_VECTOR_STORE_PROVIDER:-qdrant}"
+export PRIMUS_VECTOR_STORE_URL="${PRIMUS_VECTOR_STORE_URL:-http://localhost:19002}"
+export PRIMUS_VECTOR_STORE_COLLECTION="${PRIMUS_VECTOR_STORE_COLLECTION:-topic-memory-local}"
 SMOKE_ASSERT_NO_UPSTREAM="${SMOKE_ASSERT_NO_UPSTREAM:-1}"
 SMOKE_READY_ATTEMPTS="${SMOKE_READY_ATTEMPTS:-60}"
 SMOKE_READY_SLEEP_SECONDS="${SMOKE_READY_SLEEP_SECONDS:-2}"
@@ -44,7 +44,7 @@ run_step() {
 }
 
 wait_for_readyz() {
-  local ready_url="${PLEXUS_API_URL%/graphql}/readyz"
+  local ready_url="${PRIMUS_API_URL%/graphql}/readyz"
   local i
 
   for ((i = 1; i <= SMOKE_READY_ATTEMPTS; i++)); do
@@ -64,7 +64,7 @@ wait_for_readyz() {
 
 wait_for_qdrant() {
   local i
-  local qdrant_collections_url="${PLEXUS_VECTOR_STORE_URL%/}/collections"
+  local qdrant_collections_url="${PRIMUS_VECTOR_STORE_URL%/}/collections"
   for ((i = 1; i <= SMOKE_READY_ATTEMPTS; i++)); do
     if curl -fsS -m 3 "$qdrant_collections_url" >/dev/null 2>&1; then
       return 0
@@ -80,7 +80,7 @@ wait_for_object_store() {
     if (
       cd "$ROOT_DIR"
       poetry run python - <<'PY' >/dev/null 2>&1
-from plexus.reports.s3_utils import create_s3_client, get_bucket_name
+from primus.reports.s3_utils import create_s3_client, get_bucket_name
 create_s3_client().head_bucket(Bucket=get_bucket_name())
 PY
     ); then
@@ -106,11 +106,11 @@ import uuid
 import requests
 import yaml
 
-from plexus.cli.feedback.report_runner import run_feedback_report_block
-from plexus.reports.s3_utils import download_report_block_file
+from primus.cli.feedback.report_runner import run_feedback_report_block
+from primus.reports.s3_utils import download_report_block_file
 
-api_url = os.environ["PLEXUS_API_URL"]
-api_key = os.environ["PLEXUS_API_KEY"]
+api_url = os.environ["PRIMUS_API_URL"]
+api_key = os.environ["PRIMUS_API_KEY"]
 proof_file = Path(os.environ["SMOKE_VECTOR_TOPIC_MEMORY_PROOF_FILE"])
 scorecard = os.environ["SMOKE_VECTOR_TOPIC_MEMORY_SCORECARD"]
 days = int(os.environ["SMOKE_VECTOR_TOPIC_MEMORY_DAYS"])
@@ -120,15 +120,15 @@ result = run_feedback_report_block(
     block_class="VectorTopicMemory",
     scorecard=scorecard,
     days=days,
-    account_identifier=os.environ["PLEXUS_ACCOUNT_KEY"],
+    account_identifier=os.environ["PRIMUS_ACCOUNT_KEY"],
     cache_key=cache_key,
     fresh=True,
     extra_config={
         "label": {"use_llm": False},
         "vector_store": {
-            "provider": os.environ["PLEXUS_VECTOR_STORE_PROVIDER"],
-            "url": os.environ["PLEXUS_VECTOR_STORE_URL"],
-            "collection": os.environ["PLEXUS_VECTOR_STORE_COLLECTION"],
+            "provider": os.environ["PRIMUS_VECTOR_STORE_PROVIDER"],
+            "url": os.environ["PRIMUS_VECTOR_STORE_URL"],
+            "collection": os.environ["PRIMUS_VECTOR_STORE_COLLECTION"],
         },
     },
 )
@@ -230,7 +230,7 @@ assert_no_upstream_requests() {
     return 0
   fi
 
-  local debug_url="${PLEXUS_API_URL%/graphql}/debug/upstream-requests"
+  local debug_url="${PRIMUS_API_URL%/graphql}/debug/upstream-requests"
   local payload
   payload="$(curl -fsS -m 10 "$debug_url")"
   python3 -c '

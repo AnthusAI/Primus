@@ -46,7 +46,7 @@
   --ring: hsl(var(--blue-7));
   --radius: 0.5rem;
   --user-chat: hsl(var(--blue-5));
-  --plexus-chat: hsl(var(--pink-5));
+  --primus-chat: hsl(var(--pink-5));
   --chart-1: hsl(var(--blue-6));
   --chart-1-selected: hsl(var(--blue-7));
   --chart-2: hsl(var(--pink-6));
@@ -128,7 +128,7 @@
   --destructive-selected-foreground: hsl(var(--mauve-1));
   --ring: hsl(var(--blue-7));
   --user-chat: hsl(var(--blue-5));
-  --plexus-chat: hsl(var(--pink-5));
+  --primus-chat: hsl(var(--pink-5));
   --chart-1: hsl(var(--blue-6));
   --chart-1-selected: hsl(var(--blue-7));
   --chart-2: hsl(var(--pink-6));

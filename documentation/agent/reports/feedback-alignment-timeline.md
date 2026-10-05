@@ -47,7 +47,7 @@ history. Lookback is unbounded and may include feedback before the report start
 date. `show_bucket_details` is still accepted for older callers, but the
 dashboard renders timelines instead of per-bucket gauge cards.
 
-The `plexus feedback report timeline` CLI persists scorecard-level reports as
+The `primus feedback report timeline` CLI persists scorecard-level reports as
 top-level timeline blocks by default: one overall block followed by one block
 per included score. The methodology explanation should appear once at the top
 of the report or on the overall block, not repeated under every score chart.
@@ -57,7 +57,7 @@ payload with all score series embedded together.
 ## Tactus Run
 
 ```tactus
-local h = plexus.report.run({
+local h = primus.report.run({
   block_class = "FeedbackAlignmentTimeline",
   block_config = {
     scorecard = "<resolved-scorecard-id>",

@@ -15,8 +15,8 @@ function loadConsoleWorkerEnv(outputsPath = path.resolve(__dirname, '..', 'ampli
   if (!url || !apiKey) return undefined;
 
   return {
-    PLEXUS_API_URL: url,
-    PLEXUS_API_KEY: apiKey,
+    PRIMUS_API_URL: url,
+    PRIMUS_API_KEY: apiKey,
   };
 }
 

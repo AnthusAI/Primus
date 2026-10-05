@@ -3,7 +3,7 @@
 Staging canary for execute_tactus async report dispatch.
 
 Validates:
-1) execute_tactus returns a handle for plexus.report.run(async=true)
+1) execute_tactus returns a handle for primus.report.run(async=true)
 2) handle status includes dispatched task id
 3) task reaches terminal status and dispatch diagnostics are captured
 4) persisted Report and ReportBlock records exist for the cache key
@@ -65,7 +65,7 @@ def _require_env(name: str) -> str:
 
 
 def _auth_mode() -> str:
-    return str(os.getenv("PLEXUS_GRAPHQL_AUTH_MODE") or "api_key").strip().lower()
+    return str(os.getenv("PRIMUS_GRAPHQL_AUTH_MODE") or "api_key").strip().lower()
 
 
 def _prepare_import_path() -> None:
@@ -78,7 +78,7 @@ def _prepare_import_path() -> None:
             cleaned.append(entry)
             continue
         if (
-            resolved.startswith(str(REPO_ROOT.parent / "Plexus"))
+            resolved.startswith(str(REPO_ROOT.parent / "Primus"))
             and resolved != repo
             and not resolved.startswith(repo + os.sep)
         ):
@@ -98,7 +98,7 @@ def _load_env() -> None:
 
 def _build_tactus(scorecard: str, days: int, cache_key: str, child_budget: dict[str, Any]) -> str:
     return f"""
-local h = plexus.report.run({{
+local h = primus.report.run({{
   block_class = "ScoreChampionVersionTimeline",
   block_config = {{
     scorecard = "{scorecard}",
@@ -148,11 +148,11 @@ async def _run_canary(args: argparse.Namespace) -> dict[str, Any]:
 
         dotenv.load_dotenv = _ignore_load_dotenv
 
-    api_url = _require_env("PLEXUS_API_URL")
+    api_url = _require_env("PRIMUS_API_URL")
     auth_mode = _auth_mode()
-    api_key = None if auth_mode == "iam" else _require_env("PLEXUS_API_KEY")
-    account_key = _require_env("PLEXUS_ACCOUNT_KEY")
-    os.environ["PLEXUS_DISPATCH_MODE"] = args.dispatch_mode
+    api_key = None if auth_mode == "iam" else _require_env("PRIMUS_API_KEY")
+    account_key = _require_env("PRIMUS_ACCOUNT_KEY")
+    os.environ["PRIMUS_DISPATCH_MODE"] = args.dispatch_mode
 
     from fastmcp import FastMCP
 
@@ -161,10 +161,10 @@ async def _run_canary(args: argparse.Namespace) -> dict[str, Any]:
         BudgetSpec,
         _execute_tactus_tool,
     )
-    from plexus.dashboard.api.client import ClientContext, PlexusDashboardClient
-    from plexus.dashboard.api.models.report import Report
-    from plexus.dashboard.api.models.report_block import ReportBlock
-    from plexus.dashboard.api.models.task import Task
+    from primus.dashboard.api.client import ClientContext, PrimusDashboardClient
+    from primus.dashboard.api.models.report import Report
+    from primus.dashboard.api.models.report_block import ReportBlock
+    from primus.dashboard.api.models.task import Task
 
     child_budget = {
         "usd": float(args.child_budget_usd),
@@ -243,7 +243,7 @@ async def _run_canary(args: argparse.Namespace) -> dict[str, Any]:
             diagnostics,
         )
 
-    client = PlexusDashboardClient(
+    client = PrimusDashboardClient(
         api_url=api_url,
         api_key=api_key,
         context=ClientContext(account_key=account_key),

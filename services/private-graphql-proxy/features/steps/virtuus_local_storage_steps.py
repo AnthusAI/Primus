@@ -15,12 +15,12 @@ from proxy.store_factory import create_store
 
 def _configure_virtuus_env(context) -> None:
     context.tmpdir = tempfile.mkdtemp(prefix="virtuus-proxy-")
-    os.environ["PLEXUS_STORE"] = "virtuus"
-    os.environ["PLEXUS_DATA_DIR"] = context.tmpdir
-    os.environ["PLEXUS_BACKEND_MODE"] = "local"
-    os.environ["PLEXUS_PROXY_UPSTREAM_DISABLED"] = "true"
-    os.environ["PLEXUS_PROXY_AUTH_MODE"] = "trusted_open"
-    os.environ.pop("PLEXUS_PROXY_DATABASE_URL", None)
+    os.environ["PRIMUS_STORE"] = "virtuus"
+    os.environ["PRIMUS_DATA_DIR"] = context.tmpdir
+    os.environ["PRIMUS_BACKEND_MODE"] = "local"
+    os.environ["PRIMUS_PROXY_UPSTREAM_DISABLED"] = "true"
+    os.environ["PRIMUS_PROXY_AUTH_MODE"] = "trusted_open"
+    os.environ.pop("PRIMUS_PROXY_DATABASE_URL", None)
 
 
 def _bind_app(context) -> None:
@@ -41,7 +41,7 @@ def local_graphql_virtuus(context):
 
 @given("no database server is running")
 def no_database_server(context):
-    assert os.getenv("PLEXUS_PROXY_DATABASE_URL") is None
+    assert os.getenv("PRIMUS_PROXY_DATABASE_URL") is None
     response = context.client.get("/readyz")
     assert response.status_code == 200
     assert response.json()["status"] == "ready"

@@ -15,10 +15,10 @@ related:
 
 # Batch Optimizer Dispatch
 
-Use `plexus.procedure.optimize_batch` to start feedback alignment optimizer
+Use `primus.procedure.optimize_batch` to start feedback alignment optimizer
 procedures for multiple scores in a single API call.
 
-Use `plexus.procedure.status_batch` to check the status of multiple procedures
+Use `primus.procedure.status_batch` to check the status of multiple procedures
 at once.
 
 ## When to Use
@@ -28,7 +28,7 @@ at once.
 
 ## Resource Constraints
 
-**IMPORTANT**: `plexus.procedure.optimize_batch` is limited to **5 scores maximum** per call
+**IMPORTANT**: `primus.procedure.optimize_batch` is limited to **5 scores maximum** per call
 to prevent resource exhaustion. Each optimizer procedure consumes 1-2GB RAM during
 LLM-intensive phases (hypothesis generation, evaluation analysis). Dispatching more than
 5 concurrent optimizers can overwhelm shared infrastructure.
@@ -42,7 +42,7 @@ for i = 1, #all_scores, 5 do
   for j = i, math.min(i + 4, #all_scores) do
     table.insert(batch, all_scores[j])
   end
-  plexus.procedure.optimize_batch({
+  primus.procedure.optimize_batch({
     scorecard = "My Scorecard",
     scores = batch,
     max_iterations = 3,
@@ -54,7 +54,7 @@ end
 ## Tactus API — Dispatch
 
 ```lua
-local result = plexus.procedure.optimize_batch({
+local result = primus.procedure.optimize_batch({
   scorecard = "My Scorecard",
   scores = {"Acknowledgement AI", "Assumptive Reschedule AI", "Not Interested"},
   max_iterations = 3,
@@ -69,7 +69,7 @@ end
 
 ## Parameters
 
-All parameters from `plexus.procedure.optimize` are supported, plus:
+All parameters from `primus.procedure.optimize` are supported, plus:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -113,7 +113,7 @@ for _, proc in ipairs(dispatch.dispatched) do
   table.insert(proc_ids, proc.procedure_id)
 end
 
-local status = plexus.procedure.status_batch({
+local status = primus.procedure.status_batch({
   procedure_ids = proc_ids,
 })
 
@@ -164,7 +164,7 @@ Before batch dispatch:
 
 ```lua
 -- Step 1: Find low-accuracy scores
-local alignment = plexus.feedback.alignment_batch({
+local alignment = primus.feedback.alignment_batch({
   scorecard = "My Scorecard",
   days = 90,
   accuracy_threshold = 85,
@@ -179,7 +179,7 @@ for _, s in ipairs(alignment.scores) do
 end
 
 -- Step 3: Dispatch optimizers
-local dispatch = plexus.procedure.optimize_batch({
+local dispatch = primus.procedure.optimize_batch({
   scorecard = "My Scorecard",
   scores = to_optimize,
   max_iterations = 3,
@@ -193,7 +193,7 @@ for _, p in ipairs(dispatch.dispatched) do
 end
 
 -- Step 5: Check status (run this later, after procedures have had time to complete)
-local status = plexus.procedure.status_batch({
+local status = primus.procedure.status_batch({
   procedure_ids = proc_ids,
 })
 

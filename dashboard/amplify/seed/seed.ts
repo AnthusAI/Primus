@@ -26,13 +26,13 @@ async function getTrimmedSecret(name: string): Promise<string> {
 }
 
 function getSeedUsername(password: string): string {
-  const passwordHash = scryptSync(password, 'plexus-sandbox-seed-user', 16).toString('hex').slice(0, 12);
-  return `sandbox-seed-${passwordHash}@plexus.internal`;
+  const passwordHash = scryptSync(password, 'primus-sandbox-seed-user', 16).toString('hex').slice(0, 12);
+  return `sandbox-seed-${passwordHash}@primus.internal`;
 }
 
 export default async function seed() {
   // Write to file to verify execution
-  const logPath = '/tmp/plexus-seed-debug.log';
+  const logPath = '/tmp/primus-seed-debug.log';
   const log = (msg: string) => {
     appendFileSync(logPath, `${new Date().toISOString()} - ${msg}\n`);
   };
@@ -46,7 +46,7 @@ export default async function seed() {
   console.error('🌱 SEED SCRIPT STARTED');
   console.error('========================================');
 
-  logger.start('Plexus Sandbox Seeding');
+  logger.start('Primus Sandbox Seeding');
 
   try {
     log('Loading configuration...');

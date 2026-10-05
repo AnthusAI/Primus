@@ -8,8 +8,8 @@ import EvaluationCard from '@/components/EvaluationCard'
 import { Button as DocButton } from "@/components/ui/button"
 
 export const metadata: Metadata = {
-  title: "Context-Aware Gauges - Plexus Documentation",
-  description: "Detailed explanation of how Plexus uses context-aware Accuracy and Agreement gauges for robust evaluation."
+  title: "Context-Aware Gauges - Primus Documentation",
+  description: "Detailed explanation of how Primus uses context-aware Accuracy and Agreement gauges for robust evaluation."
 }
 
 const createExampleScore = (
@@ -263,14 +263,14 @@ export default function GaugesWithContextPage() {
             </li>
           </ol>
           <p className="text-muted-foreground mb-4">
-            By using these strategies together—presenting both a contextualized Accuracy gauge and a self-contextualizing Agreement gauge—Plexus offers a comprehensive and robust understanding of classifier performance. The following explanations detail each of these complementary strategies.
+            By using these strategies together—presenting both a contextualized Accuracy gauge and a self-contextualizing Agreement gauge—Primus offers a comprehensive and robust understanding of classifier performance. The following explanations detail each of these complementary strategies.
           </p>
         </section>
 
         <section>
             <h2 className="text-2xl font-semibold mb-2">Strategy 1: Adding Context to the Accuracy Gauge</h2>
             <p className="text-muted-foreground mt-6 mb-4">
-              To address the challenges of interpreting raw accuracy, context can be added directly to the metric's visual representation. The Accuracy gauge in Plexus can dynamically adjust its segments based on the problem's characteristics. This primarily involves two types of context: the number of classes and the balance of those classes.
+              To address the challenges of interpreting raw accuracy, context can be added directly to the metric's visual representation. The Accuracy gauge in Primus can dynamically adjust its segments based on the problem's characteristics. This primarily involves two types of context: the number of classes and the balance of those classes.
             </p>
 
             <h3 className="text-xl font-medium mt-6 mb-3">Context Type A: Number of Classes</h3>
@@ -459,7 +459,7 @@ export default function GaugesWithContextPage() {
 
             <h3 className="text-xl font-medium mt-8 mb-3">Full Context: Combining Number of Classes AND Imbalance</h3>
             <p className="text-muted-foreground mb-4">
-              Plexus's Accuracy gauges, when fully contextualized, account for *both* the number of classes and their distribution simultaneously. This provides the most accurate baseline against which to judge the observed accuracy.
+              Primus's Accuracy gauges, when fully contextualized, account for *both* the number of classes and their distribution simultaneously. This provides the most accurate baseline against which to judge the observed accuracy.
             </p>
 
             <EvaluationCard
@@ -486,7 +486,7 @@ export default function GaugesWithContextPage() {
         <section className="mt-8">
           <h2 className="text-2xl font-semibold mb-4">Strategy 2: The Agreement Gauge - Inherently Context-Aware</h2>
           <p className="text-muted-foreground mb-4">
-            Rather than adding external context to interpret a raw accuracy gauge, an alternative and complementary approach is to use a metric that inherently incorporates this context. The Agreement gauge in Plexus (using Gwet's AC1 by default) does exactly this.
+            Rather than adding external context to interpret a raw accuracy gauge, an alternative and complementary approach is to use a metric that inherently incorporates this context. The Agreement gauge in Primus (using Gwet's AC1 by default) does exactly this.
           </p>
 
           <h3 className="text-xl font-medium mb-3">Standardized Interpretation Across All Scenarios</h3>
@@ -631,7 +631,7 @@ export default function GaugesWithContextPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Conclusion: A Multi-Faceted View for True Insight</h2>
           <p className="text-muted-foreground mb-4">
-            Plexus utilizes both contextualized Accuracy gauges and inherently context-aware Agreement gauges (like Gwet's AC1). This dual approach provides a comprehensive and reliable understanding of classifier performance:
+            Primus utilizes both contextualized Accuracy gauges and inherently context-aware Agreement gauges (like Gwet's AC1). This dual approach provides a comprehensive and reliable understanding of classifier performance:
           </p>
           <ul className="list-disc pl-6 space-y-3 my-6 text-muted-foreground">
             <li>

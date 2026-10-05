@@ -13,7 +13,7 @@ pytestmark = pytest.mark.integration
 class TestServerStartup:
     """Test server startup and initialization"""
 
-    @patch('server.setup_plexus_imports')
+    @patch('server.setup_primus_imports')
     @patch('server.register_all_tools')
     def test_server_imports_successfully(self, mock_register_tools, mock_setup_imports):
         mock_setup_imports.return_value = True
@@ -23,7 +23,7 @@ class TestServerStartup:
         assert hasattr(server, 'mcp')
         assert hasattr(server, 'run_server')
 
-    @patch('server.setup_plexus_imports')
+    @patch('server.setup_primus_imports')
     @patch('server.load_env_file')
     @patch('server.initialize_default_account')
     @patch('server.register_all_tools')
@@ -55,7 +55,7 @@ class TestServerStartup:
 class TestToolRegistration:
     """Test that register_all_tools registers only execute_tactus."""
 
-    @patch('server.setup_plexus_imports')
+    @patch('server.setup_primus_imports')
     def test_register_all_tools_called(self, mock_setup_imports):
         mock_setup_imports.return_value = True
 
@@ -66,10 +66,10 @@ class TestToolRegistration:
             mock_tactus.assert_called_once_with(mcp)
 
     def test_mcp_instance_configuration(self):
-        with patch('server.setup_plexus_imports', return_value=True):
+        with patch('server.setup_primus_imports', return_value=True):
             from server import mcp
 
-            assert mcp.name == "Plexus MCP Server"
+            assert mcp.name == "Primus MCP Server"
             assert mcp.instructions is not None
             assert len(mcp.instructions) > 0
             assert "execute_tactus" in mcp.instructions
@@ -79,13 +79,13 @@ class TestEnvironmentHandling:
     """Test environment variable handling"""
 
     def test_fail_fast_when_core_import_fails(self):
-        """setup_plexus_imports is called at import time; if it raises, server import raises."""
+        """setup_primus_imports is called at import time; if it raises, server import raises."""
         import importlib
         import server as _server_module
 
-        with patch.object(_server_module, 'setup_plexus_imports', side_effect=RuntimeError("core import failed")):
+        with patch.object(_server_module, 'setup_primus_imports', side_effect=RuntimeError("core import failed")):
             with pytest.raises(RuntimeError):
-                _server_module.setup_plexus_imports()
+                _server_module.setup_primus_imports()
 
 
 class TestMainEntryPoint:
@@ -114,14 +114,14 @@ class TestErrorHandling:
     """Test error handling during startup"""
 
     def test_startup_with_import_failure(self):
-        """setup_plexus_imports raising an error propagates out."""
+        """setup_primus_imports raising an error propagates out."""
         import server as _server_module
 
-        with patch.object(_server_module, 'setup_plexus_imports', side_effect=ImportError("Test import error")):
+        with patch.object(_server_module, 'setup_primus_imports', side_effect=ImportError("Test import error")):
             with pytest.raises(ImportError):
-                _server_module.setup_plexus_imports()
+                _server_module.setup_primus_imports()
 
-    @patch('server.setup_plexus_imports')
+    @patch('server.setup_primus_imports')
     @patch('server.register_all_tools')
     def test_startup_with_registration_failure(self, mock_register_tools, mock_setup_imports):
         mock_setup_imports.return_value = True

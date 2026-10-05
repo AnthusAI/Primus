@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Configurable Parameters System provides a reusable dialog component that allows users to input parameters based on YAML configuration. It supports various parameter types including text, numbers, booleans, selects, and specialized Plexus entity selectors (scorecards, scores, score versions).
+The Configurable Parameters System provides a reusable dialog component that allows users to input parameters based on YAML configuration. It supports various parameter types including text, numbers, booleans, selects, and specialized Primus entity selectors (scorecards, scores, score versions).
 
 ## Components
 

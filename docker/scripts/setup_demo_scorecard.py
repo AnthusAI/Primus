@@ -448,7 +448,7 @@ def main():
     parser = argparse.ArgumentParser(description='Setup demo scorecard in AppSync')
     parser.add_argument('--api-url', help='AppSync GraphQL URL (or set in dashboard/.env.local)')
     parser.add_argument('--api-key', help='API key (or set in dashboard/.env.local)')
-    parser.add_argument('--account-id', help='Account ID (or use PLEXUS_ACCOUNT_UUID from .env.local)')
+    parser.add_argument('--account-id', help='Account ID (or use PRIMUS_ACCOUNT_UUID from .env.local)')
 
     args = parser.parse_args()
 
@@ -456,9 +456,9 @@ def main():
     env_path = Path(__file__).parent.parent.parent / 'dashboard' / '.env.local'
     env_vars = load_env_file(str(env_path))
 
-    api_url = args.api_url or env_vars.get('PLEXUS_API_URL') or env_vars.get('VITE_PLEXUS_API_URL')
-    api_key = args.api_key or env_vars.get('PLEXUS_API_KEY') or env_vars.get('VITE_PLEXUS_API_KEY')
-    account_id = args.account_id or env_vars.get('PLEXUS_ACCOUNT_UUID')
+    api_url = args.api_url or env_vars.get('PRIMUS_API_URL') or env_vars.get('VITE_PRIMUS_API_URL')
+    api_key = args.api_key or env_vars.get('PRIMUS_API_KEY') or env_vars.get('VITE_PRIMUS_API_KEY')
+    account_id = args.account_id or env_vars.get('PRIMUS_ACCOUNT_UUID')
 
     if not api_url or not api_key:
         print("❌ Error: API URL and API Key required")
@@ -468,7 +468,7 @@ def main():
 
     if not account_id:
         print("❌ Error: Account ID required")
-        print("   Either set PLEXUS_ACCOUNT_UUID in dashboard/.env.local or pass --account-id")
+        print("   Either set PRIMUS_ACCOUNT_UUID in dashboard/.env.local or pass --account-id")
         return 1
 
     print("🎯 Setting Up Demo Call-Center Quality Scorecard")

@@ -3,22 +3,22 @@ requires = ["poetry-core>=1.9.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "plexus"
+name = "primus"
 version = "1.67.1"
 description = "A Python module for configuring and managing data scoring"
 readme = "README.md"
 license = "MIT"
 authors = ["Anthus AI Solutions"]
-packages = [{ include = "plexus" }]
+packages = [{ include = "primus" }]
 include = [
-    "plexus/templates/*",
-    "plexus/__main__.py",
-    "plexus/py.typed",
-    "plexus/scores/*.py",
-    "plexus/optimization/semantic_pricing/*.json",
-    "plexus/rubric_memory/procedures/*.tac",
-    "plexus/runtime/async_score_processor/Dockerfile",
-    "plexus/command_worker/Dockerfile",
+    "primus/templates/*",
+    "primus/__main__.py",
+    "primus/py.typed",
+    "primus/scores/*.py",
+    "primus/optimization/semantic_pricing/*.json",
+    "primus/rubric_memory/procedures/*.tac",
+    "primus/runtime/async_score_processor/Dockerfile",
+    "primus/command_worker/Dockerfile",
 ]
 
 [tool.poetry.dependencies]
@@ -189,9 +189,9 @@ aws-cdk-lib = ">=2.100.0"
 constructs = ">=10.0.0"
 
 [tool.poetry.scripts]
-plexus = "plexus.cli.entrypoint:main"
-plexus-dashboard = "plexus.dashboard.cli:cli"
-plexus-command-worker = "plexus.command_worker.runtime:main"
+primus = "primus.cli.entrypoint:main"
+primus-dashboard = "primus.dashboard.cli:cli"
+primus-command-worker = "primus.command_worker.runtime:main"
 
 [tool.pytest.ini_options]
 filterwarnings = [
@@ -221,7 +221,7 @@ exclude_lines = [
 [tool.semantic_release]
 version_source = "tag"
 version_toml = ["pyproject.toml:tool.poetry.version"]
-version_variables = ["plexus/_version.py:__version__"]
+version_variables = ["primus/_version.py:__version__"]
 commit_message = "chore: release {version}"
 major_on_zero = false
 tag_format = "v{version}"

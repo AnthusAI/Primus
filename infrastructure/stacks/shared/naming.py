@@ -1,11 +1,11 @@
 """
-Centralized naming utilities for Plexus infrastructure resources.
+Centralized naming utilities for Primus infrastructure resources.
 
-Naming convention: plexus-{service}-{environment}-{resource}
+Naming convention: primus-{service}-{environment}-{resource}
 Examples:
-  - plexus-scoring-staging-queue
-  - plexus-scoring-production-dlq
-  - plexus-monitoring-staging-dashboard
+  - primus-scoring-staging-queue
+  - primus-scoring-production-dlq
+  - primus-monitoring-staging-dashboard
 """
 
 import hashlib
@@ -21,9 +21,9 @@ def get_resource_name(service: str, environment: str, resource: str) -> str:
         resource: Resource type (e.g., 'queue', 'dlq', 'topic')
 
     Returns:
-        Formatted resource name following Plexus naming convention
+        Formatted resource name following Primus naming convention
     """
-    return f"plexus-{service}-{environment}-{resource}"
+    return f"primus-{service}-{environment}-{resource}"
 
 
 def get_sagemaker_endpoint_name(
@@ -34,8 +34,8 @@ def get_sagemaker_endpoint_name(
     """
     Generate stable SageMaker endpoint name (doesn't change with model updates).
 
-    Pattern: plexus-{scorecard_key}-{score_key}-{deployment_type}
-    Example: plexus-call-quality-compliance-check-serverless
+    Pattern: primus-{scorecard_key}-{score_key}-{deployment_type}
+    Example: primus-call-quality-compliance-check-serverless
 
     Args:
         scorecard_key: Normalized scorecard key (filesystem-safe)
@@ -45,7 +45,7 @@ def get_sagemaker_endpoint_name(
     Returns:
         Stable endpoint name for resource discovery
     """
-    return f"plexus-{scorecard_key}-{score_key}-{deployment_type}"
+    return f"primus-{scorecard_key}-{score_key}-{deployment_type}"
 
 
 def get_sagemaker_model_name(
@@ -56,8 +56,8 @@ def get_sagemaker_model_name(
     """
     Generate versioned SageMaker model name (includes hash of model S3 URI).
 
-    Pattern: plexus-{scorecard_key}-{score_key}-{hash[:8]}
-    Example: plexus-call-quality-compliance-check-a1b2c3d4
+    Pattern: primus-{scorecard_key}-{score_key}-{hash[:8]}
+    Example: primus-call-quality-compliance-check-a1b2c3d4
 
     Args:
         scorecard_key: Normalized scorecard key (filesystem-safe)
@@ -68,7 +68,7 @@ def get_sagemaker_model_name(
         Versioned model name (changes when model S3 URI changes)
     """
     uri_hash = hashlib.sha256(model_s3_uri.encode()).hexdigest()[:8]
-    return f"plexus-{scorecard_key}-{score_key}-{uri_hash}"
+    return f"primus-{scorecard_key}-{score_key}-{uri_hash}"
 
 
 def get_sagemaker_endpoint_config_name(
@@ -79,8 +79,8 @@ def get_sagemaker_endpoint_config_name(
     """
     Generate versioned SageMaker endpoint config name (includes hash of model S3 URI).
 
-    Pattern: plexus-{scorecard_key}-{score_key}-config-{hash[:8]}
-    Example: plexus-call-quality-compliance-check-config-a1b2c3d4
+    Pattern: primus-{scorecard_key}-{score_key}-config-{hash[:8]}
+    Example: primus-call-quality-compliance-check-config-a1b2c3d4
 
     Args:
         scorecard_key: Normalized scorecard key (filesystem-safe)
@@ -91,4 +91,4 @@ def get_sagemaker_endpoint_config_name(
         Versioned endpoint config name (changes when model S3 URI changes)
     """
     uri_hash = hashlib.sha256(model_s3_uri.encode()).hexdigest()[:8]
-    return f"plexus-{scorecard_key}-{score_key}-config-{uri_hash}"
+    return f"primus-{scorecard_key}-{score_key}-config-{uri_hash}"

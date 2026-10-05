@@ -4,9 +4,9 @@ prompt: |
   Inspect procedure proc_alignment_optimizer and summarize the last five chat
   messages from its most recent session. Include whether the procedure appears
   stopped, waiting on human input, or still running.
-  Call plexus.procedure.info{ id = "proc_alignment_optimizer" }, then call
-  plexus.procedure.chat_sessions for that procedure, then call
-  plexus.procedure.chat_messages for the most recent session.
+  Call primus.procedure.info{ id = "proc_alignment_optimizer" }, then call
+  primus.procedure.chat_sessions for that procedure, then call
+  primus.procedure.chat_messages for the most recent session.
   Return exactly these fields: procedure_id, status, and chat_messages.
   The chat_messages field must contain exactly the last five chat messages.
 expected_outcome:
@@ -24,9 +24,9 @@ coverage_tags:
   - read_only
   - multi_step
 required_apis:
-  - plexus.procedure.info
-  - plexus.procedure.chat_sessions
-  - plexus.procedure.chat_messages
+  - primus.procedure.info
+  - primus.procedure.chat_sessions
+  - primus.procedure.chat_messages
 max_attempts_for_first_try_pass: 1
 fixture_notes: |
   This covers procedure introspection without invoking recursive procedure.run.

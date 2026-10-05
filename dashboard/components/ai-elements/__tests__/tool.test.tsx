@@ -7,7 +7,7 @@ describe('ai-elements Tool styling', () => {
   test('tool container and content use flat-shaded surfaces without border classes', () => {
     const { container } = render(
       <Tool defaultOpen>
-        <ToolHeader toolType="tool-plexus_evaluation_run" state="output-available" toolName="plexus_evaluation_run" />
+        <ToolHeader toolType="tool-primus_evaluation_run" state="output-available" toolName="primus_evaluation_run" />
         <ToolContent>
           <ToolInput input={{ evaluation_id: 'eval-123' }} />
           <ToolOutput output={<div>ok</div>} />

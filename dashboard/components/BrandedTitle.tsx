@@ -9,13 +9,13 @@ interface BrandedTitleProps {
 
 /**
  * Client component that updates the document title based on brand configuration.
- * Falls back to "Plexus" if no brand name is configured.
+ * Falls back to "Primus" if no brand name is configured.
  * 
- * Uses a MutationObserver to watch for title changes and replace "Plexus" with the brand name.
+ * Uses a MutationObserver to watch for title changes and replace "Primus" with the brand name.
  */
 export function BrandedTitle({ pageTitle }: BrandedTitleProps) {
   const { config } = useBrand();
-  const brandName = config?.name || 'Plexus';
+  const brandName = config?.name || 'Primus';
 
   useEffect(() => {
     // If no custom brand is configured, don't do anything
@@ -24,7 +24,7 @@ export function BrandedTitle({ pageTitle }: BrandedTitleProps) {
       return;
     }
 
-    const replacePlexusInTitle = () => {
+    const replacePrimusInTitle = () => {
       const currentTitle = document.title;
       
       if (pageTitle) {
@@ -34,10 +34,10 @@ export function BrandedTitle({ pageTitle }: BrandedTitleProps) {
           return;
         }
         document.title = newTitle;
-      } else if (currentTitle && currentTitle.includes('Plexus')) {
-        // Replace "Plexus" with the brand name in the existing title
-        // This handles cases like "Tasks - Plexus" or "Evaluations -- Plexus"
-        const brandedTitle = currentTitle.replace(/Plexus/g, brandName);
+      } else if (currentTitle && currentTitle.includes('Primus')) {
+        // Replace "Primus" with the brand name in the existing title
+        // This handles cases like "Tasks - Primus" or "Evaluations -- Primus"
+        const brandedTitle = currentTitle.replace(/Primus/g, brandName);
         if (currentTitle === brandedTitle) {
           return;
         }
@@ -54,12 +54,12 @@ export function BrandedTitle({ pageTitle }: BrandedTitleProps) {
     };
 
     // Initial replacement
-    replacePlexusInTitle();
+    replacePrimusInTitle();
 
     // Also replace on multiple delays to catch any async title updates
-    const timeoutId1 = setTimeout(replacePlexusInTitle, 100);
-    const timeoutId2 = setTimeout(replacePlexusInTitle, 500);
-    const timeoutId3 = setTimeout(replacePlexusInTitle, 1000);
+    const timeoutId1 = setTimeout(replacePrimusInTitle, 100);
+    const timeoutId2 = setTimeout(replacePrimusInTitle, 500);
+    const timeoutId3 = setTimeout(replacePrimusInTitle, 1000);
 
     // Watch for title changes by observing the entire head element
     // This catches changes to the title element itself
@@ -74,10 +74,10 @@ export function BrandedTitle({ pageTitle }: BrandedTitleProps) {
           );
           
           if (titleChanged || mutation.target.nodeName === 'TITLE') {
-            replacePlexusInTitle();
+            replacePrimusInTitle();
           }
         } else if (mutation.type === 'characterData' && mutation.target.parentNode?.nodeName === 'TITLE') {
-          replacePlexusInTitle();
+          replacePrimusInTitle();
         }
       });
     });

@@ -129,18 +129,18 @@ Per-score payload includes:
 CLI:
 ```bash
 # Scorecard-wide
-plexus feedback report scorecard-history \
+primus feedback report scorecard-history \
   --scorecard "Customer Service QA" \
   --days 10
 
 # Single-score
-plexus feedback report scorecard-history \
+primus feedback report scorecard-history \
   --scorecard "Customer Service QA" \
   --score "Medication Review: Dosage" \
   --days 10
 
 # Explicit date range
-plexus feedback report scorecard-history \
+primus feedback report scorecard-history \
   --scorecard "Customer Service QA" \
   --start-date 2026-03-01 \
   --end-date 2026-03-31
@@ -148,7 +148,7 @@ plexus feedback report scorecard-history \
 
 Tactus:
 ```tactus
-local h = plexus.report.run({
+local h = primus.report.run({
   block_class = "ScorecardHistory",
   block_config = {
     scorecard = "<resolved-scorecard-id>",

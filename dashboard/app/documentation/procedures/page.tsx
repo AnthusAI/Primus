@@ -3,14 +3,14 @@ import Link from "next/link"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Procedures - Plexus Documentation",
-  description: "Learn about Plexus Procedures - a Lua-based DSL for programming agentic workflows with first-class human-in-the-loop support"
+  title: "Procedures - Primus Documentation",
+  description: "Learn about Primus Procedures - a Lua-based DSL for programming agentic workflows with first-class human-in-the-loop support"
 }
 
 export default function ProceduresPage() {
   return (
     <div className="max-w-4xl mx-auto py-8 px-6">
-      <h1 className="text-4xl font-bold mb-4">Plexus Procedures</h1>
+      <h1 className="text-4xl font-bold mb-4">Primus Procedures</h1>
       <p className="text-lg text-muted-foreground mb-8">
         Configuration-based agentic workflow programming with first-class human-in-the-loop support.
       </p>
@@ -19,7 +19,7 @@ export default function ProceduresPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">What are Procedures?</h2>
           <p className="text-muted-foreground mb-4">
-            Plexus Procedures is a domain-specific language (DSL) that enables you to define sophisticated
+            Primus Procedures is a domain-specific language (DSL) that enables you to define sophisticated
             agentic workflows through configuration, combining:
           </p>
           <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
@@ -143,7 +143,7 @@ workflow: |
         <section>
           <h2 className="text-2xl font-semibold mb-4">Message Classification</h2>
           <p className="text-muted-foreground mb-4">
-            Every message in Plexus has a <code>humanInteraction</code> classification that determines
+            Every message in Primus has a <code>humanInteraction</code> classification that determines
             visibility and behavior:
           </p>
           <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
@@ -218,16 +218,16 @@ workflow: |
           <div className="space-y-2">
             <p className="text-muted-foreground">
               <strong>AGENTS.md:</strong> Comprehensive technical specification located at{" "}
-              <code className="text-sm bg-background px-2 py-1 rounded">/plexus/procedures/AGENTS.md</code>
+              <code className="text-sm bg-background px-2 py-1 rounded">/primus/procedures/AGENTS.md</code>
             </p>
             <p className="text-muted-foreground">
               <strong>HTML Documentation:</strong> Complete standalone HTML documentation available at{" "}
-              <code className="text-sm bg-background px-2 py-1 rounded">/plexus/procedures/docs/</code>
+              <code className="text-sm bg-background px-2 py-1 rounded">/primus/procedures/docs/</code>
             </p>
             <p className="text-muted-foreground">
               <strong>GitHub:</strong>{" "}
-              <a href="https://github.com/AnthusAI/Plexus" className="text-primary hover:underline">
-                github.com/AnthusAI/Plexus
+              <a href="https://github.com/AnthusAI/Primus" className="text-primary hover:underline">
+                github.com/AnthusAI/Primus
               </a>
             </p>
           </div>

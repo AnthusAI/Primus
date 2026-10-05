@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Quick Start - Plexus Documentation',
-  description: 'Get started with Plexus quickly and easily',
+  title: 'Quick Start - Primus Documentation',
+  description: 'Get started with Primus quickly and easily',
 }
 
 export default function QuickStartPage() {
@@ -10,7 +10,7 @@ export default function QuickStartPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Quick Start</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Get Plexus up and running in just a few minutes with this streamlined installation guide.
+        Get Primus up and running in just a few minutes with this streamlined installation guide.
       </p>
 
       <div className="space-y-8">
@@ -18,10 +18,10 @@ export default function QuickStartPage() {
           <h2 className="text-2xl font-semibold mb-4">Prerequisites</h2>
           <div className="space-y-4">
             <p className="text-muted-foreground">
-              Before installing Plexus, make sure you have:
+              Before installing Primus, make sure you have:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-              <li><strong>Python 3.11+</strong> - Plexus requires Python 3.11 or later</li>
+              <li><strong>Python 3.11+</strong> - Primus requires Python 3.11 or later</li>
               <li><strong>Git</strong> - For cloning the repository</li>
               <li><strong>pip</strong> - Python package manager (included with Python)</li>
               <li><strong>Virtual environment</strong> (recommended) - To isolate dependencies</li>
@@ -35,8 +35,8 @@ export default function QuickStartPage() {
             <div>
               <h3 className="text-xl font-medium mb-3">1. Clone the Repository</h3>
               <pre className="bg-muted p-4 rounded-lg mb-4">
-                <code>{`git clone https://github.com/AnthusAI/Plexus.git
-cd Plexus`}</code>
+                <code>{`git clone https://github.com/AnthusAI/Primus.git
+cd Primus`}</code>
               </pre>
             </div>
 
@@ -58,9 +58,9 @@ venv\\Scripts\\activate`}</code>
             </div>
 
             <div>
-              <h3 className="text-xl font-medium mb-3">3. Install Plexus</h3>
+              <h3 className="text-xl font-medium mb-3">3. Install Primus</h3>
               <p className="text-muted-foreground mb-3">
-                Install Plexus in development mode:
+                Install Primus in development mode:
               </p>
               <pre className="bg-muted p-4 rounded-lg mb-4">
                 <code>pip install -e .</code>
@@ -77,13 +77,13 @@ venv\\Scripts\\activate`}</code>
               </p>
               <pre className="bg-muted p-4 rounded-lg mb-4">
                 <code>{`# Create configuration directory
-mkdir -p .plexus
+mkdir -p .primus
 
 # Copy example configuration
-cp plexus.yaml.example .plexus/config.yaml`}</code>
+cp primus.yaml.example .primus/config.yaml`}</code>
               </pre>
               <p className="text-muted-foreground">
-                Edit <code>.plexus/config.yaml</code> with your specific settings. See the{' '}
+                Edit <code>.primus/config.yaml</code> with your specific settings. See the{' '}
                 <a href="/documentation/setup/configuration" className="text-blue-600 hover:text-blue-800">
                   Configuration Files
                 </a>{' '}
@@ -97,11 +97,11 @@ cp plexus.yaml.example .plexus/config.yaml`}</code>
                 Test that everything is working:
               </p>
               <pre className="bg-muted p-4 rounded-lg mb-4">
-                <code>{`# Check Plexus version
-plexus --help
+                <code>{`# Check Primus version
+primus --help
 
 # Test configuration loading (requires valid credentials)
-plexus item last`}</code>
+primus item last`}</code>
               </pre>
             </div>
           </div>
@@ -113,18 +113,18 @@ plexus item last`}</code>
             <div>
               <h3 className="text-xl font-medium mb-2">Command Not Found</h3>
               <p className="text-muted-foreground">
-                If you get a "command not found" error when running <code>plexus</code>:
+                If you get a "command not found" error when running <code>primus</code>:
               </p>
               <ul className="list-disc pl-6 mt-2 space-y-2 text-muted-foreground">
                 <li>Make sure your virtual environment is activated</li>
-                <li>Verify the installation with <code>pip list | grep plexus</code></li>
+                <li>Verify the installation with <code>pip list | grep primus</code></li>
                 <li>Try reinstalling with <code>pip install -e .</code></li>
               </ul>
             </div>
             <div>
               <h3 className="text-xl font-medium mb-2">Missing Credentials</h3>
               <p className="text-muted-foreground">
-                If you get AWS credentials errors, make sure your <code>.plexus/config.yaml</code> file
+                If you get AWS credentials errors, make sure your <code>.primus/config.yaml</code> file
                 contains valid AWS credentials and API keys. See the{' '}
                 <a href="/documentation/setup/configuration" className="text-blue-600 hover:text-blue-800">
                   Configuration Files
@@ -138,7 +138,7 @@ plexus item last`}</code>
         <section>
           <h2 className="text-2xl font-semibold mb-4">Next Steps</h2>
           <p className="text-muted-foreground mb-4">
-            Now that you have Plexus installed:
+            Now that you have Primus installed:
           </p>
           <ol className="list-decimal pl-6 space-y-3 text-muted-foreground">
             <li>
@@ -147,11 +147,11 @@ plexus item last`}</code>
             </li>
             <li>
               <strong>Explore the concepts:</strong>
-              <p>Learn about <a href="/documentation/concepts" className="text-blue-600 hover:text-blue-800">Items, Scorecards, and Scores</a> to understand how Plexus works.</p>
+              <p>Learn about <a href="/documentation/concepts" className="text-blue-600 hover:text-blue-800">Items, Scorecards, and Scores</a> to understand how Primus works.</p>
             </li>
             <li>
               <strong>Try the CLI:</strong>
-              <p>Use commands like <code>plexus item last</code> and <code>plexus scorecards list</code> to explore your data.</p>
+              <p>Use commands like <code>primus item last</code> and <code>primus scorecards list</code> to explore your data.</p>
             </li>
             <li>
               <strong>Run evaluations:</strong>

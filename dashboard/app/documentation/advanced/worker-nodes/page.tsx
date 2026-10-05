@@ -31,19 +31,19 @@ export default function WorkerNodesPage() {
 
       <h1 className="text-4xl font-bold mb-4">Worker Nodes</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Learn how to deploy and manage Plexus worker nodes across any infrastructure to process your evaluation tasks.
+        Learn how to deploy and manage Primus worker nodes across any infrastructure to process your evaluation tasks.
       </p>
 
       <div className="space-y-8">
         <section>
           <h2 className="text-2xl font-semibold mb-4">Overview</h2>
           <p className="text-muted-foreground mb-4">
-            Plexus worker nodes are long-running daemon processes that handle evaluation tasks and other operations. 
+            Primus worker nodes are long-running daemon processes that handle evaluation tasks and other operations. 
             You can run these workers on any computer with Python installed - whether it's in the cloud (AWS, Azure, GCP) 
             or on your own premises.
           </p>
           <p className="text-muted-foreground mb-4">
-            Workers are managed using the Plexus CLI tool, which makes it easy to start, configure, and monitor worker 
+            Workers are managed using the Primus CLI tool, which makes it easy to start, configure, and monitor worker 
             processes across your infrastructure.
           </p>
         </section>
@@ -51,12 +51,12 @@ export default function WorkerNodesPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Starting a Worker</h2>
           <p className="text-muted-foreground mb-4">
-            Use the <code>plexus command worker</code> command to start a worker process. Here's a basic example:
+            Use the <code>primus command worker</code> command to start a worker process. Here's a basic example:
           </p>
           
           <pre className="bg-muted rounded-lg mb-4">
             <div className="code-container p-4">
-              <code>{`plexus command worker \\
+              <code>{`primus command worker \\
   --concurrency 4 \\
   --queue celery \\
   --loglevel INFO`}</code>
@@ -80,17 +80,17 @@ export default function WorkerNodesPage() {
           <pre className="bg-muted rounded-lg mb-4">
             <div className="code-container p-4">
               <code>{`# Worker that only processes dataset-related tasks
-plexus command worker \\
+primus command worker \\
   --target-patterns "datasets/*" \\
   --concurrency 4
 
 # Worker for GPU-intensive tasks
-plexus command worker \\
+primus command worker \\
   --target-patterns "*/gpu-required" \\
   --concurrency 2
 
 # Worker handling multiple task types
-plexus command worker \\
+primus command worker \\
   --target-patterns "datasets/*,training/*" \\
   --concurrency 8`}</code>
             </div>
@@ -119,8 +119,8 @@ plexus command worker \\
               <pre className="bg-muted rounded-lg mb-2">
                 <div className="code-container p-4">
                   <code>{`# Run in a screen session for persistence
-screen -S plexus-worker
-plexus command worker \\
+screen -S primus-worker
+primus command worker \\
   --concurrency 8 \\
   --loglevel INFO
 # Ctrl+A, D to detach`}</code>
@@ -133,7 +133,7 @@ plexus command worker \\
               <pre className="bg-muted rounded-lg mb-2">
                 <div className="code-container p-4">
                   <code>{`# Run with increased logging for debugging
-plexus command worker \\
+primus command worker \\
   --concurrency 2 \\
   --loglevel DEBUG`}</code>
                 </div>
@@ -145,7 +145,7 @@ plexus command worker \\
               <pre className="bg-muted rounded-lg mb-2">
                 <div className="code-container p-4">
                   <code>{`# Dedicated GPU worker with specific targeting
-plexus command worker \\
+primus command worker \\
   --concurrency 1 \\
   --target-patterns "*/gpu-required" \\
   --loglevel INFO`}</code>
@@ -174,7 +174,7 @@ plexus command worker \\
           </p>
           <ul className="list-disc pl-6 space-y-2 text-muted-foreground mt-4">
             <li>See the <a href="/documentation/advanced/cli" className="text-primary hover:underline">CLI documentation</a> for detailed command reference</li>
-            <li>Check the built-in help with <code>plexus command worker --help</code></li>
+            <li>Check the built-in help with <code>primus command worker --help</code></li>
             <li>View worker logs with <code>--loglevel DEBUG</code> for troubleshooting</li>
           </ul>
         </section>

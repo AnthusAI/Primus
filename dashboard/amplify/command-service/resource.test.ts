@@ -8,7 +8,7 @@ import { CommandService, isLongLivedCommandServiceEnvironment, resolveCommandSer
 import { TaskDispatcherStack, TaskStreamDispatcher } from '../functions/taskDispatcher/resource';
 import { LIFECYCLE_APPSYNC_ROOTS, WORKER_APPSYNC_AUTHORITY_GROUPS, WORKER_DOMAIN_APPSYNC_ROOTS, appSyncFieldArn } from './authority-manifest';
 
-const DIGEST = `123456789012.dkr.ecr.us-east-1.amazonaws.com/plexus-staging-command-worker@sha256:${'a'.repeat(64)}`;
+const DIGEST = `123456789012.dkr.ecr.us-east-1.amazonaws.com/primus-staging-command-worker@sha256:${'a'.repeat(64)}`;
 const DEPLOYMENT_ROLE_ARN = 'arn:aws:iam::123456789012:role/amplify-deployment';
 
 type CommandServiceFixture = {
@@ -32,8 +32,8 @@ function createFixture(workerImageUri = DIGEST): CommandServiceFixture {
     apiUrl: 'https://example.appsync-api.us-east-1.amazonaws.com/graphql',
     apiGraphqlArn: 'arn:aws:appsync:us-east-1:123456789012:apis/example',
     workerImageUri,
-    foundationRepositoryUri: '123456789012.dkr.ecr.us-east-1.amazonaws.com/plexus-staging-command-worker',
-    configSecretName: 'plexus/staging/config',
+    foundationRepositoryUri: '123456789012.dkr.ecr.us-east-1.amazonaws.com/primus-staging-command-worker',
+    configSecretName: 'primus/staging/config',
     bedrockModelResources: ['arn:aws:bedrock:us-east-1::foundation-model/*'],
     environmentName: 'staging',
     amplifyDeploymentRoleArn: DEPLOYMENT_ROLE_ARN,

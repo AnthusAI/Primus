@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from behave import given, then, when
 
-from plexus.command_worker import (
+from primus.command_worker import (
     CommandWorkerService,
     ProcessOutcome,
     ServiceStopReason,

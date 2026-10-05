@@ -1,6 +1,6 @@
-# Plexus MCP Server Test Suite
+# Primus MCP Server Test Suite
 
-This directory contains comprehensive tests for the refactored Plexus MCP Server.
+This directory contains comprehensive tests for the refactored Primus MCP Server.
 
 ## Test Structure
 
@@ -71,7 +71,7 @@ pytest --cov=shared --cov=tools --cov=server --cov-report=html
 pytest tests/unit/shared/test_utils.py -v
 
 # Run specific test function
-pytest tests/unit/shared/test_utils.py::TestURLGeneration::test_get_plexus_url_normal_path -v
+pytest tests/unit/shared/test_utils.py::TestURLGeneration::test_get_primus_url_normal_path -v
 ```
 
 ## Test Categories
@@ -80,7 +80,7 @@ pytest tests/unit/shared/test_utils.py::TestURLGeneration::test_get_plexus_url_n
 
 Unit tests focus on testing individual functions and classes in isolation:
 
-- **`test_setup.py`**: Tests for shared setup functionality including stdout redirection, Plexus imports, and initialization
+- **`test_setup.py`**: Tests for shared setup functionality including stdout redirection, Primus imports, and initialization
 - **`test_utils.py`**: Tests for utility functions like URL generation, environment loading, and data helpers
 - **`test_scorecard_tools.py`**: Tests for scorecard management tools
 - **`test_score_tools.py`**: Tests for score management tools
@@ -99,7 +99,7 @@ Integration tests verify that components work together correctly:
 ### Shared Fixtures (`conftest.py`)
 
 - **`mock_environment`**: Provides mock environment variables
-- **`mock_dashboard_client`**: Mock Plexus dashboard client
+- **`mock_dashboard_client`**: Mock Primus dashboard client
 - **`sample_scorecard_data`**: Sample scorecard data for testing
 - **`sample_report_data`**: Sample report data for testing
 - **`capture_stdout`**: Utility for testing stdout redirection
@@ -199,7 +199,7 @@ pip install pytest pytest-cov pytest-asyncio pytest-mock
 
 ```bash
 # Run a specific test with detailed output
-pytest tests/unit/shared/test_utils.py::TestURLGeneration::test_get_plexus_url_normal_path -v -s
+pytest tests/unit/shared/test_utils.py::TestURLGeneration::test_get_primus_url_normal_path -v -s
 
 # Drop into debugger on failure
 pytest --pdb

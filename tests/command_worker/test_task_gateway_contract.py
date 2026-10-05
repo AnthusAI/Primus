@@ -8,13 +8,13 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from plexus.command_worker import (
+from primus.command_worker import (
     CommandRecord,
     CommandStatus,
     ProgressUpdate,
     request_digest,
 )
-from plexus.command_worker.adapters.task_store import GraphQLTaskStoreGateway
+from primus.command_worker.adapters.task_store import GraphQLTaskStoreGateway
 
 NOW = datetime(2026, 8, 6, tzinfo=timezone.utc)
 

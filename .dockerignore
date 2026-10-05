@@ -9,8 +9,8 @@ dashboard/amplify/**
 infrastructure/
 docker/
 examples/
-.plexus/
-.plexus_training_data_cache/
+.primus/
+.primus_training_data_cache/
 .sqlbot/
 amplify/
 k8s/
@@ -34,7 +34,7 @@ project/
 *.jsonl.gz
 *.jsonl.gz.gz
 
-# ConsoleChatResponder imports the in-process Plexus MCP tool modules at runtime.
+# ConsoleChatResponder imports the in-process Primus MCP tool modules at runtime.
 # Re-include the full MCP tree after the broad project exclusions so Docker
 # cannot prune parent directories needed for Python namespace package imports.
 !MCP/

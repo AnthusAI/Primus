@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError as PydanticValidationError
 
-from plexus.scores.Score import Score
+from primus.scores.Score import Score
 
 
 class StaticResultScore(Score):

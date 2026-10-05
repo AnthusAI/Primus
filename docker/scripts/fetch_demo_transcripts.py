@@ -3,7 +3,7 @@
 Fetch real call-center transcripts from HuggingFace for demo purposes.
 
 This downloads transcripts from the AppTek Call-Center Dialogues dataset
-and creates items in Plexus for demo/testing.
+and creates items in Primus for demo/testing.
 """
 
 import os
@@ -158,9 +158,9 @@ Agent: You're very welcome. Thank you for your patience and for shopping with Re
     return examples[:num_samples]
 
 
-def create_items_in_plexus(transcripts: List[Dict], proxy_url: str, api_key: str, account_id: str) -> List[str]:
+def create_items_in_primus(transcripts: List[Dict], proxy_url: str, api_key: str, account_id: str) -> List[str]:
     """
-    Create items in Plexus from the fetched transcripts.
+    Create items in Primus from the fetched transcripts.
 
     Args:
         transcripts: List of transcript dictionaries
@@ -171,7 +171,7 @@ def create_items_in_plexus(transcripts: List[Dict], proxy_url: str, api_key: str
     Returns:
         List of created item IDs
     """
-    print(f"\n📤 Creating {len(transcripts)} items in Plexus...")
+    print(f"\n📤 Creating {len(transcripts)} items in Primus...")
 
     item_ids = []
 
@@ -242,7 +242,7 @@ def main():
     """Main entry point."""
     import argparse
 
-    parser = argparse.ArgumentParser(description='Fetch demo transcripts and create items in Plexus')
+    parser = argparse.ArgumentParser(description='Fetch demo transcripts and create items in Primus')
     parser.add_argument('--num-samples', type=int, default=10, help='Number of transcripts to fetch')
     parser.add_argument('--proxy-url', default='http://localhost:8000', help='GraphQL proxy URL')
     parser.add_argument('--api-key', default='local-dev-key', help='API key')
@@ -261,8 +261,8 @@ def main():
         print("❌ No transcripts fetched")
         return 1
 
-    # Create items in Plexus
-    item_ids = create_items_in_plexus(
+    # Create items in Primus
+    item_ids = create_items_in_primus(
         transcripts,
         args.proxy_url,
         args.api_key,

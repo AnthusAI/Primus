@@ -70,7 +70,7 @@ export const Default: Story = {
     estimatedCompletionAt: new Date(Date.now() + 300000).toISOString(),
     status: 'RUNNING',
     stageConfigs: sampleStages,
-    command: 'plexus command demo',
+    command: 'primus command demo',
     statusMessage: 'Processing item 45 of 100...',
   },
 }
@@ -83,7 +83,7 @@ export const NoProgress: Story = {
     estimatedCompletionAt: new Date(Date.now() + 300000).toISOString(),
     status: 'RUNNING',
     stageConfigs: sampleStages,
-    command: 'plexus command demo',
+    command: 'primus command demo',
     statusMessage: 'Processing...',
   },
 }
@@ -98,7 +98,7 @@ export const Failed: Story = {
     completedAt: new Date(Date.now() - 100000).toISOString(),
     status: 'FAILED',
     stageConfigs: sampleStages,
-    command: 'plexus command demo',
+    command: 'primus command demo',
     statusMessage: 'Error: Something went wrong',
   },
 }
@@ -110,7 +110,7 @@ export const NoStages: Story = {
     startedAt: new Date(Date.now() - 300000).toISOString(),
     estimatedCompletionAt: new Date(Date.now() + 300000).toISOString(),
     status: 'RUNNING',
-    command: 'plexus command demo',
+    command: 'primus command demo',
     statusMessage: 'Processing item 45 of 100...',
   },
 }
@@ -155,7 +155,7 @@ export const Completed: Story = {
     completedAt: new Date(Date.now() - 100000).toISOString(),
     status: 'COMPLETED',
     stageConfigs: sampleStages,
-    command: 'plexus command demo',
+    command: 'primus command demo',
     statusMessage: 'Processing complete',
   },
 }

@@ -1,10 +1,10 @@
-# Plexus
+# Primus
 
 ## Overview
 
-**Plexus is an AI agent incubator and MLOps platform**, designed to help teams evaluate, deploy, and continuously improve AI agents. It acts as a testing ground where you can use human feedback to refine how your AI behaves, ensuring your agents get smarter and more reliable over time.
+**Primus is an AI agent incubator and MLOps platform**, designed to help teams evaluate, deploy, and continuously improve AI agents. It acts as a testing ground where you can use human feedback to refine how your AI behaves, ensuring your agents get smarter and more reliable over time.
 
-It transforms the chaotic process of managing hundreds of AI prompts and classifiers into a structured, engineering-grade discipline. By combining a robust backend, a real-time dashboard, and deep integration with AI agents, Plexus enables teams to build, deploy, and improve AI solutions without managing low-level infrastructure.
+It transforms the chaotic process of managing hundreds of AI prompts and classifiers into a structured, engineering-grade discipline. By combining a robust backend, a real-time dashboard, and deep integration with AI agents, Primus enables teams to build, deploy, and improve AI solutions without managing low-level infrastructure.
 
 ## Core Features
 
@@ -17,7 +17,7 @@ It transforms the chaotic process of managing hundreds of AI prompts and classif
 
 ## Domain-Specific Cognitive Framework
 
-Plexus encapsulates a robust cognitive framework that standardizes how AI systems process information. Instead of writing raw code or prompting LLMs in isolation, you define your domain using Plexus's specialized vocabulary and Domain-Specific Languages (DSLs).
+Primus encapsulates a robust cognitive framework that standardizes how AI systems process information. Instead of writing raw code or prompting LLMs in isolation, you define your domain using Primus's specialized vocabulary and Domain-Specific Languages (DSLs).
 
 ### The Building Blocks (Nouns & Verbs)
 
@@ -36,7 +36,7 @@ The system is built around a set of strong, opinionated primitives that form the
 
 ### Domain-Specific Languages (DSLs)
 
-Plexus uses configuration-as-code to define cognitive processes:
+Primus uses configuration-as-code to define cognitive processes:
 
 1. **Score Configuration (YAML)**: Defines *how* to think.
    - Specifies the model provider (OpenAI, Anthropic), parameters, and prompt structure.
@@ -56,20 +56,20 @@ By using these DSLs, you elevate your work from "writing scripts" to "architecti
 
 ## Everything as Code & AI-Native Architecture
 
-Plexus embodies the **"Everything as Code"** architectural principle from top to bottom. This is not just for DevOps; it is the foundational strategy for integrating AI at every level.
+Primus embodies the **"Everything as Code"** architectural principle from top to bottom. This is not just for DevOps; it is the foundational strategy for integrating AI at every level.
 
 - **Infrastructure as Code (IaC)**: The entire AWS cloud environment (Lambda, DynamoDB, SQS) is defined in code (CDK), making the substrate itself versionable and reproducible.
 - **Cognition as Code**: AI behaviors, prompts, and logic are defined in DSLs (YAML/Lua) rather than opaque model weights.
 
 ### Why This Matters for AI
-AI agents excel at reading and iteratively editing code. By structuring the entire system as code, Plexus enables:
+AI agents excel at reading and iteratively editing code. By structuring the entire system as code, Primus enables:
 - **Self-Evolving Agents**: AI agents can improve their own performance by iteratively editing their own configuration code (DSLs).
 - **Data Flywheels**: The system supports online learning and human-in-the-loop patterns where human feedback directly informs the next iteration of the configuration code.
 - **Self-Alignment**: Over time, the system "aligns" itself to human intent by constantly refining its logic based on feedback, creating a system that gets smarter and more accurate automatically.
 
 ## Architecture
 
-Plexus is built on a modern, scalable stack:
+Primus is built on a modern, scalable stack:
 
 - **Frontend**: Next.js 14, AWS Amplify Gen2, Shadcn UI, Tailwind CSS
 - **Backend**: Python 3.11, GraphQL (AWS AppSync), Celery
@@ -88,8 +88,8 @@ Plexus is built on a modern, scalable stack:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/AnthusAI/Plexus.git
-   cd Plexus
+   git clone https://github.com/AnthusAI/Primus.git
+   cd Primus
    ```
 
 2. **Install Python dependencies:**
@@ -100,7 +100,7 @@ Plexus is built on a modern, scalable stack:
 3. **Set up configuration:**
    Copy the example config and update with your credentials:
 ```bash
-cp plexus.yaml.example .plexus/config.yaml
+cp primus.yaml.example .primus/config.yaml
 ```
 
 ### Running the Dashboard
@@ -111,11 +111,11 @@ For local procedure execution from the UI:
 - `npm run dev` runs only the Next.js dev server
 - `npm run dev:chat` runs the local Console chat responder
 - `npm run dev:local` runs both the Next.js dev server and local Console chat responder
-- `npm run dev:dispatch` runs the local procedure task dispatcher (`PLEXUS_DISPATCH_MODE=local`)
+- `npm run dev:dispatch` runs the local procedure task dispatcher (`PRIMUS_DISPATCH_MODE=local`)
 
-Set `PLEXUS_ACCOUNT_KEY` in your environment or `.env` for local auto-dispatch.
+Set `PRIMUS_ACCOUNT_KEY` in your environment or `.env` for local auto-dispatch.
 Set `NEXT_PUBLIC_CONSOLE_RESPONSE_TARGET=local:<name>` in `dashboard/.env.local`
-so local dashboard messages are claimed by `plexus chat worker` instead of the
+so local dashboard messages are claimed by `primus chat worker` instead of the
 cloud Console responder.
 
 ```bash
@@ -133,26 +133,26 @@ Scorecards are the top-level containers for your classification logic. You can c
 
 ### 2. Configuring Scores
 Scores are defined using YAML configuration files that specify the model, prompt, and logic.
-*Tip: Use the `plexus-score-config-updater` agent to safely manage these configurations.*
+*Tip: Use the `primus-score-config-updater` agent to safely manage these configurations.*
 
 ### 3. Running Evaluations
 Validate your scores against ground-truth data (or human feedback) to ensure accuracy.
 ```bash
-plexus evaluate accuracy --scorecard-name "My Scorecard" --score-name "My Score"
+primus evaluate accuracy --scorecard-name "My Scorecard" --score-name "My Score"
 ```
-*Or use the `plexus_evaluation_run` MCP tool.*
+*Or use the `primus_evaluation_run` MCP tool.*
 
 ### 4. Feedback Alignment
-The "Flywheel" of Plexus:
+The "Flywheel" of Primus:
 1. AI makes a prediction
 2. Human reviews and corrects (if wrong)
-3. Plexus captures the feedback
+3. Primus captures the feedback
 4. AI analyzes the error patterns
 5. Configuration is updated to fix the error
 
 ## AI Agent Integration
 
-Plexus is designed to be operated *by* AI agents as much as by humans. The `/MCP` directory contains a fully-featured Model Context Protocol server.
+Primus is designed to be operated *by* AI agents as much as by humans. The `/MCP` directory contains a fully-featured Model Context Protocol server.
 
 - **AGENTS.md**: [Read the full Agent Integration Guide](AGENTS.md)
 - **Capabilities**: Agents can read data, update configurations, run tests, and analyze results.
@@ -182,18 +182,18 @@ Plexus is designed to be operated *by* AI agents as much as by humans. The `/MCP
 
 ## Documentation Links
 
-- [**Agent Integration Guide**](AGENTS.md) - How to use Plexus with AI agents.
+- [**Agent Integration Guide**](AGENTS.md) - How to use Primus with AI agents.
 - [**Dashboard Documentation**](dashboard/README.md) - Frontend setup and features.
 - [**MCP Server**](MCP/README.md) - Technical details of the MCP implementation.
 
 ## License
 
-Plexus is open-source under the MIT license.
+Primus is open-source under the MIT license.
 
 ---
 
 Built by [Anthus AI Solutions](https://anth.us). We run this class of system in production.
 
-Plexus is the evaluation and MLOps layer we use on production LLM workloads.
+Primus is the evaluation and MLOps layer we use on production LLM workloads.
 
 If you need this operated, not just cloned, [talk to us](https://anth.us).

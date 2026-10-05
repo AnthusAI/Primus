@@ -35,7 +35,7 @@ class McpStack(Stack):
                 "WorkingDirectory": {
                     "type": "String",
                     "description": "Absolute path to the working directory for the service.",
-                    "default": "/home/ec2-user/projects/Plexus"
+                    "default": "/home/ec2-user/projects/Primus"
                 },
                 "PythonExecutable": {
                     "type": "String",
@@ -45,7 +45,7 @@ class McpStack(Stack):
                 "Environment": {
                     "type": "String",
                     "description": "Environment variables for the service.",
-                    "default": "PYTHONPATH=/home/ec2-user/projects/Plexus"
+                    "default": "PYTHONPATH=/home/ec2-user/projects/Primus"
                 },
                 "Workers": {
                     "type": "String",
@@ -67,7 +67,7 @@ class McpStack(Stack):
                             # Create the systemd service file
                             "cat << EOF | tee /etc/systemd/system/{{ ServiceName }} > /dev/null",
                             "[Unit]",
-                            "Description=Plexus MCP Server (Managed by SSM)",
+                            "Description=Primus MCP Server (Managed by SSM)",
                             "After=network.target",
                             "",
                             "[Service]",

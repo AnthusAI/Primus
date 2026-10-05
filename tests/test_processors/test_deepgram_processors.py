@@ -5,7 +5,7 @@ import json
 import os
 import unittest
 
-from plexus.scores.Score import Score
+from primus.scores.Score import Score
 
 
 FIXTURES_DIR = os.path.join(os.path.dirname(__file__), '..', 'fixtures')
@@ -34,7 +34,7 @@ class TestDeepgramTimeSliceProcessor(unittest.TestCase):
         self.stereo = load_fixture('deepgram_stereo_conversation.json')
 
     def _make_processor(self, **params):
-        from plexus.processors.DeepgramTimeSliceProcessor import DeepgramTimeSliceProcessor
+        from primus.processors.DeepgramTimeSliceProcessor import DeepgramTimeSliceProcessor
         return DeepgramTimeSliceProcessor(**params)
 
     # --- basic start/end filtering ---
@@ -191,7 +191,7 @@ class TestDeepgramFormatProcessor(unittest.TestCase):
         self.stereo = load_fixture('deepgram_stereo_conversation.json')
 
     def _make_processor(self, **params):
-        from plexus.processors.DeepgramFormatProcessor import DeepgramFormatProcessor
+        from primus.processors.DeepgramFormatProcessor import DeepgramFormatProcessor
         return DeepgramFormatProcessor(**params)
 
     # --- paragraphs format ---
@@ -400,8 +400,8 @@ class TestProcessorPipeline(unittest.TestCase):
         self.stereo = load_fixture('deepgram_stereo_conversation.json')
 
     def test_time_slice_then_format(self):
-        from plexus.processors.DeepgramTimeSliceProcessor import DeepgramTimeSliceProcessor
-        from plexus.processors.DeepgramFormatProcessor import DeepgramFormatProcessor
+        from primus.processors.DeepgramTimeSliceProcessor import DeepgramTimeSliceProcessor
+        from primus.processors.DeepgramFormatProcessor import DeepgramFormatProcessor
 
         # Slice to first 5 seconds, then format as sentences with speaker labels
         slicer = DeepgramTimeSliceProcessor(end=5.0)
@@ -418,8 +418,8 @@ class TestProcessorPipeline(unittest.TestCase):
         self.assertNotIn('trouble', result.text)
 
     def test_time_slice_then_format_stereo(self):
-        from plexus.processors.DeepgramTimeSliceProcessor import DeepgramTimeSliceProcessor
-        from plexus.processors.DeepgramFormatProcessor import DeepgramFormatProcessor
+        from primus.processors.DeepgramTimeSliceProcessor import DeepgramTimeSliceProcessor
+        from primus.processors.DeepgramFormatProcessor import DeepgramFormatProcessor
 
         # Slice to 0-10s, format as sentences, customer channel only
         slicer = DeepgramTimeSliceProcessor(end=10.0)

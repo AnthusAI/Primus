@@ -79,7 +79,7 @@ export default function LabSettings() {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Local dev: set <code>PLEXUS_ACTOR_USER_ID</code> to this value in your <code>.env</code>.
+                Local dev: set <code>PRIMUS_ACTOR_USER_ID</code> to this value in your <code>.env</code>.
               </p>
             </div>
           </div>

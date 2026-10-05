@@ -107,14 +107,14 @@ Carve rules:
 
 How the carved child budget reaches the worker:
 
-- **Evaluation:** `PLEXUS_CHILD_BUDGET` environment variable on the CLI
+- **Evaluation:** `PRIMUS_CHILD_BUDGET` environment variable on the CLI
   worker. The CLI loads it via `_enforce_child_budget_from_env` and a
   cost recorder hook that rejects scorecard totals exceeding the child
   USD.
 - **Report (programmatic blocks):** carried in the durable task
   metadata payload. The report-block worker enforces wallclock from the
   payload before running the block.
-- **Procedure:** passed in Tactus context as `_plexus_child_budget`.
+- **Procedure:** passed in Tactus context as `_primus_child_budget`.
   The procedure executor extracts it, instantiates a
   `RuntimeBudgetMeter`, applies `depth` as `max_depth`, and enforces
   USD/wallclock through `record_usd` and `enforce_wallclock`.
@@ -145,7 +145,7 @@ work, including any reserved amounts held by outstanding handles.
 
 ### `child USD budget exceeded`
 
-**Error**: `child USD budget exceeded before plexus.X.Y: $1.0000 > $0.2500`
+**Error**: `child USD budget exceeded before primus.X.Y: $1.0000 > $0.2500`
 
 **Cause**: The requested child `budget.usd` exceeds what the parent has remaining.
 The parent budget is shown in the `cost.budget_remaining_usd` field of the
@@ -158,7 +158,7 @@ budget:
 -- Check parent remaining from the prior response envelope first.
 -- If budget_remaining_usd = 0.25, child usd must be <= 0.25.
 
-plexus.report.run({
+primus.report.run({
   block_class = "FeedbackAlignment",
   block_config = { scorecard = "...", days = 30 },
   cache_key = "...",
@@ -170,20 +170,20 @@ plexus.report.run({
 
 ### `child wallclock budget exceeded`
 
-**Error**: `child wallclock budget exceeded before plexus.X.Y: 300.000s > 59.994s`
+**Error**: `child wallclock budget exceeded before primus.X.Y: 300.000s > 59.994s`
 
 **Cause**: The requested child `budget.wallclock_seconds` exceeds what the
 parent has remaining. The parent's remaining wallclock is shown in
 `cost.budget_remaining_seconds`.
 
 **Fix**: Reduce `wallclock_seconds` to fit within the parent budget. For
-`plexus.procedure.optimize` the budget is carved separately from the procedure's
+`primus.procedure.optimize` the budget is carved separately from the procedure's
 own execution time — the child wallclock only needs to cover the dispatch
 handshake, not the full optimization run.
 
 ```lua
 -- If parent has ~60s remaining, keep child wallclock well under that.
-plexus.procedure.optimize({
+primus.procedure.optimize({
   scorecard = "...",
   score = "...",
   max_iterations = 3,

@@ -5,7 +5,7 @@ import EvaluationCard from '@/components/EvaluationCard'
 import { GaugeThresholdComputer } from "@/utils/gauge-thresholds"
 
 export const metadata: Metadata = {
-  title: "Evaluation Metrics Examples - Plexus Documentation",
+  title: "Evaluation Metrics Examples - Primus Documentation",
   description: "Examples of evaluation metrics across different data distributions and scenarios"
 }
 

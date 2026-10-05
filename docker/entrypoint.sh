@@ -1,26 +1,26 @@
 #!/bin/bash
 set -e
 
-# Entrypoint script for Plexus Kubernetes workers
+# Entrypoint script for Primus Kubernetes workers
 # Supports multiple worker types based on WORKER_TYPE env var or CMD argument
 
 WORKER_TYPE="${WORKER_TYPE:-${1:-score-processor}}"
 
-echo "🚀 Starting Plexus worker: $WORKER_TYPE"
+echo "🚀 Starting Primus worker: $WORKER_TYPE"
 
 case "$WORKER_TYPE" in
     score-processor)
         echo "📊 Starting score processing worker (SQS-based)"
         # Run the score processor worker
         # This will continuously poll SQS and process scoring jobs
-        exec python -m plexus.workers.score_processor_worker
+        exec python -m primus.workers.score_processor_worker
         ;;
 
     celery)
         echo "🐝 Starting Celery worker"
         # Start Celery worker for task queue processing
         # Configure broker URL via CELERY_BROKER_URL env var
-        CELERY_APP="${CELERY_APP:-plexus.workers.celery_app}"
+        CELERY_APP="${CELERY_APP:-primus.workers.celery_app}"
         CELERY_QUEUE="${CELERY_QUEUE:-scoring-requests}"
         CELERY_CONCURRENCY="${CELERY_CONCURRENCY:-4}"
         LOG_LEVEL="${LOG_LEVEL:-info}"
@@ -39,7 +39,7 @@ case "$WORKER_TYPE" in
         LOG_LEVEL="${LOG_LEVEL:-info}"
         LOG_LEVEL="${LOG_LEVEL,,}"
 
-        exec uvicorn plexus.workers.scoring_api:app \
+        exec uvicorn primus.workers.scoring_api:app \
             --host "$API_HOST" \
             --port "$API_PORT" \
             --log-level "$LOG_LEVEL"
@@ -48,7 +48,7 @@ case "$WORKER_TYPE" in
     console-worker)
         echo "💬 Starting Console chat worker"
         # Run the console local worker for chat message processing
-        exec python -m plexus.console.local_worker
+        exec python -m primus.console.local_worker
         ;;
 
     *)

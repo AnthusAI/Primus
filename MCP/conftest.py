@@ -9,7 +9,7 @@ from unittest.mock import Mock, patch, MagicMock
 from io import StringIO
 
 # Add the current repository root first so namespace package imports such as
-# MCP.tools... resolve to this checkout before any sibling Plexus worktree.
+# MCP.tools... resolve to this checkout before any sibling Primus worktree.
 mcp_dir = os.path.dirname(os.path.abspath(__file__))
 repo_root = os.path.dirname(mcp_dir)
 for path in (mcp_dir, repo_root):
@@ -22,10 +22,10 @@ sys.path.insert(0, repo_root)
 def mock_environment():
     """Provide mock environment variables for testing"""
     env_vars = {
-        'PLEXUS_API_URL': 'https://test.plexus.example.com',
-        'PLEXUS_API_KEY': 'test-api-key-123',
-        'PLEXUS_ACCOUNT_KEY': 'test-account',
-        'PLEXUS_APP_URL': 'https://test-app.plexus.example.com'
+        'PRIMUS_API_URL': 'https://test.primus.example.com',
+        'PRIMUS_API_KEY': 'test-api-key-123',
+        'PRIMUS_ACCOUNT_KEY': 'test-account',
+        'PRIMUS_APP_URL': 'https://test-app.primus.example.com'
     }
     with patch.dict(os.environ, env_vars):
         yield env_vars
@@ -145,14 +145,14 @@ def mock_fastmcp():
     return mcp
 
 @pytest.fixture
-def mock_plexus_imports():
-    """Mock Plexus imports to avoid dependency issues in tests"""
+def mock_primus_imports():
+    """Mock Primus imports to avoid dependency issues in tests"""
     with patch.dict('sys.modules', {
-        'plexus.dashboard.api.client': Mock(),
-        'plexus.cli.client_utils': Mock(),
-        'plexus.cli.ScorecardCommands': Mock(),
-        'plexus.cli.score': Mock(),
-        'plexus.config': Mock()
+        'primus.dashboard.api.client': Mock(),
+        'primus.cli.client_utils': Mock(),
+        'primus.cli.ScorecardCommands': Mock(),
+        'primus.cli.score': Mock(),
+        'primus.config': Mock()
     }):
         yield
 

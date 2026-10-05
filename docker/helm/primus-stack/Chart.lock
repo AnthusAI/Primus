@@ -1,0 +1,12 @@
+dependencies:
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 15.5.38
+- name: graphql-proxy
+  repository: file://../charts/graphql-proxy
+  version: 1.0.0
+- name: primus-worker
+  repository: file://../primus-worker
+  version: 1.0.0
+digest: sha256:9822ca42d3dc1c6cd845fc1babc643abe72ab51d2e05870bc57bc07ba3e7ab50
+generated: "2026-10-04T19:37:01.826963-04:00"

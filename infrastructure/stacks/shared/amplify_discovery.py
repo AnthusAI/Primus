@@ -38,7 +38,7 @@ class AmplifyTableDiscovery:
         self.cfn_client = boto3.client('cloudformation', region_name=region)
         self.region = region
     
-    def find_amplify_stack(self, stack_name_pattern: str = 'amplify-plexusdashboard') -> Optional[str]:
+    def find_amplify_stack(self, stack_name_pattern: str = 'amplify-primusdashboard') -> Optional[str]:
         """
         Find the Amplify root stack by name pattern.
         
@@ -206,7 +206,7 @@ class AmplifyTableDiscovery:
     
     def discover_amplify_tables(self, 
                                 table_patterns: Dict[str, str],
-                                amplify_stack_pattern: str = 'amplify-plexusdashboard') -> Dict[str, Dict[str, str]]:
+                                amplify_stack_pattern: str = 'amplify-primusdashboard') -> Dict[str, Dict[str, str]]:
         """
         Discover multiple Amplify DynamoDB tables.
         

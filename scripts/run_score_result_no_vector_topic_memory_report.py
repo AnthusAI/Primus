@@ -11,10 +11,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def main() -> int:
-    from plexus.cli.shared.client_utils import create_client
-    from plexus.cli.report.utils import resolve_account_id_for_command, resolve_report_config
-    from plexus.dashboard.api.models.report_configuration import ReportConfiguration
-    from plexus.reports.service import generate_report_with_parameters
+    from primus.cli.shared.client_utils import create_client
+    from primus.cli.report.utils import resolve_account_id_for_command, resolve_report_config
+    from primus.dashboard.api.models.report_configuration import ReportConfiguration
+    from primus.reports.service import generate_report_with_parameters
 
     parser = argparse.ArgumentParser(
         description="Run Semantic Reinforcement Memory from ScoreResult explanations (value=No)"

@@ -1,0 +1,1459 @@
+from pathlib import Path
+from datetime import datetime, timezone
+
+import yaml
+
+from primus.cli.procedure.procedures import _optimizer_feedback_window
+
+
+OPTIMIZER_YAML_PATH = (
+    Path(__file__).resolve().parents[2] / "procedures" / "feedback_alignment_optimizer.yaml"
+)
+OPTIMIZER_DOCS_DIR = (
+    Path(__file__).resolve().parents[3] / "documentation" / "agent" / "evaluation-feedback"
+)
+OPTIMIZER_SKILL_PATH = (
+    Path(__file__).resolve().parents[3] / "skills" / "score-optimizer" / "SKILL.md"
+)
+OPTIMIZER_COHORT_GUIDE_PATH = (
+    Path(__file__).resolve().parents[3]
+    / "skills"
+    / "score-optimizer"
+    / "references"
+    / "feedback-cohorts.md"
+)
+OPTIMIZATION_DECISION_GUIDE_PATH = (
+    Path(__file__).resolve().parents[3]
+    / "skills"
+    / "score-optimizer"
+    / "references"
+    / "optimization-decision-toolchain.md"
+)
+FEEDBACK_INVESTMENT_GUIDE_PATH = (
+    Path(__file__).resolve().parents[3]
+    / "skills"
+    / "score-optimizer"
+    / "references"
+    / "feedback-investment.md"
+)
+
+
+def _load_optimizer_config():
+    with OPTIMIZER_YAML_PATH.open() as f:
+        return yaml.safe_load(f)
+
+
+def _read_optimizer_doc(filename):
+    return (OPTIMIZER_DOCS_DIR / filename).read_text(encoding="utf-8")
+
+
+def _build_optimizer_scheduler():
+    from lupa import LuaRuntime
+
+    config = _load_optimizer_config()
+    code = config["code"]
+    start = code.index("local function escalation_rank(mode)")
+    end = code.index("local function cookbook_key_for_slot(slot)")
+    block = code[start:end]
+    lua = LuaRuntime(unpack_returned_tuples=True)
+    schedule = lua.execute(
+        block
+        + """
+return function(opts)
+  local slots, mode, counts = build_protected_hypothesis_slots(opts)
+  return {slots = slots, mode = mode, counts = counts}
+end
+"""
+    )
+    return lua, schedule
+
+
+def _build_optimizer_candidate_collapse_checker():
+    from lupa import LuaRuntime
+
+    config = _load_optimizer_config()
+    code = config["code"]
+    start = code.index("local function prediction_mode_collapse_reason(metrics)")
+    end = code.index("local function extract_cost_per_item(eval_result)")
+    block = code[start:end]
+    lua = LuaRuntime(unpack_returned_tuples=True)
+    check = lua.execute(block + "\nreturn prediction_mode_collapse_reason")
+    return lua, check
+
+
+def _build_exact_feedback_cohort_checker():
+    from lupa import LuaRuntime
+
+    code = _load_optimizer_config()["code"]
+    helper_start = code.index(
+        "local function extract_selected_feedback_item_ids(eval_result)"
+    )
+    helper_end = code.index("local function prediction_mode_collapse_reason(metrics)")
+    validator_start = code.index(
+        "local function require_exact_feedback_cohort(eval_result, expected_ids)"
+    )
+    validator_end = code.index(
+        "local function require_exact_regression_cohort(eval_result, expected_dataset_id)"
+    )
+    lua = LuaRuntime(unpack_returned_tuples=True)
+    check = lua.execute(
+        """
+local function has_text(value)
+  return type(value) == "string" and value:match("%S") ~= nil
+end
+local function safe_decode(value) return nil end
+local function call_primus_tool(tool_name, args) error("unexpected tool call") end
+"""
+        + code[helper_start:helper_end]
+        + code[validator_start:validator_end]
+        + "\nreturn require_exact_feedback_cohort"
+    )
+    return lua, check
+
+
+def _feedback_eval_with_ids(lua, item_ids):
+    parameters = lua.table_from({"feedback_item_ids": lua.table_from(item_ids)})
+    return lua.table_from({"parameters": parameters})
+
+
+def _lua_list(lua_table):
+    return [lua_table[i] for i in range(1, len(lua_table) + 1)]
+
+
+def _schedule_slots(num_candidates=3, cycle=1, consecutive_stagnant_cycles=0):
+    lua, schedule = _build_optimizer_scheduler()
+    result = schedule(
+        lua.table_from(
+            {
+                "num_candidates": num_candidates,
+                "cycle": cycle,
+                "consecutive_stagnant_cycles": consecutive_stagnant_cycles,
+            }
+        )
+    )
+    return _lua_list(result["slots"]), result["mode"], result["counts"]
+
+
+def test_optimizer_skill_documents_three_phase_rubric_memory_sop():
+    skill = OPTIMIZER_SKILL_PATH.read_text(encoding="utf-8")
+
+    assert "Three-Phase Rubric-Memory SOP" in skill
+    assert "python -m primus.cli rubric-memory recent" in skill
+    assert "--include-rubric-memory" in skill
+    assert "Phase 1" in skill
+    assert "Phase 2" in skill
+    assert "Phase 3" in skill
+
+
+def test_optimizer_skill_preserves_complete_runs_and_one_cohort_selection_path():
+    skill = " ".join(OPTIMIZER_SKILL_PATH.read_text(encoding="utf-8").split())
+    cohort_guide = " ".join(
+        OPTIMIZER_COHORT_GUIDE_PATH.read_text(encoding="utf-8").split()
+    )
+
+    assert "run through terminal completion" in skill
+    assert "Do not stop, cancel, or kill an evaluation" in skill
+    assert "single canonical" in cohort_guide
+    assert "Do not recreate its selection logic in an ad hoc script" in cohort_guide
+    assert "exact feedback-item set equality" in cohort_guide
+
+
+def test_optimizer_skill_routes_portfolio_decisions_through_one_shared_toolchain():
+    skill = " ".join(OPTIMIZER_SKILL_PATH.read_text(encoding="utf-8").split())
+    guide = " ".join(
+        OPTIMIZATION_DECISION_GUIDE_PATH.read_text(encoding="utf-8").split()
+    )
+
+    assert "primus.optimization.*" in skill
+    for operation in ("rank", "assess", "diagnose", "run", "review", "summary"):
+        assert f"primus.optimization.{operation}" in guide
+    assert "Do not replace these methods with a second ranking formula" in guide
+    assert "Never automatically invalidate feedback" in guide
+    assert "never automatically" in guide.lower() and "stop an evaluation" in guide
+    assert "score.set_champion" in guide
+
+
+def test_feedback_investment_policy_keeps_weekly_volume_non_blocking():
+    guide = " ".join(
+        FEEDBACK_INVESTMENT_GUIDE_PATH.read_text(encoding="utf-8").split()
+    )
+
+    assert "has no fixed weekly minimum" in guide
+    assert "low-volume buckets as a warning, not a blocker" in guide
+
+
+def test_optimizer_requires_balanced_regression_cohort_without_unbalanced_fallback():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "balance = true" in code
+    assert "balance = false" not in code
+    assert "trying unbalanced" not in code.lower()
+    assert "Created unbalanced dataset" not in code
+    assert "no unbalanced fallback will be used" in code
+    assert "build_result.balance_complete" in code
+
+
+def test_optimizer_yaml_defines_dedicated_reporting_agents():
+    config = _load_optimizer_config()
+    agents = config["agents"]
+
+    assert agents["hypothesis_planner"]["model"] == "gpt-5.4-nano"
+    assert agents["code_editor"]["model"] == "gpt-5.4-nano"
+    assert "temperature" not in agents["code_editor"]
+    assert agents["code_editor"]["disable_streaming"] is True
+
+    assert agents["cycle_analyst"]["model"] == "gpt-5.4-nano"
+    assert agents["cycle_analyst"]["max_tokens"] == 16000
+    assert agents["cycle_analyst"]["verbosity"] == "low"
+
+    assert agents["report_writer"]["model"] == "gpt-5.4-nano"
+    assert agents["report_writer"]["max_tokens"] == 16000
+    assert agents["report_writer"]["verbosity"] == "low"
+
+    assert agents["reviewer"]["model"] == "gpt-5.4-nano"
+    assert agents["early_stop_advisor"]["model"] == "gpt-5.4-nano"
+    assert agents["early_stop_advisor"]["temperature"] == 1
+
+
+def test_optimizer_yaml_declares_persisted_cost_ledger_output():
+    config = _load_optimizer_config()
+
+    assert config["outputs"]["costs"] == {
+        "type": "object",
+        "required": False,
+        "description": "Persisted procedure cost ledger, including aggregate incurred cost",
+    }
+
+
+def test_optimizer_yaml_routes_report_generation_to_reporting_agents():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert 'run_required_report_phase(\n        cycle_analyst,' in code
+    assert 'run_required_report_phase(\n          report_writer,' in code
+    assert 'safe_agent_call(agent, agent_name, marked_prompt, nil)' in code
+    assert "report_writer.history:add({role = \"system\", content = full_ctx})" in code
+    assert "Write a complete technical analysis" not in code
+
+
+def test_optimizer_yaml_uses_central_agent_steering_not_mailbox_polling():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "Phase 4: Mailbox check" not in code
+    assert "last_mailbox_check" not in code
+    assert "[User guidance injected mid-run]" not in code
+
+
+def test_optimizer_yaml_uses_dedicated_hypothesis_planner_and_agent_model_overrides():
+    config = _load_optimizer_config()
+    code = config["code"]
+    params = config["params"]
+
+    assert params["agent_models"]["type"] == "object"
+    assert "hypothesis_planner" in config["agents"]
+    assert "hypothesis_planner.clear_history()" in code
+    assert 'safe_agent_call(hypothesis_planner, "hypothesis_planner"' in code
+    assert "local response = hypothesis_planner.output or \"\"" in code
+
+
+def test_optimizer_contradictions_analysis_honors_requested_sample_cap():
+    code = _load_optimizer_config()["code"]
+    start = code.index("local function refresh_known_contradictions")
+    end = code.index("local function", start + 1)
+    refresh_known_contradictions = code[start:end]
+
+    assert "max_feedback_items = params.max_samples or 100" in refresh_known_contradictions
+    assert "max_feedback_items = 400" not in code
+
+
+def test_optimizer_requires_a_balanced_regression_dataset():
+    code = _load_optimizer_config()["code"]
+
+    assert 'balance = true' in code
+    assert 'balance = false' not in code
+    assert 'trying unbalanced' not in code
+    assert 'Created unbalanced dataset' not in code
+
+
+def test_optimizer_resume_reuses_regression_baseline_dataset_provenance():
+    code = _load_optimizer_config()["code"]
+    setup_start = code.index("-- Dataset adequacy check: ensure a deterministic regression dataset exists.")
+    setup_end = code.index("-- Pull starting version", setup_start)
+    setup = code[setup_start:setup_end]
+
+    assert 'if has_text(params.resume_regression_eval) then' in setup
+    assert 'resume_parameters.dataset_id' in setup
+    assert 'dataset_id = resumed_dataset_id' in setup
+    assert 'dataset_id = ensure_regression_dataset_for_version(params.start_version)' in setup
+    assert 'else\n  dataset_id = ensure_regression_dataset_for_version(params.start_version)' in setup
+    assert 'has no dataset_id provenance' in setup
+
+    builder_start = code.index("local function ensure_regression_dataset_for_version(version_id)")
+    builder_end = code.index("-- ================================================================", builder_start)
+    builder = code[builder_start:builder_end]
+    assert 'local frozen_dataset_id = State.get("frozen_regression_dataset_id")' in builder
+    assert 'return frozen_dataset_id, State.get("feedback_target_hash")' in builder
+    assert 'State.set("frozen_regression_dataset_id", dataset_id)' in setup
+
+
+def test_optimizer_yaml_protects_structural_lane_from_rubric_candidate_cap():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local function cap_rubric_hypothesis_slots(slots, requested_count)" in code
+    assert "local function build_protected_hypothesis_slots(opts)" in code
+    assert "num_candidates caps only the three normal rubric lanes" in code
+    assert "hyp_slots = cap_hypothesis_slots" not in code
+    assert "Generating %s hypotheses" in code
+    assert "Hypothesis slots scheduled: %s" in code
+
+    slots, mode, counts = _schedule_slots(num_candidates=3, cycle=1)
+    assert slots == ["recent_incremental", "recent_bold", "regression_fix", "structural"]
+    assert mode == "normal"
+    assert counts["rubric"] == 3
+    assert counts["structural"] == 1
+
+    slots, _mode, counts = _schedule_slots(num_candidates=2, cycle=1)
+    assert slots == ["recent_incremental", "recent_bold", "structural"]
+    assert counts["rubric"] == 2
+    assert counts["structural"] == 1
+
+    slots, _mode, counts = _schedule_slots(num_candidates=1, cycle=1)
+    assert slots == ["recent_incremental", "structural"]
+    assert counts["rubric"] == 1
+    assert counts["structural"] == 1
+
+
+def test_optimizer_yaml_adds_plateau_lanes_on_top_of_protected_lanes():
+    slots, mode, counts = _schedule_slots(
+        num_candidates=3,
+        cycle=1,
+        consecutive_stagnant_cycles=3,
+    )
+    assert slots == [
+        "recent_incremental",
+        "recent_bold",
+        "regression_fix",
+        "structural",
+        "reframe",
+    ]
+    assert mode == "escalate"
+    assert counts["rubric"] == 3
+    assert counts["structural"] == 1
+    assert counts["plateau"] == 1
+
+    slots, mode, counts = _schedule_slots(
+        num_candidates=3,
+        cycle=1,
+        consecutive_stagnant_cycles=6,
+    )
+    assert slots == [
+        "recent_incremental",
+        "recent_bold",
+        "regression_fix",
+        "structural",
+        "reframe",
+        "full_rewrite",
+    ]
+    assert mode == "ultra_creative"
+    assert counts["plateau"] == 2
+
+
+def test_optimizer_yaml_adds_creative_hypothesis_after_third_cycle():
+    config = _load_optimizer_config()
+    code = config["code"]
+    creative_doc = _read_optimizer_doc("optimizer-cookbook-creative.md")
+
+    assert "local function should_add_creative_hypothesis(cycle_number)" in code
+    assert ">= 4" in code
+    assert "creative_slots = {\"creative\"}" in code
+    assert "OBJECTIVE: Creative hypothesis (cycle 4+ cookbook lane)" in code
+    assert "Do NOT let it displace rubric-oriented hypotheses" in code
+    assert "Use the creative cookbook injected above" in code
+    assert "Repeat the operative prompt instructions 3x" in creative_doc
+    assert "Polish" in creative_doc
+
+    slots, _mode, counts = _schedule_slots(num_candidates=3, cycle=4)
+    assert slots == [
+        "recent_incremental",
+        "recent_bold",
+        "regression_fix",
+        "structural",
+        "creative",
+    ]
+    assert counts["creative"] == 1
+
+
+def test_optimizer_yaml_uses_lane_specific_cookbooks():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert 'load_optimizer_cookbook("evaluation-feedback.optimizer-cookbook-normal")' in code
+    assert 'load_optimizer_cookbook("evaluation-feedback.optimizer-cookbook-structural")' in code
+    assert 'load_optimizer_cookbook("evaluation-feedback.optimizer-cookbook-creative")' in code
+    assert "local function cookbook_key_for_slot(slot)" in code
+    assert 'if slot == "creative" then' in code
+    assert 'if slot == "mechanical_repair" or slot == "structural" or slot == "reframe" or slot == "full_rewrite" then' in code
+    assert "slot = slot_name" in code
+    assert "Lane-specific cookbooks are injected per hypothesis slot" in code
+
+
+def test_optimizer_normal_cookbook_emphasizes_rubric_policy_before_mechanics():
+    normal_doc = _read_optimizer_doc("optimizer-cookbook-normal.md")
+
+    assert "Missing Policy" in normal_doc
+    assert "Ambiguous Criterion" in normal_doc
+    assert "Feedback-Direction Targeting" in normal_doc
+    assert "Guidelines -> Prompt Alignment" in normal_doc
+    assert "Do not spend a normal slot on mechanics alone" in normal_doc
+    assert "Repeat the operative prompt instructions 3x" not in normal_doc
+    assert "Repeat the whole prompt" not in normal_doc
+    assert "Polish" not in normal_doc
+
+
+def test_optimizer_structural_cookbook_includes_late_prompt_shape_lane():
+    structural_doc = _read_optimizer_doc("optimizer-cookbook-structural.md")
+
+    assert "C4. Prompt-Shape / Attention-Structure Transformations" in structural_doc
+    assert "lightweight alternative to CoT" in structural_doc
+    assert "Repeat the decisive question/rule" in structural_doc
+    assert "reorder label definitions or valid_classes" in structural_doc
+    assert "C5. Full Rewrite" in structural_doc
+    assert "Model Swap" in structural_doc
+    assert "Input Source" in structural_doc
+    assert "Extractor Node" in structural_doc
+    assert "Repeat the operative prompt instructions 3x" not in structural_doc
+    assert "Polish" not in structural_doc
+
+
+def test_optimizer_creative_cookbook_is_isolated_to_creative_lane():
+    config = _load_optimizer_config()
+    code = config["code"]
+    normal_doc = _read_optimizer_doc("optimizer-cookbook-normal.md")
+    structural_doc = _read_optimizer_doc("optimizer-cookbook-structural.md")
+    creative_doc = _read_optimizer_doc("optimizer-cookbook-creative.md")
+
+    assert "Repeat the operative prompt instructions 3x" in creative_doc
+    assert "Polish" in creative_doc
+    assert "Transcript First, Instruction Last" in creative_doc
+    assert "Repeat the operative prompt instructions 3x" not in normal_doc
+    assert "Repeat the operative prompt instructions 3x" not in structural_doc
+    assert "Translate the operative prompt or rubric instructions to Polish" not in code
+    assert "Repeat the whole prompt twice" not in code
+
+
+def test_optimizer_yaml_passes_code_editor_context_inline_without_history_injection():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "code_editor.history:add" not in code
+    assert "=== CURRENT score_config.yaml (the file you are editing) ===" in code
+    assert "The current file content is included above in this message." in code
+    assert "local synthesis_context_parts = {}" in code
+    assert "=== CURRENT score_config.yaml (starting from %s" in code
+    assert "Recovered from %s context window error: cleared history, rebuilt inline context" in code
+
+
+def test_optimizer_yaml_deduplicates_submitted_candidate_records():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local submitted_version_keys = {}" in code
+    assert "local submitted_version_ids = {}" in code
+    assert "local function record_submitted_version(entry)" in code
+    assert "Skipping duplicate submitted version record" in code
+    assert "Skipping duplicate submitted candidate version" in code
+    assert code.count("table.insert(submitted_versions") == 1
+
+
+def test_optimizer_yaml_skips_invalid_synthesis_strategy_selection():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "if best_sv_score <= -999 then" in code
+    assert "no viable synthesis strategy" in code
+    assert "Strategy selection skipped" in code
+    assert "No viable synthesis strategy selected" in code
+
+
+def test_optimizer_synthesis_is_fail_closed_against_the_current_cycle_leader():
+    """Feature: synthesis safety
+
+    Scenario: a synthesis candidate loses either frozen cohort to the current cycle leader
+      Given the current cycle leader was evaluated on the frozen recent and regression cohorts
+      When a synthesis candidate has a negative delta on either cohort against that leader
+      Then the candidate is not selected or carried forward
+      And the reviewer receives the leader, its cohort identity, and leader-relative deltas
+    """
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local function require_exact_regression_cohort" in code
+    assert "strategy_recent_regression_vs_cycle_leader" in code
+    assert "strategy_regression_regression_vs_cycle_leader" in code
+    assert "synthesis_recent_regression_vs_cycle_leader" in code
+    assert "synthesis_regression_regression_vs_cycle_leader" in code
+    assert "Comparison basis: current cycle leader" in code
+    assert "Current cycle leader (reverts to)" in code
+
+
+def test_optimizer_synthesis_pins_model_without_reviewed_justification():
+    """Feature: synthesis safety
+
+    Scenario: synthesis changes a score model without review
+      Given the cycle leader has a pinned model configuration
+      When synthesis submits a version with a different model configuration
+      Then the version is rejected before selection unless an explicit reviewed justification is supplied
+    """
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "reviewed_model_change_justification" in config["params"]
+    assert "local function model_configuration_fingerprint" in code
+    assert "model_change_requires_reviewed_justification" in code
+    assert "pinned_model_fingerprint" in code
+
+
+def test_optimizer_yaml_ignores_code_editor_prose_after_terminal_tools():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert 'Tool.last_call("submit_score_version") or Tool.last_call("done")' in code
+    assert "Ignoring agent prose after terminal tool call" in code
+    assert code.count("Ignoring agent prose after terminal tool call") == 2
+
+
+def test_optimizer_yaml_handles_semantically_unchanged_submit_errors():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "semantically unchanged" in code
+    assert "Formatting/comment-only changes do not count" in code
+
+
+def test_optimizer_startup_requests_retrieval_only_rubric_memory():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert '"primus_rubric_memory_evidence_pack"' in code
+    assert "synthesize = false" in code
+
+
+def test_optimizer_startup_requests_recent_rubric_memory():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert '"primus_rubric_memory_recent_entries"' in code
+    assert "active_rubric_memory_score_version_id = has_text(params.start_version) and params.start_version or nil" in code
+    assert "score_version_id = active_rubric_memory_score_version_id" in code
+    assert "=== RECENT RUBRIC MEMORY ===" in code
+    assert "recent_rubric_memory_briefing = recent_result.markdown_context" in code
+    assert 'State.set("recent_rubric_memory_context", recent_result)' in code
+
+
+def test_optimizer_sme_gate_refreshes_rubric_memory_for_active_version():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "ensure_rubric_memory_context_for_version" in code
+    assert "rubric_memory_context_score_version" in code
+    assert 'topic_hint = purpose or "Optimizer rubric-memory active-version context"' in code
+    assert 'State.set("rubric_memory_context_score_version_id", score_version_id)' in code
+    assert "gate_rubric_memory_context = ensure_rubric_memory_context_for_version" in code
+    assert "rubric_memory_context = gate_rubric_memory_context" in code
+
+
+def test_optimizer_contradictions_reports_use_active_score_version_cache_key():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "contradictions_score_version_id =" in code
+    assert "final_contradictions_score_version_id =" in code
+    assert "score_version_id = contradictions_score_version_id" in code
+    assert "score_version_id = final_contradictions_score_version_id" in code
+    assert '" / " .. tostring(contradictions_score_version_id)' in code
+    assert '" / " .. tostring(final_contradictions_score_version_id)' in code
+
+
+def test_optimizer_yaml_treats_interruption_as_terminal_not_retryable():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert 'return "interrupted"' in code
+    assert 'if err_type == "interrupted" then' in code
+    assert "error(tostring(err))" in code
+    assert 'if classify_error(slot_err) == "interrupted" then' in code
+    assert 'if classify_error(cycle_err) == "interrupted" then' in code
+
+
+def test_optimizer_yaml_records_sample_size_diagnostics():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert 'State.get("sample_size_diagnostics")' in code
+    assert 'State.set("sample_size_diagnostics", sample_size_diagnostics)' in code
+    assert "requested_max_samples = min_dataset_rows" in code
+    assert "available_rows = selected_row_count" in code
+
+
+def test_optimizer_yaml_requires_requested_rows_for_cached_regression_dataset():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local dataset_size_adequate = dataset_rows >= min_dataset_rows" in code
+    assert "dataset_source_exhausted and dataset_rows >= min_acceptable" in code
+    assert "dataset_requested_max_items >= min_dataset_rows" in code
+    assert "dataset_check.row_count >= min_acceptable" not in code
+    assert "dataset_check.balance_applied == true" in code
+    assert "dataset_check.resolved_final_classes ~= nil" in code
+    assert "dataset_check.class_coverage ~= nil" in code
+    assert "build_source_exhausted" in code
+    assert "qualifying_found" in code
+    assert "unbal_source_exhausted" not in code
+
+
+def test_optimizer_yaml_bounds_report_context_and_output_shapes():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "Keep the entire report under 450 words." in code
+    assert "Exactly 4 bullets, one sentence each." in code
+    assert "Exactly 3 short subsections. Each must be exactly 2 sentences." in code
+    assert "HARD LIMIT: max 3 agenda items. Under 200 words total." in code
+    assert 'trunc(history_text, 2000)' in code
+    assert 'trunc(ins.analysis, 800)' in code
+    assert 'render_items("FALSE POSITIVES (predicted YES, should be NO)", fp_items, 2)' in code
+    assert 'render_items("FALSE NEGATIVES (predicted NO, should be YES)", fn_items, 2)' in code
+    assert 'render_items("OTHER MISCLASSIFICATIONS", other_items, 1)' in code
+
+
+def test_optimizer_yaml_uses_required_report_phase_helper_for_all_report_llm_calls():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local function run_required_report_phase" in code
+    assert "report_generation_status" in code
+    assert "Report phase %s started" in code
+    assert "Report phase %s succeeded" in code
+    assert "report_generation_failed:" in code
+    for phase_id in [
+        "cycle_executive_analysis",
+        "cycle_lab_report",
+        "cycle_sme_agenda",
+        "accumulated_lessons",
+        "procedure_summary",
+        "end_executive_summary",
+        "end_lab_report",
+        "end_sme_agenda",
+    ]:
+        assert f'"{phase_id}"' in code
+    assert code.count("run_required_report_phase(") >= 9
+
+
+def test_optimizer_yaml_preprocessing_guidance_starts_with_broad_relevant_windows():
+    structural_doc = _read_optimizer_doc("optimizer-cookbook-structural.md")
+
+    assert "RelevantWindowsTranscriptFilter" in structural_doc
+    assert "Start with broad sentence windows" in structural_doc
+    assert "prev_count=5" in structural_doc
+    assert "next_count=8" in structural_doc
+    assert "Avoid first attempts with one-word windows" in structural_doc
+
+
+def test_optimizer_yaml_marks_report_failures_as_terminal_without_losing_cycle_state():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert 'stop_reason = "report_generation_failed"' in code
+    assert 'if string.find(tostring(cycle_err), "report_generation_failed", 1, true) then' in code
+    assert 'if stop_reason ~= "report_generation_failed" then' in code
+    assert 'error("report_generation_failed:" .. phase .. ": " .. tostring(err))' in code
+    assert 'State.set("iterations", iterations)' in code
+
+
+def test_optimizer_yaml_final_reports_do_not_block_optimizer_completion():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert 'State.set("optimization_complete", true)' in code
+    assert 'State.set("optimizer_result_summary", final_run_summary)' in code
+    assert 'State.set("final_report_dispatch", {' in code
+    assert "local function run_nonblocking_final_report_phase" in code
+    assert 'if string.sub(phase, 1, 4) == "end_" then' in code
+    assert "return run_nonblocking_final_report_phase(phase, agent_name, prompt)" in code
+    assert 'status = "skipped_nonblocking"' in code
+    assert 'mode = "nonblocking_deterministic"' in code
+    assert "Final LLM report generation is not run inline with optimizer completion." in code
+    assert "Final reports will not block completion." in code
+    assert "Main unresolved signal" in code
+    assert "FOR YOUR NEXT MEETING" in code
+    assert "SME agenda deferred" not in code
+    assert "final report deferred" not in code
+
+
+def test_optimizer_yaml_persists_structured_already_good_result_before_early_return():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    early_exit_start = code.index(
+        "if recent_baseline_metrics.alignment >= 0.99 and acc_perfect then"
+    )
+    early_return = code.index("  return {", early_exit_start)
+    early_exit = code[early_exit_start:early_return]
+
+    assert 'completion_reason = "baselines_already_good"' in early_exit
+    assert 'stop_reason = "already_good"' in early_exit
+    assert "recent_baseline_id = recent_baseline_id" in early_exit
+    assert "regression_baseline_id = regression_baseline_id" in early_exit
+    assert "baseline_fb_ac1 = recent_baseline_metrics.alignment" in early_exit
+    assert "baseline_regression_ac1 = regression_baseline_metrics and regression_baseline_metrics.alignment or nil" in early_exit
+    assert "champion_version_id = champion_version_id" in early_exit
+    assert "cycles = 0" in early_exit
+    assert 'State.set("optimization_complete", true)' in early_exit
+    assert 'State.set("optimizer_result_summary", already_good_summary)' in early_exit
+
+
+def test_optimizer_yaml_adds_report_phase_markers_for_context_capture():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local function report_phase_marker" in code
+    assert "=== OPTIMIZER REPORT PHASE: " in code
+    assert "local marked_prompt = marker .." in code
+    assert "turn_label = marker" in code
+
+
+def test_optimizer_yaml_uses_shared_score_version_test_tool():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert 'call_primus_tool, "primus_score_test"' in code
+    assert 'version              = candidate_id' in code
+    assert 'samples              = 3' in code
+
+
+def test_optimizer_disqualifies_single_class_predictions_on_multiclass_cohort():
+    lua, check = _build_optimizer_candidate_collapse_checker()
+    reason = check(
+        lua.table_from(
+            {
+                "confusion_matrix": lua.table_from(
+                    {
+                        1: lua.table_from({1: 0, 2: 10}),
+                        2: lua.table_from({1: 0, 2: 37}),
+                    }
+                ),
+                "confusion_labels": lua.table_from({1: "no", 2: "yes"}),
+            }
+        )
+    )
+
+    assert reason == "prediction_mode_collapse_actual_2_predicted_1"
+
+
+def test_optimizer_review_gate_uses_prediction_mode_collapse_as_disqualifier():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "prediction_mode_collapse_reason(b_fb_metrics)" in code
+    assert "prediction_mode_collapse_reason(b_acc_metrics)" in code
+    assert 'disqualification_reason = "recent_" .. collapse_reason' in code
+    assert 'disqualification_reason = "regression_" .. regression_collapse_reason' in code
+
+
+def test_optimizer_yaml_routes_unresolved_placeholders_to_mechanical_repair_lane():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert 'failure_code=unresolved_prompt_placeholders' in code
+    assert '"mechanical_repair"' in code
+    assert "OBJECTIVE: Mechanical prompt-rendering repair" in code
+    assert "Do not target recurrence, RCA topics, model behavior, or rubric semantics" in code
+    assert "{{ metadata.disposition }}" in code
+    assert "mechanical_prompt_failure = mechanical_prompt_failure" in code
+    assert "Mechanical prompt-rendering preflight failed; scheduling repair lane" in code
+    assert "MECHANICAL PROMPT RENDERING FAILURE" in code
+    assert "Repair placeholder syntax or metadata interpolation before attempting rubric tuning." in code
+    assert 'skip_reason = "mechanical_repair_failed"' in code
+    assert 'stop_reason = "mechanical_failure"' in code
+    assert 'State.set("mechanical_prompt_failure_unresolved", true)' in code
+    assert "Mechanical prompt repair did not produce a smoke-test-clean version; stopping before rubric optimization." in code
+
+
+def test_optimizer_yaml_protects_mechanically_clean_prompt_lines_after_repair():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local function contains_legacy_xcc_placeholders(text)" in code
+    assert "local function build_mechanical_integrity_guard_text(code_text, start_label)" in code
+    assert "The starting YAML (%s) is already mechanically clean for legacy placeholder syntax." in code
+    assert "Any candidate that reintroduces `{xcc:` will be rejected before evaluation." in code
+    assert 'local protect_mechanical_prompt_lines = not has_text(mechanical_prompt_failure)' in code
+    assert 'and not contains_legacy_xcc_placeholders(current_code)' in code
+    assert 'build_mechanical_integrity_guard_text(current_code, "current base version")' in code
+    assert 'build_mechanical_integrity_guard_text(start_code, start_label)' in code
+    assert 'build_legacy_placeholder_guard_failure(candidate_id, submitted_file_content)' in code
+
+
+def test_optimizer_yaml_strategy_b_uses_clean_starting_point_when_baseline_is_mechanically_dirty():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local strategy_b_start_code = current_code" in code
+    assert 'if contains_legacy_xcc_placeholders(current_code) and not contains_legacy_xcc_placeholders(synth_start_code) then' in code
+    assert 'strategy_b_start_code = synth_start_code' in code
+    assert 'strategy_b_start_label = "MECHANICALLY CLEAN STARTING POINT (" .. synth_start_label .. ")"' in code
+    assert 'diag("Strategy B switching from mechanically dirty baseline to smoke-test-clean starting point")' in code
+    assert 'run_synthesis_react(table.concat(strategy_b_parts, "\\n"), strategy_b_start_code, strategy_b_start_label, strategy_b_parent_version_id, 10, "Strategy-B", pinned_model_fingerprint)' in code
+
+
+def test_optimizer_yaml_defines_safe_encode_for_score_test_failure_details():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local function safe_encode(value)" in code
+    assert "return Json.encode(value)" in code
+    assert "if test_result.failures and #test_result.failures > 0 then" in code
+    assert 'safe_encode(test_result.failures)' in code
+    assert 'safe_encode(test_result.predictions)' in code
+
+
+def test_optimizer_yaml_gates_sme_questions_with_rubric_memory():
+    config = _load_optimizer_config()
+    code = config["code"]
+    tools = config["agents"]["code_editor"]["tools"]
+    system_prompt = config["agents"]["code_editor"]["system_prompt"]
+
+    assert "primus_rubric_memory_recent_entries" in tools
+    assert "primus_rubric_memory_sme_question_gate" in tools
+    assert "Before concluding that SME input is needed, check rubric memory." in system_prompt
+    assert "Begin policy-sensitive work by reviewing recent rubric memory" in system_prompt
+    assert "local function gate_sme_agenda" in code
+    assert '"primus_rubric_memory_sme_question_gate"' in code
+    assert '"cycle_" .. tostring(cycle) .. "_sme_agenda"' in code
+    assert '"end_of_run_sme_agenda"' in code
+    assert 'State.set("sme_agenda_raw"' in code
+    assert 'State.set("sme_agenda_gated"' in code
+    assert 'State.set("sme_question_gate_diagnostics"' in code
+
+
+def test_optimizer_yaml_runs_contradictions_directly_without_background_dispatch():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local bg = opts.background or false" not in code
+    assert 'background = true' not in code
+    assert 'background = false' not in code
+    assert "dispatched in background" not in code
+    assert "consume results later" not in code
+    assert "include_rubric_memory = false" not in code
+    assert "include_rubric_memory = true" in code
+    assert 'pcall(refresh_known_contradictions, 0, {ttl_hours = 48})' in code
+    assert 'cache_key = "FeedbackContradictions (expanded): " .. scorecard_name .. " / " .. score_name' in code
+
+
+def test_optimizer_baseline_feedback_runs_score_rubric_consistency_check():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "score_rubric_consistency_check = true" in code
+    assert 'evaluation_type    = "feedback"' in code
+
+
+def test_optimizer_yaml_freezes_feedback_window_instead_of_stopping_on_new_feedback():
+    config = _load_optimizer_config()
+    code = config["code"]
+    params = config["params"]
+
+    assert params["feedback_window_start_at"]["type"] == "string"
+    assert params["feedback_window_end_at"]["type"] == "string"
+    assert 'State.set("feedback_window_start_at", params.feedback_window_start_at)' in code
+    assert 'State.set("feedback_window_end_at", params.feedback_window_end_at)' in code
+    assert 'feedback_start_at = params.feedback_window_start_at' in code
+    assert 'feedback_end_at = params.feedback_window_end_at' in code
+    assert 'start_at = params.feedback_window_start_at' in code
+    assert 'end_at = params.feedback_window_end_at' in code
+    assert '" / " .. tostring(params.feedback_window_start_at) .. " / " .. tostring(params.feedback_window_end_at)' in code
+    assert 'State.set("feedback_target_advanced_ignored"' in code
+    assert "Continuing against frozen window ending" in code
+    assert "feedback_target_changed_restart_required" not in code
+    assert "os.time()" not in code
+    assert 'os.date("!%Y-%m-%dT%H:%M:%SZ",' not in code
+
+
+def test_optimizer_cli_computes_frozen_feedback_window():
+    start_at, end_at = _optimizer_feedback_window(
+        90,
+        datetime(2026, 5, 9, 12, 0, 0, tzinfo=timezone.utc),
+    )
+
+    assert start_at == "2026-02-08T12:00:00Z"
+    assert end_at == "2026-05-09T12:00:00Z"
+
+
+def test_optimizer_yaml_persists_configured_max_iterations_for_reporting():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert 'State.set("configured_max_iterations", params.max_iterations)' in code
+    assert "configured_max_iterations = params.max_iterations" in code
+
+
+def test_optimizer_yaml_persists_no_feedback_terminal_summary():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert 'State.set("stop_reason", "skipped_no_feedback")' in code
+    assert 'stop_reason = "skipped_no_feedback"' in code
+    assert 'State.set("end_of_run_report", {' in code
+    assert 'status = "skipped_no_feedback"' in code
+
+
+def test_optimizer_yaml_treats_cycle_errors_as_terminal_and_does_not_extend_iteration_cap():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local max_cycles = params.max_iterations" in code
+    assert "max_cycles = max_cycles + 1" not in code
+    assert '"ERROR in cycle %d: %s — stopping run"' in code
+    assert 'stop_reason = "error"' in code
+    assert 'error("Cycle " .. tostring(cycle) .. " failed: " .. tostring(cycle_err))' in code
+
+
+def test_optimizer_yaml_avoids_double_counting_after_cycle_record_and_formats_cycle_prompt_with_cycle_number():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local cycle_recorded = false" in code
+    assert "if not cycle_recorded then" in code
+    assert "cycle_recorded = true" in code
+    assert 'Analyze Cycle %d and produce exactly four sections in this order:\\n"' in code
+    assert '.. "- No long paragraphs anywhere\\n",' in code
+    assert "cycle))" in code
+
+
+def test_optimizer_yaml_never_promotes_champion_and_reports_manual_follow_up():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "primus_score_set_champion" not in code
+    assert "Promoting winning version" not in code
+    assert "Champion promoted:" not in code
+    assert "Manual promotion is required; the optimizer never promotes champion automatically." in code
+    assert "Winning version remains the current champion" in code
+    assert "No promotion was performed." in code
+    assert "winning_version_id = last_accepted_version_id" in code
+
+
+def test_optimizer_yaml_declares_the_winning_version_in_its_persisted_output():
+    config = _load_optimizer_config()
+
+    assert config["outputs"]["winning_version_id"] == {
+        "type": "string",
+        "required": False,
+        "description": "Accepted score version selected for guarded external promotion",
+    }
+
+
+def test_optimizer_yaml_rejects_non_completed_evaluation_handles():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert 'if eval_status == "COMPLETED"\n' in code
+    assert 'if eval_status == "FAILED" or eval_status == "CANCELLED" or eval_status == "CANCELED" then' in code
+    assert "local eval_error = (eval_data and (eval_data.error_message or eval_data.errorMessage" in code
+    assert '" error_message=" .. tostring(eval_error)' in code
+    assert '"Evaluation did not complete: status=" .. tostring((eval_data and eval_data.status) or waited.status)' in code
+    assert "score_version_id = eval_result.score_version_id or eval_result.scoreVersionId" in code
+
+
+def test_optimizer_waits_for_a_terminal_evaluation_state_without_a_time_deadline():
+    code = _load_optimizer_config()["code"]
+
+    assert 'local EVAL_AWAIT_POLL_TIMEOUT = "PT1M"' in code
+    assert "local function evaluation_progress_marker(eval_data, waited)" in code
+    assert "not eval_data.completion_pending_process_exit" in code
+    assert "while true do" in code
+    assert "remains active; progress=" in code
+    assert "EVAL_STALL_POLL_LIMIT" not in code
+    assert "Evaluation stalled without progress" not in code
+    assert 'local EVAL_AWAIT_TIMEOUT = "PT90M"' not in code
+    assert "Evaluation did not complete: status=RUNNING" not in code
+
+
+def test_optimizer_yaml_skips_scores_with_no_recent_feedback_baseline():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local function is_no_feedback_baseline_error(err)" in code
+    assert '"no qualifying feedback"' in code
+    assert '"no labeled samples"' in code
+    assert '"dataset not found"' in code
+    assert 'status = "skipped_no_feedback"' in code
+    assert "No qualifying recent feedback is available for " in code
+
+
+def test_optimizer_yaml_fails_fast_on_infrastructure_submit_errors():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local function is_non_recoverable_submit_error(err)" in code
+    assert '"graphql query failed"' in code
+    assert '"invalid value"' in code
+    assert '"missing api"' in code
+    assert '"semantically unchanged"' in code
+    assert 'error("submit_score_version infrastructure error: " .. tostring(submit_result.error))' in code
+    assert code.count("is_non_recoverable_submit_error(submit_result.error)") >= 2
+
+
+def test_optimizer_yaml_marks_one_cycle_runs_as_verification_only():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "Single-cycle verification run: this will validate one optimization cycle only and will not perform champion promotion." in code
+    assert 'local completion_mode = params.max_iterations == 1 and "Verification complete" or "Optimization complete"' in code
+
+
+def test_optimizer_yaml_rejects_aggregate_gains_that_regress_protected_recall():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert config["params"]["max_recall_regression"]["default"] == 0.05
+    assert "local function classify_exploration_success(cand)" in code
+    assert "local recall_floor = -params.max_recall_regression" in code
+    assert "cand.class_safety_rejection" in code
+    assert "recent recall regression" in code
+    assert "historical recall regression" in code
+    assert '"; rejected: " .. sv.class_safety_rejection' in code
+
+
+def test_optimizer_yaml_runs_diagnostic_synthesis_when_no_hypothesis_has_positive_signal():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "if #succeeded == 0 and not any_partial_positive then" in code
+    assert "Running diagnostic synthesis despite 0 successes and no positive hypothesis signal" in code
+    assert "All %d hypotheses regressed; synthesis must start from baseline and treat failed edits as negative evidence" in code
+    assert "Start from BASELINE, not from any failed hypothesis code." in code
+    assert "no_successful_hypotheses_no_positive_signal" not in code
+
+
+def test_optimizer_yaml_records_visible_synthesis_decision_when_no_version_is_evaluated():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local synthesis_decision_log = nil" in code
+    assert 'build_synthesis_decision_log(\n          "not_evaluated"' in code
+    assert '"no_synthesis_version_and_no_successful_hypothesis"' in code
+    assert "synthesis_decision_log = build_synthesis_decision_log" in code
+    assert "dual_synthesis = synthesis_decision_log" in code
+    assert "Cycle %d — No synthesis version was evaluated; recorded synthesis decision artifact" in code
+
+
+def test_optimizer_yaml_uses_safe_tool_call_arg_helper_instead_of_direct_args_dereferences():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local function tool_call_arg(call, key, default)" in code
+    assert ".args.command" not in code
+    assert ".args.reason" not in code
+    assert ".args.version_note" not in code
+    assert ".args.old_str" not in code
+    assert ".args.new_str" not in code
+
+
+def test_optimizer_yaml_uses_utf8_safe_truncation_without_byte_slicing():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local function trunc(s, maxlen)" in code
+    assert "local str = utf8_clean(tostring(s))" in code
+    assert "return utf8_clean(string.sub(str, 1, maxlen))" in code
+    assert "string.char(string.byte(str, i))" not in code
+
+
+def test_optimizer_yaml_rebaselines_continuations_when_feedback_target_advanced():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local continuation_rebaseline = false" in code
+    assert "Continuation detected newer feedback target" in code
+    assert "if not is_continuation or continuation_rebaseline then" in code
+    assert 'if not is_continuation then' in code
+    assert 'State.set("iterations", {})' in code
+
+
+def test_optimizer_yaml_escalates_plateaus_instead_of_stopping_or_shrinking():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert 'stop_reason = "improvement_plateau"' not in code
+    assert 'stop_reason = "early_stopped"' not in code
+    assert "Conservatism mode" not in code
+    assert "ULTRA-CONSERVATIVE" not in code
+    assert 'hyp_slots = {"recent_incremental"}' not in code
+    assert 'hyp_slots = {"recent_incremental", "structural"}' not in code
+    assert 'plateau_slots = {"reframe"}' in code
+    assert 'plateau_slots = {"reframe", "full_rewrite"}' in code
+    assert 'The run is stuck. Search harder instead of shrinking the hypothesis set.' in code
+    assert 'Recent cycles are flat. Broaden search instead of reducing ambition.' in code
+
+
+def test_optimizer_yaml_flags_repeated_strongly_harmful_hypothesis_territory_without_erasing_lane():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local HYPOTHESIS_REPEAT_STOPWORDS" in code
+    assert "hypothesis_repeats_strongly_harmful_prior" in code
+    assert "fb_d < -0.05 or acc_d < -0.05" in code
+    assert "overlaps strongly harmful cycle" in code
+    assert "flagged as repeated harmful territory" in code
+    assert "preserving lane and steering edit away from prior failure" in code
+    assert "Preserve this protected lane, but avoid copying the failed policy family, wording family, or evidence rule." in code
+    assert "blocked for harmful repeat, retrying with hard exclusion" not in code
+
+
+def test_optimizer_yaml_keeps_bold_lane_and_uses_escalation_advisor():
+    config = _load_optimizer_config()
+    code = config["code"]
+    structural_doc = _read_optimizer_doc("optimizer-cookbook-structural.md")
+
+    assert 'done(escalation_mode=\\"escalate\\", reason=...)' in code
+    assert 'done(escalation_mode=\\"ultra_creative\\", reason=...)' in code
+    assert 'Plateau escalation advisor' in code
+    assert 'OBJECTIVE: Reframe the problem (cross-cycle reinterpretation)' in code
+    assert 'OBJECTIVE: Full rewrite from a new framing' in code
+    assert 'Remove or relax a processor that is suppressing reviewer-relevant evidence.' in structural_doc
+
+
+def test_optimizer_yaml_builds_agent_recurrence_context_with_emerging_items():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local function build_recurrence_agent_context(tracker, cycle, max_items)" in code
+    assert "local function build_recurrence_agent_rows(tracker, cycle, max_items)" in code
+    assert "RECURRENT MISCLASSIFICATION CONTEXT FOR OPTIMIZER AGENTS" in code
+    assert "Treat EMERGING items below as early warning examples" in code
+    assert "RECURRENCE_PATTERN_PRIORITY = {" in code
+    assert "EMERGING = 5" in code
+    assert "#per_cycle >= 2 or wrong >= 2 or (wrong >= 1 and correct >= 1)" in code
+    assert 'local is_early_warning = (entry.pattern == "EMERGING" and wrong >= 1)' in code
+    assert "has_repeat_history or is_early_warning" in code
+    assert "pattern=%s%s" in code
+
+
+def test_optimizer_yaml_injects_agent_recurrence_context_into_reasoning_paths():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local recurrence_agent_context = build_recurrence_agent_context(State.get(\"item_recurrence\") or {}, cycle, 12)" in code
+    assert code.count("build_recurrence_agent_context(State.get(\"item_recurrence\") or {}, cycle, 12)") >= 7
+    assert 'notify_recurrence_context_injected("hypothesis"' in code
+    assert 'notify_recurrence_context_injected("editor"' in code
+    assert 'notify_recurrence_context_injected("synthesis"' in code
+    assert 'notify_recurrence_context_injected("reviewer"' in code
+    assert "cycle_recurrence_agent_context = build_recurrence_agent_context(ir, cycle, 12) or \"\"" in code
+    assert "Escalation guidance: if these items are still recurring" in code
+
+
+def test_optimizer_yaml_logs_auditable_recurrence_context_fingerprint():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local function build_recurrence_context_audit(tracker, cycle, max_items)" in code
+    assert "local function notify_recurrence_context_injected(context_label, tracker, cycle)" in code
+    assert "target=%s %s; top3=[%s]" in code
+    assert "wrong=%dx correct=%dx label=%s model=%s trajectory=%s" in code
+    assert 'State.set("last_recurrence_context_audit"' in code
+    assert "Injected recurrent misclassification context: %s" in code
+    assert 'notify_recurrence_context_injected("planning"' in code
+    assert 'notify_recurrence_context_injected("hypothesis"' in code
+    assert 'notify_recurrence_context_injected("editor"' in code
+    assert 'notify_recurrence_context_injected("synthesis"' in code
+    assert 'notify_recurrence_context_injected("strategy_b"' in code
+    assert 'notify_recurrence_context_injected("reviewer"' in code
+
+
+def test_optimizer_yaml_hypotheses_must_account_for_recurrence_targets():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "Your description MUST name the recurrence target pattern/item group" in code
+    assert "no recurrence target" in code
+    assert "feedback-focused hypothesis this cycle must target its top recurrence group" in code
+    assert "For OSCILLATING items, prefer narrow predicates" in code
+    assert "If recurrent misclassification context is present, your edit must either target the named recurrence group" in code
+
+
+def test_optimizer_yaml_records_recurrence_for_failed_no_synthesis_cycles():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "local function record_cycle_item_recurrence(cycle, item_classifications, cycle_context, notify_public)" in code
+    assert "record_cycle_item_recurrence(cycle, fb_item_class" in code
+    assert "failed_fb_item_class" in code
+    assert "record_cycle_item_recurrence(cycle, failed_fb_item_class" in code
+    assert "Cycle %d - Repeat Misclassification Tracker: no repeat or transition-history items yet." in code
+
+
+def test_optimizer_yaml_bounds_parallel_evaluation_processes():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert config["params"]["max_parallel_evaluations"]["default"] == 2
+    assert "local max_parallel = math.max(1, math.floor(tonumber(params.max_parallel_evaluations) or 2))" in code
+    assert "if #handles >= max_parallel then" in code
+    assert "await_handles()" in code
+    assert "local batch_results = _dispatch_evaluation_batch(batch)" in code
+
+
+def test_optimizer_yaml_rejects_incomplete_candidate_evaluation_batches():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "candidate_evaluation_incomplete" in code
+    assert "Candidate evaluation batch returned no terminal evidence" in code
+    assert "sv.evaluation_incomplete" in code
+
+
+def test_optimizer_recovers_exact_terminal_evaluation_when_handle_payload_omits_id():
+    from lupa import LuaRuntime
+
+    config = _load_optimizer_config()
+    code = config["code"]
+    start = code.index('local EVAL_AWAIT_POLL_TIMEOUT = "PT1M"')
+    end = code.index("-- Dispatch evaluations in bounded parallel batches")
+    block = code[start:end]
+    lua = LuaRuntime(unpack_returned_tuples=True)
+    recover = lua.execute(
+        """
+local info_calls = 0
+local diag = function(_) end
+primus = {
+  handle = {
+    await = function(_)
+      return {
+        status = "completed",
+        evaluation_id = "evaluation-1",
+        evaluation = {status = "COMPLETED", accuracy = 91.0}
+      }
+    end
+  },
+  evaluation = {
+    info = function(args)
+      info_calls = info_calls + 1
+      return {id = args.evaluation_id, status = "COMPLETED", accuracy = 91.0}
+    end,
+    find_recent = function(_) error("find_recent must not be used when the exact evaluation id is known") end
+  }
+}
+"""
+        + block
+        + """
+return function()
+  local result = _await_eval_handle({id = "handle-1"}, "candidate", {})
+  return {result = result, info_calls = info_calls}
+end
+"""
+    )
+
+    recovered = recover()
+
+    assert recovered["result"]["id"] == "evaluation-1"
+    assert recovered["info_calls"] == 1
+
+
+def test_optimizer_preserves_terminal_failed_evaluation_as_candidate_rejection_evidence():
+    from lupa import LuaRuntime
+
+    config = _load_optimizer_config()
+    code = config["code"]
+    start = code.index('local EVAL_AWAIT_POLL_TIMEOUT = "PT1M"')
+    end = code.index("-- Dispatch evaluations in bounded parallel batches")
+    block = code[start:end]
+    lua = LuaRuntime(unpack_returned_tuples=True)
+    await_failed = lua.execute(
+        """
+local diag = function(_) end
+primus = {
+  handle = {
+    await = function(_)
+      return {
+        status = "failed",
+        evaluation_id = "evaluation-failed-1",
+        evaluation = {
+          id = "evaluation-failed-1",
+          status = "FAILED",
+          errorMessage = "candidate score returned ERROR value"
+        }
+      }
+    end
+  },
+  evaluation = {
+    info = function(_) error("exact failed payload already has its id") end,
+    find_recent = function(_) error("failed evaluation must not use recent lookup") end
+  }
+}
+"""
+        + block
+        + """
+return function()
+  return _await_eval_handle({id = "handle-failed-1"}, "candidate", {})
+end
+"""
+    )
+
+    failed = await_failed()
+
+    assert failed["id"] == "evaluation-failed-1"
+    assert failed["status"] == "FAILED"
+    assert failed["terminal_failure"] is True
+    assert "candidate score returned ERROR value" in failed["error"]
+
+
+def test_optimizer_rejects_terminally_failed_candidate_without_marking_evidence_missing():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "sv.acc_evaluation_failure = acc_r" in code
+    assert "sv.fb_evaluation_failure = fb_r" in code
+    assert "not sv.acc_eval_id and not sv.acc_evaluation_failure" in code
+    assert "not sv.fb_eval_id and not sv.fb_evaluation_failure" in code
+    assert 'skip_reason = "candidate_evaluation_failed:' in code
+    assert 'State.set("candidate_evaluation_failed"' in code
+
+
+def test_optimizer_does_not_treat_elapsed_or_inactive_time_as_evaluation_failure():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "evaluation_timeout_minutes" not in config["params"]
+    assert "evaluation_stall_timeout_minutes" not in config["params"]
+    assert 'local EVAL_AWAIT_POLL_TIMEOUT = "PT1M"' in code
+    assert "local function evaluation_progress_marker(eval_data, waited)" in code
+    assert "EVAL_STALL_POLL_LIMIT" not in code
+    assert "Evaluation stalled without progress" not in code
+    assert "Evaluation did not complete: status=RUNNING" not in code
+
+
+def test_optimizer_yaml_writes_planning_context_to_platform_tmp_directory():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert 'local temp_dir = os.getenv("TMPDIR") or "/tmp"' in code
+    assert 'local context_log_path = string.format("%s/optimizer_cycle%d_planning_context.txt", temp_dir, cycle)' in code
+    assert '"/app/tmp/optimizer_cycle' not in code
+    assert "File.write(context_log_path, planning_inject" in code
+
+
+def test_optimizer_yaml_uses_canonical_runtime_documentation_and_stages():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert 'and "score-authoring.score-yaml-format" or "score-authoring.langgraph-score-yaml-format"' in code
+    assert 'load_optimizer_cookbook("evaluation-feedback.optimizer-cookbook-normal")' in code
+    assert 'local obj_doc_key = "evaluation-feedback.optimizer-objective-" .. objective_family' in code
+    assert "local candidates = { key }" not in code
+    assert 'Stage.set("Setup")' in code
+    assert 'Stage.set("Baseline")' in code
+    assert 'Stage.set("Exploration")' in code
+    assert 'Stage.set("Selection")' in code
+    assert 'Stage.set("Finalize")' in code
+
+
+def test_optimizer_yaml_does_not_retry_cannot_improve_as_a_fallback():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "agent tried cannot_improve — giving one more chance" not in code
+    assert "second_chance_pending" not in code
+    assert "react_done_reason = reason_text" in code
+
+
+def test_optimizer_yaml_freezes_fresh_regression_dataset_for_all_candidate_evaluations():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "dataset_id = ensure_regression_dataset_for_version(params.start_version)" in code
+    assert 'State.set("dataset_id", dataset_id)' in code
+    assert "ensure_regression_dataset_for_version(sv.version_id)" not in code
+    assert "ensure_regression_dataset_for_version(final_version_id)" not in code
+    assert "sv.dataset_id = dataset_id" in code
+    assert code.count("dataset_id = dataset_id,") >= 3
+
+
+def test_optimizer_yaml_replays_and_verifies_exact_recent_feedback_cohort():
+    config = _load_optimizer_config()
+    code = config["code"]
+
+    assert "Frozen recent feedback cohort" in code
+    assert 'State.set("recent_baseline_feedback_item_ids"' in code
+    assert code.count("feedback_item_ids = recent_baseline_feedback_item_ids") == 3
+    assert "require_exact_feedback_cohort" in code
+    assert "candidate feedback cohort differs from baseline" in code
+    assert "candidate feedback cohort order differs from baseline" not in code
+    assert "Invalid candidate comparison" in code
+    assert "Invalid strategy comparison" in code
+    assert "Invalid synthesis comparison" in code
+
+
+def test_optimizer_accepts_exact_feedback_cohort_in_a_different_order():
+    """Feature: frozen feedback cohort validation
+
+    Scenario: Evaluation service returns the frozen cohort in another order
+      Given a baseline cohort with unique feedback item IDs
+      When a candidate evaluation contains exactly those IDs in a different order
+      Then cohort validation succeeds
+    """
+    lua, check = _build_exact_feedback_cohort_checker()
+
+    valid, error = check(
+        _feedback_eval_with_ids(lua, ["item-c", "item-a", "item-b"]),
+        lua.table_from(["item-a", "item-b", "item-c"]),
+    )
+
+    assert valid is True
+    assert error is None
+
+
+def test_optimizer_rejects_feedback_cohort_membership_or_duplicate_changes():
+    """Feature: frozen feedback cohort validation
+
+    Scenario: Candidate cohort is not the exact frozen membership
+      Given a baseline cohort with unique feedback item IDs
+      When a candidate has a missing, extra, or duplicate ID
+      Then cohort validation fails with a cohort-difference diagnostic
+    """
+    lua, check = _build_exact_feedback_cohort_checker()
+    expected = lua.table_from(["item-a", "item-b", "item-c"])
+
+    cases = (
+        (["item-a", "item-b"], "candidate feedback cohort differs from baseline"),
+        (
+            ["item-a", "item-b", "item-c", "item-d"],
+            "candidate feedback cohort differs from baseline",
+        ),
+        (
+            ["item-a", "item-a", "item-c"],
+            "candidate feedback cohort contains duplicate IDs",
+        ),
+    )
+    for actual, expected_error in cases:
+        valid, error = check(_feedback_eval_with_ids(lua, actual), expected)
+        assert valid is False
+        assert expected_error in error
+
+
+def test_optimizer_yaml_is_valid_lua_after_exact_cohort_wiring():
+    from lupa import LuaRuntime
+
+    code = _load_optimizer_config()["code"]
+    lua = LuaRuntime(unpack_returned_tuples=True)
+    syntax_check = lua.eval(
+        "function(source) local fn, err = load(source); return fn ~= nil, err end"
+    )
+    valid, error = syntax_check(code)
+
+    assert valid, error

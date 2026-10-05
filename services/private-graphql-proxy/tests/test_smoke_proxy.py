@@ -11,11 +11,11 @@ pytestmark = pytest.mark.integration
 
 
 def proxy_url() -> str:
-    return os.getenv("PLEXUS_API_URL", "http://localhost:18080/graphql")
+    return os.getenv("PRIMUS_API_URL", "http://localhost:18080/graphql")
 
 
 def proxy_headers() -> dict[str, str]:
-    return {"x-api-key": os.getenv("PLEXUS_API_KEY", "local-smoke-key")}
+    return {"x-api-key": os.getenv("PRIMUS_API_KEY", "local-smoke-key")}
 
 
 def execute(query: str, variables: dict | None = None) -> dict:
@@ -403,11 +403,11 @@ def test_score_result_can_be_created_for_seeded_item():
 
 def test_control_plane_cache_smoke_read_only():
     required = {
-        "PLEXUS_PROXY_SMOKE_ACCOUNT_ID": os.getenv("PLEXUS_PROXY_SMOKE_ACCOUNT_ID"),
-        "PLEXUS_PROXY_SMOKE_SCORECARD_ID": os.getenv("PLEXUS_PROXY_SMOKE_SCORECARD_ID"),
-        "PLEXUS_PROXY_SMOKE_SCORE_ID": os.getenv("PLEXUS_PROXY_SMOKE_SCORE_ID"),
-        "PLEXUS_PROXY_SMOKE_SCORE_VERSION_ID": os.getenv("PLEXUS_PROXY_SMOKE_SCORE_VERSION_ID"),
-        "PLEXUS_PROXY_SMOKE_EVALUATION_ID": os.getenv("PLEXUS_PROXY_SMOKE_EVALUATION_ID"),
+        "PRIMUS_PROXY_SMOKE_ACCOUNT_ID": os.getenv("PRIMUS_PROXY_SMOKE_ACCOUNT_ID"),
+        "PRIMUS_PROXY_SMOKE_SCORECARD_ID": os.getenv("PRIMUS_PROXY_SMOKE_SCORECARD_ID"),
+        "PRIMUS_PROXY_SMOKE_SCORE_ID": os.getenv("PRIMUS_PROXY_SMOKE_SCORE_ID"),
+        "PRIMUS_PROXY_SMOKE_SCORE_VERSION_ID": os.getenv("PRIMUS_PROXY_SMOKE_SCORE_VERSION_ID"),
+        "PRIMUS_PROXY_SMOKE_EVALUATION_ID": os.getenv("PRIMUS_PROXY_SMOKE_EVALUATION_ID"),
     }
     missing = [name for name, value in required.items() if not value]
     if missing:
@@ -423,11 +423,11 @@ def test_control_plane_cache_smoke_read_only():
     }
     """
     variables = {
-        "accountId": required["PLEXUS_PROXY_SMOKE_ACCOUNT_ID"],
-        "scorecardId": required["PLEXUS_PROXY_SMOKE_SCORECARD_ID"],
-        "scoreId": required["PLEXUS_PROXY_SMOKE_SCORE_ID"],
-        "scoreVersionId": required["PLEXUS_PROXY_SMOKE_SCORE_VERSION_ID"],
-        "evaluationId": required["PLEXUS_PROXY_SMOKE_EVALUATION_ID"],
+        "accountId": required["PRIMUS_PROXY_SMOKE_ACCOUNT_ID"],
+        "scorecardId": required["PRIMUS_PROXY_SMOKE_SCORECARD_ID"],
+        "scoreId": required["PRIMUS_PROXY_SMOKE_SCORE_ID"],
+        "scoreVersionId": required["PRIMUS_PROXY_SMOKE_SCORE_VERSION_ID"],
+        "evaluationId": required["PRIMUS_PROXY_SMOKE_EVALUATION_ID"],
     }
 
     first = execute(query, variables)
@@ -437,29 +437,29 @@ def test_control_plane_cache_smoke_read_only():
     assert second == first
 
 
-def test_existing_plexus_client_can_target_proxy():
-    if "plexus.utils" not in sys.modules:
-        utils_stub = types.ModuleType("plexus.utils")
+def test_existing_primus_client_can_target_proxy():
+    if "primus.utils" not in sys.modules:
+        utils_stub = types.ModuleType("primus.utils")
         utils_stub.truncate_dict_strings_inner = lambda value, *args, **kwargs: value
-        sys.modules["plexus.utils"] = utils_stub
+        sys.modules["primus.utils"] = utils_stub
 
     try:
-        from plexus.dashboard.api.client import PlexusDashboardClient
-        from plexus.dashboard.api.models.item import Item
+        from primus.dashboard.api.client import PrimusDashboardClient
+        from primus.dashboard.api.models.item import Item
     except Exception as exc:
-        pytest.skip(f"existing Plexus client dependencies are not installed: {exc}")
+        pytest.skip(f"existing Primus client dependencies are not installed: {exc}")
 
     suffix = str(uuid.uuid4())
-    client = PlexusDashboardClient(api_url=proxy_url(), api_key=os.getenv("PLEXUS_API_KEY", "local-smoke-key"))
+    client = PrimusDashboardClient(api_url=proxy_url(), api_key=os.getenv("PRIMUS_API_KEY", "local-smoke-key"))
     item = Item.create(
         client,
         evaluationId="prediction-default",
         deterministic_id=f"client-smoke-item-{suffix}",
         accountId=f"client-smoke-account-{suffix}",
-        text="created through existing Plexus client",
+        text="created through existing Primus client",
         isEvaluation=False,
         createdByType="prediction",
     )
 
     fetched = Item.get_by_id(item.id, client)
-    assert fetched.text == "created through existing Plexus client"
+    assert fetched.text == "created through existing Primus client"

@@ -1,13 +1,13 @@
 # Score Processor Lambda
 
-AWS Lambda function for processing scoring jobs from SQS queues. This Lambda is automatically triggered by SQS events, performs scoring using the Plexus scorecard system, and sends results back via a response queue.
+AWS Lambda function for processing scoring jobs from SQS queues. This Lambda is automatically triggered by SQS events, performs scoring using the Primus scorecard system, and sends results back via a response queue.
 
 ## Architecture
 
 - **Trigger**: SQS event source (automatic, one message per invocation, max 500 concurrent executions)
-- **Input**: Receives messages from `PLEXUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL`
-- **Processing**: Performs scoring using Plexus scorecard system
-- **Output**: Sends results to `PLEXUS_RESPONSE_WORKER_QUEUE_URL`
+- **Input**: Receives messages from `PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL`
+- **Processing**: Performs scoring using Primus scorecard system
+- **Output**: Sends results to `PRIMUS_RESPONSE_WORKER_QUEUE_URL`
 - **Storage**: Creates ScoreResult in DynamoDB
 - **Error Handling**: Failed messages are retried by SQS, then moved to DLQ after max retries
 
@@ -15,16 +15,16 @@ AWS Lambda function for processing scoring jobs from SQS queues. This Lambda is 
 
 - Docker with buildx support
 - AWS CLI configured with appropriate credentials
-- Access to ECR repository: `{AWS_ACCOUNT}.dkr.ecr.us-west-2.amazonaws.com/plexus/score-processor-lambda`
-- Lambda function: `plexus-score-processor-lambda`
+- Access to ECR repository: `{AWS_ACCOUNT}.dkr.ecr.us-west-2.amazonaws.com/primus/score-processor-lambda`
+- Lambda function: `primus-score-processor-lambda`
 
 ## Environment Variables
 
 The Lambda function requires these environment variables:
 
-- `PLEXUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL` - SQS queue URL for incoming job requests
-- `PLEXUS_RESPONSE_WORKER_QUEUE_URL` - SQS queue URL for sending results
-- `PLEXUS_ACCOUNT_KEY` - Plexus account key for authentication
+- `PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL` - SQS queue URL for incoming job requests
+- `PRIMUS_RESPONSE_WORKER_QUEUE_URL` - SQS queue URL for sending results
+- `PRIMUS_ACCOUNT_KEY` - Primus account key for authentication
 
 **Note**: `SCORECARD_CACHE_DIR` is automatically set to `/tmp/scorecards` in the handler code since `/tmp` is the only writable directory in Lambda.
 
@@ -69,8 +69,8 @@ docker run --rm \
 
 **What's tested:**
 - All dependencies importable (langchain, tactus, boto3, etc.)
-- Installed dependency versions satisfy `plexus` package requirements
-- Plexus modules load correctly
+- Installed dependency versions satisfy `primus` package requirements
+- Primus modules load correctly
 - Handler can initialize
 - NLTK data available
 - Container filesystem writable
@@ -98,7 +98,7 @@ make build-and-test
 This ensures:
 1. Image builds successfully
 2. All dependencies install correctly
-3. Installed versions satisfy `plexus` package requirements
+3. Installed versions satisfy `primus` package requirements
 4. Handler can initialize
 5. All imports work in the Lambda environment
 
@@ -123,7 +123,7 @@ The Lambda function is automatically deployed via AWS CDK pipelines when changes
 
 The pipeline automatically:
 1. Builds the Docker image with proper Lambda-compatible settings (`--platform linux/amd64 --provenance=false`)
-2. Pushes the image to ECR (`plexus/score-processor-lambda:latest`)
+2. Pushes the image to ECR (`primus/score-processor-lambda:latest`)
 3. Updates the Lambda function with the new image
 4. Deploys all infrastructure changes via CDK
 
@@ -140,7 +140,7 @@ The pipeline automatically:
 6. Lambda function automatically uses the latest image from ECR
 
 **SQS Event Source Trigger**:
-The Lambda function is automatically triggered by the SQS queue (`PLEXUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL`) with the following configuration:
+The Lambda function is automatically triggered by the SQS queue (`PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL`) with the following configuration:
 - **Batch size**: 1 (processes one message per Lambda invocation)
 - **Max concurrency**: 500 (up to 500 concurrent Lambda executions)
 - **Error handling**: On exception, the message is returned to the queue for retry (up to maxReceiveCount, then moved to DLQ)
@@ -212,7 +212,7 @@ docker buildx build \
   --provenance=false \
   --push \
   -f score-processor-lambda/Dockerfile \
-  -t {AWS_ACCOUNT}.dkr.ecr.us-west-2.amazonaws.com/plexus/score-processor-lambda:latest \
+  -t {AWS_ACCOUNT}.dkr.ecr.us-west-2.amazonaws.com/primus/score-processor-lambda:latest \
   .
 ```
 
@@ -224,8 +224,8 @@ After pushing a new image, update the Lambda function:
 
 ```bash
 aws lambda update-function-code \
-  --function-name plexus-score-processor-lambda \
-  --image-uri {AWS_ACCOUNT}.dkr.ecr.us-west-2.amazonaws.com/plexus/score-processor-lambda:latest \
+  --function-name primus-score-processor-lambda \
+  --image-uri {AWS_ACCOUNT}.dkr.ecr.us-west-2.amazonaws.com/primus/score-processor-lambda:latest \
   --region us-west-2
 ```
 
@@ -233,8 +233,8 @@ aws lambda update-function-code \
 
 ```bash
 aws lambda update-function-configuration \
-  --function-name plexus-score-processor-lambda \
-  --environment Variables="{PLEXUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL=<queue-url>,PLEXUS_RESPONSE_WORKER_QUEUE_URL=<response-queue-url>,PLEXUS_ACCOUNT_KEY=<account-key>}" \
+  --function-name primus-score-processor-lambda \
+  --environment Variables="{PRIMUS_SCORING_WORKER_REQUEST_STANDARD_QUEUE_URL=<queue-url>,PRIMUS_RESPONSE_WORKER_QUEUE_URL=<response-queue-url>,PRIMUS_ACCOUNT_KEY=<account-key>}" \
   --region us-west-2
 ```
 
@@ -242,7 +242,7 @@ aws lambda update-function-configuration \
 
 ```bash
 aws lambda update-function-configuration \
-  --function-name plexus-score-processor-lambda \
+  --function-name primus-score-processor-lambda \
   --timeout 300 \
   --memory-size 2048 \
   --region us-west-2
@@ -252,7 +252,7 @@ aws lambda update-function-configuration \
 
 ```bash
 aws lambda invoke \
-  --function-name plexus-score-processor-lambda \
+  --function-name primus-score-processor-lambda \
   --region us-west-2 \
   --log-type Tail \
   --query 'LogResult' \
@@ -270,21 +270,21 @@ cat response.json | jq
 
 ```bash
 aws lambda get-function \
-  --function-name plexus-score-processor-lambda \
+  --function-name primus-score-processor-lambda \
   --region us-west-2
 ```
 
 ### View Lambda Logs
 
 ```bash
-aws logs tail /aws/lambda/plexus-score-processor-lambda --follow --region us-west-2
+aws logs tail /aws/lambda/primus-score-processor-lambda --follow --region us-west-2
 ```
 
 ### Get Latest Log Stream
 
 ```bash
 aws logs describe-log-streams \
-  --log-group-name /aws/lambda/plexus-score-processor-lambda \
+  --log-group-name /aws/lambda/primus-score-processor-lambda \
   --order-by LastEventTime \
   --descending \
   --max-items 1 \
@@ -298,14 +298,14 @@ Useful commands for monitoring the deployed Lambda function:
 ### View Lambda Logs
 
 ```bash
-aws logs tail /aws/lambda/plexus-score-processor-lambda --follow --region us-west-2
+aws logs tail /aws/lambda/primus-score-processor-lambda --follow --region us-west-2
 ```
 
 ### Invoke Lambda Function (Test)
 
 ```bash
 aws lambda invoke \
-  --function-name plexus-score-processor-lambda \
+  --function-name primus-score-processor-lambda \
   --region us-west-2 \
   --log-type Tail \
   --query 'LogResult' \
@@ -320,7 +320,7 @@ cat response.json | jq
 
 ```bash
 aws lambda get-function \
-  --function-name plexus-score-processor-lambda \
+  --function-name primus-score-processor-lambda \
   --region us-west-2
 ```
 
@@ -336,7 +336,7 @@ aws lambda get-function \
 ### Image build fails
 
 1. Ensure Docker buildx is installed: `docker buildx version`
-2. Make sure you're in the Plexus project root directory
+2. Make sure you're in the Primus project root directory
 3. Verify all source files exist and `pyproject.toml` is present in the Docker build context
 
 ### Lambda manifest error
@@ -352,12 +352,12 @@ If you get "image manifest, config or layer media type... is not supported":
 - **Memory**: 2048 MB
 - **Timeout**: 300 seconds (5 minutes)
 - **Architecture**: x86_64
-- **IAM Role**: `plexusScoreProcessor-role-ls7dow27`
+- **IAM Role**: `primusScoreProcessor-role-ls7dow27`
   - AmazonDynamoDBFullAccess
   - AmazonS3FullAccess
   - AmazonSQSFullAccess
   - CloudWatchFullAccess (for metrics publishing)
-- **Log Group**: `/aws/lambda/plexus-score-processor-lambda`
+- **Log Group**: `/aws/lambda/primus-score-processor-lambda`
 
 ## Files
 
@@ -372,4 +372,4 @@ Major dependencies include:
 - LangChain/LangGraph stack for AI scoring
 - `boto3` - AWS SDK
 - Data science libraries: numpy, pandas, matplotlib, scikit-learn, xgboost
-- Plexus package and dependencies (installed from repository `pyproject.toml`)
+- Primus package and dependencies (installed from repository `pyproject.toml`)

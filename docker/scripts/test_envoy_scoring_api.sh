@@ -14,7 +14,7 @@ Usage:
 Environment:
   ENVOY_URL          Envoy listener URL. Default: http://localhost:8080
   SCORING_JOB_ID    Override generated scoring job ID.
-  SCORING_API_KEY   Optional inbound scoring API key; sent as x-plexus-scoring-api-key.
+  SCORING_API_KEY   Optional inbound scoring API key; sent as x-primus-scoring-api-key.
   TIMEOUT_SECONDS   curl timeout. Default: 300
 
 Example:
@@ -79,7 +79,7 @@ PY
 
 HEADERS=(-H "content-type: application/json")
 if [ -n "$SCORING_API_KEY" ]; then
-  HEADERS+=(-H "x-plexus-scoring-api-key: $SCORING_API_KEY")
+  HEADERS+=(-H "x-primus-scoring-api-key: $SCORING_API_KEY")
 fi
 
 echo "POST $ENVOY_URL/v1/score"

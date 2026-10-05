@@ -34,9 +34,9 @@ class TestSetupFunctions:
     @patch('shared.setup.os.path.exists')
     @patch('shared.setup.os.path.dirname')
     @patch('shared.setup.os.path.abspath')
-    def test_setup_plexus_imports_path_setup(self, mock_abspath, mock_dirname, mock_exists, mock_path):
-        """Test Python path setup in setup_plexus_imports"""
-        from shared.setup import setup_plexus_imports
+    def test_setup_primus_imports_path_setup(self, mock_abspath, mock_dirname, mock_exists, mock_path):
+        """Test Python path setup in setup_primus_imports"""
+        from shared.setup import setup_primus_imports
         
         # Mock path calculations
         mock_abspath.return_value = "/test/MCP/shared/setup.py"
@@ -54,22 +54,22 @@ class TestSetupFunctions:
         
         try:
             with patch.dict('sys.modules', {
-                'plexus.config': Mock(),
-                'plexus.dashboard.api.client': Mock(),
-                'plexus.cli.client_utils': Mock(),
-                'plexus.cli.ScorecardCommands': Mock(),
-                'plexus.cli.identifier_resolution': Mock()
+                'primus.config': Mock(),
+                'primus.dashboard.api.client': Mock(),
+                'primus.cli.client_utils': Mock(),
+                'primus.cli.ScorecardCommands': Mock(),
+                'primus.cli.identifier_resolution': Mock()
             }):
-                result = setup_plexus_imports()
+                result = setup_primus_imports()
                 
                 # Should attempt to add project root to path
                 mock_path.insert.assert_called()
         finally:
             sys.stdout = original_stdout
     
-    def test_setup_plexus_imports_pattern(self):
+    def test_setup_primus_imports_pattern(self):
         """Test setup patterns without complex import dependencies"""
-        # Test the basic pattern used in setup_plexus_imports
+        # Test the basic pattern used in setup_primus_imports
         original_stdout = sys.stdout
         temp_stdout = StringIO()
         

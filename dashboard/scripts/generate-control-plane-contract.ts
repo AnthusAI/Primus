@@ -115,7 +115,7 @@ function main() {
   const outDir = args.outDir || defaultOutDir
 
   if (args.check) {
-    const tempDir = mkdtempSync(join(tmpdir(), "plexus-schema-contract-"))
+    const tempDir = mkdtempSync(join(tmpdir(), "primus-schema-contract-"))
     try {
       generate(tempDir)
       const diffs = compareGenerated(tempDir, outDir)

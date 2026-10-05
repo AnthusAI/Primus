@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Setup - Plexus Documentation',
-  description: 'Setup and configuration guide for Plexus',
+  title: 'Setup - Primus Documentation',
+  description: 'Setup and configuration guide for Primus',
 }
 
 export default function SetupPage() {
@@ -10,7 +10,7 @@ export default function SetupPage() {
     <div className="max-w-4xl mx-auto py-8 px-6">
       <h1 className="text-4xl font-bold mb-4">Setup</h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Get started with Plexus quickly and easily. Follow our step-by-step guides to set up your environment and configuration.
+        Get started with Primus quickly and easily. Follow our step-by-step guides to set up your environment and configuration.
       </p>
 
       <div className="space-y-8">
@@ -24,7 +24,7 @@ export default function SetupPage() {
                 </a>
               </h3>
               <p className="text-muted-foreground">
-                Get Plexus up and running in minutes with our streamlined installation guide.
+                Get Primus up and running in minutes with our streamlined installation guide.
                 Covers basic installation, dependencies, and first-time setup.
               </p>
             </div>
@@ -36,7 +36,7 @@ export default function SetupPage() {
                 </a>
               </h3>
               <p className="text-muted-foreground">
-                Learn how to configure Plexus using YAML configuration files for managing credentials,
+                Learn how to configure Primus using YAML configuration files for managing credentials,
                 API endpoints, and other settings in an organized, maintainable way.
               </p>
             </div>
@@ -50,7 +50,7 @@ export default function SetupPage() {
               <h3 className="text-xl font-medium mb-2">1. Installation</h3>
               <p className="text-muted-foreground">
                 Start with the <a href="/documentation/setup/quick-start" className="text-blue-600 hover:text-blue-800">Quick Start</a> guide
-                to install Plexus and its dependencies.
+                to install Primus and its dependencies.
               </p>
             </div>
             <div>
@@ -63,7 +63,7 @@ export default function SetupPage() {
             <div>
               <h3 className="text-xl font-medium mb-2">3. First Steps</h3>
               <p className="text-muted-foreground">
-                Try running <code className="bg-muted px-2 py-1 rounded">plexus item last</code> to verify your setup is working correctly.
+                Try running <code className="bg-muted px-2 py-1 rounded">primus item last</code> to verify your setup is working correctly.
               </p>
             </div>
           </div>
@@ -76,7 +76,7 @@ export default function SetupPage() {
           </p>
           <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
             <li>Check our troubleshooting tips in each guide</li>
-            <li>Review the <a href="https://github.com/AnthusAI/Plexus" className="text-blue-600 hover:text-blue-800">GitHub repository</a> for examples</li>
+            <li>Review the <a href="https://github.com/AnthusAI/Primus" className="text-blue-600 hover:text-blue-800">GitHub repository</a> for examples</li>
             <li>Contact <a href="https://forms.gle/KqpKt8ERsr2QcaP1A" className="text-blue-600 hover:text-blue-800">Anthus AI Support</a> for assistance</li>
           </ul>
         </section>
