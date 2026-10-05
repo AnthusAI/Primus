@@ -8,5 +8,5 @@ dependencies:
 - name: primus-worker
   repository: file://../primus-worker
   version: 1.0.0
-digest: sha256:a87e2cc37ecca81ea9118bde369ae7b445ffdf6b73c314565398d6e4f264132b
-generated: "2026-05-29T09:58:09.697487-07:00"
+digest: sha256:9822ca42d3dc1c6cd845fc1babc643abe72ab51d2e05870bc57bc07ba3e7ab50
+generated: "2026-10-04T19:37:01.826963-04:00"
