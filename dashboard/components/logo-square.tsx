@@ -154,10 +154,10 @@ const SquareLogo = ({
       if (containerRef.current) {
         const containerWidth = containerRef.current.offsetWidth;
         const newFontSize = variant === LogoVariant.Wide ? 
-          `${containerWidth / 2.8}px` :
+          `${containerWidth / 4}px` :
           variant === LogoVariant.Narrow ?
             `${containerWidth / 0.65}px` :  // Compromise size for narrow variant
-            `${containerWidth / 2.8}px`;  // Slightly smaller for square variant
+            `${containerWidth / 4}px`;  // Sized so the widest glyph (M) fits its cell
         setFontSize(newFontSize);
       }
     };
