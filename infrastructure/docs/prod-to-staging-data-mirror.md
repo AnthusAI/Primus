@@ -1,13 +1,13 @@
 # Primus Production-To-Staging Data Mirror
 
-This runbook covers the manual CodeBuild job that destructively refreshes the Amplify `staging` branch from `main` production data in account `656853518159`, region `us-east-1`.
+This runbook covers the manual CodeBuild job that destructively refreshes the Amplify `staging` branch from `main` production data in account `<account-id>`, region `us-east-1`.
 
 ## Deploy the Job
 
 ```bash
 cd /Users/ryan.porter/Projects/Primus/infrastructure
 AWS_PROFILE=call-criteria AWS_REGION=us-east-1 \
-CDK_DEFAULT_ACCOUNT=656853518159 CDK_DEFAULT_REGION=us-east-1 \
+CDK_DEFAULT_ACCOUNT=<account-id> CDK_DEFAULT_REGION=us-east-1 \
 npx cdk deploy primus-prod-to-staging-data-mirror
 ```
 
