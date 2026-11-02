@@ -38,7 +38,7 @@ except Exception as e:
     print(f"Warning: Failed to load Primus configuration: {e}", file=sys.stderr)
 
 # Cognito configuration from environment variables
-COGNITO_USER_POOL_ID = os.environ.get("COGNITO_USER_POOL_ID")  # e.g., "us-west-2_AbCdEf123"
+COGNITO_USER_POOL_ID = os.environ.get("COGNITO_USER_POOL_ID")  # e.g., "<user-pool-id>"
 COGNITO_REGION = os.environ.get("COGNITO_REGION", "us-west-2")
 COGNITO_DOMAIN = os.environ.get("COGNITO_DOMAIN")  # e.g., "your-domain.auth.us-west-2.amazoncognito.com"
 COGNITO_CLIENT_ID = os.environ.get("COGNITO_CLIENT_ID")
@@ -58,7 +58,7 @@ missing_vars = [name for name, value in required_vars.items() if not value]
 if missing_vars:
     print("ERROR: Missing required Cognito environment configuration.", file=sys.stderr)
     print("Required Cognito configuration:", file=sys.stderr)
-    print("  COGNITO_USER_POOL_ID=us-west-2_AbCdEf123", file=sys.stderr)
+    print("  COGNITO_USER_POOL_ID=<user-pool-id>", file=sys.stderr)
     print("  COGNITO_REGION=us-west-2", file=sys.stderr) 
     print("  COGNITO_DOMAIN=your-domain.auth.us-west-2.amazoncognito.com", file=sys.stderr)
     print("  COGNITO_CLIENT_ID=your-client-id", file=sys.stderr)
